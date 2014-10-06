@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html ng-app="sici">
+	<head>
+		<meta charset="utf8">
+		<base href="/">
+		<title>SICI</title>
+		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+		<link rel="stylesheet" href="/css/app.css">
+		<link rel="stylesheet" href="/css/login.css">
+		<link rel="stylesheet" href="/css/animate.css">
+		<link rel="stylesheet" href="/bower_components/nvd3/nv.d3.css">
+		<link rel="stylesheet" href="/bower_components/angular-xeditable/dist/css/xeditable.css">
+		<link rel="stylesheet" href="/css/font-awesome-4.2.0/css/font-awesome.min.css">
+	</head>
+	<body>
+		<div role="navigation" ng-controller="AppCtrl" class="navbar navbar-default navbar-fixed-top">
+			<div style="background-color:#9E1B32" class="navbar-header">
+				<button type="button" data-toggle="collapse" data-target=".navbar-ex1-collapse" class="navbar-toggle">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a href="/welcome" class="navbar-brand">
+					<img src="/imgs/escudo_cab.gif" class="logo">
+				</a>
+			</div>
+			<div class="collapse navbar-collapse navbar-ex1-collapse">
+				<ul class="nav navbar-nav"  ng-if="logeado">
+					<li ng-class="{active:nav=='inicio'}">
+						<a href="inicio">Inicio</a>
+					</li>
+					<li ng-class="{active:nav=='actividad'}">
+						<a href="actividad">Actividad</a>
+					</li>
+					<li ng-class="{active:nav=='stats'}">
+						<a href="stats">Estadísticas</a>
+					</li>
+					<li ng-class="{active:nav=='errors'}">
+						<a href="errors">Incoherencias</a>
+					</li>
+					<li ng-class="{active:nav=='inconsistencias'}">
+						<a href="inconsistencias">Inconsistencias</a>
+					</li>
+					<li ng-class="{active:nav=='update'}">
+						<a href="update">Actualizar mediante fichero</a>
+					</li>
+					<li ng-class="{active:nav=='salir'}">
+						<a href="logout">Salir</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="container-fluid">
+			<div ng-view></div>
+		</div>
+
+		<script src="/js/lib/jquery/jquery-2.0.3.min.js"></script>
+		<script src="/bower_components/ng-file-upload/angular-file-upload-shim.js"></script>
+		<script src="/js/lib/angular/angular.js"></script>
+		<script src="/js/lib/angular/angular-route.js"></script>
+		<script src="/js/lib/angular/angular-sanitize.js"></script>
+		<script src="/js/lib/angular/angular-resource.js"></script>
+		<script src="/js/lib/angular/angular-animate.js"></script>
+<!--
+		<script src="/bower_components/ng-file-upload/angular-file-upload.min.js"></script>
+-->
+		<script src="/js/app.js"></script>
+<!--
+		<script src="/js/services.js"></script>
+		<script src="/js/controllers/controllers.js"></script>
+		<script src="/js/controllers/controllers2.js"></script>
+		<script src="/js/controllers/login.js"></script>
+		<script src="/js/controllers/stats.js"></script>
+		<script src="/js/controllers/inconsistencias.js"></script>
+		<script src="/js/controllers/reglasinconsistencias.js"></script>
+		<script src="/js/controllers/detalles.js"></script>
+		<script src="/js/controllers/welcome.js"></script>
+		<script src="/js/controllers/update.js"></script>
+		<script src="/js/filters.js"></script>
+		<script src="/js/directives.js"></script>
+		<script src="/js/lib/FileSaver.js"></script>
+		<script src="/js/lib/jquery/jquery.sparkline.js"></script>
+		<script src="/js/lib/simplePagination.js"></script>
+
+		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+		<script src="/js/lib/angular/ui-bootstrap-tpls-0.11.0.min.js"></script>
+		<script src="/bower_components/jquery.easy-pie-chart/dist/angular.easypiechart.js"></script>
+		<script src="/bower_components/angular-xeditable/dist/js/xeditable.js"></script>
+		<script src="/bower_components/d3/d3.js"></script>
+		<script src="/bower_components/nvd3/nv.d3.js"></script>
+		<script src="/bower_components/angularjs-nvd3-directives/dist/angularjs-nvd3-directives.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/angular-filter/0.1.1/angular-filter.js"> </script>
+-->
+	</body>
+</html>
