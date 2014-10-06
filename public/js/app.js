@@ -3,7 +3,6 @@
 
 // Declare app level module which depends on filters, and services
 var app = angular.module('sici', [
-
 	'ngRoute','ngAnimate','ngSanitize','angular.filter',
 	'ui.bootstrap',
 /*
@@ -30,7 +29,7 @@ var app = angular.module('sici', [
     $routeProvider.otherwise({redirectTo: '/welcome'});
     $locationProvider.html5Mode(true);
   }]);
-
+/*
 app.run(function(editableOptions) {
   editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
-});
+});*/
