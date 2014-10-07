@@ -1,13 +1,20 @@
 'use strict';
 
-/* Controllers */
-
-function AppCtrl($scope,$rootScope,Session) {
-	$rootScope.setTitle = function (title){ $scope.name = title; };
-	$rootScope.setLogeado=function(t){ $rootScope.logeado =t; };
+function AppCtrl($scope, $rootScope, Session) {
+	$rootScope.setTitle   = function (title){ $scope.name = title; };
+	$rootScope.setLogeado = function(t){ $rootScope.logeado =t; };
 	$rootScope.session = Session;
 	$rootScope.nav = '';
 	$rootScope.logeado = false;
+	$rootScope.navegabilidad  = [
+		{ id:'inicio', caption:'Inicio' },
+		{ id:'actividad', caption:'Actividad' },
+		{ id:'stats', caption:'Estadísticas' },
+		{ id:'errors', caption:'Incoherencias' },
+		{ id:'inconsistencias', caption:'Inconsistencias' },
+		{ id:'update', caption:'Actualizar mediante fichero' },
+		{ id:'logout', caption:'Salir' },
+	];
 }
 
 AppCtrl.$inject = ['$scope','$rootScope','Session'];

@@ -30,26 +30,8 @@
 			</div>
 			<div class="collapse navbar-collapse navbar-ex1-collapse">
 				<ul class="nav navbar-nav"  ng-if="logeado">
-					<li ng-class="{active:nav=='inicio'}">
-						<a href="inicio">Inicio</a>
-					</li>
-					<li ng-class="{active:nav=='actividad'}">
-						<a href="actividad">Actividad</a>
-					</li>
-					<li ng-class="{active:nav=='stats'}">
-						<a href="stats">Estadísticas</a>
-					</li>
-					<li ng-class="{active:nav=='errors'}">
-						<a href="errors">Incoherencias</a>
-					</li>
-					<li ng-class="{active:nav=='inconsistencias'}">
-						<a href="inconsistencias">Inconsistencias</a>
-					</li>
-					<li ng-class="{active:nav=='update'}">
-						<a href="update">Actualizar mediante fichero</a>
-					</li>
-					<li ng-class="{active:nav=='salir'}">
-						<a href="logout">Salir</a>
+					<li ng-class="{active:nav==nav.id}" ng-repeat="nav in $root.navegabilidad">
+						<a href="{{nav.id}}">{{nav.caption}}</a>
 					</li>
 				</ul>
 			</div>
