@@ -8,8 +8,9 @@ var app = angular.module('sici', [
 /*
   'easypiechart','xeditable','nvd3ChartDirectives',
   'angularFileUpload',
-  'sici.filters', 'sici.services', 'sici.directives'
 */
+  'sici.filters', 'sici.services', 'sici.directives','sici.login.util'
+
   ]).
   config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
 /*
@@ -19,11 +20,13 @@ var app = angular.module('sici', [
     $routeProvider.when('/inconsistencias', {templateUrl: 'partial/4', controller: 'InconsistenciasCtrl'});
     $routeProvider.when('/procedimiento/:CODIGO', {templateUrl: 'partial/5', controller: 'DetallesCtrl'});
     $routeProvider.when('/reglasinconsistencias', {templateUrl: 'partial/6', controller: 'ReglasInconsistenciasCtrl'});
-    $routeProvider.when('/welcome', {templateUrl: 'partial/7', controller: 'WelcomeCtrl'});
+    
     $routeProvider.when('/logout', {templateUrl: 'partial/8', controller: 'LogoutCtrl'});
     $routeProvider.when('/update', {templateUrl: 'partial/9', controller: 'UpdateCtrl'});
 
     */
+
+    $routeProvider.when('/welcome', {templateUrl: 'partials/welcome.html', controller: 'WelcomeCtrl'});
 		$routeProvider.when('/login', {templateUrl: 'partials/login.html', controller: 'LoginCtrl'});	
     
     $routeProvider.otherwise({redirectTo: '/welcome'});

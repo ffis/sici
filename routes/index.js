@@ -4,7 +4,8 @@
  */
 
 exports.index = function(req, res){
-	res.json('test');
+	res.sendfile('index.html', {root: './public'});
+	//res.json('test');
 //  res.render('index');
 };
 
