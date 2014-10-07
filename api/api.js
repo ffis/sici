@@ -1,3 +1,20 @@
+exports.log = function(models){
+  return function(req, res, next){
+    var Registroactividad = models.registroactividad();
+    var data = {
+    	usr : req.user.login ,
+		fecha : new Date(),
+		url : req.url,
+		req : {
+			headers:req.headers,
+			body:req.body
+		},
+    };
+    (new Registroactividad(data)).save();
+    next();
+  }
+}
+
 /*
  * Serve JSON to our AngularJS client
  */

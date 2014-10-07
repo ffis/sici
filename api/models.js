@@ -39,8 +39,6 @@ var schemasfields = {
 	},
 	registroactividad : {
 		usr : String,
-		_get : String,
-		_post : String,
 		fecha : Date,
 		url : String
 	},
@@ -154,6 +152,7 @@ function schemaConstructor(name,mongoose){
 exports.init = function(mongoose) {
 	var Schema = mongoose.Schema;
 	schemasfields.crawled.any = Schema.Types.Mixed;
+	schemasfields.registroactividad.req = Schema.Types.Mixed;
 	for(var name in schemasfields){
 		exports[name](mongoose);
 	}

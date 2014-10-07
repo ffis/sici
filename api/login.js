@@ -18,10 +18,14 @@ exports.authenticate = function(parameters){
 		  email: 'john@doe.com',
 		  telefono: '968000000',
 		  habilitado:1,
-		  id: 123,
-		  userId: 123,
-		  perfil:'',
-		  img:'',
+
+
+
+			codplaza : 'B205',
+			login : req.body.username,
+			genero : 'M',
+			habilitado : true
+	
 		};
 
 		// We are sending the profile inside the token
