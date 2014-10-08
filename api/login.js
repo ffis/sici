@@ -10,16 +10,16 @@ exports.authenticate = function(parameters){
 		//TODO validate req.body.username and req.body.password
 		//if is invalid, return 401
 		if (req.body.password !== 'password') {
-		  res.send(401, 'Wrong user or password');
+		  res.send(401, 'Wrong user or password');		  
 		  return;
 		}
 
 		Persona.find(
-			{ username: req.body.username, habilitado:true },
-			function(err,persona){
+			{ login: req.body.username, habilitado:true },
+			function(err,persona){			
 				if (err ||persona.length===0)
 				{
-					res.send(401, 'Wrong user or password');
+					res.send(401, 'Wrong user or password');					
 					return;
 				}
 
