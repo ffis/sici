@@ -1,35 +1,31 @@
 exports.authenticate = function(parameters){
 	var jwt = parameters.jwt;
 	var secret = parameters.secret;
+	var Persona = parameters.models.persona();
+	var Permisos = parameters.models.permiso();
+	
 
 	return function(req, res){
 
 		//TODO validate req.body.username and req.body.password
 		//if is invalid, return 401
-		if (!(req.body.username === 'mla25p' && req.body.password === 'password')) {
+		if (req.body.password !== 'password') {
 		  res.send(401, 'Wrong user or password');
 		  return;
 		}
 
-		var profile = {
-		  nombre: 'John',
-		  apellidos: 'Doe',
-		  genero:'M',
-		  email: 'john@doe.com',
-		  telefono: '968000000',
-		  habilitado:1,
+		Persona.find(
+			{ username: req.body.username, habilitado:true },
+			function(err,persona){
+				if (err ||persona.length===0)
+				{
+					res.send(401, 'Wrong user or password');
+					return;
+				}
 
-
-
-			codplaza : 'B205',
-			login : req.body.username,
-			genero : 'M',
-			habilitado : true
-	
-		};
-
-		// We are sending the profile inside the token
-		var token = jwt.sign(profile, secret, { expiresInMinutes: 60*5 });
-		res.json({ profile:profile, token: token });
+				var token = jwt.sign(persona[0], secret, { expiresInMinutes: 60*5 });
+				res.json({ profile: persona[0], token: token });
+			}
+		);
   }
 }

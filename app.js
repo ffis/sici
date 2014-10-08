@@ -35,7 +35,7 @@ app.use('/api', expressJwt({secret: secret}));
 app.use('/api', api.log(models));
 
 
-app.post('/authenticate', login.authenticate({secret: secret, jwt:jwt }));
+app.post('/authenticate', login.authenticate({secret: secret, jwt:jwt, models:models }));
 
 // Routes
 
