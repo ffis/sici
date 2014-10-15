@@ -57,18 +57,14 @@ var schemasfields = {
 	},
 	jerarquia: {
 		'nombre':String,
+		'nombrelargo' : String,
+		'tipo':String,
+		'inicialestipo':String,
 		'id':Number,
 		'ancestrodirecto':Number,
+		//recalculables
 		'ancestros':[Number],
 		'descendientes':[Number]
-/*
-		'orden':Number,
-		'descendientes':[{ type: Number }],
-		'ancestros':[{ type: Number }],
-
-		'descendientes':[{ type: Schema.Types.ObjectId, ref: 'Jerarquia' }],
-		'ancestros':[{ type: Schema.Types.ObjectId, ref: 'Jerarquia' }],
-*/	
 	},
 	procedimiento : {
 		'codigo':Number,
