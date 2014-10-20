@@ -12,13 +12,13 @@ angular.module('sici.login.util', ['ngResource'])
 					}
 					
 					$rootScope.setLogeado(true);
-					$window.sessionStorage.client_session = JSON.stringify(data);
+					$window.localStorage.client_session = JSON.stringify(data);
 					return this;
-			    }else if (sessionStorage.getItem('client_session'))
+			    }else if ($window.localStorage.client_session)
 				{
 					console.log("Cargando desde session storage");
 					var suser, user;
-					suser =$window.sessionStorage.client_session;			
+					suser =$window.localStorage.client_session;			
 					suser && (user = JSON.parse(suser));
 					var today = new Date().getTime();
 					if (user && (today - user.date) < 60*60*1000) {
@@ -40,8 +40,8 @@ angular.module('sici.login.util', ['ngResource'])
 				this.id = null;
 				this.userId = null;
 				//double remove
-				$window.sessionStorage.client_session = '';
-				delete $window.sessionStorage.client_session;
+				$window.localStorage.client_session = '';
+				delete $window.localStorage.client_session;
 				$rootScope.setLogeado(false); 
 			  };
 			  return this;
@@ -81,12 +81,12 @@ angular.module('sici.login.util', ['ngResource'])
 				/** hacemos un post a la dirección del login. Esperamos respuesta. Si statusCode=401 hay error de autenticación **/				
 				return $http.post('/authenticate', credentials)
 				  	.success(function (data, status, headers, config) {
-						$window.sessionStorage.token = data.token;
+						$window.localStorage.token = data.token;
 						console.error('Contraseña válida');
 						Session.create(data.profile);
 					}).error(function(data, status, headers, config){
 						console.error('Contraseña no válida');
-						delete $window.sessionStorage.token;
+						delete $window.localStorage.token;
 					});
 			},
 			user: function(){
@@ -115,7 +115,7 @@ angular.module('sici.login.util', ['ngResource'])
 					});
 			},			
 			isAuthenticated: function () {
-				return  $window.sessionStorage.token && (!!Session.userId || !!Session.create()) ;
+				return  $window.localStorage.token && (!!Session.userId || !!Session.create()) ;
 			},
 			isAuthorized: function (authorizedRoles) {
 				return true; // dejamos abierta la puerta a un futuro uso de esto
@@ -127,8 +127,8 @@ angular.module('sici.login.util', ['ngResource'])
 		  return {
 				request: function (config) {
 				  config.headers = config.headers || {};
-				  if ($window.sessionStorage.token) {
-				    config.headers.Authorization = 'Bearer ' + $window.sessionStorage.token;
+				  if ($window.localStorage.token) {
+				    config.headers.Authorization = 'Bearer ' + $window.localStorage.token;
 				  }
 				  return config;
 				},
@@ -141,11 +141,11 @@ angular.module('sici.login.util', ['ngResource'])
 				},
 				responseError: function (response) {
 				  if (response.status === 401) {
-				  	$window.sessionStorage.token = '';
+				  	$window.localStorage.token = '';
 				   /* $location.path('/login'); ??? */
 				  }
 				  if (response.status === 403) {
-				    $window.sessionStorage.token = '';
+				    $window.localStorage.token = '';
 				  }
 				  return $q.reject(response);
 				}
