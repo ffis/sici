@@ -1,7 +1,5 @@
 exports.authenticate = function(config){
 
-
-
 	var jwt = config.jwt;
 	var secret = config.secret;
 	var Persona = config.models.persona();
@@ -21,15 +19,23 @@ exports.authenticate = function(config){
 		}
 
 		Persona.find( { login: req.body.username, habilitado:true },
-			function(err,persona){			
-				if (err ||persona.length===0)
+			function(err,personas){			
+				if (err ||personas.length===0)
 				{
 					res.send(401, 'Wrong user or password');					
 					return;
 				}
 
-				var token = jwt.sign(persona[0], secret, { expiresInMinutes: 60*5 });
-				res.json({ profile: persona[0], token: token });
+				//Permisos are bound using login or codplaza
+				Permisos.find(
+ 					{ $or:[ {login: personas[0].login},{codplaza: personas[0].codplaza} ] },
+ 					function(err, permisos){
+						var o = JSON.parse(JSON.stringify(personas[0]));
+						o.permisos = permisos;
+						var token = jwt.sign(o, secret, { expiresInMinutes: 60*5 });
+						res.json({ profile: o, token: token, permisos : permisos });
+					}
+				)
 			}
 		);
   }
