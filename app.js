@@ -4,7 +4,6 @@ var express = require('express'),
   Q = require('q'),
   path = require('path'),
   mongoose = require('mongoose'),
-  bcrypt = require('bcrypt'),
   app = module.exports = express(),
 	expressJwt = require('express-jwt'),
 
