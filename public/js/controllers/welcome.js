@@ -1,7 +1,6 @@
 
 function WelcomeCtrl($rootScope,$scope,$window,Aggregate){
     $rootScope.nav = 'inicio';
-    $rootScope.setLogeado(true);
     $window.document.title ='SICI';
     $scope.colorText = function(i, numcolors, phase)
         {
@@ -26,7 +25,7 @@ function WelcomeCtrl($rootScope,$scope,$window,Aggregate){
       return hex;
     }
 
-    $scope.meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    $scope.meses = $rootScope.meses;
     $scope.meses.forEach(function(m,idx){
         $scope.percent.push(Math.floor((Math.random() * 80) + 21));
         var color = $scope.colorText(idx,12,60);
@@ -59,12 +58,8 @@ function WelcomeCtrl($rootScope,$scope,$window,Aggregate){
     $scope.inconsistencias =
             Aggregate.query({
                 campo: JSON.stringify({'codigo':'$codigo','denominacion':'$denominacion'}),
-                restriccion: "{\"pendientes\":{\"$lt\":0}}"
+                restriccion: "{\""+$scope.anyoActual+".pendientes\":{\"$lt\":0}}"
             });
-    
-    
-    
-
 }
 
 WelcomeCtrl.$inject =  ['$rootScope','$scope','$window','Aggregate'];

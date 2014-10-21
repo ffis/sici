@@ -6,6 +6,7 @@ function AppCtrl($scope, $rootScope, Session) {
 	$rootScope.session = Session;
 	$rootScope.nav = '';
 	$rootScope.logeado = false;
+	$rootScope.meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 	$rootScope.navegabilidad  = [
 		{ id:'inicio', caption:'Inicio' },
 		{ id:'actividad', caption:'Actividad' },

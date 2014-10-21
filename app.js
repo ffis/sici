@@ -11,6 +11,7 @@ var express = require('express'),
   routes = require('./routes'),
   api = require('./api/api'),
   login = require('./api/login'),
+  importador = require('./api/importador'),
   models = require('./api/models');
 
   app.set('mongosrv', process.env.MONGOSVR || 'mongodb://mongosvr/sici');
@@ -56,6 +57,10 @@ var express = require('express'),
     app.get('/api/raw/:modelname',api.raw(models));
     app.get('/api/aggregate/:campo',api.aggregate(models));
     app.get('/api/aggregate/:campo/:match',api.aggregate(models));
+
+    app.get('/api/gs/:id',importador.parseGS());
+    app.get('/api/cr/:id',importador.parseCr(Q, models));
+
 
     // redirect all others to the index (HTML5 history)
     app.get('*', routes.index);//devolver el index.html del raiz

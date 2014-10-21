@@ -57,12 +57,15 @@ var schemasfields = {
 	procedimiento : {
 		'codigo':Number,
 		'denominacion':String,
-		'idjerarquia':{type:Number,ref:'jerarquia'},
+		'idjerarquia': Number,
 		'tipo':String,
 		'codplaza':String,
 		'fechacreacion':Date,
 		'fechafin':Date,
 		'fechaversion':Date,
+		//recalculable:
+		//ancestros : [ jerarquia]
+
 		'periodos':{
 			'2013':
 			{
@@ -72,7 +75,6 @@ var schemasfields = {
 				'plazo_CS_ANS_habiles':Number,
 				'pendientes_iniciales':Number,
 				'total_resueltos':[Number],
-				
 			},
 			'2014':
 			{
@@ -140,6 +142,7 @@ exports.init = function(mongoose) {
 	var Schema = mongoose.Schema;
 	schemasfields.crawled.any = Schema.Types.Mixed;
 	schemasfields.registroactividad.req = Schema.Types.Mixed;
+	schemasfields.procedimiento.ancestros = Schema.Types.Mixed;
 	
 	for(var name in schemasfields){
 		exports[name](mongoose);

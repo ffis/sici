@@ -21,16 +21,17 @@ angular.module('sici.login.util', ['ngResource'])
 					suser =$window.localStorage.client_session;			
 					suser && (user = JSON.parse(suser));
 					var today = new Date().getTime();
-					if (user && (today - user.date) < 60*60*1000) {
+					if (user && (today - user.date) < 24*60*60*1000) {
 						for(var attr in user)
 						{
 							this[attr] = user[attr];
 						}
-						console.log('Válido');
 						$rootScope.setLogeado(true);
+					}else{
+						$window.localStorage.client_session = '';
+						delete $window.localStorage.client_session;
+						$rootScope.setLogeado(false); 
 					}
-					if (user) console.log((today - user.date) < 60*60*1000)
-					console.log(user);
 					
 					return this;
 				}
@@ -96,7 +97,7 @@ angular.module('sici.login.util', ['ngResource'])
 				console.log('en AuthService.logout');
 				Session.destroy();
 				$rootScope.setLogeado(false);
-				$rootScope.logeado=false;
+				$rootScope.logeado = false;
 
 				return /*(!!Session.userId || !!Session.create()) &&*/
 				$http(
@@ -142,7 +143,9 @@ angular.module('sici.login.util', ['ngResource'])
 				responseError: function (response) {
 				  if (response.status === 401) {
 				  	$window.localStorage.token = '';
-				    $location.path('/login');
+				  	Session.destroy();
+					$rootScope.setLogeado(false);
+				    $location.path('/login');//si no tiene sesion se manda a login
 				  }
 				  if (response.status === 403) {
 				    $window.localStorage.token = '';

@@ -9,7 +9,7 @@ angular.module('sici.services', ['ngResource'])
 		}])
     .factory('Procedimiento', ['$resource',
         function ($resource) {
-            return $resource('/api/procedimiento/:CODIGO', {}, {  });
+            return $resource('/api/procedimiento/:codigo', {}, {  });
 		}])
     .factory('ProcedimientoList', ['$resource',
         function ($resource) {
@@ -17,11 +17,11 @@ angular.module('sici.services', ['ngResource'])
 		}])
 	.factory('DetalleCarmProcedimiento', ['$resource',
         function ($resource) {
-            return $resource('/api/gs/:CODIGO', {}, {});
+            return $resource('/api/gs/:codigo', {}, {});
 		}])
 	.factory('DetalleCarmProcedimiento2', ['$resource',
         function ($resource) {
-            return $resource('/api/cr/:CODIGO', {}, {});
+            return $resource('/api/cr/:codigo', {}, {});
 		}])
 	.factory('Raw', ['$resource',
         function ($resource) {

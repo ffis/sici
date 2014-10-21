@@ -20,13 +20,12 @@ var app = angular.module('sici', [
     $routeProvider.when('/errors', {templateUrl: 'partial/2', controller: 'MyCtrl2'});
     $routeProvider.when('/stats', {templateUrl: 'partial/3', controller: 'StatsCtrl'});
     $routeProvider.when('/inconsistencias', {templateUrl: 'partial/4', controller: 'InconsistenciasCtrl'});
-    $routeProvider.when('/procedimiento/:CODIGO', {templateUrl: 'partial/5', controller: 'DetallesCtrl'});
+    
     $routeProvider.when('/reglasinconsistencias', {templateUrl: 'partial/6', controller: 'ReglasInconsistenciasCtrl'});
-    
-    
-    
-
     */
+
+    
+    $routeProvider.when('/procedimiento/:codigo', {templateUrl: 'partials/detalles.html', controller: 'DetallesCtrl'});
     $routeProvider.when('/logout',  {templateUrl: 'partials/logout.html',  controller: 'LogoutCtrl'});
     $routeProvider.when('/welcome', {templateUrl: 'partials/welcome.html', controller: 'WelcomeCtrl'});
 		$routeProvider.when('/login',   {templateUrl: 'partials/login.html',   controller: 'LoginCtrl'});	

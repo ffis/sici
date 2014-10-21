@@ -3,10 +3,13 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "crawler": "^0.2.7",
+    "encoding": "^0.1.10",
     "express": "~3.2.6",
+    "express-jwt": "",
+    "jsonwebtoken": "",
     "mongoose": "^3.8.14",
     "q": "^1.0.1",
-    "express-jwt" : "",
-    "jsonwebtoken" : ""
+    "zombie": "^2.0.8"
   }
 }
