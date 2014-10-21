@@ -1,0 +1,25 @@
+{
+  "name": "SICI",
+  "version": "0.0.1",
+  "homepage": "https://github.com/Loksly/sici",
+  "authors": [
+    "Mario Loksly <loksly@gmail.com>"
+  ],
+  "description": "SICI",
+  "main": "index.html",
+  "keywords": [
+    "sici"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "ng-file-upload": "~1.6.12",
+    "jquery.easy-pie-chart": "~2.1.4"
+  }
+}

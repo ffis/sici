@@ -1,0 +1,80 @@
+<div class="row">
+	<div class="col-lg-12">
+		<p class="text-center">
+			Desde este apartado puede proceder a la carga masiva de datos según el formato acordado. Para ello puede arrastrar uno o varios ficheros a la caja mostrada.
+		</p>
+		<div class="text-center">
+			<img src="imgs/ejemplofichero.png"/>
+			<br/>
+			{{respuestas.length}} ficheros cargados
+		</div>
+		<hr/>
+		<div ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="drop-boxover" ng-show="dropSupported" class="drop-box">
+			Arrastra tus ficheros aquí
+		</div>
+		<div ng-file-drop-available="dropSupported=true" ng-show="!dropSupported">
+			Debes utilizar un navegador más actualizado, que permita arrastrar y soltar.
+		</div>
+		<button ng-If="actualizando" ng-click="upload.abort()">Cancelar subida</button>
+	</div>
+	<div style="margin-top:2em" class="col-lg-12">
+		<div ng-repeat="respuesta in respuestas" class="col-md-6 col-sm-6">
+			<div ng-class="{yellow:respuesta.avisos.length&gt;0 &amp;&amp; respuesta.errores.length==0,green:respuesta.avisos.length==0 &amp;&amp; respuesta.errores.length==0,red:respuesta.errores.length&gt;0 }" class="portlet box">
+				<div class="portlet-title">
+					<div class="caption">
+						<i class="fa fa-file-text-o"></i>
+						{{respuesta.fichero}}
+						<span ng-If="respuesta.errores.length&gt;0">
+							- Error grave (No se ha producido la inserción/actualización)
+						</span>
+					</div>
+				</div>
+				<div class="portlet-body">
+					<div style="clear:both" class="table-responsive">
+						<table class="table table-striped">
+							<tfoot>
+								<tr>
+									<th colspan="6">
+										<ul style="list-style:none;margin-left:0;padding-left:0">
+											<li ng-If="respuesta.errores.length==0 &amp;&amp; respuesta.avisos.length==0" class="alert alert-success"> Fichero cargado con éxito.
+											</li>
+											<li ng-repeat="error in respuesta.errores" role="alert" style="padding:6px" class="alert alert-danger">
+												{{error}}
+											</li>
+											<li ng-repeat="aviso in respuesta.avisos" role="alert" style="padding:6px" class="alert alert-warning">
+												{{aviso}}
+											</li>
+										</ul>
+									</th>
+								</tr>
+							</tfoot>
+							<tbody>
+								<tr ng-repeat="output in respuesta.output">
+									<th>
+										{{output.proceso}}
+									</th>
+									<td>
+										{{output.mes}}
+									</td>
+									<td>
+										{{output.indicador}}
+									</td>
+									<td class="numberCell">
+										{{output.valor}}
+									</td>
+									<td>
+										{{output.fecha}}
+									</td>
+									<td>
+										{{output.usuario}}
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
