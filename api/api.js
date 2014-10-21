@@ -28,7 +28,7 @@ exports.procedimientoList = function(models, Q){
 		jerarquia = jerarquia.concat(res.user.jerarquialectura);
 		jerarquia = jerarquia.concat(res.user.jerarquiaescritura);	
 		restriccion.id = {"$in" : jerarquia} ;		
-		if (typeof req.params.idjerarquia !== 'undefined') {
+		if (typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))) {
 			restriccion = { "$and" : [ $restriccion , {'id': { "$in" : parseInt(req.params.idjerarquia)} } ] };
 			//restriccion.id = parseInt(req.params.idjerarquia);
 		}
@@ -106,8 +106,8 @@ exports.procedimiento = function(models){
 	return function(req,res){
 		var Procedimiento= models.procedimiento();
 		var restriccion = {};
-		if (typeof req.params.CODIGO !== 'undefined')
-			restriccion.CODIGO = parseInt(req.params.CODIGO);
+		if (typeof req.params.codigo !== 'undefined')
+			restriccion.codigo = parseInt(req.params.codigo);
 			
 		Procedimiento.findOne(restriccion,function(err,data){
 			if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }
@@ -171,7 +171,7 @@ exports.aggregate = function(models){
 		var groupfield = {};
 
 		if (typeof campostr !== 'string')
-			campostr = 'Denominacion Nivel 3';
+			campostr = 'idjerarquia';
 		
 		try{
 			groupfield['_id'] = JSON.parse(campostr);
