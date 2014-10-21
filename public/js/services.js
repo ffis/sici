@@ -31,7 +31,4 @@ angular.module('sici.services', ['ngResource'])
         function ($resource) {
             return $resource('/api/aggregate/:campo/:restriccion', {}, { query: {method:'GET', isArray:true} });
 		}])
-	.config(function ($httpProvider) {
-		$httpProvider.interceptors.push('AuthInterceptor');
-	})
 	.value('version', '0.1');

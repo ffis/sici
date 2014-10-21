@@ -12,49 +12,57 @@ var express = require('express'),
   routes = require('./routes'),
   api = require('./api/api'),
   login = require('./api/login'),
-  models = require('./api/models'),
+  models = require('./api/models');
 
-
-  salt = bcrypt.genSaltSync(10),
-  secret = bcrypt.hashSync(__dirname, salt);
-  //TODO: should share via redis passwd between nodes
-
-  app.set('port', process.env.PORT || 5000);
-  app.set('views', __dirname + '/views');
   app.set('mongosrv', process.env.MONGOSVR || 'mongodb://mongosvr/sici');
-  app.disable( 'x-powered-by' );
+  
 
   //Inicialización mongoose
   mongoose.connect(app.get('mongosrv'));
   models.init(mongoose);
 
-  app.use(express.json());
-  app.use(express.urlencoded());
-  app.use(express.bodyParser());
-  app.use(express.static(path.join(__dirname, 'public')));
+  var Settings = models.settings();
+  Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
+    if (err)
+      throw err;
 
-  app.use('/api', expressJwt({secret: secret}));
-  app.use('/api', api.log(models));
+    cfg = cfgs[0];
+
+    app.disable( 'x-powered-by' );
+    app.set('port', process.env.PORT || cfg.port ||6000);
+    app.set('views', __dirname + '/views');
+
+    app.use(express.json());
+    app.use(express.urlencoded());
+    app.use(express.bodyParser());
+    app.use(express.static(path.join(__dirname, 'public')));
+
+    app.use(express.errorHandler());
+    mongoose.set('debug', true);
+
+    app.use('/api', expressJwt({secret: cfg.secret}));
+    app.use('/api', api.log(models));
+
+    app.post('/authenticate', login.authenticate({secret: cfg.secret, jwt:jwt, models:models }));
+
+    // Routes
+    app.get('/', routes.index);
 
 
-  app.post('/authenticate', login.authenticate({secret: secret, jwt:jwt, models:models }));
+    // JSON API
+    app.get('/api/arbol', api.arbol(Q, models) );
+    app.get('/api/procedimiento/:codigo', api.procedimiento(models) );
+    app.get('/api/procedimiento', api.procedimiento(models) );
+    app.get('/api/procedimientoList/:idjerarquia', api.procedimientoList(models) );
+    app.get('/api/raw/:modelname',api.raw(models));
+    app.get('/api/aggregate/:campo',api.aggregate(models));
+    app.get('/api/aggregate/:campo/:match',api.aggregate(models));
 
-  // Routes
-  app.get('/', routes.index);
+    // redirect all others to the index (HTML5 history)
+    app.get('*', routes.index);//devolver el index.html del raiz
 
-
-  // JSON API
-  app.get('/api/arbol', api.arbol(Q, models) );
-  app.get('/api/procedimiento/:CODIGO', api.procedimiento(models) );
-  app.get('/api/procedimiento', api.procedimiento(models) );
-  app.get('/api/procedimientoList/:idjerarquia', api.procedimientoList(models) );
-  app.get('/api/raw/:modelname',api.raw(models));
-  app.get('/api/aggregate/:campo',api.aggregate(models));
-  app.get('/api/aggregate/:campo/:match',api.aggregate(models));
-
-  // redirect all others to the index (HTML5 history)
-  app.get('*', routes.index);//devolver el index.html del raiz
-
-  http.createServer(app).listen(app.get('port'), function () {
-    console.log('Express server listening on port ' + app.get('port'));
-  });
+    http.createServer(app).listen(app.get('port'), function () {
+      console.log('Express server listening on port ' + app.get('port'));
+    });
+  })
+  

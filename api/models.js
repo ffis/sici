@@ -5,11 +5,7 @@ var schemas = {};
 var schemasfields = {
 	crawled : { 'id': Number, 'jerarquia': [String], 'completo':'String' },
 	guiacarm: {	'id':Number,'titulo':String },
-	enexcelperonoenguia : { id: Number},		
-	enexcelperonoenprocedimiento : { id: Number},
-	enguiaperonoencrawler : { id: Number},
-	enguiaperonoenexcel : { id: Number},
-	excel : { 'id': Number},
+	settings: { version:Number,'secret':String, anyo: String, port:Number 	 },
 	reglasinconsistencias : { 'titulo':String, 'restriccion':String},
 	persona : {
 		codplaza : String,
@@ -124,12 +120,15 @@ exports.getSchema = function(name){
 	return schemasfields[name];
 }
 
-function schemaConstructor(name,mongoose){
+function schemaConstructor(name, mongoose, strict){
 	if (typeof schemas[name] !== 'undefined') return schemas[name];
 	if (typeof mongoose === 'undefined'){  throw new Error('Debe inicializar el schema previamente a su uso.'); }
 	var Schema = mongoose.Schema;
 	var fields = schemasfields[name];
-	var objSchema = new Schema (fields, { collection: name });
+	var cfg = { collection: name };
+	if (strict)
+		cfg.strict = false;
+	var objSchema = new Schema (fields, cfg);
 	schemas[name]= mongoose.model(name,objSchema);
 // 	console.log('inicializado:'+name + ' con '+JSON.stringify(fields));
  	if (typeof schemasfields[name] === 'undefined')
@@ -141,13 +140,14 @@ exports.init = function(mongoose) {
 	var Schema = mongoose.Schema;
 	schemasfields.crawled.any = Schema.Types.Mixed;
 	schemasfields.registroactividad.req = Schema.Types.Mixed;
+	
 	for(var name in schemasfields){
 		exports[name](mongoose);
 	}
 }
 
 function constructorschema(name){
-	return function(mongoose) { return schemaConstructor(name,mongoose); };
+	return function(mongoose) { return schemaConstructor(name,mongoose, true); };
 }
 
 for(var name in schemasfields){

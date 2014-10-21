@@ -142,13 +142,17 @@ angular.module('sici.login.util', ['ngResource'])
 				responseError: function (response) {
 				  if (response.status === 401) {
 				  	$window.localStorage.token = '';
-				   /* $location.path('/login'); ??? */
+				    $location.path('/login');
 				  }
 				  if (response.status === 403) {
 				    $window.localStorage.token = '';
+
 				  }
 				  return $q.reject(response);
 				}
 			};
 		}
 	])
+	.config(function ($httpProvider) {
+		$httpProvider.interceptors.push('AuthInterceptor');
+	})
