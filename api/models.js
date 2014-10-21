@@ -11,15 +11,6 @@ var schemasfields = {
 	enguiaperonoenexcel : { id: Number},
 	excel : { 'id': Number},
 	reglasinconsistencias : { 'titulo':String, 'restriccion':String},
-	/*acl:{
-		'login':String,
-		'correo':String,
-		'pwd':String,
-		'habilitado':Boolean,
-		'ultimologin':Date,
-		'visibilidad': [Number],
-		'idjerarquia': [Number],
-	},*/
 	persona : {
 		codplaza : String,
 		login : String,
@@ -27,7 +18,8 @@ var schemasfields = {
 		apellidos : String,
 		genero : String,
 		telefono : String,
-		habilitado : Boolean
+		habilitado : Boolean,
+		ultimologin: Date,
 	},
 	permiso : {
 		codplaza : String,
@@ -129,7 +121,7 @@ var schemasfields = {
 }
 
 exports.getSchema = function(name){
- return schemasfields[name];
+	return schemasfields[name];
 }
 
 function schemaConstructor(name,mongoose){
@@ -161,9 +153,4 @@ function constructorschema(name){
 for(var name in schemasfields){
 	exports[name] = constructorschema(name);
 }
-
-
-
-
-
 

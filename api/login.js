@@ -25,13 +25,15 @@ exports.authenticate = function(config){
 					res.send(401, 'Wrong user or password');					
 					return;
 				}
-
+				personas[0].ultimologin = new Date();
+				personas[0].save();
+				
 				//Permisos are bound using login or codplaza
 				Permisos.find(
  					{ $or:[ {login: personas[0].login},{codplaza: personas[0].codplaza} ] },
  					function(err, permisos){
-						var o = JSON.parse(JSON.stringify(personas[0]));
-						o.permisos = permisos;
+ 						var o = JSON.parse(JSON.stringify(personas[0]));
+						o.permisos = permisos ? permisos : [];
 						var token = jwt.sign(o, secret, { expiresInMinutes: 60*5 });
 						res.json({ profile: o, token: token, permisos : permisos });
 					}
