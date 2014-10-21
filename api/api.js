@@ -19,16 +19,47 @@ exports.log = function(models){
  * Serve JSON to our AngularJS client
  */
 
-exports.procedimientoList = function(models){
+exports.procedimientoList = function(models, Q){
 	return function(req,res){
 		var Jerarquia = models.jerarquia();
 		var Procedimiento= models.procedimiento();
 		var restriccion = {};
-		if (typeof req.params.idjerarquia !== 'undefined')
-			restriccion.id = parseInt(req.params.idjerarquia);
+		var jerarquia = [];		
+		jerarquia = jerarquia.concat(res.user.jerarquialectura);
+		jerarquia = jerarquia.concat(res.user.jerarquiaescritura);	
+		restriccion.id = {"$in" : jerarquia} ;		
+		if (typeof req.params.idjerarquia !== 'undefined') {
+			restriccion = { "$and" : [ $restriccion , {'id': { "$in" : parseInt(req.params.idjerarquia)} } ] };
+			//restriccion.id = parseInt(req.params.idjerarquia);
+		}
 		Jerarquia.find(restriccion,function(err,data){
 			if (err) {  console.error(restriccion); console.error(err); res.status(500); res.end();  return ; }
-			console.error(data); 
+			console.error(data);
+
+			if (data.length>0) {
+				var dfs = [];
+				for(var i=0;i<data.length;i++){
+					var d = Q.defer();					
+					dfs.push(d.promise);
+					var descendientes = data[i].descendientes;
+					descendientes.push(data[i].id);
+					restriccion = { "idjerarquia" : { "$in" : ids} };
+					Procedimiento.find(restriccion,function(err,data){
+						if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }
+						d.promise.resolve(data);
+					});
+				}
+				var resultado = [];
+				Q.all(dfs).then(function(data){
+					for(var j=0;j<data.length;j++)
+					{
+						if (Array.isArray(data[j]))
+							resultado = resultado.concat(data[j]);
+					}
+					res.json(resultado);
+				});
+			}
+			/*
 			var restriccion = {}
 			if (typeof data[0].descendientes === 'undefined'){
 				console.error('ESTO NO DEBERIA PASAR');
@@ -41,6 +72,7 @@ exports.procedimientoList = function(models){
 				if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }
 				res.json (data);
 			});
+			*/
 		});					   
 	};
 }
