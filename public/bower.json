@@ -21,6 +21,10 @@
   "dependencies": {
     "ng-file-upload": "~1.6.12",
     "jquery.easy-pie-chart": "~2.1.4",
+    "d3": "~3.4.13",
+    "angularjs-nvd3-directives": "~0.0.7"
+  },
+  "resolutions": {
     "d3": "~3.4.13"
   }
 }

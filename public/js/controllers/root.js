@@ -16,6 +16,21 @@ function AppCtrl($scope, $rootScope, Session) {
 		{ id:'update', caption:'Actualizar mediante fichero' },
 		{ id:'logout', caption:'Salir' },
 	];
+
+	$rootScope.colorText = function(i, numcolors, phase)
+	{
+	    if (phase == undefined) phase = 0;
+	    center = 128;
+	    width = 127;
+	    frequency = Math.PI*2/numcolors;
+	    
+	    return {
+	        red   : Math.ceil(Math.sin(frequency*i+2+phase) * width + center),
+	        green : Math.ceil(Math.sin(frequency*i+0+phase) * width + center),
+	        blue  : Math.ceil(Math.sin(frequency*i+4+phase) * width + center)
+	    };
+	};
+
 }
 
 AppCtrl.$inject = ['$scope','$rootScope','Session'];

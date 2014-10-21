@@ -39,7 +39,7 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 			$scope.inconsistencias.forEach(function(i,idx){
 				var campo = {'codigo':'$codigo'};
 				var restriccion = JSON.parse(i.restriccion);
-				restriccion.CODIGO = $scope.procedimientoSeleccionado['codigo'];
+				restriccion.CODIGO = $scope.procedimientoSeleccionado.codigo;
 				$scope.inconsistencias[idx].datos = Aggregate.query({ campo : JSON.stringify(campo), restriccion:JSON.stringify(restriccion)});
 			});
 		});
@@ -96,20 +96,9 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 		];
 	$scope.attrstablacalculados = ['Total resueltos', 'Fuera de plazo', 'Pendientes'];
 	$scope.meses = $rootScope.meses;
+	$scope.colorText = $rootScope.colorText;
+
 	$scope.graficasgrandes = false;
-	$scope.colorText = function(i, numcolors, phase)
-	{
-	    if (phase == undefined) phase = 0;
-	    center = 128;
-	    width = 127;
-	    frequency = Math.PI*2/numcolors;
-	    
-	    return {
-	        red   : Math.ceil(Math.sin(frequency*i+2+phase) * width + center),
-	        green : Math.ceil(Math.sin(frequency*i+0+phase) * width + center),
-	        blue  : Math.ceil(Math.sin(frequency*i+4+phase) * width + center)
-	    };
-	};
 	$scope.xAxisTickValuesFunction = function(){ return function(d){ return [0,1,2,3,4,5,6,7,8,9,10,11]; };};
 	$scope.xAxisTickFormatFunction = function(){ return function(d){ return $scope.meses[d]; } };
 	$scope.colorFunction2= function(){ return function(d,i){ 
@@ -126,61 +115,8 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 	};
 	$scope.graphs = false;
 	$scope.recalculate = function(){
-		var objeto = $scope.procedimientoSeleccionado;
-		objeto['Total resueltos'] = [];
-		objeto['Fuera de plazo']  =[];
-		objeto['Pendientes'] = [];
-		objeto.Incidencias = {
-			'Se han resuelto expedientes fuera de Plazo': [],
-			'Aumenta el N de expedientes pendientes': [],
-			'Hay quejas presentadas': [],
-			'Hay expedientes prescritos/caducados': [],
-			'Las solicitudes aumentan al menos 20%': [],
-			'Posible incumplimiento de compromisos': [],
-		};
-
-		var pendientes = parseStr2Int( objeto['Pendientes iniciales (a 31-12)']);
-		var solicitudesprevias = parseStr2Int( objeto['Solicitados'][0]);
-		var totalsolicitudes = 0;
-		for(var mes = 0; mes<12;mes++){
-			var pendientesprevios = pendientes;
-			var totalresueltos =
-				parseStr2Int(objeto['Resueltos [1]'][mes])+parseStr2Int(objeto['Resueltos [5]'][mes])+parseStr2Int(objeto['Resueltos [10]'][mes])+
-				parseStr2Int(objeto['Resueltos [15]'][mes])+
-				parseStr2Int(objeto['Resueltos [30]'][mes])+parseStr2Int(objeto['Resueltos [45]'][mes])+parseStr2Int(objeto['Resueltos [>45]'][mes])+
-				parseStr2Int(objeto['Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)'][mes]) +
-				parseStr2Int(objeto['Resueltos por Prescripcion/Caducidad (Resp_Admon)'][mes]);
-			var fueradeplazo = totalresueltos - parseStr2Int(objeto['En plazo'][mes]);
-			var solicitudes = parseStr2Int(objeto['Solicitados'][mes]);
-			totalsolicitudes += solicitudes;
-			pendientes = pendientes + solicitudes - totalresueltos ;
-
-			objeto['Total resueltos'].push(totalresueltos);
-			objeto['Fuera de plazo'].push(fueradeplazo);
-			objeto['Pendientes'].push(pendientes);
-
-			objeto.Incidencias['Se han resuelto expedientes fuera de Plazo'].push( fueradeplazo );
-			objeto.Incidencias['Aumenta el N de expedientes pendientes'].push( pendientes > pendientesprevios ? pendientes - pendientesprevios : 0 );
-			objeto.Incidencias['Hay quejas presentadas'].push( parseStr2Int(objeto['Quejas presentadas en el mes'][mes]) );
-			objeto.Incidencias['Hay expedientes prescritos/caducados'].push( parseStr2Int(objeto['Resueltos por Prescripcion/Caducidad (Resp_Admon)'][mes]) );
-			objeto.Incidencias['Las solicitudes aumentan al menos 20%'].push( (solicitudes > solicitudesprevias*1.2) ? solicitudes-solicitudesprevias : 0 );
-			objeto.Incidencias['Posible incumplimiento de compromisos'].push( 0 );
-			solicitudesprevias = solicitudes;
-		}
-		
-		
-		var ultimomesconsolicitados=11;
-		for(; ultimomesconsolicitados>0; ultimomesconsolicitados--){
-			if (parseInt(objeto.Solicitados[ultimomesconsolicitados]) >0) break;
-		}
-
-		ultimomesconsolicitados++;
-		for(;ultimomesconsolicitados<12;ultimomesconsolicitados++)
-			objeto.Pendientes[ultimomesconsolicitados]=0;
-			
-		objeto['totalsolicitudes'] = totalsolicitudes;
-
-		$scope.procedimientoSeleccionado = objeto;
+		//
+		console.log('incluir código recálculo, a hacer en el servidor');
 	}
 	$scope.checkNumber = function(data) {
 		var valor = parseInt(data);
@@ -189,12 +125,12 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 	    }else if (valor<0){
 	    	return "No se admiten valores menores de 0";
 	    }
-  };    
+	};    
 }
 DetallesCtrl.$inject = ['$rootScope','$scope','$routeParams','$window','Procedimiento','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','Raw','Aggregate'];
 
 function parseStr2Int (str){
 	var valor = parseInt(str);
-	if(isNaN(valor)) valor=0;
+	if(isNaN(valor) || ! /^\d+$/.test(data) ) valor=0;
 	return valor;
 }
