@@ -1,11 +1,9 @@
 'use strict';
 
-function MyCtrl2($rootScope,$scope,$window, Raw, Pagination) {
+function IncoherenciasCtrl($rootScope,$scope,$window, Raw) {
 	$rootScope.nav = 'errors';
 	/*
-	
-$scope.procedimiento = Procedimiento.query({idjerarquia: $routeParams.id } );	
-	
+	$scope.procedimiento = Procedimiento.query({idjerarquia: $routeParams.id } );	
 	$scope.enexcelperonoenguia = Raw.query({model: 'enexcelperonoenguia'});
 	$scope.enexcelperonoenprocedimiento = Raw.query({model: 'enexcelperonoenprocedimiento'});
 	$scope.enguiaperonoencrawler = Raw.query({model: 'enguiaperonoencrawler'});
@@ -14,8 +12,10 @@ $scope.procedimiento = Procedimiento.query({idjerarquia: $routeParams.id } );
 	*/
 	$scope.mostrartodos = "1";
 	$scope.idsencomun = false;
+	/*
 	$scope.pagination = Pagination.getNew(10);
 	$scope.pagination.numPages = $scope.idsencomun ? Math.ceil(Object.keys($scope.idsencomun).length/$scope.pagination.perPage) : 0;
+	*/
 	$window.document.title ='SICI: Incoherencias';
 
 	$scope.guiacarm = Raw.query({model: 'guiacarm'}, function(){
@@ -93,5 +93,5 @@ $scope.procedimiento = Procedimiento.query({idjerarquia: $routeParams.id } );
 	};
 }
 
-MyCtrl2.$inject = ['$rootScope','$scope','$window','Raw','Pagination'];
+IncoherenciasCtrl.$inject = ['$rootScope','$scope','$window','Raw'];
 

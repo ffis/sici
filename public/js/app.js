@@ -17,11 +17,12 @@ var app = angular.module('sici', [
   config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
 /*
     
-    $routeProvider.when('/errors', {templateUrl: 'partial/2', controller: 'MyCtrl2'});
+
     $routeProvider.when('/stats', {templateUrl: 'partial/3', controller: 'StatsCtrl'});
     $routeProvider.when('/inconsistencias', {templateUrl: 'partial/4', controller: 'InconsistenciasCtrl'});
     $routeProvider.when('/reglasinconsistencias', {templateUrl: 'partial/6', controller: 'ReglasInconsistenciasCtrl'});
     */
+
 
 
     $routeProvider.when('/procedimiento/:codigo', {templateUrl: 'partials/detalles.html', controller: 'DetallesCtrl'});
@@ -30,7 +31,7 @@ var app = angular.module('sici', [
 		$routeProvider.when('/login',     {templateUrl: 'partials/login.html',     controller: 'LoginCtrl'    });	
     $routeProvider.when('/update',    {templateUrl: 'partials/upload.html',    controller: 'UpdateCtrl'   });
     $routeProvider.when('/actividad', {templateUrl: 'partials/actividad.html', controller: 'ActividadCtrl'});
-    
+    $routeProvider.when('/errors',    {templateUrl: 'partials/incoherencias.html', controller: 'IncoherenciasCtrl'});
     $routeProvider.otherwise({redirectTo: '/welcome'});
     $locationProvider.html5Mode(true);
   }]);
