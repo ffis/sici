@@ -6,11 +6,7 @@ var app = angular.module('sici', [
 	'ngRoute','ngAnimate','ngSanitize','angular.filter',
 	'ui.bootstrap',
   'easypiechart','nvd3ChartDirectives',
-/*
-  'xeditable',
-*/
-  'angularFileUpload',
-
+  'angularFileUpload','xeditable',
   'sici.filters', 'sici.services', 'sici.directives','sici.login.util'
 
   ]).
