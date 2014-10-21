@@ -22,6 +22,8 @@ var schemasfields = {
 		login : String,
 		jerarquialectura : [Number],
 		jerarquiaescritura : [Number],
+		jerarquiadirectalectura : [Number],
+		jerarquiadirectaescritura : [Number],
 		caducidad : Date,
 		descripcion : String
 	},

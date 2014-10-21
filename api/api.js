@@ -27,7 +27,7 @@ exports.procedimientoList = function(models, Q){
 		var jerarquia = req.user.permisoscalculados.jerarquialectura;				
 		restriccion.id = {"$in" : jerarquia} ;		
 		if (typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))){
-			restriccion = { "$and" : [ $restriccion , {'id': { "$in" : parseInt(req.params.idjerarquia)} } ] };
+			restriccion = { "$and" : [ restriccion , {'id': { "$in" : parseInt(req.params.idjerarquia)} } ] };
 			//restriccion.id = parseInt(req.params.idjerarquia);
 		}
 		Jerarquia.find(restriccion,function(err,data){

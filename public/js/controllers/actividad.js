@@ -1,4 +1,4 @@
-function ActividadCtrl($rootScope,$scope,$location,$window,Arbol, ProcedimientoList,DetalleCarmProcedimiento,DetalleCarmProcedimiento2) {
+function ActividadCtrl($rootScope,$scope,$location,$window,Arbol, ProcedimientoList,DetalleCarmProcedimiento,DetalleCarmProcedimiento2, Session) {
 	$rootScope.nav = 'actividad';
 	$window.document.title ='SICI: Actividad';
 
@@ -7,12 +7,22 @@ function ActividadCtrl($rootScope,$scope,$location,$window,Arbol, ProcedimientoL
 	$scope.detallesCarmHTML = false;
 	$scope.procedimientos = [];
 
-
+	$scope.jerarquia = Session.create().permisoscalculados.jerarquialectura;
+	
+	$scope.filtrojerarquia = function(item) {
+		if ($scope.jerarquia.indexOf(item.id)!=-1 )
+			return true;		
+		for(var i=0;i<item.nodes.length;i++) 
+			if ($scope.filtrojerarquia(item.nodes[i])) 
+				return true;		
+		return false;
+	};
+	
 	$scope.setProcedimiento = function (proc){
 		if (proc) {
 				$scope.procedimientoSeleccionado = proc;
-				$scope.detallesCarm = DetalleCarmProcedimiento.get({CODIGO:$scope.procedimientoSeleccionado.CODIGO});
-				$scope.detallesCarm2 = DetalleCarmProcedimiento2.get({CODIGO:$scope.procedimientoSeleccionado.CODIGO});
+				$scope.detallesCarm = DetalleCarmProcedimiento.get({codigo:$scope.procedimientoSeleccionado.codigo});
+				$scope.detallesCarm2 = DetalleCarmProcedimiento2.get({codigo:$scope.procedimientoSeleccionado.codigo});
 				
 			}else{
 				$scope.procedimientoSeleccionado = false;
@@ -69,7 +79,7 @@ function ActividadCtrl($rootScope,$scope,$location,$window,Arbol, ProcedimientoL
 	$scope.filtrotxtprocedimiento = {};
 	$scope.$watch('filtrotxtprocedimiento.$',function(newValue,oldValue){ $scope.sparkline(); });
 	$scope.$watch('procedimientosocultos',function(newValue,oldValue){ $scope.sparkline(); });
-	$scope.$watch('oculto', function(){setTimeout(function(){nv.utils.windowResize(); }, 10 ); });
+	//$scope.$watch('oculto', function(){setTimeout(function(){nv.utils.windowResize(); }, 10 ); });
 
 	$scope.procedimientosfiltrados = [];
 	$scope.$watch('filtro',function(newValue,oldValue){
@@ -249,4 +259,4 @@ function ActividadCtrl($rootScope,$scope,$location,$window,Arbol, ProcedimientoL
 	$scope.meses = $rootScope.meses;
 
 }
-ActividadCtrl.$inject = ['$rootScope','$scope','$location','$window','Arbol','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2'];
+ActividadCtrl.$inject = ['$rootScope','$scope','$location','$window','Arbol','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','Session'];
