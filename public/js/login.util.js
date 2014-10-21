@@ -123,8 +123,8 @@ angular.module('sici.login.util', ['ngResource'])
 			}
 		  };
 	}])
-	.factory('AuthInterceptor', ['$rootScope','$q','$window','$location',
-		function ($rootScope, $q, $window, $location) {
+	.factory('AuthInterceptor', ['$rootScope','$q','$window','$location','Session',
+		function ($rootScope, $q, $window, $location,Session) {
 		  return {
 				request: function (config) {
 				  config.headers = config.headers || {};
@@ -144,12 +144,11 @@ angular.module('sici.login.util', ['ngResource'])
 				  if (response.status === 401) {
 				  	$window.localStorage.token = '';
 				  	Session.destroy();
-					$rootScope.setLogeado(false);
 				    $location.path('/login');//si no tiene sesion se manda a login
 				  }
 				  if (response.status === 403) {
 				    $window.localStorage.token = '';
-
+					Session.destroy();
 				  }
 				  return $q.reject(response);
 				}
