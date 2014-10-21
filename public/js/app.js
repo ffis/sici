@@ -5,10 +5,12 @@
 var app = angular.module('sici', [
 	'ngRoute','ngAnimate','ngSanitize','angular.filter',
 	'ui.bootstrap',
+  'easypiechart',
 /*
-  'easypiechart','xeditable','nvd3ChartDirectives',
-  'angularFileUpload',
+  'xeditable','nvd3ChartDirectives',
 */
+  'angularFileUpload',
+
   'sici.filters', 'sici.services', 'sici.directives','sici.login.util'
 
   ]).
@@ -22,13 +24,13 @@ var app = angular.module('sici', [
     $routeProvider.when('/reglasinconsistencias', {templateUrl: 'partial/6', controller: 'ReglasInconsistenciasCtrl'});
     
     
-    $routeProvider.when('/update', {templateUrl: 'partial/9', controller: 'UpdateCtrl'});
+    
 
     */
     $routeProvider.when('/logout',  {templateUrl: 'partials/logout.html',  controller: 'LogoutCtrl'});
     $routeProvider.when('/welcome', {templateUrl: 'partials/welcome.html', controller: 'WelcomeCtrl'});
 		$routeProvider.when('/login',   {templateUrl: 'partials/login.html',   controller: 'LoginCtrl'});	
-    
+    $routeProvider.when('/update', {templateUrl: 'partials/upload.html', controller: 'UpdateCtrl'});
     $routeProvider.otherwise({redirectTo: '/welcome'});
     $locationProvider.html5Mode(true);
   }]);

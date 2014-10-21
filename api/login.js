@@ -33,7 +33,13 @@ exports.authenticate = function(config){
  					{ $or:[ {login: personas[0].login},{codplaza: personas[0].codplaza} ] },
  					function(err, permisos){
  						var o = JSON.parse(JSON.stringify(personas[0]));
+
 						o.permisos = permisos ? permisos : [];
+						o.permisoscalculados = o.permisos[0];
+						for(var i=1,j=o.permisos.length; i<j;i++ ){
+							o.permisoscalculados.jerarquialectura   = o.permisoscalculados.jerarquialectura.concat( o.permisos[i].jerarquialectura);
+							o.permisoscalculados.jerarquiaescritura = o.permisoscalculados.jerarquiaescritura.concat( o.permisos[i].jerarquiaescritura);
+						}
 						var token = jwt.sign(o, secret, { expiresInMinutes: 60*5 });
 						res.json({ profile: o, token: token, permisos : permisos });
 					}
