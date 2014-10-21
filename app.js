@@ -53,7 +53,7 @@ var express = require('express'),
     app.get('/api/arbol', api.arbol(Q, models) );
     app.get('/api/procedimiento/:codigo', api.procedimiento(models) );
     app.get('/api/procedimiento', api.procedimiento(models) );
-    app.get('/api/procedimientoList/:idjerarquia', api.procedimientoList(models) );
+    app.get('/api/procedimientoList/:idjerarquia', api.procedimientoList(models, Q) );
     app.get('/api/raw/:modelname',api.raw(models));
     app.get('/api/aggregate/:campo',api.aggregate(models));
     app.get('/api/aggregate/:campo/:match',api.aggregate(models));
