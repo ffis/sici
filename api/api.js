@@ -2,7 +2,7 @@ exports.log = function(models){
   return function(req, res, next){
     var Registroactividad = models.registroactividad();
     var data = {
-    	usr : req.user.login ,
+    	usr : req.user.login , 
 		fecha : new Date(),
 		url : req.url,
 		req : {
@@ -24,11 +24,9 @@ exports.procedimientoList = function(models, Q){
 		var Jerarquia = models.jerarquia();
 		var Procedimiento= models.procedimiento();
 		var restriccion = {};
-		var jerarquia = [];		
-		jerarquia = jerarquia.concat(res.user.jerarquialectura);
-		jerarquia = jerarquia.concat(res.user.jerarquiaescritura);	
+		var jerarquia = req.user.permisoscalculados.jerarquialectura;				
 		restriccion.id = {"$in" : jerarquia} ;		
-		if (typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))) {
+		if (typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))){
 			restriccion = { "$and" : [ $restriccion , {'id': { "$in" : parseInt(req.params.idjerarquia)} } ] };
 			//restriccion.id = parseInt(req.params.idjerarquia);
 		}
@@ -108,6 +106,7 @@ exports.procedimiento = function(models){
 		var restriccion = {};
 		if (typeof req.params.codigo !== 'undefined')
 			restriccion.codigo = parseInt(req.params.codigo);
+		restriccion.idjerarquia = { '$in': req.user.permisoscalculados.jerarquialectura };
 			
 		Procedimiento.findOne(restriccion,function(err,data){
 			if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }
@@ -125,7 +124,7 @@ exports.arbol = function(Q, models){
 		var promises = [];
 		Jerarquia.find({ancestros:[]}, function(err, raiz){
 			if (err){ console.error(err);res.status(500); res.json(err); res.end(); return; }
-			console.log(raiz);
+			//console.log(raiz);
 			raiz.forEach(function(nodo, idx, arr){
 
 				if (nodo.descendientes && typeof nodo.descendientes === 'object' && nodo.descendientes.length > 0)
@@ -170,8 +169,6 @@ exports.aggregate = function(models){
 		var group = [];
 		var groupfield = {};
 
-		if (typeof campostr !== 'string')
-			campostr = 'idjerarquia';
 		
 		try{
 			groupfield['_id'] = JSON.parse(campostr);
@@ -198,19 +195,21 @@ exports.aggregate = function(models){
 					if(/^(\-|\+)?([0-9]+|Infinity)$/.test(valor))
 						valor = parseInt(valor);
 					match[campomatch] = valor;
+					
 				});
 			}
-			
+			//console.log(req.user);
+			match.idjerarquia = {'$in':req.user.permisoscalculados.jerarquialectura};
 			group.push({ "$match" : match });
 		}
 		
 
 		groupfield['count'] = {'$sum':1};
-		groupfield['porcumplimentar'] = { '$sum':{'$cond': { if: { '$eq':[0,'$totalsolicitudes']}, then:1, else: 0 } } };
+		groupfield['porcumplimentar'] = { '$sum':{'$cond': { if: { '$eq':[0,'$periodos.'+cfg.anyo+'.totalsolicitudes']}, then:1, else: 0 } } };
 
 		group.push({"$group" : groupfield});
 		group.push({"$sort":{ 'count' : -1 } });
-
+		//console.log(JSON.stringify(group));
 		connection.aggregate(group ,function(err,data){
 			if (err) { console.error(err); res.status(500); res.end(); return ; }
 			res.json (data);
