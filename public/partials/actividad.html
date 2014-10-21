@@ -7,9 +7,7 @@
 					Organismos
 				</h3>
 			</div>
-			<div class="panel-body">
-				
-				<pre>{{jerarquia | json}}</pre>
+			<div class="panel-body">			
 				<input type="text" ng-model="texto.$" placeholder="Filtro" style="margin-bottom:1em" class="form-control"/>
 				<ul ng-if="arbol.length">
 					<li ng-repeat="element in arbol |filter:texto| filter:filtrojerarquia	">

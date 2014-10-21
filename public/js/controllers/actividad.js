@@ -41,19 +41,7 @@ function ActividadCtrl($rootScope,$scope,$location,$window,Arbol, ProcedimientoL
 			}
 		};
 
-	$scope.colorText = function(i, numcolors, phase)
-        {
-            if (phase == undefined) phase = 0;
-            center = 128;
-            width = 127;
-            frequency = Math.PI*2/numcolors;
-            
-            return {
-                red   : Math.ceil(Math.sin(frequency*i+2+phase) * width + center),
-                green : Math.ceil(Math.sin(frequency*i+0+phase) * width + center),
-                blue  : Math.ceil(Math.sin(frequency*i+4+phase) * width + center)
-            };
-        };
+	$scope.colorText = $rootScope.colorText;
     
 	$scope.cumplimentado = function(procedimiento){
 		return (typeof procedimiento.Solicitados === 'object' &&  Math.max.apply(Math, procedimiento.Solicitados) > 0);
@@ -109,7 +97,6 @@ function ActividadCtrl($rootScope,$scope,$location,$window,Arbol, ProcedimientoL
 	$scope.colorFunction= function(){ return function(d,i){ 
 		var color = $scope.colorText(i, 5, 60);
 		var r = (color.red<16 ? '0': '')+color.red.toString(16), g = (color.green<16 ? '0': '')+color.green.toString(16), b = (color.blue<16 ? '0': '')+color.blue.toString(16);
-		//console.log('#'+r+g+b);
 	 	return '#'+r+g+b;
 	}};
 
