@@ -35,4 +35,8 @@ angular.module('sici.services', ['ngResource'])
         function ($resource) {
             return $resource('/api/aggregate/:campo/:restriccion', {}, { query: {method:'GET', isArray:true} });
 		}])
+    .factory('ReglasInconsistencias', ['$resource',
+        function ($resource) {
+            return $resource('/api/reglasinconsistencias/:id', {id:'@_id'},   { update: {method:'PUT' } });
+        }])
 	.value('version', '0.1');

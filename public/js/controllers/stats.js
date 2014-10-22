@@ -4,7 +4,7 @@ function StatsCtrl($rootScope,$scope,$window,Aggregate){
 	$window.document.title ='SICI: Estadísticas';
 	$scope.graphs = [];
 
-	$scope.campos = ['cod_plaza','denominacion','codigo'];
+	$scope.campos = ['cod_plaza','denominacion','codigo','ancestros[0].nombre'];
 	$scope.campo = $scope.campos[0];
 
 	$scope.newGraph = function(){

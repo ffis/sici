@@ -2,8 +2,8 @@
 function InconsistenciasCtrl($rootScope,$scope,$routeParams,Raw,Aggregate) {
 	$rootScope.nav = 'inconsistencias';
 	$scope.oneAtATime = true;
-	$scope.camposamostrar = ['CODIGO', 'DENOMINACION DEL PROCEDIMIENTO', 'Denominacion Nivel 3', 'Denominacion Nivel 2', 'Denominacion Nivel 1', 'Login responsable', 'Nombre responsable'];
-	$scope.camposmostrados = ['CODIGO', 'DENOMINACION DEL PROCEDIMIENTO', 'Denominacion Nivel 3', 'Denominacion Nivel 2', 'Denominacion Nivel 1', 'Login responsable', 'Nombre responsable'];
+	$scope.camposamostrar = ['codigo', 'denominacion', ];
+	$scope.camposmostrados = ['codigo', 'denominacion',];
 	$scope.inconsistencias =  Raw.query({model: 'reglasinconsistencias'}, function(){ $scope.update(); });
 	$scope.seleccionados = {};
 	$scope.camposamostrar.forEach(function(campo){

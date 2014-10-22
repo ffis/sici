@@ -62,8 +62,15 @@ var express = require('express'),
     app.get('/api/gs/:id',importador.parseGS());
     app.get('/api/cr/:id',importador.parseCr(Q, models));
 
+    app.get('/api/reglasinconsistencias', api.getReglaInconsistencia(models));
+    app.put('/api/reglasinconsistencias/:id', api.updateReglaInconsistencia(models));
+    app.delete('/api/reglasinconsistencias/:id', api.removeReglaInconsistencia(models));
+
+    
     // redirect all others to the index (HTML5 history)
     app.get('*', routes.index);//devolver el index.html del raiz
+
+
 
     http.createServer(app).listen(app.get('port'), function () {
       console.log('Express server listening on port ' + app.get('port'));
