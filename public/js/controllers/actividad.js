@@ -23,7 +23,6 @@ function ActividadCtrl($rootScope,$scope,$location,$window,Arbol, ProcedimientoL
 				$scope.procedimientoSeleccionado = proc;
 				$scope.detallesCarm = DetalleCarmProcedimiento.get({codigo:$scope.procedimientoSeleccionado.codigo});
 				$scope.detallesCarm2 = DetalleCarmProcedimiento2.get({codigo:$scope.procedimientoSeleccionado.codigo});
-				
 			}else{
 				$scope.procedimientoSeleccionado = false;
 			}
@@ -118,11 +117,13 @@ function ActividadCtrl($rootScope,$scope,$location,$window,Arbol, ProcedimientoL
 				var caption = g.caption;
 				g.keys.forEach(function(key,indx){
 					var values = [];
-					$scope.procedimientoSeleccionado[key].forEach(function (val,idx) {
-						values.push( [ idx, val] ) ;
-						if (maxvalue< val) maxvalue=val;
-					});
-					data.push(	{ "key": key,"values": values} );
+					if ($scope.procedimientoSeleccionado[key]){
+						$scope.procedimientoSeleccionado[key].forEach(function (val,idx) {
+							values.push( [ idx, val] ) ;
+							if (maxvalue< val) maxvalue=val;
+						});
+						data.push(	{ "key": key,"values": values} );
+					}
 				})
 				var forcey = [0, Math.ceil(maxvalue*1.3) ];
 				if (maxvalue>0)
@@ -148,7 +149,7 @@ function ActividadCtrl($rootScope,$scope,$location,$window,Arbol, ProcedimientoL
 			$scope.count = $scope.procedimientos.length;
 //console.log('50. procedimientos.length='+$scope.procedimientos.length+ ' procedimientosfiltrados.length='+$scope.procedimientosfiltrados.length)
 			$scope.procedimientos.forEach(function(p){
-				if (p.CODIGO < $scope.procedimientoSeleccionado.CODIGO)
+				if (p.codigo < $scope.procedimientoSeleccionado.codigo)
 					$scope.procedimientoSeleccionado = p;
 				var cumplimentado = $scope.cumplimentado(p);
 				cumplimentado && $scope.cumplimentados++;
@@ -195,7 +196,7 @@ function ActividadCtrl($rootScope,$scope,$location,$window,Arbol, ProcedimientoL
 			
 		}
 	});
-
+	$scope.anualidad = new Date().getFullYear();
 	$scope.camposfiltros = ['Denominacion Nivel 3','Denominacion Nivel 2','Denominacion Nivel 1', 'Nombre responsable',];
 	$scope.filtros = {};
 	$scope.filtro = {};
@@ -203,8 +204,8 @@ function ActividadCtrl($rootScope,$scope,$location,$window,Arbol, ProcedimientoL
 	$scope.responsables = {};
 	$scope.procedimientosocultos = false;
 	$scope.attrspar = [
-		'CODIGO',
-		'DENOMINACION DEL PROCEDIMIENTO',
+		'codigo',
+		'denominacion',
 		'Codigo Nivel 1',
 		'Denominacion Nivel 1',
 		'Codigo Nivel 2',
@@ -221,7 +222,6 @@ function ActividadCtrl($rootScope,$scope,$location,$window,Arbol, ProcedimientoL
 		'Plazo CS /ANS (dias naturales)',
 		'Plazo CS /ANS (dias habiles)',
 		'Pendientes iniciales (a 31-12)',
-
 	];
 	$scope.attrstabla = ['Tramitados 2013','Solicitados',
 		'Iniciados',
@@ -244,6 +244,5 @@ function ActividadCtrl($rootScope,$scope,$location,$window,Arbol, ProcedimientoL
 		'Pendientes',
 		];
 	$scope.meses = $rootScope.meses;
-
 }
 ActividadCtrl.$inject = ['$rootScope','$scope','$location','$window','Arbol','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','Session'];

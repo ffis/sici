@@ -72,9 +72,7 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="control-label col-md-3">
-							Filtro:
-						</label>
+						<label class="control-label col-md-3">Filtro:</label>
 						<div class="col-md-9">
 							<input ng-model="filtrotxtprocedimiento.$" class="form-control"/>
 						</div>
@@ -83,7 +81,7 @@
 			</div>
 		</div>
 		<div>
-			{{filtrotxtprocedimiento.CODIGO}}
+			{{filtrotxtprocedimiento.codigo}}
 		</div>
 		<div ng-if="procedimientosfiltrados.length">
 			<div ng-click="procedimientosocultos=!procedimientosocultos" class="cursor">
@@ -102,13 +100,13 @@
 			<ul style="list-style:none" ng-class="{'hidden': procedimientosocultos}">
 				<li ng-repeat="proc in procedimientosfiltrados |filter:filtrotxtprocedimiento" ng-click="setProcedimiento(proc)" class="cursor">
 					<span class="sparkline">
-						{{proc.Solicitados | json}}
+						{{proc.anualidades[anualidad].solicitados | json}}
 					</span>
 					<strong>
-						&nbsp;[{{proc.CODIGO}}]&nbsp;
+						&nbsp;[{{proc.codigo}}]&nbsp;
 					</strong>
-					<span ng-class="{'bg-danger':proc.CODIGO==procedimientoSeleccionado.CODIGO }">
-						{{proc['DENOMINACION DEL PROCEDIMIENTO']}}
+					<span ng-class="{'bg-danger':proc.codigo==procedimientoSeleccionado.codigo }">
+						{{proc.denominacion}}
 					</span>
 				</li>
 			</ul>
@@ -116,8 +114,8 @@
 		<div ng-if="procedimientoSeleccionado" id="procedimientoSeleccionado" class="details">
 			<hr/>
 			<h4>
-				<a title="Abrir en nueva pestaña" href="/procedimiento/{{procedimientoSeleccionado.CODIGO}}" class="text-danger">
-					{{procedimientoSeleccionado["DENOMINACION DEL PROCEDIMIENTO"]}}
+				<a title="Abrir en nueva pestaña" href="/procedimiento/{{procedimientoSeleccionado.codigo}}" class="text-danger">
+					{{procedimientoSeleccionado.denominacion}}
 					<span class="glyphicon glyphicon-share">
 					</span>
 				</a>

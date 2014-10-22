@@ -30,10 +30,10 @@ function IncoherenciasCtrl($rootScope,$scope,$window, Raw) {
 	$scope.procedimiento = Raw.query({model: 'procedimiento'},function(){
 		if (!$scope.idsencomun) $scope.idsencomun = {};
 		$scope.procedimiento.forEach(function(p){
-			if (typeof $scope.idsencomun['id'+p.CODIGO] === 'undefined')
-				$scope.idsencomun['id'+p.CODIGO] = {id: parseInt(p.CODIGO), procedimiento: p};
+			if (typeof $scope.idsencomun['id'+p.codigo] === 'undefined')
+				$scope.idsencomun['id'+p.codigo] = {id: parseInt(p.codigo), procedimiento: p};
 			else
-				$scope.idsencomun['id'+p.CODIGO].procedimiento = p;
+				$scope.idsencomun['id'+p.codigo].procedimiento = p;
 		});
 	});
 	$scope.crawled = Raw.query({model: 'crawled'},function(){
@@ -75,7 +75,7 @@ function IncoherenciasCtrl($rootScope,$scope,$window, Raw) {
 		var encontrado = false;
 		var j = $scope.guiacarm.length;
 		for(var i=0;i<j;i++){
-			if ($scope.guiacarm[i].id == p.CODIGO){
+			if ($scope.guiacarm[i].id == p.codigo){
 				encontrado=true;break;
 			}
 		};
@@ -85,7 +85,7 @@ function IncoherenciasCtrl($rootScope,$scope,$window, Raw) {
 		var encontrado = false;
 		var j = $scope.procedimiento.length;
 		for(var i=0;i<j;i++){
-			if (g.id == $scope.procedimiento[i].CODIGO){
+			if (g.id == $scope.procedimiento[i].codigo){
 				encontrado=true;break;
 			}
 		}

@@ -61,10 +61,10 @@ var schemasfields = {
 		'denominacion':String,
 		'idjerarquia': Number,
 		'tipo':String,
-		'codplaza':String,
-		'fechacreacion':Date,
-		'fechafin':Date,
-		'fechaversion':Date,
+		'cod_plaza':String,
+		'fecha_creacion':Date,
+		'fecha_fin':Date,
+		'fecha_version':Date,
 		//recalculable:
 		//ancestros : [ jerarquia]
 

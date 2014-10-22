@@ -57,6 +57,8 @@ var express = require('express'),
     app.get('/api/raw/:modelname',api.raw(models));
     app.get('/api/aggregate/:campo',api.aggregate(models));
     app.get('/api/aggregate/:campo/:match',api.aggregate(models));
+    app.get('/api/personasByPuesto/:cod_plaza',api.personasByPuesto(models));
+    
 
     app.get('/api/gs/:id',importador.parseGS());
     app.get('/api/cr/:id',importador.parseCr(Q, models));

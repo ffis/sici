@@ -7,10 +7,10 @@ angular.module('sici.translate', ['pascalprecht.translate'], ['$translateProvide
 		'denominacion': 'Denominación',
 
 		'tipo' : 'Tipo',
-		'codplaza': 'Código de plaza',
-		'fechacreacion' : 'Fecha de registro',
-		'fechafin' : 'Fecha de fin',
-		'fechaversion' : 'Fecha de versión',
+		'cod_plaza': 'Código de plaza',
+		'fecha_creacion' : 'Fecha de registro',
+		'fecha_fin' : 'Fecha de fin',
+		'fecha_version' : 'Fecha de versión',
 
 		'en_plazo' : 'En plazo',
 		'fuera_plazo' : 'Fuera de plazo',
@@ -36,10 +36,17 @@ angular.module('sici.translate', ['pascalprecht.translate'], ['$translateProvide
 
 		'pendientes_iniciales':'Pendientes iniciales (a 31-12)',
 		'periodoscerrados': 'Períodos cerrados',
-		'plazo_CS_ANS_habiles': 'Plazo CS /ANS (dias hábiles)',
+		'plazo_CS_ANS_habiles'  : 'Plazo CS /ANS (dias hábiles)',
 		'plazo_CS_ANS_naturales': 'Plazo CS /ANS (dias naturales)',
-		'plazo_maximo_resolver': 'Plazo máximo legal para resolver (días naturales)',
-		'plazo_maximo_responder': 'Plazo maximo legal para responder (dias hábiles)',
+		'plazo_maximo_resolver' : 'Plazo máximo legal para resolver (días naturales)',
+		'plazo_maximo_responder': 'Plazo máximo legal para responder (días hábiles)',
+
+		'codplaza' : 'Código de plaza',
+		'login' : 'Login CARM',
+		'nombre' : 'Nombre',
+		'apellidos' : 'Apellidos',
+		'telefono': 'Teléfono',
+
 	});
 	$translateProvider.preferredLanguage('es_ES');
 }]);

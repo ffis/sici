@@ -15,6 +15,10 @@ angular.module('sici.services', ['ngResource'])
         function ($resource) {
             return $resource('/api/procedimientoList/:idjerarquia', {}, { query: {method:'GET', isArray:true} });
 		}])
+    .factory('PersonasByPuesto', ['$resource',
+        function ($resource) {
+            return $resource('/api/personasByPuesto/:cod_plaza', {}, { query: {method:'GET', isArray:true} });
+        }])
 	.factory('DetalleCarmProcedimiento', ['$resource',
         function ($resource) {
             return $resource('/api/gs/:codigo', {}, {});
