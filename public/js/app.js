@@ -1,25 +1,20 @@
 'use strict';
 
-
-// Declare app level module which depends on filters, and services
 var app = angular.module('sici', [
-	'ngRoute','ngAnimate','ngSanitize','angular.filter',
-	'ui.bootstrap',
-  'easypiechart','nvd3ChartDirectives',
-  'angularFileUpload','xeditable',
-  'sici.filters', 'sici.services', 'sici.directives','sici.login.util'
-
+  	'ngRoute','ngAnimate','ngSanitize','angular.filter',
+  	'ui.bootstrap',
+    'easypiechart','nvd3ChartDirectives',
+    'angularFileUpload','xeditable',
+    'sici.filters', 'sici.services', 'sici.directives','sici.login.util','sici.translate',
+    'pascalprecht.translate',
   ]).
-  config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+  config(['$routeProvider', '$locationProvider','$logProvider', function($routeProvider, $locationProvider, $logProvider) {
+    $logProvider.debugEnabled(false);
 /*
-    
-
-    $routeProvider.when('/stats', {templateUrl: 'partial/3', controller: 'StatsCtrl'});
-    $routeProvider.when('/inconsistencias', {templateUrl: 'partial/4', controller: 'InconsistenciasCtrl'});
-    $routeProvider.when('/reglasinconsistencias', {templateUrl: 'partial/6', controller: 'ReglasInconsistenciasCtrl'});
+    $routeProvider.when('/stats', {templateUrl: 'partials/3', controller: 'StatsCtrl'});
+    $routeProvider.when('/inconsistencias', {templateUrl: 'partials/4', controller: 'InconsistenciasCtrl'});
+    $routeProvider.when('/reglasinconsistencias', {templateUrl: 'partials/6', controller: 'ReglasInconsistenciasCtrl'});
     */
-
-
 
     $routeProvider.when('/procedimiento/:codigo', {templateUrl: 'partials/detalles.html', controller: 'DetallesCtrl'});
     $routeProvider.when('/logout',    {templateUrl: 'partials/logout.html',    controller: 'LogoutCtrl'   });
@@ -31,7 +26,3 @@ var app = angular.module('sici', [
     $routeProvider.otherwise({redirectTo: '/welcome'});
     $locationProvider.html5Mode(true);
   }]);
-/*
-app.run(function(editableOptions) {
-  editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
-});*/

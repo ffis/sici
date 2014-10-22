@@ -14,13 +14,19 @@
 				</li>
 			-->
 				<li class="active">{{procedimientoSeleccionado.denominacion}}</li>
+				<li class="active">{{anualidad}}</li>
 			</ol>
 			<div class="col-lg-6">
 				<ul>
 					<li ng-repeat="attr in attrspar">
-						<strong>{{attr}}</strong>
+						<strong>{{attr| translate}}</strong>
 						<span>&nbsp;</span>
 						<a href="#" editable-text="procedimientoSeleccionado[attr]">{{ procedimientoSeleccionado[attr] || '-' }}</a>
+					</li>
+					<li ng-repeat="attr in attrsanualidad">
+						<strong>| {{attr| translate}}</strong>
+						<span>&nbsp;</span>
+						<a href="#" editable-text="procedimientoSeleccionado.anualidades[anualidad][attr]">{{ procedimientoSeleccionado.anualidades[anualidad][attr] || '-' }}</a>
 					</li>
 				</ul>
 			</div>
@@ -42,7 +48,7 @@
 					<div ng-repeat="(key,val) in detallesCarm" style="clear:both" ng-bind-html="val |treatAsHTML" ng-class="{ 'hidden':!detallesCarmHTML }">
 					</div>
 					<div ng-repeat="(key,val) in detallesCarm2" style="clear:both" ng-class="{ 'hidden':detallesCarmHTML }">
-						<strong>{{key}}</strong>
+						<strong>{{key }}</strong>
 						<span>&nbsp;</span>
 						<span>{{val}}</span>
 					</div>
@@ -58,16 +64,18 @@
 					</thead>
 					<tbody>
 						<tr ng-repeat="attr in attrstabla"> 
-							<th>{{attr}}</th>
-							<td ng-repeat="val in procedimientoSeleccionado[attr] track by $index" class="numberCell">
-								<a href="#" editable-text="procedimientoSeleccionado[attr][$index]" onaftersave="recalculate()" onbeforesave="checkNumber($data)">
-									{{ procedimientoSeleccionado[attr][$index] || 0  |numberFormat}}
+							<th>{{attr | translate}}</th>
+
+							<td ng-repeat="val in procedimientoSeleccionado.periodos[anualidad][attr] track by $index" class="numberCell">
+								<a href="#" editable-text="procedimientoSeleccionado.periodos[anualidad][attr][$index]" onaftersave="recalculate()" onbeforesave="checkNumber($data)">
+									{{ procedimientoSeleccionado.periodos[anualidad][attr][$index] || 0  |numberFormat}}
 								</a>
 							</td>
 						</tr>
 						<tr ng-repeat="attr in attrstablacalculados"> 
-							<th>{{attr}}</th>
-							<td ng-repeat="val in procedimientoSeleccionado[attr] track by $index" ng-class="{'text-danger': val&lt;0 }" class="numberCell">{{val | numberFormat}}
+							<th>{{attr | translate}}</th>
+
+							<td ng-repeat="val in procedimientoSeleccionado.periodos[anualidad][attr] track by $index" ng-class="{'text-danger': val&lt;0 }" class="numberCell">{{val | numberFormat}}
 							</td>
 						</tr>
 					</tbody>
@@ -131,7 +139,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr ng-repeat="(incumplimiento,valores) in procedimientoSeleccionado.Incidencias"> 
+					<tr ng-repeat="(incumplimiento,valores) in procedimientoSeleccionado.periodos[anualidad].Incidencias"> 
 						<th>{{incumplimiento}}</th>
 						<td ng-repeat="val in valores track by $index" ng-class="{'text-danger': val }" class="numberCell">{{val}}</td>
 					</tr>

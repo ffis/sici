@@ -1,6 +1,6 @@
 angular.module('sici.login.util', ['ngResource'])
-	.service('Session', ['$rootScope','$window', 
-		function ($rootScope, $window ) {
+	.service('Session', ['$rootScope','$window', '$log',
+		function ($rootScope, $window, $log ) {
 			this.userId = false;
 	  		this.create = function (data) {
 			    if (data)
@@ -16,7 +16,7 @@ angular.module('sici.login.util', ['ngResource'])
 					return this;
 			    }else if ($window.localStorage.client_session)
 				{
-					console.log("Cargando desde session storage");
+					$log.debug("Cargando desde session storage");
 					var suser, user;
 					suser =$window.localStorage.client_session;			
 					suser && (user = JSON.parse(suser));
@@ -56,26 +56,26 @@ angular.module('sici.login.util', ['ngResource'])
 			}
 		  });
 	 }])
-	.run(['$rootScope', '$location', 'AuthService',
-		function ($rootScope, $location, AuthService) {
+	.run(['$rootScope', '$location', 'AuthService','$log',
+		function ($rootScope, $location, AuthService, $log) {
 		  $rootScope.$on('$routeChangeStart', function (event, next, current) {		
 			if (!AuthService.isAuthenticated() &&  next &&  next.templateUrl != 'partials/login.html'){
-				console.info('No autenticado e intentando acceder a otra dirección. Vamos a login');
+				$log.debug('No autenticado e intentando acceder a otra dirección. Vamos a login');
 				$location.path('/login');
 			}
 			else if (AuthService.isAuthenticated() &&  next  && next.templateUrl == 'partials/login.html') {
-				console.info('Autenticado e intentando acceder a login. Vamos a /');
+				$log.debug('Autenticado e intentando acceder a login. Vamos a /');
 				$location.path('/welcome');
 			} else if (next && next.templateUrl) {
 				//ignorable
-				console.log(next.templateUrl);
+				$log.debug(next.templateUrl);
 			}else{
-				console.log(next);
+				$log.debug(next);
 			}
 		});
 	}])
-	.factory('AuthService',	 ['$http','Session','$rootScope', '$location', '$route','$window',
-		function ($http, Session, $rootScope, $location, $route, $window) {
+	.factory('AuthService',	 ['$http','Session','$rootScope', '$location', '$route','$window','$log',
+		function ($http, Session, $rootScope, $location, $route, $window,$log) {
 
 		  return {
 			login: function (credentials) {
@@ -83,10 +83,10 @@ angular.module('sici.login.util', ['ngResource'])
 				return $http.post('/authenticate', credentials)
 				  	.success(function (data, status, headers, config) {
 						$window.localStorage.token = data.token;
-						console.error('Contraseña válida');
+						$log.info('Contraseña válida');
 						Session.create(data.profile);
 					}).error(function(data, status, headers, config){
-						console.error('Contraseña no válida');
+						$log.info('Contraseña no válida');
 						delete $window.localStorage.token;
 					});
 			},
@@ -94,7 +94,7 @@ angular.module('sici.login.util', ['ngResource'])
 			    return Session;
 			},
 			logout : function() {
-				console.log('en AuthService.logout');
+				$log.debug('en AuthService.logout');
 				Session.destroy();
 				$rootScope.setLogeado(false);
 				$rootScope.logeado = false;
@@ -106,11 +106,11 @@ angular.module('sici.login.util', ['ngResource'])
 						url: '/logout',
 						data: 'username='+Session.userId
 					}).then(function(res){		
-						console.log('74')
+						$log.debug('74')
 						$location.path('/login');
 						$route.reload();
 					},function(res){
-						console.log(res.statusCode);
+						$log.debug(res.statusCode);
 						$location.path('/login');
 						$route.reload();	
 					});
