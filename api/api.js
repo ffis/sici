@@ -24,16 +24,51 @@ exports.procedimientoList = function(models, Q){
 		var Jerarquia = models.jerarquia();
 		var Procedimiento= models.procedimiento();
 		var restriccion = {};
+		
+		var d = Q.defer();
+		var promise = d.promise;
+		
+		if (typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))){
+			var idj = parseInt(req.params.idjerarquia);						
+			Jerarquia.find({'id':idj},function(err, data){
+				if (data.length>0) {
+					var r_jerarquia = data[0].descendientes;
+					r_jerarquia.push(idj);	
+					restriccion = { '$and' : [ 
+												{ 'idjerarquia' : { '$in' : r_jerarquia } } ,
+												{ 'idjerarquia' : { '$in' : req.user.permisoscalculados.jerarquialectura } }
+											]
+								};
+					d.resolve(restriccion);
+				}
+			});
+		} else {
+			d.resolve({ 'idjerarquia' : { '$in' : req.user.permisoscalculados.jerarquialectura } });			
+		}
+		
+		promise.then(function(restriccion){			
+			Procedimiento.find(restriccion,function(err,data){
+				if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }						
+				res.json(data);
+			});
+		});
+		
+		
+		
+
+		/*
 		var jerarquia = req.user.permisoscalculados.jerarquialectura;				
 		restriccion.id = {"$in" : jerarquia} ;		
 		if (typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))){
-			restriccion = { "$and" : [ restriccion , {'id':  parseInt(req.params.idjerarquia) } ] };
-			//restriccion.id = parseInt(req.params.idjerarquia);
+			restriccion = { "$and" : [ restriccion , {'id':  parseInt(req.params.idjerarquia) } ] };			
 		}
+		//if (typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))){
+		//	restriccion.id = parseInt(req.params.idjerarquia);
+		//}
 		Jerarquia.find(restriccion,function(err,data){
 			if (err) {  console.error(restriccion); console.error(err); res.status(500); res.end();  return ; }
 			console.error(data);
-
+			
 			if (data.length>0) {
 				var dfs = [];
 				for(var i=0;i<data.length;i++){
@@ -57,21 +92,8 @@ exports.procedimientoList = function(models, Q){
 					res.json(resultado);
 				});
 			}
-			/*
-			var restriccion = {}
-			if (typeof data[0].descendientes === 'undefined'){
-				console.error('ESTO NO DEBERIA PASAR');
-			}else{
-				var ids =  data[0].descendientes;
-				ids.push(parseInt(req.params.idjerarquia)) ;
-			 restriccion = { "idjerarquia" : { "$in" : ids} };
-		 	}
-			Procedimiento.find(restriccion,function(err,data){
-				if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }
-				res.json (data);
-			});
-			*/
-		});					   
+
+		});*/					   
 	};
 }
 
