@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "homepage": "https://github.com/Loksly/sici",
   "authors": [
-    "Mario Loksly <loksly@gmail.com>"
+    "Mario Loksly <loksly@gmail.com>",
+    "Ivan Lorca <ivanlorca@gmail.com>"
   ],
   "description": "SICI",
   "main": "index.html",
