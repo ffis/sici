@@ -81,7 +81,8 @@
 					<div class="form-group">
 						<label class="control-label col-md-3">Clave de agrupación:</label>
 						<div class="col-md-7">
-							<select ng-model="campo" ng-options="o as o for o in campos" class="form-control">
+							<select ng-model="campo"  class="form-control">
+								<option ng-repeat="o in campos" ng-value="o">{{o|translate}}</option>
 							</select>
 						</div>
 						<div class="col-md-2">
