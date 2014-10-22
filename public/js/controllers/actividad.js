@@ -1,4 +1,4 @@
-function ActividadCtrl($rootScope,$scope,$location,$window,Arbol, ProcedimientoList,DetalleCarmProcedimiento,DetalleCarmProcedimiento2, Session) {
+function ActividadCtrl($rootScope,$scope,$location,$window,Arbol, ProcedimientoList,DetalleCarmProcedimiento,DetalleCarmProcedimiento2, PersonasByPuesto, Session) {
 	$rootScope.nav = 'actividad';
 	$window.document.title ='SICI: Actividad';
 
@@ -245,4 +245,4 @@ function ActividadCtrl($rootScope,$scope,$location,$window,Arbol, ProcedimientoL
 		];
 	$scope.meses = $rootScope.meses;
 }
-ActividadCtrl.$inject = ['$rootScope','$scope','$location','$window','Arbol','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','Session'];
+ActividadCtrl.$inject = ['$rootScope','$scope','$location','$window','Arbol','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','PersonasByPuesto','Session'];
