@@ -1,0 +1,98 @@
+<div class="row">
+	<div class="col-lg-12">
+		<h1>Estadísticas</h1>
+		<div style="clear:both" ng-if="graphs.length" class="row">
+			<div class="col-sm-12 col-lg-4 col-md-5">
+				<h3 class="text-center">Tablas</h3>
+			</div>
+			<div class="col-sm-12 col-lg-8 col-md-7 well graphid">
+				<h3 class="text-center">Gráficas</h3>
+			</div>
+		</div>
+		<div ng-repeat="graph in graphs" ng-if="graph.data" style="clear:both" class="row">
+			<div class="btn btn-default pull-right">
+				<span ng-click="removeGraph($index )" class="glyphicon glyphicon-remove"></span>
+			</div>
+			<div class="clear">
+			</div>
+			<h5 class="text-danger text-center">{{graph.titulo}}</h5>
+			<div class="col-sm-12 col-lg-4 col-md-4">
+				<div class="table-resposive">
+					<table id="tabladatos{{$index}}" class="table table-striped table-bordered table-hover table-condensed col-lg-12">
+						<thead>
+							<tr>
+								<th scope="col">Nombre</th>
+								<th ng-class="{'text-danger':orden=='count'}" scope="col" ng-click="ascending=!ascending;orden='count'">N&ordm;</th>
+								<th colspan="2" ng-class="{'text-danger':orden=='cumplimentadas'}" scope="col" ng-click="ascending=!ascending;orden='cumplimentadas'">Cumplimentadas</th>
+								<th colspan="2" ng-class="{'text-danger':orden=='porcumplimentar'}" scope="col" ng-click="ascending=!ascending;orden='porcumplimentar'">Por cumplimentar</th>
+							</tr>
+						</thead>
+						<tfoot>
+							<tr>
+								<th>Total<span ng-click="exportXLS($index)" class="pull-right glyphicon glyphicon-floppy-disk">
+								</span>
+							</th>
+							<td class="numberCell">{{graph.sum}}</td>
+							<td class="numberCell">{{graph.sum - graph.porcumplimentar}}</td>
+							<td class="numberCell text-danger">{{ (100*(graph.sum - graph.porcumplimentar) /graph.sum).toFixed(2) }}%</td>
+							<td class="numberCell">{{graph.porcumplimentar}}</td>
+							<td class="numberCell text-danger">{{ (100*(graph.porcumplimentar) /graph.sum).toFixed(2) }}%</td>
+						</tr>
+					</tfoot>
+					<tbody>
+						<tr ng-repeat="row in graph.data |orderBy:orden:ascending" ng-click="addgraph(row,graph)" class="cursor">
+							<td ng-if="graph.campo=='codigo'">
+								<a href="/procedimiento/{{row._id}}">{{row._id}}</a>
+							</td>
+							<td ng-if="graph.campo!='codigo'">{{row._id}}</td>
+							<td class="numberCell">{{row.count}}</td>
+							<td class="numberCell">{{row.count - row.porcumplimentar}}</td>
+							<td class="numberCell text-danger">{{ (100*(row.count - row.porcumplimentar) /row.count).toFixed(2) }}%</td>
+							<td class="numberCell">{{row.porcumplimentar}}</td>
+							<td class="numberCell text-danger">{{ (100*(row.porcumplimentar) /row.count).toFixed(2) }}%</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="col-sm-12 col-lg-8 col-md-8 well graphid">
+			<h3>Número de procedimientos por agrupación</h3>
+			<nvd3-pie-chart noData="No hay datos que mostrar" data="graph.data" showXAxis="true" tooltips="true" showlabels="true" showLegend="true" interactive="true" height="300" width="{{widthgraph}}" x="xFunction()" y="yFunction()" tooltipcontent="toolTipContentFunction()" labeltype="percent">
+				<svg>
+				</svg>
+			</nvd3-pie-chart>
+			<h3>Número de procedimientos no cumplimentados por agrupación</h3>
+			<nvd3-pie-chart noData="No hay datos que mostrar" data="graph.data" showXAxis="true" tooltips="true" showlabels="true" showLegend="true" interactive="true" height="300" width="{{widthgraph}}" x="xFunction()" y="yFunction2()" tooltipcontent="toolTipContentFunction()" labeltype="percent">
+				<svg>
+				</svg>
+			</nvd3-pie-chart>
+			<h3>Número de procedimientos cumplimentados por agrupación</h3>
+			<nvd3-pie-chart noData="No hay datos que mostrar" data="graph.data" showXAxis="true" tooltips="true" showlabels="true" showLegend="true" interactive="true" height="300" width="{{widthgraph}}" x="xFunction()" y="yFunction3()" tooltipcontent="toolTipContentFunction()" labeltype="percent">
+				<svg>
+				</svg>
+			</nvd3-pie-chart>
+		</div>
+		<hr class="clear"/>
+		</div>
+		<div style="clear:both" class="row">
+			<div class="col-sm-12">
+				<p ng-if="graphs.length">Si pulsa sobre una fila de la tabla superior puede generar otra gráfica con la agrupación que haya seleccionado en la caja de debajo.</p>
+				<form class="form-horizontal">
+					<div class="form-group">
+						<label class="control-label col-md-3">Clave de agrupación:</label>
+						<div class="col-md-7">
+							<select ng-model="campo" ng-options="o as o for o in campos" class="form-control">
+							</select>
+						</div>
+						<div class="col-md-2">
+							<button ng-click="newGraph()" class="btn btn-danger">
+								<span class="glyphicon glyphicon-signal">
+								</span>
+							</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>

@@ -10,12 +10,10 @@ var app = angular.module('sici', [
   ]).
   config(['$routeProvider', '$locationProvider','$logProvider', function($routeProvider, $locationProvider, $logProvider) {
     $logProvider.debugEnabled(false);
-/*
-    $routeProvider.when('/stats', {templateUrl: 'partials/3', controller: 'StatsCtrl'});
-    $routeProvider.when('/inconsistencias', {templateUrl: 'partials/4', controller: 'InconsistenciasCtrl'});
-    $routeProvider.when('/reglasinconsistencias', {templateUrl: 'partials/6', controller: 'ReglasInconsistenciasCtrl'});
-    */
 
+    $routeProvider.when('/stats', {templateUrl: 'partials/stats.html', controller: 'StatsCtrl'});
+    $routeProvider.when('/inconsistencias', {templateUrl: 'partials/inconsistencias.html', controller: 'InconsistenciasCtrl'});
+    $routeProvider.when('/reglasinconsistencias', {templateUrl: 'partials/reglasinconsistencias.html', controller: 'ReglasInconsistenciasCtrl'});
     $routeProvider.when('/procedimiento/:codigo', {templateUrl: 'partials/detalles.html', controller: 'DetallesCtrl'});
     $routeProvider.when('/logout',    {templateUrl: 'partials/logout.html',    controller: 'LogoutCtrl'   });
     $routeProvider.when('/welcome',   {templateUrl: 'partials/welcome.html',   controller: 'WelcomeCtrl'  });

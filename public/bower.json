@@ -24,7 +24,8 @@
     "d3": "~3.4.13",
     "angularjs-nvd3-directives": "~0.0.7",
     "angular-xeditable": "~0.1.8",
-    "angular-translate": "~2.4.1"
+    "angular-translate": "~2.4.1",
+    "nvd3": "~1.1.15-beta"
   },
   "resolutions": {
     "d3": "~3.4.13"
