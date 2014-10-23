@@ -3,13 +3,16 @@
 		<h1>Inconsistencias</h1>
 		<div class="pull-right">
 			<a href="/reglasinconsistencias">
-				<span class="glyphicon glyphicon-pencil"> </span> <span>Editor de reglas</span>
+				<span class="glyphicon glyphicon-pencil"></span>
+				<span>Editor de reglas</span>
 			</a>
 		</div>
 		<div class="col-lg-12">
+			<p>Desde esta vista tiene acceso al listado de procedimientos que incumplen alguna de las reglas de inconsistencia descritas en el editor.</p>
 			<form class="form-horizontal">
 				<div style="margin-right:2em" ng-repeat="campo in camposamostrar" class="pull-left">
-					<label class="control-label">{{campo | translate}}<input style="margin-left:0.5em" type="checkbox" ng-model="seleccionados[campo]" ng-checked="camposmostrados.indexOf(campo)&gt;=0" ng-change="update()"/>
+					<label class="control-label">{{campo | translate}}
+						<input style="margin-left:0.5em" type="checkbox" ng-model="seleccionados[campo]" ng-checked="camposmostrados.indexOf(campo)>=0" ng-change="update()"/>
 					</label>
 				</div>
 			</form>
@@ -24,12 +27,13 @@
 					<table id="tabladatos{{$index}}" class="table table-striped table-bordered table-hover table-condensed col-lg-12">
 						<thead>
 							<tr>
-								<th ng-repeat="(campo,v) in seleccionados" ng-if="v" chapuza="chapuza">{{campo}}</th>
+								<th ng-repeat="(campo,v) in seleccionados" ng-if="v" chapuza="chapuza">{{campo |translate}}</th>
 							</tr>
 						</thead>
 						<tfoot>
 							<tr>
-								<td colspan="{{camposamostrar.length}}" class="text-center">Nº de registros mostrados
+								<td colspan="{{camposamostrar.length}}" class="text-center">
+									Nº de registros mostrados
 									<strong>{{inconsistencia.datos.length}}</strong>
 								</td>
 							</tr>
@@ -39,7 +43,7 @@
 								<td ng-if="seleccionados.codigo" class="text-center">
 									<a href="/procedimiento/{{row._id.codigo}}">{{row._id.codigo}}</a>
 								</td>
-								<td ng-repeat="(campo,v) in seleccionados" ng-if="v &amp;&amp; campo!='codigo'" chapuza="chapuza">{{row._id[campo]}}</td>
+								<td ng-repeat="(campo,v) in seleccionados" ng-if="v && campo!='codigo'" chapuza="chapuza">{{row._id[campo]}}</td>
 							</tr>
 						</tbody>
 					</table>

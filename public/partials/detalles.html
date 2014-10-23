@@ -128,7 +128,8 @@
 				</div>
 			</div>
 			<hr/>
-			<h5 class="text-danger">Incidencias</h5>
+			<h5 class="text-danger">Inconsistencias</h5>
+			<p>Una inconsistencia se da cuando alguno de los datos introducidos no refleja valores coherentes con el resto. Así, por ejemplo, no es consistente que haya un número negativo de expedientes resueltos, ni que el número de expedientes resueltos sea superior al de expedientes solicitados.</p>
 			<div ng-repeat="inconsistencia in inconsistencias" role="alert" ng-if="inconsistencia.datos.length&gt;0" class="alert alert-warning">
 				<span>{{inconsistencia.titulo}}</span>
 			</div>

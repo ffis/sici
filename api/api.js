@@ -33,83 +33,7 @@ exports.personasByPuesto = function(models){
  * Serve JSON to our AngularJS client
  */
 
-exports.procedimientoList = function(models, Q){
-	return function(req,res){
-		var Jerarquia = models.jerarquia();
-		var Procedimiento= models.procedimiento();
-		var restriccion = {};
-		
-		var d = Q.defer();
-		var promise = d.promise;
-		
-		if (typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))){
-			var idj = parseInt(req.params.idjerarquia);						
-			Jerarquia.find({'id':idj},function(err, data){
-				if (data.length>0) {
-					var r_jerarquia = data[0].descendientes;
-					r_jerarquia.push(idj);	
-					restriccion = { '$and' : [ 
-												{ 'idjerarquia' : { '$in' : r_jerarquia } } ,
-												{ 'idjerarquia' : { '$in' : req.user.permisoscalculados.jerarquialectura } }
-											]
-								};
-					d.resolve(restriccion);
-				}
-			});
-		} else {
-			d.resolve({ 'idjerarquia' : { '$in' : req.user.permisoscalculados.jerarquialectura } });			
-		}
-		
-		promise.then(function(restriccion){			
-			Procedimiento.find(restriccion,function(err,data){
-				if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }						
-				res.json(data);
-			});
-		});
-		
-		
-		
 
-		/*
-		var jerarquia = req.user.permisoscalculados.jerarquialectura;				
-		restriccion.id = {"$in" : jerarquia} ;		
-		if (typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))){
-			restriccion = { "$and" : [ restriccion , {'id':  parseInt(req.params.idjerarquia) } ] };			
-		}
-		//if (typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))){
-		//	restriccion.id = parseInt(req.params.idjerarquia);
-		//}
-		Jerarquia.find(restriccion,function(err,data){
-			if (err) {  console.error(restriccion); console.error(err); res.status(500); res.end();  return ; }
-			console.error(data);
-			
-			if (data.length>0) {
-				var dfs = [];
-				for(var i=0;i<data.length;i++){
-					var d = Q.defer();					
-					dfs.push(d.promise);
-					var descendientes = data[i].descendientes;
-					descendientes.push(data[i].id);
-					restriccion = { "idjerarquia" : { "$in" : descendientes} };
-					Procedimiento.find(restriccion,function(err,data){
-						if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }						
-						d.resolve(data);
-					});
-				}
-				var resultado = [];
-				Q.all(dfs).then(function(data){
-					for(var j=0;j<data.length;j++)
-					{
-						if (Array.isArray(data[j]))
-							resultado = resultado.concat(data[j]);
-					}
-					res.json(resultado);
-				});
-			}
-
-		});*/					   
-	};
-}
 
 function cargahijos(Q,Jerarquia, nodo, nivel){
 	var deferred = Q.defer();
@@ -136,21 +60,7 @@ function cargahijos(Q,Jerarquia, nodo, nivel){
 	return deferred.promise;
 }
 
-exports.procedimiento = function(models){
-	return function(req,res){
-		var Procedimiento= models.procedimiento();
-		var restriccion = {};
-		if (typeof req.params.codigo !== 'undefined')
-			restriccion.codigo = parseInt(req.params.codigo);
-		restriccion.idjerarquia = { '$in': req.user.permisoscalculados.jerarquialectura };
-			
-		Procedimiento.findOne(restriccion,function(err,data){
-			if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }
-			res.json (data);
-		});
-									   
-	};
-}
+
 
 exports.arbol = function(Q, models){
 	return function(req,res){
@@ -197,70 +107,6 @@ exports.raw = function(models){
 	}
 }
 
-exports.getReglaInconsistencia = function(models){
-	return function(req,res){
-		var Reglasinconsistencias = models.reglasinconsistencias();
-		var _id = req.params._id;
-		if (_id)
-		{
-			Reglasinconsistencias.findOne({'_id':id},function(err,data){
-				if (err) { console.error(err); res.status(500); res.end(); return ; }
-				res.json (data);
-			});
-		}
-		Reglasinconsistencias.find({},function(err,data){
-			if (err) { console.error(err); res.status(500); res.end(); return ; }
-			res.json (data);
-		});
-	}
-}
-
-
-exports.updateReglaInconsistencia = function(models){
-	return function(req, res) {
-		var Reglasinconsistencias = models.reglasinconsistencias();
-	    var id = req.params.id;
-
-	    var content = req.body;
-	    Reglasinconsistencias.update({'_id':id}, content, { upsert: true }, function(e){
-			if (e){
-				 res.send({'error':'An error has occurred'});
-			}else{
-				res.send(content);
-			}
-		});
-	}
-}
-
-exports.newReglaInconsistencia = function(models){
-	return function(req, res) {
-		var Reglasinconsistencias = models.reglasinconsistencias();
-
-	    var content = req.body;
-	    new Reglasinconsistencias(content).save( function(e){
-			if (e){
-				 res.send({'error':'An error has occurred'});
-			}else{
-				res.send(content);
-			}
-		});
-	}
-}
-
-exports.removeReglaInconsistencia = function(models){
-	return function(req, res) {
-		var Reglasinconsistencias = models.reglasinconsistencias();
-	    var id = req.params.id;
-	    var content = req.body;
-	    Reglasinconsistencias.remove({'_id':id}, function(e){
-			if (e){
-				 res.send({'error':'An error has occurred'});
-			}else{
-				res.send(content);
-			}
-		});
-	}
-}
 
 exports.aggregate = function(models){
 	return function(req,res){
