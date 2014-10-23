@@ -8,39 +8,39 @@ var schemasfields = {
 	settings: { version:Number,'secret':String, anyo: String, port:Number 	 },
 	reglasinconsistencias : { 'titulo':String, 'restriccion':String},
 	persona : {
-		codplaza : String,
-		login : String,
-		nombre : String,
-		apellidos : String,
-		genero : String,
-		telefono : String,
-		habilitado : Boolean,
-		ultimologin: Date,
+		'codplaza' : String,
+		'login' : String,
+		'nombre' : String,
+		'apellidos' : String,
+		'genero' : String,
+		'telefono' : String,
+		'habilitado' : Boolean,
+		'ultimologin': Date,
 	},
 	permiso : {
-		codplaza : String,
-		login : String,
-		jerarquialectura : [Number], /*calculados, cacheados*/
-		jerarquiaescritura : [Number],/*calculados, cacheados*/
-		jerarquiadirectalectura : [Number], /*reales, asignados*/
-		jerarquiadirectaescritura : [Number], /*reales, asignados*/
-		procedimientoslectura : [Number],  /*calculados, cacheados*/
-		procedimientosescritura : [Number],  /*calculados, cacheados*/
-		procedimientosdirectalectura : [Number], /*reales, asignados*/
-		procedimientosdirectaescritura : [Number], /*reales, asignados*/		
-		caducidad : Date,
-		descripcion : String,
-		grantoption: Boolean, /* puede clonar su permiso */
-		superuser : Number,
+		'codplaza' : String,
+		'login' : String,
+		'jerarquialectura' : [Number], /*calculados, cacheados*/
+		'jerarquiaescritura' : [Number],/*calculados, cacheados*/
+		'jerarquiadirectalectura' : [Number], /*reales, asignados*/
+		'jerarquiadirectaescritura' : [Number], /*reales, asignados*/
+		'procedimientoslectura' : [Number],  /*calculados, cacheados*/
+		'procedimientosescritura' : [Number],  /*calculados, cacheados*/
+		'procedimientosdirectalectura' : [Number], /*reales, asignados*/
+		'procedimientosdirectaescritura' : [Number], /*reales, asignados*/		
+		'caducidad' : Date,
+		'descripcion' : String,
+		'grantoption': Boolean, /* puede clonar su permiso */
+		'superuser' : Number,
 	},
 	registroactividad : {
-		usr : String,
-		fecha : Date,
-		url : String
+		'usr' : String,
+		'fecha' : Date,
+		'url' : String
 	},
 	expediente: {
 		idexpediente : String,
-		procedimiento: {type:Number,ref:'Procedimiento'},
+		procedimiento: Number,
 		fechainicio : Date,
 		fechafin : Date,
 		periodossuspension: [Number],
@@ -71,8 +71,10 @@ var schemasfields = {
 		'fecha_creacion':Date,
 		'fecha_fin':Date,
 		'fecha_version':Date,
-		//recalculable:
-		//ancestros : [ jerarquia]
+
+		//recalculable: (se incluye como AnyType abajo)
+		//'ancestros' : [ jerarquia],
+		//responsables
 
 		'periodos':{
 			'2013':
@@ -109,7 +111,7 @@ var schemasfields = {
 				'quejas':[Number],
 				'recursos':[Number],
 				'fuera_plazo':[Number],
-				'pedientes':[Number],
+				'pendientes':[Number],
 				'totalsolicitudes':Number,
 				'Incidencias': {
 					'Se han resuelto expedientes fuera de Plazo': [Number],
@@ -140,7 +142,6 @@ function schemaConstructor(name, mongoose, strict){
 		cfg.strict = false;
 	var objSchema = new Schema (fields, cfg);
 	schemas[name]= mongoose.model(name,objSchema);
-// 	console.log('inicializado:'+name + ' con '+JSON.stringify(fields));
  	if (typeof schemasfields[name] === 'undefined')
 		console.error(schemasfields[name]);
 	return schemas[name];
@@ -151,6 +152,7 @@ exports.init = function(mongoose) {
 	schemasfields.crawled.any = Schema.Types.Mixed;
 	schemasfields.registroactividad.req = Schema.Types.Mixed;
 	schemasfields.procedimiento.ancestros = Schema.Types.Mixed;
+	schemasfields.procedimiento.responsables = Schema.Types.Mixed;
 	
 	for(var name in schemasfields){
 		exports[name](mongoose);

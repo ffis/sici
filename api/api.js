@@ -27,10 +27,10 @@ function cargahijos(Q,Jerarquia, nodo, nivel){
 				var hijopromesa = cargahijos(Q,Jerarquia, hijo, nivel+1);
 				promesas.push(hijopromesa);
 				hijopromesa.then(function(val){
-					returnValue.push({ _id:hijo._id, id:hijo.id, title: hijo.nombre, nodes: val});
+					returnValue.push({ _id:hijo._id, id:hijo.id, title: hijo.nombrelargo, nodes: val});
 				});
 			}else{
-				returnValue.push({ _id:hijo._id, id:hijo.id, title: hijo.nombre, nodes: []});
+				returnValue.push({ _id:hijo._id, id:hijo.id, title: hijo.nombrelargo, nodes: []});
 			}
 		});
 		Q.all(promesas).then(function(){
@@ -41,7 +41,8 @@ function cargahijos(Q,Jerarquia, nodo, nivel){
 }
 
 
-
+//TODO: calcularlo en un solo find de Mongo
+//y cachearlo incluso
 exports.arbol = function(Q, models){
 	return function(req,res){
 	
@@ -57,11 +58,11 @@ exports.arbol = function(Q, models){
 				{
 					var nodesPromise = cargahijos(Q,Jerarquia, nodo, 1);
 					nodesPromise.then(function(val){
-						returnValue.push({_id:nodo._id, id:nodo.id, title: nodo.nombre, nodes: val});
+						returnValue.push({_id:nodo._id, id:nodo.id, title: nodo.nombrelargo, nodes: val});
 					});
 					promises.push(nodesPromise);
 				}else{
-					returnValue.push({_id:nodo._id, id:nodo.id, title: nodo.nombre, nodes: [] });
+					returnValue.push({_id:nodo._id, id:nodo.id, title: nodo.nombrelargo, nodes: [] });
 				}
 			});
 			Q.all(promises).then(function(){

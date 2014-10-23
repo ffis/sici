@@ -8,6 +8,7 @@ app = module.exports = express(),
 expressJwt = require('express-jwt'),
 jwt = require('jsonwebtoken'),
 
+recalculate = require('./api/recalculate'),
 routes = require('./routes'),
 models = require('./api/models');
 
@@ -17,6 +18,7 @@ importador = require('./api/importador'),
 reglainconsistencia = require('./api/reglainconsistencia'),
 procedimiento = require('./api/procedimiento'),
 persona = require('./api/persona'),
+
 
 app.set('mongosrv', process.env.MONGOSVR || 'mongodb://mongosvr/sici');
 
@@ -76,6 +78,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.put('/api/reglasinconsistencias/:id', reglainconsistencia.updateReglaInconsistencia(models));
   app.delete('/api/reglasinconsistencias/:id', reglainconsistencia.removeReglaInconsistencia(models));
 
+  app.get('/test/fullSyncjerarquia', recalculate.test( Q, models));
 
 // redirect all others to the index (HTML5 history)
   app.get('*', routes.index);//devolver el index.html del raiz
