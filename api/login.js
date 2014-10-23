@@ -34,11 +34,20 @@ exports.authenticate = function(config){
  					function(err, permisos){
  						var o = JSON.parse(JSON.stringify(personas[0]));
 
-						o.permisos = permisos ? permisos : [];
-						o.permisoscalculados = o.permisos[0];
-						for(var i=1,j=o.permisos.length; i<j;i++ ){
-							o.permisoscalculados.jerarquialectura   = o.permisoscalculados.jerarquialectura.concat( o.permisos[i].jerarquialectura);
-							o.permisoscalculados.jerarquiaescritura = o.permisoscalculados.jerarquiaescritura.concat( o.permisos[i].jerarquiaescritura);
+						o.permisos = [];
+						o.permisoscalculados = {
+							jerarquialectura :[], jerarquiaescritura :[], procedimientoslectura :[], procedimientosescritura :[],
+						};
+						var now = new Date();
+						for(var i=0,j = permisos.length; i<j;i++ ){
+							if (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime())
+							{
+								o.permisoscalculados.jerarquialectura   = o.permisoscalculados.jerarquialectura.concat( permisos[i].jerarquialectura);
+								o.permisoscalculados.jerarquiaescritura = o.permisoscalculados.jerarquiaescritura.concat( permisos[i].jerarquiaescritura);
+								o.permisoscalculados.procedimientoslectura   = o.permisoscalculados.procedimientoslectura.concat( permisos[i].procedimientoslectura);
+								o.permisoscalculados.procedimientosescritura = o.permisoscalculados.procedimientosescritura.concat( permisos[i].procedimientosescritura);
+								o.permisos.push( permisos[i] );
+							}
 						}
 						var token = jwt.sign(o, secret, { expiresInMinutes: 60*5 });
 						res.json({ profile: o, token: token, permisos : permisos });

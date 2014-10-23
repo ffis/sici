@@ -20,10 +20,14 @@ var schemasfields = {
 	permiso : {
 		codplaza : String,
 		login : String,
-		jerarquialectura : [Number],
-		jerarquiaescritura : [Number],
-		jerarquiadirectalectura : [Number],
-		jerarquiadirectaescritura : [Number],
+		jerarquialectura : [Number], /*calculados, cacheados*/
+		jerarquiaescritura : [Number],/*calculados, cacheados*/
+		jerarquiadirectalectura : [Number], /*reales, asignados*/
+		jerarquiadirectaescritura : [Number], /*reales, asignados*/
+		procedimientoslectura : [Number],  /*calculados, cacheados*/
+		procedimientosescritura : [Number],  /*calculados, cacheados*/
+		procedimientosdirectalectura : [Number], /*reales, asignados*/
+		procedimientosdirectaescritura : [Number], /*reales, asignados*/		
 		caducidad : Date,
 		descripcion : String
 	},
