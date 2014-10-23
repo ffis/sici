@@ -19,14 +19,26 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 		
 		var graphskeys = [
 				{caption:'RESUMEN DE DATOS DE GESTIÓN',keys:[
-					'anualidades.'+	$scope.anualidad+'.solicitados',
-					/*'Iniciados','Pendientes','Total resueltos'*/
+					{caption:'Solicitados', vals:'periodos.'+$scope.anualidad+'.solicitados'},
+					{caption:'Iniciados', vals:'periodos.'+$scope.anualidad+'.iniciados'},
+					{caption:'Pendientes', vals:'periodos.'+$scope.anualidad+'.pendientes'},
+					{caption:'Total resueltos', vals:'periodos.'+$scope.anualidad+'.total_resueltos'},
+					{caption:'Total resueltos '+($scope.anualidad-1), vals:'periodos.'+($scope.anualidad-1)+'.total_resueltos'},
+				]},
+				{caption:'RESUELTOS EN PLAZO',keys:[
+					{caption:'En plazo', vals:'periodos.'+$scope.anualidad+'.en_plazo'},
+					{caption:'Fuera de plazo', vals:'periodos.'+$scope.anualidad+'.fuera_plazo'},
 					]},
-				{caption:'RESUELTOS EN PLAZO',keys:['En plazo','Fuera de plazo']},
-				{caption:'DESESTIMIENTOS/RENUNCIAS Y PRESCRITOS/CADUCADOS',keys:['Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)',	'Resueltos por Prescripcion/Caducidad (Resp_Admon)']},
-				{caption:'QUEJAS Y RECURSOS CONTRA EL PROCEDIMIENTO',keys:['Quejas presentadas en el mes','Recursos presentados en el mes']},
-				{caption:'VARIACIÓN DE TRAMITACIÓN MENSUAL (DATOS ABSOLUTOS)',keys:['Tramitados 2013','Total resueltos']},
+				{caption:'DESESTIMIENTOS/RENUNCIAS Y PRESCRITOS/CADUCADOS',keys:[
+					{caption:'Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)', vals:'periodos.'+$scope.anualidad+'.resueltos_desistimiento_renuncia_caducidad'},
+					{caption:'Resueltos por Prescripcion/Caducidad (Resp_Admon)', vals:'periodos.'+$scope.anualidad+'.resueltos_prescripcion'},
+					]},
+				{caption:'QUEJAS Y RECURSOS CONTRA EL PROCEDIMIENTO',keys:[
+					{caption:'Quejas presentadas en el mes', vals:'periodos.'+$scope.anualidad+'.quejas'},
+					{caption:'Recursos presentados en el mes', vals:'periodos.'+$scope.anualidad+'.recursos'},
+					]},
 			];
+		$scope.graphskeys = graphskeys;
 		$scope.graphs = [];
 		graphskeys.forEach(function(g, i){
 			$scope.numgraphs = 0;
@@ -34,13 +46,22 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 			var data = [];
 			var caption = g.caption;
 			g.keys.forEach(function(key,indx){
+				var k = $scope.procedimientoSeleccionado;
 				var values = [];
-				if (typeof $scope.procedimientoSeleccionado[key] != 'undefined'){
-					$scope.procedimientoSeleccionado[key].forEach(function (val,idx) {
+				var indexes = key.vals.split('.');
+				for(var i in indexes){
+					var index = indexes[i];
+					if (typeof k[index] == 'undefined') break;
+					k = k[index];
+				}
+				if (typeof k != 'undefined' && k.length >0){
+					k.forEach(function (val,idx) {
 						values.push( [ idx, val] ) ;
 						if (maxvalue< val) maxvalue=val;
 					});
-					data.push(	{ "key": key,"values": values} );
+					data.push(	{ "key": key.caption,"values": values} );
+				}else{
+					console.log('Index malo:'+indexes);
 				}
 			})
 			var forcey = [0, Math.ceil(maxvalue*1.3) ];
@@ -53,9 +74,13 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 		$scope.inconsistencias =  Raw.query({model: 'reglasinconsistencias'},function(){
 			$scope.inconsistencias.forEach(function(i,idx){
 				var campo = {'codigo':'$codigo'};
-				var restriccion = JSON.parse(i.restriccion);
-				restriccion.CODIGO = $scope.procedimientoSeleccionado.codigo;
-				$scope.inconsistencias[idx].datos = Aggregate.query({ campo : JSON.stringify(campo), restriccion:JSON.stringify(restriccion)});
+				try{
+					var restriccion = JSON.parse(i.restriccion);
+					restriccion.CODIGO = $scope.procedimientoSeleccionado.codigo;
+					$scope.inconsistencias[idx].datos = Aggregate.query({ campo : JSON.stringify(campo), restriccion:JSON.stringify(restriccion)});
+				}catch(exception){
+					console.error('La restricción '+i.restriccion+' no es correcta');
+				}
 			});
 		});
 
