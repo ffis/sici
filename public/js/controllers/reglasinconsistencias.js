@@ -1,6 +1,7 @@
 function ReglasInconsistenciasCtrl($rootScope,$scope,$routeParams,ReglasInconsistencias) {
 	$scope.cambios = [];
 	$scope.inconsistencias =  ReglasInconsistencias.query();
+	$scope.nuevo =  new ReglasInconsistencias();
 	$scope.actualizar = function(regla){
 		regla.$update(function(){
 			$scope.cambios = [];
@@ -13,7 +14,12 @@ function ReglasInconsistenciasCtrl($rootScope,$scope,$routeParams,ReglasInconsis
 			$scope.inconsistencias =  ReglasInconsistencias.query();
 		});
 	};
+	$scope.guardar = function(regla){
+		ReglasInconsistencias.save($scope.nuevo, function() {
+			$scope.inconsistencias = ReglasInconsistencias.query();
+			$scope.nuevo = new ReglasInconsistencias();
+		});
+	}
 }
 
 ReglasInconsistenciasCtrl.$inject = ['$rootScope','$scope','$routeParams','ReglasInconsistencias'];
-

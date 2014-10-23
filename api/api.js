@@ -232,6 +232,21 @@ exports.updateReglaInconsistencia = function(models){
 	}
 }
 
+exports.newReglaInconsistencia = function(models){
+	return function(req, res) {
+		var Reglasinconsistencias = models.reglasinconsistencias();
+
+	    var content = req.body;
+	    new Reglasinconsistencias(content).save( function(e){
+			if (e){
+				 res.send({'error':'An error has occurred'});
+			}else{
+				res.send(content);
+			}
+		});
+	}
+}
+
 exports.removeReglaInconsistencia = function(models){
 	return function(req, res) {
 		var Reglasinconsistencias = models.reglasinconsistencias();

@@ -1,4 +1,4 @@
-
+"use strict";
 
 var schemas = {};
 
@@ -29,7 +29,9 @@ var schemasfields = {
 		procedimientosdirectalectura : [Number], /*reales, asignados*/
 		procedimientosdirectaescritura : [Number], /*reales, asignados*/		
 		caducidad : Date,
-		descripcion : String
+		descripcion : String,
+		grantoption: Boolean, /* puede clonar su permiso */
+		superuser : Number,
 	},
 	registroactividad : {
 		usr : String,

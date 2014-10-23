@@ -8,6 +8,21 @@
 						<th>Regla</th>
 					</tr>
 				</thead>
+				<tfoot style="background-color:#eee">
+					<tr>
+						<th>
+							<input ng-model="nuevo.titulo" class="form-control"/>
+						</th>
+						<td>
+							<input ng-model="nuevo.restriccion" class="form-control"  />
+						</td>
+						<td>
+							<button ng-click="guardar(nuevo)" class="btn btn-default">
+								<span class="glyphicon glyphicon-ok"></span>
+							</button>
+						</td>
+					</tr>
+				</tfoot>
 				<tbody>
 					<tr ng-repeat="inconsistencia in inconsistencias track by $index">
 						<th>
@@ -25,6 +40,7 @@
 							</button>
 						</td>
 					</tr>
+
 				</tbody>
 			</table>
 		</div>
