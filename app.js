@@ -6,16 +6,17 @@ path = require('path'),
 mongoose = require('mongoose'),
 app = module.exports = express(),
 expressJwt = require('express-jwt'),
-
 jwt = require('jsonwebtoken'),
-routes = require('./routes'),
-api = require('./api/api'),
-reglainconsistencia = require('./api/reglainconsistencia'),
-procedimiento = require('./api/procedimiento'),
 
+routes = require('./routes'),
+models = require('./api/models');
+
+api = require('./api/api'),
 login = require('./api/login'),
 importador = require('./api/importador'),
-models = require('./api/models');
+reglainconsistencia = require('./api/reglainconsistencia'),
+procedimiento = require('./api/procedimiento'),
+persona = require('./api/persona'),
 
 app.set('mongosrv', process.env.MONGOSVR || 'mongodb://mongosvr/sici');
 
@@ -58,13 +59,16 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.get('/api/raw/:modelname',api.raw(models));
   app.get('/api/aggregate/:campo',api.aggregate(models));
   app.get('/api/aggregate/:campo/:match',api.aggregate(models));
-  app.get('/api/personasByPuesto/:cod_plaza',api.personasByPuesto(models));
+  
 
   app.get('/api/gs/:id',importador.parseGS());
   app.get('/api/cr/:id',importador.parseCr(Q, models));
 
-  app.get('/api/procedimiento/:codigo', procedimiento.procedimiento(models) );
+
+  app.get('/api/personasByPuesto/:cod_plaza',persona.personasByPuesto(models));
+
   app.get('/api/procedimiento', procedimiento.procedimiento(models) );
+  app.get('/api/procedimiento/:codigo', procedimiento.procedimiento(models) );
   app.get('/api/procedimientoList/:idjerarquia', procedimiento.procedimientoList(models, Q) );
 
   app.get('/api/reglasinconsistencias', reglainconsistencia.getReglaInconsistencia(models));
