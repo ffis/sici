@@ -74,7 +74,7 @@ var schemasfields = {
 
 		//recalculable: (se incluye como AnyType abajo)
 		//'ancestros' : [ jerarquia],
-		//responsables
+		//responsables : [persona]
 
 		'periodos':{
 			'2013':

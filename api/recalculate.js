@@ -6,8 +6,164 @@ function parseStr2Int (str){
 }
 
 
+exports.softCalculatePermiso = function(Q, models, permiso){
+	var Jerarquia = models.jerarquia();
+	var Procedimiento = models.procedimiento();
+	/*
+	origen de datos:
+	'jerarquiadirectalectura' : [Number],
+	'jerarquiadirectaescritura' : [Number],
+	'procedimientosdirectalectura' : [Number],
+	'procedimientosdirectaescritura' : [Number],
+	*/
+
+	var deferred = Q.defer();
+	var deferredProcedimiento = Q.defer();	
+
+	permiso.jerarquialectura = [];
+	permiso.jerarquiaescritura = [];
+	permiso.procedimientoslectura = [];
+	permiso.procedimientosescritura = [];
+
+
+	//por codplaza
+
+	Procedimiento.find({cod_plaza: permiso.codplaza}, function(err,procedimientos){
+		if (err){ deferredProcedimiento.fail( err ); return; }
+		procedimientos.forEach(function(procedimiento){
+			if (permiso.jerarquialectura.indexOf(procedimiento.idjerarquia) < 0)
+				permiso.jerarquialectura.push(procedimiento.idjerarquia);
+
+			permiso.procedimientoslectura.push(procedimiento.codigo);
+			permiso.procedimientosescritura.push(procedimiento.codigo);
+
+		});
+		deferredProcedimiento.resolve();
+	})
+
+
+	deferredProcedimiento.promise.then(function(){
+
+		var attrsOrigenjerarquia = ['jerarquiadirectalectura', 'jerarquiadirectalectura'];
+		var attrsjerarquia = ['jerarquialectura', 'jerarquiaescritura'];
+		
+		var defs = [];
+
+		attrsjerarquia.forEach(function(attr, idx){
+			var idsjerarquia = permiso[ attrsOrigenjerarquia[idx] ];
+			if (idsjerarquia.length==0) return;
+			var def = Q.defer();
+			Jerarquia.find({ id:{ '$in':idsjerarquia } },function(err,jerarquias){
+				if (err){ def.fail( err ); return; }
+				jerarquias.forEach(function(jerarquia){
+					if (permiso[ attr ].indexOf(jerarquia.id) < 0)
+						permiso[ attr ].push(jerarquia.id);
+					jerarquia.descendientes.forEach(function(idjerarquia){
+						if (permiso[ attr ].indexOf(idjerarquia) < 0)
+							permiso[ attr ].push(idjerarquia);
+					});
+				});
+				def.resolve();
+			});
+
+			defs.push(def);
+		});
+console.log(defs.length);
+		var defs2 = [];
+		Q.all(defs).then(function(){
+
+console.log(defs.length);
+			var attrprocedimientos = ['procedimientoslectura', 'procedimientosescritura'];
+			var attrsOrigenjerarquia = ['jerarquialectura', 'jerarquiaescritura'];
+			var attrprocedimientosDirecto = ['procedimientosdirectalectura', 'procedimientosdirectaescritura'];
+
+			attrprocedimientos.forEach(function(attr, idx){
+console.log(attr);
+				permiso[ attr ] = [];
+				
+				if (permiso [ attrprocedimientosDirecto[idx] ])
+					permiso[ attr ] = permiso[ attr ].join( permiso [ attrprocedimientosDirecto[idx] ]);
+
+				var idsjerarquia = permiso[ attrsOrigenjerarquia[idx] ];
+				if (idsjerarquia.length==0) return;
+
+				var def = Q.defer();
+				Procedimiento.find({ idjerarquia:{ '$in':idsjerarquia } },function(err,procedimientos){
+console.log(procedimientos);
+					if (err){ def.fail( err ); return; }
+					procedimientos.forEach(function(procedimiento){
+						if (permiso[ attr ].indexOf(procedimiento.codigo) < 0)
+							permiso[ attr ].push(procedimiento.codigo);
+					});
+
+					def.resolve();
+				});
+				defs2.push(def);
+			});
+		});
+					
+		
+		Q.all(defs2).then(function(){
+			deferred.resolve( permiso );
+		}).fail(function(err){
+			deferred.fail( err  );
+		});
+	});
+	return deferred.promise;
+}
+
+
 //comprobar si el periodo esta cerrado es cosa
 //del crud
+
+//'ancestros' : [ jerarquia],
+//responsables : [persona]
+exports.softCalculateProcedimientoCache = function(Q, models, procedimiento){
+	var deferred = Q.defer();
+	var deferredJerarquia = Q.defer();	
+	var deferredPersona = Q.defer();	
+
+	procedimiento.ancestros = [];
+	procedimiento.responsables = [];
+
+	var idjerarquia = procedimiento.idjerarquia;
+	var Jerarquia = models.jerarquia();
+	var Persona = models.persona();
+	
+	Jerarquia.findOne({id:idjerarquia},function(err,jerarquia){
+		if (err){ deferred.fail(err); return; }
+		if (!jerarquia){ deferred.resolve([]); return; }
+		var ids = [idjerarquia].concat(jerarquia.ancestros);
+		
+		Jerarquia.find({ id: {'$in' : ids } }, function(id, jerarquias){
+			jerarquias.sort(function(j1,j2){
+				return j2.ancestros.length - j1.ancestros.length ;
+			});
+			deferredJerarquia.resolve(jerarquias);
+		});
+	});
+
+	Persona.find({codplaza: procedimiento.cod_plaza}, function(err,personas){
+		if (err){ deferred.fail(err); return; }
+		deferredPersona.resolve(personas);
+	});
+
+	deferredJerarquia.promise.then(function(jerarquias){
+		procedimiento.ancestros = jerarquias;
+	});
+	deferredPersona.promise.then(function(personas){
+		procedimiento.responsables = personas;
+	})
+
+	Q.all([deferredJerarquia.promise, deferredPersona.promise]).then(function(){
+		deferred.resolve(procedimiento);	
+	}).fail(function(err){
+		deferred.fail(err);
+	})
+
+	return deferred.promise;
+}
+
 
 exports.softCalculateProcedimiento = function(Q, procedimiento){
 	var deferred = Q.defer();
@@ -169,6 +325,17 @@ exports.fullSyncjerarquia = function( Q, models){
 
 exports.test = function(Q,models){
 	return function(req,res){
-		exports.fullSyncjerarquia(Q,models).then(function(ress){ res.json(ress); });
+		var Permiso = models.permiso();
+		Permiso.findOne({codplaza:'JS00040'}, function(err,permiso){
+			var response = {
+				antes: JSON.parse(JSON.stringify(permiso)),
+			};
+			exports
+				.softCalculatePermiso(Q,models, permiso)
+				.then(function(ress){
+					response.despues = res;
+					res.json(response);
+				});
+		})
 	};
 }
