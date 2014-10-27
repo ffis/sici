@@ -271,7 +271,9 @@ function transformExcel2Procedimiento(objeto){
 
 	if (!objeto['CODIGO']) return false;
 
-	if (!objeto['2013']) objeto['2013'] = {
+	if (!objeto.periodos)
+		objeto.periodos = {};
+	objeto.periodos['2013'] = {
 		plazo_maximo_resolver : (objeto['Plazo maximo legal para resolver (dias naturales)']),
 		plazo_maximo_responder : (objeto['Plazo maximo legal para responder (dias habiles)']),
 		plazo_CS_ANS_naturales : (objeto['Plazo CS /ANS (dias naturales)']),
@@ -296,9 +298,9 @@ function transformExcel2Procedimiento(objeto){
 		objeto[campo] = objeto[ nuevomapping [ campo] ];
 		delete  objeto[ nuevomapping [ campo] ];
 	}
-	if (!objeto['2014']) objeto['2014'] = {};
+	if (!objeto.periodos['2014']) objeto.periodos['2014'] = {};
 	for(var campo in mappinganyo){
-		objeto['2014'][campo] = objeto[ mappinganyo [ campo ] ];
+		objeto.periodos['2014'][campo] = objeto[ mappinganyo [ campo ] ];
 		delete  objeto[ mappinganyo [ campo ] ];	
 	}
 

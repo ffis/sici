@@ -140,6 +140,7 @@ exports.aggregate = function(models){
 		//console.log(JSON.stringify(group));
 		connection.aggregate(group ,function(err,data){
 			if (err) { console.error(err); res.status(500); res.end(); return ; }
+			//console.log(JSON.stringify(group));
 			res.json (data);
 		});		
 	}

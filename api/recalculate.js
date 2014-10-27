@@ -26,19 +26,24 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 	permiso.procedimientosescritura = [];
 
 
-	//por codplaza
-	Procedimiento.find({cod_plaza: permiso.codplaza}, function(err,procedimientos){
-		if (err){ console.error(err);console.error(32); deferredProcedimiento.fail( err ); return; }
-		procedimientos.forEach(function(procedimiento){
-			if (permiso.jerarquialectura.indexOf(procedimiento.idjerarquia) < 0)
-				permiso.jerarquialectura.push(procedimiento.idjerarquia);
+	if (permiso.codplaza && permiso.codplaza!='')
+	{
 
-			permiso.procedimientoslectura.push(procedimiento.codigo);
-			permiso.procedimientosescritura.push(procedimiento.codigo);
-		});
+		//por codplaza
+		Procedimiento.find({cod_plaza: permiso.codplaza}, function(err,procedimientos){
+			if (err){ console.error(err);console.error(32); deferredProcedimiento.fail( err ); return; }
+			procedimientos.forEach(function(procedimiento){
+				if (permiso.jerarquialectura.indexOf(procedimiento.idjerarquia) < 0)
+					permiso.jerarquialectura.push(procedimiento.idjerarquia);
+
+				permiso.procedimientoslectura.push(procedimiento.codigo);
+				permiso.procedimientosescritura.push(procedimiento.codigo);
+			});
+			deferredProcedimiento.resolve();
+		})
+	}else{
 		deferredProcedimiento.resolve();
-	})
-
+	}
 
 	deferredProcedimiento.promise.then(function(){
 
@@ -61,6 +66,7 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 							permiso[ attr ].push(idjerarquia);
 					});
 				});
+
 				def.resolve();
 			});
 
@@ -69,7 +75,6 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 
 		var defs2 = [];
 		Q.all(defs).then(function(){
-
 
 			var attrprocedimientos = ['procedimientoslectura', 'procedimientosescritura'];
 			var attrsOrigenjerarquia = ['jerarquialectura', 'jerarquiaescritura'];
@@ -98,13 +103,16 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 				});
 				defs2.push(def.promise);
 			});
-		});
-					
-		Q.all(defs2).then(function(){
-			deferred.resolve( permiso );
-		}).fail(function(err){
-			console.error(110);
-			deferred.fail( err  );
+
+
+			Q.all(defs2).then(function(){
+
+				deferred.resolve( permiso );
+			}).fail(function(err){
+				console.error(110);
+				deferred.fail( err  );
+			});
+
 		});
 	});
 	return deferred.promise;
@@ -324,7 +332,7 @@ exports.fullSyncjerarquia = function( Q, models){
 exports.test = function(Q,models){
 	return function(req,res){
 		var Permiso = models.permiso();
-		Permiso.findOne({codplaza:'JS00040'}, function(err,permiso){
+		Permiso.findOne({login:'ill11v'}, function(err,permiso){
 			var response = {
 				antes: JSON.parse(JSON.stringify(permiso)),
 			};
@@ -332,8 +340,21 @@ exports.test = function(Q,models){
 				.softCalculatePermiso(Q,models, permiso)
 				.then(function(ress){
 
-					response.despues = ress;
-					res.json(response);
+					
+//permiso.save();
+/*
+					Permiso.update({login:'ill11v'}, ress, { upsert: true },
+						function(e){
+						if (e){
+							console.error(e);
+							response.despues = ress;
+							res.json(response);
+						}
+					})					
+*/
+					res.json(ress);
+
+
 				}).fail(function(err){
 					console.error(341);
 					console.error(err);
