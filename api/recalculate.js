@@ -36,7 +36,6 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 			permiso.procedimientoslectura.push(procedimiento.codigo);
 			permiso.procedimientosescritura.push(procedimiento.codigo);
 		});
-		console.log(permiso.procedimientoslectura);
 		deferredProcedimiento.resolve();
 	})
 
@@ -65,7 +64,7 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 				def.resolve();
 			});
 
-			defs.push(def);
+			defs.push(def.promise);
 		});
 
 		var defs2 = [];
@@ -97,7 +96,7 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 					def.resolve();
 					
 				});
-				defs2.push(def);
+				defs2.push(def.promise);
 			});
 		});
 					

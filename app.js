@@ -79,6 +79,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.delete('/api/reglasinconsistencias/:id', reglainconsistencia.removeReglaInconsistencia(models));
 
   app.get('/test/fullSyncjerarquia', recalculate.test( Q, models));
+  app.get('/test/testImportadorExcel', importador.testImportadorExcel(Q, models, recalculate));
 
 // redirect all others to the index (HTML5 history)
   app.get('*', routes.index);//devolver el index.html del raiz
