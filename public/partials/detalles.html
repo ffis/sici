@@ -18,18 +18,18 @@
 					<li ng-repeat="attr in attrspar">
 						<strong>{{attr| translate}}</strong>
 						<span>&nbsp;</span>
-						<a href="#" editable-text="procedimientoSeleccionado[attr]">{{ procedimientoSeleccionado[attr] || '-' }}</a>
+						<a href="#" onaftersave="recalculate()" editable-text="procedimientoSeleccionado[attr]">{{ procedimientoSeleccionado[attr] || '-' }}</a>
 					</li>
 					<li ng-repeat="attr in attrsanualidad">
 						<strong>| {{attr| translate}}</strong>
 						<span>&nbsp;</span>
-						<a href="#" editable-text="procedimientoSeleccionado.anualidades[anualidad][attr]">{{ procedimientoSeleccionado.anualidades[anualidad][attr] || '-' }}</a>
+						<a href="#" onaftersave="recalculate()" editable-text="procedimientoSeleccionado.anualidades[anualidad][attr]">{{ procedimientoSeleccionado.anualidades[anualidad][attr] || '-' }}</a>
 					</li>
 				</ul>
 			</div>
 			<div class="col-lg-3 well" style="background-image:linear-gradient(to bottom,#fedede 0,#eeeeee 80%);">
 				<h5 class="text-danger">Responsables</h5>
-				<ul ng-repeat="responsable in responsables">
+				<ul ng-repeat="responsable in procedimientoSeleccionado.responsables">
 					<li ng-repeat="attr in attrsresp">
 						<strong>{{attr| translate}}</strong>
 						<span>&nbsp; {{ responsable[attr] || '-' }}</span>
@@ -94,6 +94,7 @@
 						</div>
 					</div>
 				</div>
+				{{numgraphs}}
 				<hr style="clear:both"/>
 				<div ng-repeat="graph in graphs" ng-if="!graficasbarras &amp;&amp; graph.data &amp;&amp; !graficasgrandes" ng-class="{'col-lg-3':(numgraphs%4==0),'col-lg-3':(numgraphs%3==0)}" class="col-md-6 well">
 					<h5 class="text-danger text-center">{{graph.caption}}</h5>
