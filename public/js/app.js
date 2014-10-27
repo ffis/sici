@@ -20,6 +20,7 @@ var app = angular.module('sici', [
 		$routeProvider.when('/login',     {templateUrl: 'partials/login.html',     controller: 'LoginCtrl'    });	
     $routeProvider.when('/update',    {templateUrl: 'partials/upload.html',    controller: 'UpdateCtrl'   });
     $routeProvider.when('/actividad', {templateUrl: 'partials/actividad.html', controller: 'ActividadCtrl'});
+    $routeProvider.when('/actividad/:idjerarquia', {templateUrl: 'partials/actividad.html', controller: 'ActividadCtrl'});
     $routeProvider.when('/errors',    {templateUrl: 'partials/incoherencias.html', controller: 'IncoherenciasCtrl'});
     $routeProvider.otherwise({redirectTo: '/welcome'});
     $locationProvider.html5Mode(true);

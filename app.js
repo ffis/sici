@@ -44,7 +44,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.use(express.static(path.join(__dirname, 'public')));
 
   app.use(express.errorHandler());
-  mongoose.set('debug', true);
+  mongoose.set('debug', false);
 
   app.use('/api', expressJwt({secret: cfg.secret}));
   app.use('/api', api.log(models));

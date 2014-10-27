@@ -4,7 +4,7 @@ function StatsCtrl($rootScope,$scope,$window,Aggregate){
 	$window.document.title ='SICI: Estadísticas';
 	$scope.graphs = [];
 
-	$scope.campos = ['cod_plaza','denominacion','codigo','ancestros[0].nombre'];
+	$scope.campos = ['cod_plaza','denominacion','codigo','ancestros.nombre'];
 	$scope.campo = $scope.campos[0];
 
 	$scope.newGraph = function(){
@@ -39,14 +39,16 @@ function StatsCtrl($rootScope,$scope,$window,Aggregate){
 		var restriccion = graph.campo+':'+row._id;
 		var titulo = row._id;
 		var campo = $scope.campo;
+
+		//JSON.stringify(campo)
 		$scope.tmp  = Aggregate.query({campo: $scope.campo,restriccion:restriccion},aux(campo,titulo,restriccion));
 	};
 
 	$scope.orden='count';
 	$scope.ascending=true;
 
-	$scope.xFunction = function () { return function (d) { var a = d._id.replace('CONSEJERIA',"CONSJ.").replace('ORGANISMO',"ORG."); if (a.length > 20) a=a.substring(0,18)+'...'; return a; }; };
-	$scope.yFunction = function () { return function (d) { return d.count; }; };
+	$scope.xFunction  = function () { return function (d) { var a = d._id.replace('CONSEJERIA',"CONSJ.").replace('ORGANISMO',"ORG."); if (a.length > 20) a=a.substring(0,18)+'...'; return a; }; };
+	$scope.yFunction  = function () { return function (d) { return d.count; }; };
 	$scope.yFunction2 = function () { return function (d) { return d.porcumplimentar; }; };
 	$scope.yFunction3 = function () { return function (d) { return d.cumplimentadas; }; };
 	$scope.toolTipContentFunction = function(){ return function(key, x, y, e, graph) { return  '<p>'+ y.point._id +' : '+parseInt(x) + '</p>'; }};

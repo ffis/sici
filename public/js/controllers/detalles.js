@@ -76,7 +76,7 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 				var campo = {'codigo':'$codigo'};
 				try{
 					var restriccion = JSON.parse(i.restriccion);
-					restriccion.CODIGO = $scope.procedimientoSeleccionado.codigo;
+					restriccion.codigo = $scope.procedimientoSeleccionado.codigo;
 					$scope.inconsistencias[idx].datos = Aggregate.query({ campo : JSON.stringify(campo), restriccion:JSON.stringify(restriccion)});
 				}catch(exception){
 					console.error('La restricción '+i.restriccion+' no es correcta');
@@ -93,17 +93,9 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 		'fecha_creacion',
 		'fecha_fin',
 		'fecha_version',
-		'Login responsable',
-		'Nombre responsable',
-		'Correo-e responsable',
-		'Teléfono responsable',
-		'Plazo maximo legal para resolver (dias naturales)',
-		'Plazo maximo legal para responder (dias habiles)',
-		'Plazo CS /ANS (dias naturales)',
-		'Plazo CS /ANS (dias habiles)',
-		'Pendientes iniciales (a 31-12)',
 	];
-	$scope.attrsanualidad = ['pendientes_iniciales','periodoscerrados','plazo_CS_ANS_habiles','plazo_CS_ANS_naturales','plazo_maximo_resolver','plazo_maximo_responder'];
+	$scope.attrsanualidad = ['pendientes_iniciales','periodoscerrados',
+		'plazo_CS_ANS_habiles','plazo_CS_ANS_naturales','plazo_maximo_resolver','plazo_maximo_responder'];
 		
 	$scope.attrstabla = [
 		'solicitados',
@@ -117,7 +109,6 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 		/* 'totalsolicitudes', */
 	$scope.attrstablacalculados = ['fuera_plazo', 'pendientes'];
 	$scope.attrsresp = ['codplaza', 'login','nombre','apellidos','telefono'];
-
 
 	$scope.meses = $rootScope.meses;
 	$scope.colorText = $rootScope.colorText;
