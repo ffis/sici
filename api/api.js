@@ -17,7 +17,7 @@ exports.log = function(models){
 
 function cargahijos(Q,Jerarquia, nodo, nivel){
 	var deferred = Q.defer();
-	Jerarquia.find( {ancestros:nodo.id}, function(err, nodos){	
+	Jerarquia.find( {ancestros:nodo.id,numprocedimientos: {$gt :0 }}, function(err, nodos){	
 		var returnValue = [];			
 		var promesas = [];
 		nodos.forEach(function(hijo){
@@ -49,7 +49,7 @@ exports.arbol = function(Q, models){
 		var Jerarquia = models.jerarquia();
 		var returnValue = [];
 		var promises = [];
-		Jerarquia.find({ancestros:[]}, function(err, raiz){
+		Jerarquia.find({ancestros:[],numprocedimientos: {$gt :0 } }, function(err, raiz){
 			if (err){ console.error(err);res.status(500); res.json(err); res.end(); return; }
 			//console.log(raiz);
 			raiz.forEach(function(nodo, idx, arr){

@@ -60,7 +60,8 @@ var schemasfields = {
 		'ancestrodirecto':Number,
 		//recalculables
 		'ancestros':[Number],
-		'descendientes':[Number]
+		'descendientes':[Number],
+		'numprocedimientos': Number,
 	},
 	procedimiento : {
 		'codigo':Number,
