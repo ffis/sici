@@ -133,7 +133,7 @@
 						<th class="text-center">{{proc.codigo}}</th>
 						<td><a href="/procedimiento/{{proc.codigo}}">{{proc.denominacion}}</a></td>
 						<td class="text-center">{{proc.cod_plaza}}</td>
-						<td class="text-center">{{proc.ancestros.length==0 ? '' : proc.ancestros[ 0 ].nombrelargo}}</td>
+						<td class="text-center"><a href="/actividad/{{proc.ancestros[ 0 ].id}}">{{proc.ancestros.length==0 ? '' : proc.ancestros[ 0 ].nombrelargo}}</a></td>
 						<td class="text-right">{{proc.periodos[anualidad].totalsolicitudes}}</td>
 						<td class="text-right">{{proc.periodos[anualidad].solicitados[mesanterior]}}</td>
 					</tr>

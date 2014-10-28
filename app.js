@@ -84,7 +84,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.put('/api/reglasinconsistencias/:id', reglainconsistencia.updateReglaInconsistencia(models));
   app.delete('/api/reglasinconsistencias/:id', reglainconsistencia.removeReglaInconsistencia(models));
   
-  app.get('/api/fprocedimiento', recalculate.fprocedimiento( Q, models));
+  app.get('/api/fprocedimiento', recalculate.fprocedimiento( Q, models, procedimiento));
   app.get('/api/fjerarquia', recalculate.fjerarquia( Q, models));
   app.get('/api/fpermiso', recalculate.fpermiso( Q, models));
 

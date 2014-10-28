@@ -249,7 +249,7 @@ exports.softCalculateProcedimiento = function(Q, procedimiento){
 	return deferred.promise;
 }
 
-exports.fullSyncprocedimiento = function( Q, models){
+exports.fullSyncprocedimiento = function( Q, models, fnprocedimiento){
 	var deferred = Q.defer();
 	var Procedimiento = models.procedimiento();
 	var informes = [];
@@ -269,15 +269,17 @@ exports.fullSyncprocedimiento = function( Q, models){
 							informes.push({codigo: proccodigo, status:500});
 							promise.reject(procedimiento);
 						}else{
-							procedimiento.save(function(error){
-								if (error){
-									console.error(error);
-									informes.push({codigo: procedimiento.codigo, status:500});
-					    			promise.reject(err);
-								}else{
-									informes.push({codigo: procedimiento.codigo, status:200, procedimiento: procedimiento });
-									promise.resolve();
-								}
+							fnprocedimiento.saveVersion(models, Q, procedimiento).then(function(){
+								procedimiento.save(function(error){
+									if (error){
+										console.error(error);
+										informes.push({codigo: procedimiento.codigo, status:500});
+						    			promise.reject(err);
+									}else{
+										informes.push({codigo: procedimiento.codigo, status:200, procedimiento: procedimiento });
+										promise.resolve();
+									}
+								});
 							});
 						}
 				    },function(err){
@@ -458,10 +460,10 @@ exports.fullSyncjerarquia = function( Q, models){
 	return deferred.promise;
 }
 
-exports.fprocedimiento = function(Q,models){
+exports.fprocedimiento = function(Q,models, fnprocedimiento){
 	return function(req,res){
 		if (req.user.permisoscalculados.superuser){
-			exports.fullSyncprocedimiento( Q, models).then(function(o){
+			exports.fullSyncprocedimiento( Q, models , fnprocedimiento).then(function(o){
 				res.json(o);
 			}, function(e){
 				console.error(e);

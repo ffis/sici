@@ -76,8 +76,23 @@ exports.procedimientoList = function(models, Q){
 				res.json(data);
 			});
 		});
-		
-		
+	};
+}		
+
+exports.saveVersion = function(models, Q, procedimiento){
+	var defer = Q.defer();
+	var Historico = models.historico();
+	var v = JSON.parse(JSON.stringify(procedimiento));
+	delete v._id;
+	var version = new Historico(v);
+	console.log('Voy a intentar guardar '+procedimiento.codigo);
+	version.save(function(err){
+		if (err) defer.reject(err);
+		else defer.resolve();
+	});
+	return defer.promise;
+}
+
 		
 
 		/*
@@ -118,5 +133,3 @@ exports.procedimientoList = function(models, Q){
 			}
 
 		});*/					   
-	};
-}

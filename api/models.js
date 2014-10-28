@@ -7,6 +7,7 @@ var schemasfields = {
 	guiacarm: {	'id':Number,'titulo':String },
 	settings: { version:Number,'secret':String, anyo: String, port:Number 	 },
 	reglasinconsistencias : { 'titulo':String, 'restriccion':String},
+	historico: {},
 	persona : {
 		'codplaza' : String,
 		'login' : String,
@@ -148,14 +149,16 @@ function schemaConstructor(name, mongoose, strict){
 	if (typeof schemas[name] !== 'undefined') return schemas[name];
 	if (typeof mongoose === 'undefined'){  throw new Error('Debe inicializar el schema previamente a su uso.'); }
 	var Schema = mongoose.Schema;
-	var fields = schemasfields[name];
+	var fields = schemasfields[name] ? schemasfields[name] : {} ;
 	var cfg = { collection: name };
-	if (strict)
+	if (Object.keys(fields).length==0 || !strict)
 		cfg.strict = false;
 	var objSchema = new Schema (fields, cfg);
 	schemas[name]= mongoose.model(name,objSchema);
+	
  	if (typeof schemasfields[name] === 'undefined')
-		console.error(schemasfields[name]);
+		console.error(__filename+':'+ schemasfields[name]);
+	
 	return schemas[name];
 }
 
