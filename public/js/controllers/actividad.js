@@ -1,8 +1,28 @@
-function ActividadCtrl($rootScope,$scope,$location,$window,$routeParams,Arbol, ProcedimientoList,DetalleCarmProcedimiento,DetalleCarmProcedimiento2, PersonasByPuesto, Session) {
+function ActividadCtrl($rootScope,$scope,$location,$window,$routeParams, Arbol, ProcedimientoList,DetalleCarmProcedimiento,DetalleCarmProcedimiento2, PersonasByPuesto, Session) {
 	$rootScope.nav = 'actividad';
 	$window.document.title ='SICI: Actividad';
-
 	$scope.idjerarquia = ($routeParams.idjerarquia) ? $routeParams.idjerarquia :false;
+
+	$scope.camposfiltros = ['cod_plaza'];
+	$scope.filtros = {};
+	$scope.filtro = {};
+	$scope.camporesponsable = 'Nombre responsable';
+	$scope.responsables = {};
+	$scope.procedimientosocultos = false;
+	$scope.meses = $rootScope.meses;
+	$scope.reverse = false;
+	$scope.anualidad = new Date().getFullYear();
+	$scope.mesanterior = new Date().getMonth()-1;
+	
+	if ($scope.mesanterior < 0)
+		$scope.mesanterior = 11;
+
+	var camposProcedimientos = [
+		'codigo','denominacion','cod_plaza',
+		'ancestros.id','ancestros.nombrelargo',
+		'periodos.'+$scope.anualidad+'.totalsolicitudes',
+		'periodos.'+$scope.anualidad+'.solicitados'
+	]
 
 	$scope.setJerarquiaById = function(idjerarquia){
 		var setJ = function(nodo, idjerarquia){
@@ -20,7 +40,6 @@ function ActividadCtrl($rootScope,$scope,$location,$window,$routeParams,Arbol, P
 			return false;
 		};
 		$scope.arbol.forEach(function(nodo,idx){
-			//console.log('revisando el nodo:'+ JSON.stringify(nodo));
 			setJ(nodo,idjerarquia);
 		})
 	};
@@ -51,7 +70,7 @@ function ActividadCtrl($rootScope,$scope,$location,$window,$routeParams,Arbol, P
 			if (seleccionad) {
 				$scope.seleccionado = seleccionad;
 				$rootScope.setTitle(seleccionad.title); 
-				$scope.procedimientos = ProcedimientoList.query({idjerarquia:seleccionad.id}); 
+				$scope.procedimientos = ProcedimientoList.query({idjerarquia:seleccionad.id, fields:camposProcedimientos.join(' ')}); 
 				$scope.cumplimentados = 0;
 				$scope.count = 1;
 				$("body").animate({scrollTop: $('#detallesjerarquia').offset().top}, "slow");
@@ -167,18 +186,7 @@ function ActividadCtrl($rootScope,$scope,$location,$window,$routeParams,Arbol, P
 		}
 	});
 	
-	$scope.camposfiltros = ['cod_plaza'];
-	$scope.filtros = {};
-	$scope.filtro = {};
-	$scope.camporesponsable = 'Nombre responsable';
-	$scope.responsables = {};
-	$scope.procedimientosocultos = false;
-	$scope.meses = $rootScope.meses;
-	$scope.anualidad = new Date().getFullYear();
-	$scope.mesanterior = new Date().getMonth()-1;
-	$scope.reverse = false;
-	if ($scope.mesanterior < 0)
-		$scope.mesanterior = 11;
+
 	
 }
 ActividadCtrl.$inject = ['$rootScope','$scope','$location','$window','$routeParams','Arbol','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','PersonasByPuesto','Session'];
