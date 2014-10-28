@@ -80,11 +80,18 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.post('/api/reglasinconsistencias', reglainconsistencia.newReglaInconsistencia(models));
   app.put('/api/reglasinconsistencias/:id', reglainconsistencia.updateReglaInconsistencia(models));
   app.delete('/api/reglasinconsistencias/:id', reglainconsistencia.removeReglaInconsistencia(models));
+  
+  app.get('/api/fprocedimiento', recalculate.fprocedimiento( Q, models));
+  app.get('/api/fjerarquia', recalculate.fjerarquia( Q, models));
+  app.get('/api/fpermiso', recalculate.fpermiso( Q, models));
 
+<<<<<<< HEAD
   app.get('/api/permisosList/:idjerarquia', permiso.permisosList(models, Q)); 
   app.get('/api/permisosList', permiso.permisosList(models, Q));
 
   app.get('/test/recalculate', recalculate.test( Q, models));
+=======
+>>>>>>> aaf2136e55e7c192de4e418d9d88983be622de2b
   app.get('/test/testImportadorExcel', importador.testImportadorExcel(Q, models, recalculate));
 
 // redirect all others to the index (HTML5 history)

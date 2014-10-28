@@ -113,12 +113,12 @@
 					<th></th>
 				</tr>
 			</thead>
-			<tbody ng-repeat="permiso in permisos" ng-if="permisos.length">				
-				<tr>
+			<tbody ng-if="permisos.length || procedimientos.length ">				
+				<tr ng-repeat="permiso in permisos" ng-if="permisos.length">
 					<td>{{permiso.login}}</td>
 					<td>{{permiso.codplaza}}</td>
-					<td></td>
-					<td ng-if="show_recursive_users">{{}}</td>
+					<td ng-if="is_show_recursive_users">-</td>
+					<td>No</td>
 					<td>{{isR(permiso) ? 'Sí' : 'No'}}</td>
 					<td>{{isW(permiso) ? 'Sí' : 'No'}}</td>					
 					<td>{{isP(permiso) ? 'Sí' : 'No'}}</td>					
@@ -130,16 +130,19 @@
 						<div>
 					</td>
 				</tr>
-			</tbody>
-			<tbody ng-repeat="responsable in responsables" ng-if="responsables.length && show_responsables">
-				<tr class="responsable">
-					<td>{{soyDios ? getResponables(responsable) : ''}}</td>
-					<td>{{responsable.codplaza}}</td>
-					<td></td>
-					<td ng-if="show_recursive_users">{{}}</td>
-					<td>{{isR(permiso) ? 'Sí' : 'No'}}</td>
-					<td>{{isW(permiso) ? 'Sí' : 'No'}}</td>					
-					<td>{{isP(permiso) ? 'Sí' : 'No'}}</td>					
+				<tr ng-repeat="procedimiento in procedimientos" class="responsable">
+					<td>
+						<span class="badge" ng-repeat="r in procedimiento.responsables" ng-if="procedimiento.responsables && procedimiento.cod_plaza" title="{{r.nombre}} {{r.apellidos}}">
+							{{r.login}} &nbsp;&nbsp;
+						</span>
+						<span class="badge alert-warning" ng-if="!procedimiento.responsables  && procedimiento.cod_plaza"><i>No disponible</i></span>
+					</td>
+					<td>{{procedimiento.cod_plaza}}</td>
+					<td ng-if="is_show_recursive_users">{{procedimiento.codigo}}</td>
+					<td>Sí</td>
+					<td>-</td>
+					<td>-</td>					
+					<td>-</td>					
 					<td>
 						<div class="btn-group pull-right">
 							<div class="btn btn-default" title="Eliminar permiso">
@@ -147,9 +150,9 @@
 							</div>	
 						<div>
 					</td>				
-				</tr>
+				</tr>				
 			</tbody>
-			<tbody ng-if="!permisos.length">
+			<tbody ng-if="!permisos.length && !procedimientos.length">
 				<tr>
 					<td ng-if="is_show_recursive_users" colspan="8">
 						No hay permisos asignados a este nivel de jerarquía o en los descendientes.
