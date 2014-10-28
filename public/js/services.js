@@ -17,7 +17,7 @@ angular.module('sici.services', ['ngResource'])
 		}])
 	.factory('PermisosList',['$resource',
 		function ($resource) {
-			return $resource('/api/permisosList/:idjerarquia', {}, { query : {method:'GET', isArray:false} });
+			return $resource('/api/permisosList/:idjerarquia/:recursivo', {}, { query : {method:'GET', isArray:false} });
 		}])
     .factory('PersonasByPuesto', ['$resource',
         function ($resource) {

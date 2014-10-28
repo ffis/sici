@@ -80,13 +80,16 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.post('/api/reglasinconsistencias', reglainconsistencia.newReglaInconsistencia(models));
   app.put('/api/reglasinconsistencias/:id', reglainconsistencia.updateReglaInconsistencia(models));
   app.delete('/api/reglasinconsistencias/:id', reglainconsistencia.removeReglaInconsistencia(models));
+
   
   app.get('/api/fprocedimiento', recalculate.fprocedimiento( Q, models));
   app.get('/api/fjerarquia', recalculate.fjerarquia( Q, models));
   app.get('/api/fpermiso', recalculate.fpermiso( Q, models));
 
-  app.get('/api/permisosList/:idjerarquia', permiso.permisosList(models, Q)); 
+  app.get('/api/permisosList/:idjerarquia/:recursivo', permiso.permisosList(models, Q)); 
   app.get('/api/permisosList', permiso.permisosList(models, Q));
+  app.delete('/api/permisos/delete-jerarquia/:permiso/:jerarquia', permiso.removePermisoJerarquia(models,Q))
+  app.delete('/api/permisos/delete-procedimiento/:permiso/:procedimiento', permiso.removePermisoJerarquia(models,Q))
 
   app.get('/test/testImportadorExcel', importador.testImportadorExcel(Q, models, recalculate));
 

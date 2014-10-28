@@ -7,13 +7,16 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 	$scope.oculto = false;	
 	$scope.is_show_recursive_users = false;
 	$scope.show_responsables = true;
+	$scope.show_form_add_permiso = false;
 	
 	
 	$scope.show_recursive_users = function(){
 		$scope.is_show_recursive_users = true;
+		$scope.setSeleccionado($scope.seleccionado);		
 	}
 	$scope.show_normal = function(){
 		$scope.is_show_recursive_users = false;
+		$scope.setSeleccionado($scope.seleccionado);
 	}
 	
 
@@ -32,10 +35,11 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 	$scope.filtrosocultos = false;
 	$scope.setSeleccionado = function(seleccionad){
 			if (seleccionad) {
+				$scope.show_form_add_permiso = false;
 				$scope.seleccionado = seleccionad;
 				$rootScope.setTitle(seleccionad.title); 
 				//$scope.procedimientos = ProcedimientoList.query({idjerarquia:seleccionad.id}); 
-				$scope.permisostotales = PermisosList.query({idjerarquia:seleccionad.id}, function() {
+				$scope.permisostotales = PermisosList.query({idjerarquia:seleccionad.id, 'recursivo':($scope.is_show_recursive_users?1:0)}, function() {
 					$scope.permisos = $scope.permisostotales.permisos;
 					$scope.procedimientos = $scope.permisostotales.procedimientos;
 				});
@@ -44,6 +48,8 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 				$scope.count = 1;
 			}
 		};
+		
+
 
 	$scope.colorText = $rootScope.colorText;
 	
@@ -64,15 +70,13 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 
 	$scope.isFiltroSelected= function(filtro,key,fa){
 		return (typeof filtro[key] != 'undefined' && fa.name==filtro[key]);
-	}
-	
-	$scope.getResponables = function(procedimiento) 
-	{
-		if (procedimiento.responsables)
-			return procedimiento.responsables;
-		else return [];
 	};
 
+	$scope.addPermiso = function() {
+		if ($scope.seleccionado !== 'undefined') {
+			
+		}
+	}
     
 	/*
 	

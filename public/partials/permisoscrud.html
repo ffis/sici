@@ -1,5 +1,5 @@
 
-<style type="text/css"
+<style type="text/css">
 <!--
 	.tree_leaft_crud {
 		font-style:italic;
@@ -7,10 +7,18 @@
 	.tree_leaft_crud_tools {
 		
 	}
--->
+	a.addPermiso {
+		background-color:green;
+		color:white;
+	}
+	
+	a.addPermiso:hover {
+		background-color:white;
+		color:green;
+	}-->
 </style>
 <div ng-controller="PermisoCtrl" class="row">
-	<div ng-class="{'col-lg-4': !oculto, 'hidden': oculto}" class="left animated">
+<div ng-class="{'col-lg-5': !oculto, 'hidden': oculto}" class="left animated">
 		<div class="panel panel-danger">
 			<div class="panel-heading">
 				<h3 class="panel-title">
@@ -19,43 +27,59 @@
 			</div>
 			<div class="panel-body">			
 				<input type="text" ng-model="texto.$" placeholder="Filtro" style="margin-bottom:1em" class="form-control"/>
-				<ul ng-if="arbol.length">
-					<li ng-repeat="element in arbol |filter:texto| filter:filtrojerarquia	">
+				<ul ng-if="arbol.length" style="padding-left:0.6em">
+					<li ng-repeat="element in arbol |filter:texto| filter:filtrojerarquia" ng-class="{'list-group-item-warning':element.id==seleccionado.id}">
+						<p>
 						<strong>
 							[{{element.id}}] &nbsp;
 						</strong>
-						<span ng-class="{'bg-danger':element.id==seleccionado.id }" ng-click="setSeleccionado(element)" class="cursor">
+						<span ng-click="setSeleccionado(element)" class="cursor"  title="Engloba {{element.numprocedimientos}} procedimientos">
 							{{element.title}} 
 						</span>
-						<ul ng-if="element.nodes">
-							<li ng-repeat="elemen in element.nodes |filter:texto | filter:filtrojerarquia">
+						<span class="badge pull-right">{{element.numprocedimientos}}</span>
+						</p>
+						<ul class="list-group" ng-if="element.nodes" style="clear:both">
+							<li class="list-group-item" ng-repeat="elemen in element.nodes |filter:texto | filter:filtrojerarquia" ng-class="{'list-group-item-danger':elemen.id==seleccionado.id}">
+							<p>
 								<strong>
 									[{{elemen.id}}] &nbsp;
 								</strong>
-								<span ng-class="{'bg-danger':elemen.id==seleccionado.id }" ng-click="setSeleccionado(elemen)" class="cursor">
+								<span ng-click="setSeleccionado(elemen)" class="cursor" title="Engloba {{elemen.numprocedimientos}} procedimientos">
 									{{elemen.title}} 
 								</span>
-								<ul ng-if="elemen.nodes">
-									<li ng-repeat="eleme in elemen.nodes |filter:texto |filter:filtrojerarquia">
+								<span class="badge pull-right">{{elemen.numprocedimientos}}</span>
+								</p>
+								<ul ng-if="elemen.nodes" style="clear:both">
+									<li ng-repeat="eleme in elemen.nodes |filter:texto |filter:filtrojerarquia"  ng-class="{'list-group-item-danger':eleme.id==seleccionado.id}" >
+									<p>
 										<strong>
 											[{{eleme.id}}] &nbsp;
 										</strong>
-										<span ng-class="{'bg-danger':eleme.id==seleccionado.id }" ng-click="setSeleccionado(eleme)" class="cursor">
+										<span ng-class="{'bg-danger':eleme.id==seleccionado.id }" ng-click="setSeleccionado(eleme)" class="cursor" title="Engloba {{eleme.numprocedimientos}} procedimientos">
 											{{eleme.title}} 
-										</span>
+										</span>										
+										<!--<span class="badge alert-success pull-right">
+											<a href="#" ng-click="addPermiso(eleme)" class="addPermiso">
+												<span class="glyphicon glyphicon glyphicon-plus-sign" ></span>
+											</a>
+										</span>-->
+										<span class="badge pull-right">{{eleme.numprocedimientos}}</span>
+										</p>
+										<ul ng-if="eleme.nodes" style="clear:both">
+											<li ng-repeat="elem in eleme.nodes |filter:texto |filter:filtrojerarquia">
+											<p>
+												<strong>
+													[{{elem.id}}] &nbsp;
+												</strong>
+												<span ng-class="{'bg-danger':elem.id==seleccionado.id }" ng-click="setSeleccionado(elem)" class="cursor"  title="Engloba {{elem.numprocedimientos}} procedimientos">
+													{{elem.title}} 
+												</span>
+												<span class="badge pull-right">{{elem.numprocedimientos}}</span>
+												</p>
+											</li>
+										</ul>
 									</li>
 								</ul>
-							</li>
-						</ul>
-						<ul ng-if="element.procedimientos" ng-class="" class="tree_leaft_crud">
-							<li ng-repeat="procedimiento in element.procedimientos">
-								<strong>
-									[{{procedimiento.codigo}}] &nbsp;
-								</strong>
-								<span ng-class="" ng-click="" class="cursor">
-									[{{procedimiento.denominacion}] &nbsp;
-								</span>
-								<span ng-class="" class="tree_leaft_crud_tools"></span>
 							</li>
 						</ul>
 					</li>
@@ -63,20 +87,28 @@
 			</div>
 		</div>
 	</div>
-	<div ng-class="{'col-lg-8': !oculto, 'col-lg-12': oculto}" class="right animated" >
-		<table class="table table-responsive table-condensed table-hover table-striped">
+	<div ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated" >
+		<table class="table table-striped table-bordered table-condensed table-hover">
 			<caption>Permisos</caption>
 			<thead>
 				<tr>
-					<th colspan="{{ !is_show_recursive_users ? 7 : 8 }}">
+					<th colspan="{{ !is_show_recursive_users ? 8 : 9 }}">
 						<div class="btn-group pull-right">
-							<div ng-class="{'btn-danger':listadetalle,'btn-default':!listadetalle}" class="btn btn-default" ng-click="show_normal()" title="mostrar nodo actual">
+							<button ng-class="{}" class="btn btn-default" ng-click="addPermiso()" title="Añadir permiso sobre la jerarquía seleccionada">
+								<span class="glyphicon glyphicon-plus"></span>
+							</button>								
+							<button ng-class="{'btn-danger':listadetalle,'btn-default':!listadetalle}" class="btn btn-default" ng-click="show_normal()" title="mostrar nodo actual">
 								<span class="glyphicon glyphicon-list"></span>
-							</div>	
-							<div ng-class="{'btn-danger':listadetalle,'btn-default':!listadetalle}" class="btn btn-default" ng-click="show_recursive_users()" title="mostrar recursivamente permisos nodos inferiores">
+							</button>	
+							<button ng-class="{'btn-danger':listadetalle,'btn-default':!listadetalle}" class="btn btn-default" ng-click="show_recursive_users()" title="mostrar recursivamente permisos nodos inferiores">
 								<span class="glyphicon glyphicon-indent-left"></span>
-							</div>							
+							</button>							
 						</div>
+					</th>
+				</tr>
+				<tr ng-if="show_form_add_permiso">
+					<th colspan="{{ !is_show_recursive_users ? 8 : 9 }}">
+						<autocomplete ng-model="persona" attr-placeholder="Buscar usuario por login o plaza..." click-activation="true" data="personas_plazas" ></autocomplete> 
 					</th>
 				</tr>
 				<tr>
@@ -113,29 +145,34 @@
 					<th></th>
 				</tr>
 			</thead>
-			<tbody ng-if="permisos.length || procedimientos.length ">				
+			<tbody ng-if="permisos.length || procedimientos.length " >				
 				<tr ng-repeat="permiso in permisos" ng-if="permisos.length">
 					<td>{{permiso.login}}</td>
 					<td>{{permiso.codplaza}}</td>
 					<td ng-if="is_show_recursive_users">-</td>
 					<td>No</td>
-					<td>{{isR(permiso) ? 'Sí' : 'No'}}</td>
+					<td class="color:gray">{{isR(permiso) ? 'Sí' : 'No'}}</td>
 					<td>{{isW(permiso) ? 'Sí' : 'No'}}</td>					
 					<td>{{isP(permiso) ? 'Sí' : 'No'}}</td>					
 					<td>
 						<div class="btn-group pull-right">
-							<div class="btn btn-default" title="Eliminar permiso">
+							<div class="btn btn-xs btn-default" title="Eliminar permiso">
 								<span class="glyphicon glyphicon glyphicon-remove" title="Eliminar del todo el permiso"></span>
 							</div>	
 						<div>
+						<!--<div class="btn-group pull-right">
+							<div class="btn btn-xs btn-default" title="Editar permiso">
+								<span class="glyphicon glyphicon-edit" title="Editar el permiso"></span>
+							</div>	
+						<div>-->						
 					</td>
 				</tr>
 				<tr ng-repeat="procedimiento in procedimientos" class="responsable">
 					<td>
-						<span class="badge" ng-repeat="r in procedimiento.responsables" ng-if="procedimiento.responsables && procedimiento.cod_plaza" title="{{r.nombre}} {{r.apellidos}}">
+						<span style="font-size:smaller" class="badge" ng-repeat="r in procedimiento.responsables" ng-if="procedimiento.responsables && procedimiento.cod_plaza" title="{{r.nombre}} {{r.apellidos}}">
 							{{r.login}} &nbsp;&nbsp;
 						</span>
-						<span class="badge alert-warning" ng-if="!procedimiento.responsables  && procedimiento.cod_plaza"><i>No disponible</i></span>
+						<span style="font-size:smaller" class="badge alert-warning" ng-if="!procedimiento.responsables  && procedimiento.cod_plaza"><i>No disponible</i></span>
 					</td>
 					<td>{{procedimiento.cod_plaza}}</td>
 					<td ng-if="is_show_recursive_users">{{procedimiento.codigo}}</td>
@@ -145,8 +182,8 @@
 					<td>-</td>					
 					<td>
 						<div class="btn-group pull-right">
-							<div class="btn btn-default" title="Eliminar permiso">
-								<span class="glyphicon glyphicon glyphicon-remove" title="Eliminar del todo el permiso"></span>
+							<div class="danger btn btn-xs btn-default" title="Eliminar permiso">
+								<span class="glyphicon glyphicon glyphicon-remove" title="Eliminar el permiso sobre el elemento de la estructura orgánica seleccionada"></span>
 							</div>	
 						<div>
 					</td>				
@@ -154,10 +191,10 @@
 			</tbody>
 			<tbody ng-if="!permisos.length && !procedimientos.length">
 				<tr>
-					<td ng-if="is_show_recursive_users" colspan="8">
+					<td ng-if="is_show_recursive_users" colspan="9">
 						No hay permisos asignados a este nivel de jerarquía o en los descendientes.
 					</td>				
-					<td ng-if="!is_show_recursive_users" colspan="7">
+					<td ng-if="!is_show_recursive_users" colspan="8">
 						No hay permisos asignados a este nivel de jerarquía.
 					</td>
 				</tr>
