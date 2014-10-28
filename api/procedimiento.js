@@ -46,36 +46,27 @@ exports.updateProcedimiento = function(Q, models, recalculate){
 
 exports.procedimientoList = function(models, Q){
 	return function(req,res){
-		var Jerarquia = models.jerarquia();
 		var Procedimiento= models.procedimiento();
 		var restriccion = {};
-		
-		var d = Q.defer();
-		var promise = d.promise;
-		
-		if (typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))){
-			var idj = parseInt(req.params.idjerarquia);						
-			Jerarquia.find({'id':idj},function(err, data){
-				if (data.length>0) {
-					var r_jerarquia = data[0].descendientes;
-					r_jerarquia.push(idj);	
-					restriccion = { '$and' : [ 
-							{ 'idjerarquia' : { '$in' : r_jerarquia } } ,
-							{ 'idjerarquia' : { '$in' : req.user.permisoscalculados.jerarquialectura } }
-						]};
-					d.resolve(restriccion);
-				}
-			});
-		} else {
-			d.resolve({ 'idjerarquia' : { '$in' : req.user.permisoscalculados.jerarquialectura } });			
+		var fields = req.query.fields;
+		var restriccion =
+			(typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))) ?
+				{ '$and' : [ 
+					{ 'ancestros.id' : { '$in' : [ parseInt(req.params.idjerarquia) ] } } ,
+					{ 'idjerarquia' : { '$in' : req.user.permisoscalculados.jerarquialectura } }
+				]} :
+				{ 'idjerarquia' : { '$in' : req.user.permisoscalculados.jerarquialectura } };
+
+		var cb = function(err,data){
+			if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }						
+			res.json(data);
+		};
+
+		var query = Procedimiento.find(restriccion);
+		if (typeof fields !== 'undefined'){
+			query.select(fields);
 		}
-		
-		promise.then(function(restriccion){			
-			Procedimiento.find(restriccion,function(err,data){
-				if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }						
-				res.json(data);
-			});
-		});
+		query.exec(cb);
 	};
 }		
 
@@ -85,7 +76,6 @@ exports.saveVersion = function(models, Q, procedimiento){
 	var v = JSON.parse(JSON.stringify(procedimiento));
 	delete v._id;
 	var version = new Historico(v);
-	console.log('Voy a intentar guardar '+procedimiento.codigo);
 	version.save(function(err){
 		if (err) defer.reject(err);
 		else defer.resolve();
