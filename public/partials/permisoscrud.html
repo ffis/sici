@@ -1,0 +1,166 @@
+
+<style type="text/css"
+<!--
+	.tree_leaft_crud {
+		font-style:italic;
+	}
+	.tree_leaft_crud_tools {
+		
+	}
+-->
+</style>
+<div ng-controller="PermisoCtrl" class="row">
+	<div ng-class="{'col-lg-4': !oculto, 'hidden': oculto}" class="left animated">
+		<div class="panel panel-danger">
+			<div class="panel-heading">
+				<h3 class="panel-title">
+					Organismos
+				</h3>
+			</div>
+			<div class="panel-body">			
+				<input type="text" ng-model="texto.$" placeholder="Filtro" style="margin-bottom:1em" class="form-control"/>
+				<ul ng-if="arbol.length">
+					<li ng-repeat="element in arbol |filter:texto| filter:filtrojerarquia	">
+						<strong>
+							[{{element.id}}] &nbsp;
+						</strong>
+						<span ng-class="{'bg-danger':element.id==seleccionado.id }" ng-click="setSeleccionado(element)" class="cursor">
+							{{element.title}} 
+						</span>
+						<ul ng-if="element.nodes">
+							<li ng-repeat="elemen in element.nodes |filter:texto | filter:filtrojerarquia">
+								<strong>
+									[{{elemen.id}}] &nbsp;
+								</strong>
+								<span ng-class="{'bg-danger':elemen.id==seleccionado.id }" ng-click="setSeleccionado(elemen)" class="cursor">
+									{{elemen.title}} 
+								</span>
+								<ul ng-if="elemen.nodes">
+									<li ng-repeat="eleme in elemen.nodes |filter:texto |filter:filtrojerarquia">
+										<strong>
+											[{{eleme.id}}] &nbsp;
+										</strong>
+										<span ng-class="{'bg-danger':eleme.id==seleccionado.id }" ng-click="setSeleccionado(eleme)" class="cursor">
+											{{eleme.title}} 
+										</span>
+									</li>
+								</ul>
+							</li>
+						</ul>
+						<ul ng-if="element.procedimientos" ng-class="" class="tree_leaft_crud">
+							<li ng-repeat="procedimiento in element.procedimientos">
+								<strong>
+									[{{procedimiento.codigo}}] &nbsp;
+								</strong>
+								<span ng-class="" ng-click="" class="cursor">
+									[{{procedimiento.denominacion}] &nbsp;
+								</span>
+								<span ng-class="" class="tree_leaft_crud_tools"></span>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div ng-class="{'col-lg-8': !oculto, 'col-lg-12': oculto}" class="right animated" >
+		<table class="table table-responsive table-condensed table-hover table-striped">
+			<caption>Permisos</caption>
+			<thead>
+				<tr>
+					<th colspan="{{ !is_show_recursive_users ? 7 : 8 }}">
+						<div class="btn-group pull-right">
+							<div ng-class="{'btn-danger':listadetalle,'btn-default':!listadetalle}" class="btn btn-default" ng-click="show_normal()" title="mostrar nodo actual">
+								<span class="glyphicon glyphicon-list"></span>
+							</div>	
+							<div ng-class="{'btn-danger':listadetalle,'btn-default':!listadetalle}" class="btn btn-default" ng-click="show_recursive_users()" title="mostrar recursivamente permisos nodos inferiores">
+								<span class="glyphicon glyphicon-indent-left"></span>
+							</div>							
+						</div>
+					</th>
+				</tr>
+				<tr>
+					<th>Usuario</th>
+					<th>
+						<span class="hidden-sm hidden-xs">Codigo plaza</span>
+						<span class="hidden-lg hidden-md">Plaza</span>
+					</th>
+					<th ng-if="is_show_recursive_users">
+						Objeto
+					</th>
+					<th>
+						<span class="visible-lg visible-md hidden-sm hidden-xs">Responsable</span>
+						<span class="hidden-lg hidden-md visible-sm hidden-xs">Resp.</span>
+						<span class="hidden-lg hidden-md hidden-sm visible-xs">R.</span>
+					</th>
+					<th>
+						<span class="visible-lg visible-md hidden-sm hidden-xs" title="¿Permite introducir datos?"> Lectura datos </span>
+						<span class="hidden-lg hidden-md visible-sm hidden-xs" title="¿Permite introducir datos?"> Lect. datos</span>
+						<span class="hidden-lg hidden-md hidden-sm visible-xs" title="¿Permite introducir datos?"> Lect.</span>
+					</th><th>
+						<span class="visible-lg visible-md hidden-sm hidden-xs" title="¿Permite introducir datos?"> Escribir datos </span>
+						<span class="hidden-lg hidden-md visible-sm hidden-xs" title="¿Permite introducir datos?"> Escr. datos </span>
+						<span class="hidden-lg hidden-md hidden-sm visible-xs" title="¿Permite introducir datos?"> Escr.</span>
+					</th><th>
+						<span class="visible-lg visible-md hidden-sm hidden-xs" title="¿Permite introducir datos?"> Escribir datos </span>
+						<span class="hidden-lg hidden-md visible-sm hidden-xs" title="¿Permite introducir datos?"> Escr. datos </span>
+						<span class="hidden-lg hidden-md hidden-sm visible-xs" title="¿Permite introducir datos?"> Escr.</span>
+					</th><th>
+						<span class="visible-lg visible-md hidden-sm hidden-xs" title="¿Permite otorgar permisos?"> Dar permisos </span>
+						<span class="hidden-lg hidden-md visible-sm hidden-xs" title="¿Permite otorgar permisos?"> Permisos </span>
+						<span class="hidden-lg hidden-md hidden-sm visible-xs" title="¿Permite otorgar permisos?"> Perm.</span>					
+					</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody ng-repeat="permiso in permisos" ng-if="permisos.length">				
+				<tr>
+					<td>{{permiso.login}}</td>
+					<td>{{permiso.codplaza}}</td>
+					<td></td>
+					<td ng-if="show_recursive_users">{{}}</td>
+					<td>{{isR(permiso) ? 'Sí' : 'No'}}</td>
+					<td>{{isW(permiso) ? 'Sí' : 'No'}}</td>					
+					<td>{{isP(permiso) ? 'Sí' : 'No'}}</td>					
+					<td>
+						<div class="btn-group pull-right">
+							<div class="btn btn-default" title="Eliminar permiso">
+								<span class="glyphicon glyphicon glyphicon-remove" title="Eliminar del todo el permiso"></span>
+							</div>	
+						<div>
+					</td>
+				</tr>
+			</tbody>
+			<tbody ng-repeat="responsable in responsables" ng-if="responsables.length && show_responsables">
+				<tr class="responsable">
+					<td>{{soyDios ? getResponables(responsable) : ''}}</td>
+					<td>{{responsable.codplaza}}</td>
+					<td></td>
+					<td ng-if="show_recursive_users">{{}}</td>
+					<td>{{isR(permiso) ? 'Sí' : 'No'}}</td>
+					<td>{{isW(permiso) ? 'Sí' : 'No'}}</td>					
+					<td>{{isP(permiso) ? 'Sí' : 'No'}}</td>					
+					<td>
+						<div class="btn-group pull-right">
+							<div class="btn btn-default" title="Eliminar permiso">
+								<span class="glyphicon glyphicon glyphicon-remove" title="Eliminar del todo el permiso"></span>
+							</div>	
+						<div>
+					</td>				
+				</tr>
+			</tbody>
+			<tbody ng-if="!permisos.length">
+				<tr>
+					<td ng-if="is_show_recursive_users" colspan="8">
+						No hay permisos asignados a este nivel de jerarquía o en los descendientes.
+					</td>				
+					<td ng-if="!is_show_recursive_users" colspan="7">
+						No hay permisos asignados a este nivel de jerarquía.
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+	</div>
+</div>
+

@@ -21,6 +21,8 @@ var app = angular.module('sici', [
     $routeProvider.when('/update',    {templateUrl: 'partials/upload.html',    controller: 'UpdateCtrl'   });
     $routeProvider.when('/actividad', {templateUrl: 'partials/actividad.html', controller: 'ActividadCtrl'});
     $routeProvider.when('/errors',    {templateUrl: 'partials/incoherencias.html', controller: 'IncoherenciasCtrl'});
+	$routeProvider.when('/permisos',    {templateUrl: 'partials/permisoscrud.html', controller: 'PermisoCtrl'});
+
     $routeProvider.otherwise({redirectTo: '/welcome'});
     $locationProvider.html5Mode(true);
   }]);

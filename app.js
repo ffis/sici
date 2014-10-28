@@ -18,6 +18,7 @@ importador = require('./api/importador'),
 reglainconsistencia = require('./api/reglainconsistencia'),
 procedimiento = require('./api/procedimiento'),
 persona = require('./api/persona'),
+permiso = require('./api/permiso'),
 
 
 app.set('mongosrv', process.env.MONGOSVR || 'mongodb://mongosvr/sici');
@@ -44,7 +45,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.use(express.static(path.join(__dirname, 'public')));
 
   app.use(express.errorHandler());
-  mongoose.set('debug', true);
+  mongoose.set('debug', false);
 
   app.use('/api', expressJwt({secret: cfg.secret}));
   app.use('/api', api.log(models));
@@ -78,7 +79,13 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.put('/api/reglasinconsistencias/:id', reglainconsistencia.updateReglaInconsistencia(models));
   app.delete('/api/reglasinconsistencias/:id', reglainconsistencia.removeReglaInconsistencia(models));
 
-  app.get('/test/fullSyncjerarquia', recalculate.test( Q, models));
+  app.get('/api/permisosList/:idjerarquia', permiso.permisosList(models, Q)); 
+  app.get('/api/permisosList', permiso.permisosList(models, Q));
+
+
+ app.get('/test/fullSyncjerarquia', recalculate.test( Q, models));
+  
+ 
 
 // redirect all others to the index (HTML5 history)
   app.get('*', routes.index);//devolver el index.html del raiz
