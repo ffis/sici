@@ -1,0 +1,27 @@
+{
+  "name": "allmighty-autocomplete",
+  "ignore": [],
+  "homepage": "http://justgoscha.github.io/allmighty-autocomplete/",
+  "authors": [
+    "Goscha Graf <justgoscha@gmail.com>"
+  ],
+  "description": "Simple to use autocomplete directive in a module for AngularJs!",
+  "keywords": [
+    "autocomplete",
+    "angularjs"
+  ],
+  "license": "MIT",
+  "main": [
+    "./script/autocomplete.js"
+  ],
+  "_release": "879cd68e31",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "879cd68e3163b5e3b38cb85d91b95538c9e483c3"
+  },
+  "_source": "git://github.com/JustGoscha/allmighty-autocomplete.git",
+  "_target": "*",
+  "_originalSource": "allmighty-autocomplete",
+  "_direct": true
+}

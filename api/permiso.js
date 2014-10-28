@@ -1,12 +1,120 @@
 
+
+exports.removePermisoProcedimiento = function(models, Q) {
+	return function(req, res) {
+		if (typeof req.params.idprocedimiento !== 'undefined' && !isNaN(parseInt(req.params.idprocedimiento)) &&
+			typeof req.params.idpermiso !== 'undefined' && !isNaN(parseInt(req.params.idpermiso)))
+		{
+			var Permiso = models.permiso();
+			var content = req.body;
+			var idpermiso = req.params.permiso;
+			var idprocedimiento = req.params.procedimiento;
+
+			Permiso.findOne({'id':idpermiso},function(err,data){
+				var index_r = permiso.procedimientosdirectalectura.indexOf(idprocedimiento);
+				var index_w = permiso.procedimientosdirectaescritura.indexOf(idprocedimiento);
+				var index_rc = permiso.procedimientoslectura.indexOf(idprocedimiento);
+				var index_wc = permiso.jerarquiadirectaescritura.indexOf(idprocedimiento);
+				
+				if (index_r!==-1) 
+					permiso.procedimientosdirectalectura.splice(index_r,1);
+				if (index_w!==-1)
+					permiso.procedimientosdirectaescritura.splice(index_w,1);
+				if (index_rc!==-1)
+					permiso.procedimientoslectura.splice(index_rc,1);
+				if (index_wc!==-1)
+					permiso.jerarquiadirectaescritura.splice(index_wc,1);
+					
+				/////////// CORTOCIRCUITO PARA NO ELIMINAR DATOS EN DESESARROLLO.	
+					
+				return;	
+					
+				if (permiso.procedimientosdirectalectura.length == 0 &&
+						(typeof permiso.jerarquiadirectalectura === 'undefined' 
+						||
+						permiso.jerarquiadirectalectura.length == 0
+				)) 
+				{
+					Permiso.remove({'id':idpermiso},function(err){
+						if (err)  res.send({'error':'An error has occurred'});
+						else res.send(content);
+					});
+				} else {
+					Permiso.update({'id':idpermiso},permiso,{upsert:false}, function(e) {
+						if (err) res.send({'error':'An error has occurred'});
+						else res.send(permiso);
+					});
+				}
+				
+			});
+		}
+		console.error('Invocación inválida para la eliminación de un permiso'); res.status(500); res.end(); return;
+	}
+}
+
+
+exports.removePermisoJerarquia = function(models, Q) {
+	return function(req, res) {
+		if (typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia)) &&
+			typeof req.params.idpermiso !== 'undefined' && !isNaN(parseInt(req.params.idpermiso)))
+		{
+			var Permiso = models.permiso();
+			var content = req.body;
+			var idpermiso = req.params.permiso;
+			var idjerarquia = req.params.jerarquia;
+
+			Permiso.findOne({'id':idpermiso},function(err,data){
+				var index_r = permiso.jerarquiadirectalectura.indexOf(idjerarquia);
+				var index_w = permiso.jerarquiadirectaescritura.indexOf(idjerarquia);
+				var index_rc = permiso.jerarquialectura.indexOf(idjerarquia);
+				var index_wc = permiso.jerarquiaescritura.indexOf(idjerarquia);
+				
+				if (index_r!==-1) 
+					permiso.jerarquiadirectalectura.splice(index_r,1);
+				if (index_w!==-1)
+					permiso.jerarquiadirectaescritura.splice(index_w,1);
+				if (index_rc!==-1)
+					permiso.jerarquialectura.splice(index_rc,1);
+				if (index_wc!==-1)
+					permiso.jerarquialectura.splice(index_wc,1);
+					
+				/////////// CORTOCIRCUITO PARA NO ELIMINAR DATOS EN DESESARROLLO.	
+					
+				return;	
+					
+				if (permiso.jerarquiadirectalectura.length == 0 &&
+						(typeof permiso.procedimientosdirectalectura === 'undefined' 
+						||
+						permiso.procedimientosdirectalectura.length == 0
+				)) 
+				{
+					Permiso.remove({'id':idpermiso},function(err){
+						if (err)  res.send({'error':'An error has occurred'});
+						else res.send(content);
+					});
+				} else {
+					Permiso.update({'id':idpermiso},permiso,{upsert:false}, function(e) {
+						if (err) res.send({'error':'An error has occurred'});
+						else res.send(permiso);
+					});
+				}
+				
+			});
+		}
+		console.error('Invocación inválida para la eliminación de un permiso'); res.status(500); res.end(); return;
+	}
+}
+
+
 //// Devuelve las instancias de permiso que tienen concedido permiso directo sobre el id de jerarquía
-//// indicado o sobre alguno de sus descendientes, así como los permisos directos sobre los procedimientos 
-//// que cuelgan de tales jerarquías
+//// indicado o sobre alguno de sus descendientes (si el parámetro de petición "recursivo" es 1)  , 
+//// así como los permisos directos sobre los procedimientos que cuelgan de tales jerarquías
 exports.permisosList = function(models, Q){
 	return function(req,res){
 		var Permiso = models.permiso();		
 		var dpermisos = Q.defer();		
 		var promise_permisos = dpermisos.promise;
+		var recursivo = (typeof req.params.recursivo !== 'undefined' && req.params.recursivo==1 ? true : false);
 		
 		if (typeof req.params.idjerarquia !== 'undefined') {
 			if (isNaN(parseInt(req.params.idjerarquia)))
@@ -28,9 +136,10 @@ exports.permisosList = function(models, Q){
 				promise.then(function(jerarquia){					
 					// configuramos una búsqueda de la jerarquía actual más los descendientes
 					
-					var jerarquias_buscadas = jerarquia.descendientes;
+					var jerarquias_buscadas = recursivo ? jerarquia.descendientes : [];
+					
 					if (!Array.isArray(jerarquias_buscadas))
-						jerarquias_buscadas = [];
+						jerarquias_buscadas = [];											
 					jerarquias_buscadas.push(jerarquia.id);
 
 					var Procedimiento = models.procedimiento();					
