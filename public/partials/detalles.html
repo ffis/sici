@@ -13,7 +13,7 @@
 				<li class="active">{{procedimientoSeleccionado.denominacion}}</li>
 				<li class="active">{{anualidad}}</li>
 			</ol>
-			<div class="col-lg-4">
+			<div class="col-lg-6">
 				<ul>
 					<li ng-repeat="attr in attrspar">
 						<strong>{{attr| translate}}</strong>
@@ -26,17 +26,27 @@
 						<a href="#" onaftersave="recalculate()" editable-text="procedimientoSeleccionado.anualidades[anualidad][attr]">{{ procedimientoSeleccionado.anualidades[anualidad][attr] || '-' }}</a>
 					</li>
 				</ul>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">Responsables</h3>
+					</div>
+					<div class="panel-body">
+						<ul ng-repeat="responsable in procedimientoSeleccionado.responsables">
+							<li ng-repeat="attr in attrsresp">
+								<strong>{{attr| translate}}</strong>
+								<span>&nbsp; {{ responsable[attr] || '-' }}</span>
+							</li>
+						</ul>
+						<p ng-If="procedimientoSeleccionado.responsables.length==0 && procedimientoSeleccionado.cod_plaza">
+						No hay ninguna persona asociada al código de plaza {{procedimientoSeleccionado.cod_plaza}}.
+						</p>
+						<p ng-If="procedimientoSeleccionado.responsables.length==0 && !procedimientoSeleccionado.cod_plaza">
+						Debe establecer el código de plaza del responsable de este procedimiento.
+						</p>
+					</div>
+				</div>
 			</div>
-			<div class="col-lg-3 well" style="background-image:linear-gradient(to bottom,#fedede 0,#eeeeee 80%);">
-				<h5 class="text-danger">Responsables</h5>
-				<ul ng-repeat="responsable in procedimientoSeleccionado.responsables">
-					<li ng-repeat="attr in attrsresp">
-						<strong>{{attr| translate}}</strong>
-						<span>&nbsp; {{ responsable[attr] || '-' }}</span>
-					</li>
-				</ul>
-			</div>
-			<div class="col-lg-5 well">
+			<div class="col-lg-6 well">
 				<div class="btn-group pull-right">
 					<div ng-click="detallesCarmHTML=true" ng-class="{'btn-danger':detallesCarmHTML,'btn-default':!detallesCarmHTML}" class="btn btn-default">
 						<span class="glyphicon glyphicon-list"></span>
