@@ -34,9 +34,10 @@ exports.authenticate = function(config){
  					function(err, permisos){
  						var o = JSON.parse(JSON.stringify(personas[0]));
 
-						o.permisos = [];
+						//o.permisos = [];
 						o.permisoscalculados = {
-							jerarquialectura :[], jerarquiaescritura :[], procedimientoslectura :[], procedimientosescritura :[],
+							jerarquialectura :[], jerarquiaescritura :[],
+							procedimientoslectura :[], procedimientosescritura :[],
 							superuser : false
 						};
 						var now = new Date();
@@ -48,11 +49,11 @@ exports.authenticate = function(config){
 								o.permisoscalculados.jerarquiaescritura = o.permisoscalculados.jerarquiaescritura.concat( permisos[i].jerarquiaescritura);
 								o.permisoscalculados.procedimientoslectura   = o.permisoscalculados.procedimientoslectura.concat( permisos[i].procedimientoslectura);
 								o.permisoscalculados.procedimientosescritura = o.permisoscalculados.procedimientosescritura.concat( permisos[i].procedimientosescritura);
-								o.permisos.push( permisos[i] );
+								//o.permisos.push( permisos[i] );
 							}
 						}
 						var token = jwt.sign(o, secret, { expiresInMinutes: 60*5 });
-						res.json({ profile: o, token: token, permisos : permisos });
+						res.json({ profile: o, token: token });
 					}
 				)
 			}
