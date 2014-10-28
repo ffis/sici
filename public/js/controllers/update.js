@@ -1,16 +1,17 @@
-function UpdateCtrl($rootScope,$scope,$window,$upload){
+function UpdateCtrl($rootScope,$scope,$window,$upload,Importacion){
     $rootScope.nav = 'update';
-    $rootScope.setLogeado(true);
     $scope.actualizando = 0;
-    $window.document.title ='SICI';
-    $scope.respuestas= [];
+    $window.document.title ='SICI - Importación';
+    $scope.respuestas= Importacion.query();
+    //$scope.importaciones 
+
     $scope.onFileSelect = function($files) {
     //$files: an array of files selected, each file has name, size, and type.
 	    for (var i = 0; i < $files.length; i++) {
 	      var file = $files[i];
 	      $scope.actualizando++;
 	      $scope.upload = $upload.upload({
-	        url: '/api/update', 
+	        url: '/api/updateByFile', 
 	        //method: 'POST' or 'PUT',
 	        //headers: {'header-key': 'header-value'},
 	        //withCredentials: true,
@@ -37,4 +38,4 @@ function UpdateCtrl($rootScope,$scope,$window,$upload){
 	}
 }
 
-UpdateCtrl.$inject =  ['$rootScope','$scope','$window','$upload'];
+UpdateCtrl.$inject =  ['$rootScope','$scope','$window','$upload','Importacion'];

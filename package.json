@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "crawler": "^0.2.7",
+    "csv-parse": "0.0.6",
     "encoding": "^0.1.10",
     "express": "~3.2.6",
     "express-jwt": "",

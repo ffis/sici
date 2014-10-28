@@ -63,8 +63,19 @@ var schemasfields = {
 		'descendientes':[Number],
 		'numprocedimientos': Number,
 	},
+	importacionesprocedimiento :{
+		'login_importador': String,
+		'fichero' : String,
+		'time' : Date,
+		'estado' : String,
+		'mostrable' : Boolean,
+		//'input': AnyType
+		//'output': AnyType
+		//'avisos': AnyType
+		//'errores': AnyType
+	},
 	procedimiento : {
-		'codigo':Number,
+		'codigo': Number,
 		'denominacion':String,
 		'idjerarquia': Number,
 		'tipo':String,
@@ -154,7 +165,11 @@ exports.init = function(mongoose) {
 	schemasfields.registroactividad.req = Schema.Types.Mixed;
 	schemasfields.procedimiento.ancestros = Schema.Types.Mixed;
 	schemasfields.procedimiento.responsables = Schema.Types.Mixed;
-	
+	schemasfields.importacionesprocedimiento.input = Schema.Types.Mixed;
+	schemasfields.importacionesprocedimiento.output = Schema.Types.Mixed;
+	schemasfields.importacionesprocedimiento.avisos = Schema.Types.Mixed;
+	schemasfields.importacionesprocedimiento.errores = Schema.Types.Mixed;
+
 	for(var name in schemasfields){
 		exports[name](mongoose);
 	}

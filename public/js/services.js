@@ -43,4 +43,8 @@ angular.module('sici.services', ['ngResource'])
         function ($resource) {
             return $resource('/api/reglasinconsistencias/:id', {id:'@_id'},   { update: {method:'PUT' } });
         }])
+    .factory('Importacion', ['$resource',
+        function ($resource) {
+            return $resource('/api/importacion/:id', {id:'@_id'},   { update: {method:'PUT' } });
+        }])
 	.value('version', '0.1');
