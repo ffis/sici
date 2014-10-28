@@ -54,6 +54,7 @@ function ActividadCtrl($rootScope,$scope,$location,$window,$routeParams,Arbol, P
 				$scope.procedimientos = ProcedimientoList.query({idjerarquia:seleccionad.id}); 
 				$scope.cumplimentados = 0;
 				$scope.count = 1;
+				$("body").animate({scrollTop: $('#detallesjerarquia').offset().top}, "slow");
 			}
 		};
 

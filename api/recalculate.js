@@ -6,6 +6,8 @@ function parseStr2Int (str){
 }
 
 
+
+
 exports.softCalculatePermiso = function(Q, models, permiso){
 	var Jerarquia = models.jerarquia();
 	var Procedimiento = models.procedimiento();
@@ -54,6 +56,8 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 
 		attrsjerarquia.forEach(function(attr, idx){
 			var idsjerarquia = permiso[ attrsOrigenjerarquia[idx] ];
+			if (!idsjerarquia)
+				permiso[ attrsOrigenjerarquia[idx] ] = [];
 			if (idsjerarquia && idsjerarquia.length==0) return;
 			var def = Q.defer();
 			Jerarquia.find({ id:{ '$in':idsjerarquia } },function(err,jerarquias){
@@ -84,6 +88,8 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 
 				if (permiso [ attrprocedimientosDirecto[idx] ])
 					permiso[ attr ] = permiso[ attr ].concat( permiso [ attrprocedimientosDirecto[idx] ]);
+				else
+					permiso [ attrprocedimientosDirecto[idx] ] = [];
 
 				var idsjerarquia = permiso[ attrsOrigenjerarquia[idx] ];
 				if (idsjerarquia && idsjerarquia.length==0) return;
@@ -107,7 +113,6 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 
 
 			Q.all(defs2).then(function(){
-
 				deferred.resolve( permiso );
 			}).fail(function(err){
 				console.error(110);
@@ -241,9 +246,9 @@ exports.softCalculateProcedimiento = function(Q, procedimiento){
 }
 
 exports.fullSyncprocedimiento = function( Q, models){
-
 	var deferred = Q.defer();
 	var Procedimiento = models.procedimiento();
+	var informes = [];
 
 	Procedimiento.find({}, function(err, procedimientos){
 		if (err){ deferred.reject(err); return; }
@@ -255,21 +260,28 @@ exports.fullSyncprocedimiento = function( Q, models){
 				var proccodigo = procedimiento.codigo;
 				exports.softCalculateProcedimiento(Q, procedimiento).then(function(procedimiento){
 					exports.softCalculateProcedimientoCache(Q, models, procedimiento).then(function(procedimiento){
-						console.log('Calculado:'+procedimiento.codigo);
 						if (!procedimiento.codigo)
 						{
-							console.error(proccodigo+':'+JSON.stringify(procedimiento));
+							informes.push({codigo: proccodigo, status:500});
 							promise.reject(procedimiento);
 						}else{
-							procedimiento.update(function(){
-								console.log('Guardado:'+procedimiento.codigo);
-								promise.resolve();	
+							procedimiento.save(function(error){
+								if (error){
+									console.error(error);
+									informes.push({codigo: procedimiento.codigo, status:500});
+					    			promise.reject(err);
+								}else{
+									informes.push({codigo: procedimiento.codigo, status:200, procedimiento: procedimiento });
+									promise.resolve();
+								}
 							});
 						}
 				    },function(err){
+				    	informes.push({codigo: proccodigo, status:500});
 				    	promise.reject(err);
 				    })
 				},function(err){
+					informes.push({codigo: proccodigo, status:500});
 			    	promise.reject(err);
 				});
 			}
@@ -278,7 +290,7 @@ exports.fullSyncprocedimiento = function( Q, models){
 		});
 
 		Q.all(defs).then(function(){
-			deferred.resolve();
+			deferred.resolve(informes);
 		},function(err){
 			deferred.reject(err);
 		})
@@ -286,6 +298,46 @@ exports.fullSyncprocedimiento = function( Q, models){
 	return deferred.promise;
 }
 
+exports.fullSyncpermiso = function(Q, models){
+	var deferred = Q.defer();
+	var Permiso = models.permiso();
+	var informes = [];
+
+	Permiso.find({}, function(err, permisos){
+		if (err){ deferred.reject(err); return; }
+
+		var defs = [];
+		permisos.forEach(function(permiso,i){
+			var promise = Q.defer();
+			var f = function(promise,permiso) {
+				exports.softCalculatePermiso(Q, models, permiso).then(function(permiso){
+					permiso.save(function(error){
+						if (error){
+							console.error(error);
+							informes.push({codigo: permiso._id, status:500});
+			    			promise.reject(err);
+						}else{
+							informes.push({codigo: permiso._id, status:200, permiso: permiso });
+							promise.resolve();
+						}
+					});
+			    },function(err){
+			    	informes.push({codigo: permiso._id, status:500});
+			    	promise.reject(err);
+			    })
+			}
+			f(promise,permiso);
+			defs.push(promise.promise);
+		});
+
+		Q.all(defs).then(function(){
+			deferred.resolve(informes);
+		},function(err){
+			deferred.reject(err);
+		})
+	});
+	return deferred.promise;
+}
 
 exports.fullSyncjerarquia = function( Q, models){
 	//debe recalcular ancestros y descendientes a partir de ancestrodirecto
@@ -402,41 +454,48 @@ exports.fullSyncjerarquia = function( Q, models){
 	return deferred.promise;
 }
 
-
-exports.test = function(Q,models){
+exports.fprocedimiento = function(Q,models){
 	return function(req,res){
-		exports.fullSyncprocedimiento( Q, models).then(function(o){
-			console.log('terminado!');
-			res.json({'resultado':'OK'});
-		}, function(e){
-			console.error(e);
-			res.json(e);
-		});
+		if (req.user.permisoscalculados.superuser){
+			exports.fullSyncprocedimiento( Q, models).then(function(o){
+				res.json(o);
+			}, function(e){
+				console.error(e);
+				res.send(500, JSON.stringify(e));
+			});
+		}else{
+			res.send(401, 'Carece de permisos');
+		}
 	};
 }
 
-/*
-		var Permiso = models.permiso();
-		Permiso.findOne({login:'ill11v'}, function(err,permiso){
-			var response = {
-				antes: JSON.parse(JSON.stringify(permiso)),
-			};
-			exports
-				.softCalculatePermiso(Q,models, permiso)
-				.then(function(ress){
+exports.fjerarquia = function(Q,models){
+	return function(req,res){
+		if (req.user.permisoscalculados.superuser){
+			exports.fullSyncjerarquia( Q, models).then(function(o){
+				res.json(o);
+			}, function(e){
+				console.error(e);
+				res.send(500, JSON.stringify(e));
+			});
+		}else{
+			res.send(401, 'Carece de permisos');
+		}
+	};
+}
 
-					
-permiso.save();
+exports.fpermiso = function(Q,models){
+	return function(req,res){
+		if (req.user.permisoscalculados.superuser){
+			exports.fullSyncpermiso( Q, models).then(function(o){
+				res.json(o);
+			}, function(e){
+				console.error(e);
+				res.send(500, JSON.stringify(e));
+			});
+		}else{
+			res.send(401, 'Carece de permisos');
+		}
+	};
+}
 
-					res.json(ress);
-
-
-				}).fail(function(err){
-					console.error(341);
-					console.error(err);
-					console.error(err.stack);
-					res.json(err);
-				});
-		})
-*/
-	
