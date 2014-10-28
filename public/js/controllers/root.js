@@ -23,8 +23,6 @@ function AppCtrl($scope, $rootScope, Session) {
 		{ id:'permisos', caption:'Gestionar permisos' },
 	];
 
-
-
 	$rootScope.colorText = function(i, numcolors, phase)
 	{
 	    if (phase == undefined) phase = 0;
@@ -37,6 +35,13 @@ function AppCtrl($scope, $rootScope, Session) {
 	        green : Math.ceil(Math.sin(frequency*i+0+phase) * width + center),
 	        blue  : Math.ceil(Math.sin(frequency*i+4+phase) * width + center)
 	    };
+	};
+
+	$rootScope.exportXLS = function(idx, nombre){
+	    var blob = new Blob(['<meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8"><table width="100%">'+document.getElementById(idx).innerHTML+'</table>'], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"
+        });
+        saveAs(blob, nombre+".xls");
 	};
 
 }
