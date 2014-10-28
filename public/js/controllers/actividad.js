@@ -172,5 +172,9 @@ function ActividadCtrl($rootScope,$scope,$location,$window,$routeParams,Arbol, P
 	$scope.responsables = {};
 	$scope.procedimientosocultos = false;
 	$scope.meses = $rootScope.meses;
+	$scope.anyo = new Date().getFullYear();
+	$scope.mesanterior = new Date().getMonth()-1;
+	if ($scope.mesanterior < 0)
+		$scope.mesanterior = 11;
 }
 ActividadCtrl.$inject = ['$rootScope','$scope','$location','$window','$routeParams','Arbol','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','PersonasByPuesto','Session'];

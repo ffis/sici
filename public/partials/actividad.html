@@ -119,19 +119,28 @@
 					</span>
 				</h3>
 			</div>
-			<ul style="list-style:none">
-				<li ng-repeat="proc in procedimientosfiltrados |filter:filtrotxtprocedimiento" ng-click="setProcedimiento(proc)" class="cursor">
-					<span class="sparkline">
-						{{proc.periodos[anualidad].solicitados | json}}
-					</span>
-					<strong>
-						&nbsp;[{{proc.codigo}}]&nbsp;
-					</strong>
-					<a ng-class="{'bg-danger':proc.codigo==procedimientoSeleccionado.codigo }" href="/procedimiento/{{proc.codigo}}">
-						{{proc.denominacion}}
-					</a>
-				</li>
-			</ul>
+
+			<table class="table table-striped table-bordered table-condensed table-hover">
+				<thead>
+					<th>Progreso</th>
+					<th ng-class="{danger:orderby=='codigo' }" ng-click="asc=!asc;orderby='codigo'">{{'codigo'|translate}}</th>
+					<th ng-class="{danger:orderby=='denominacion' }" ng-click="asc=!asc;orderby='denominacion'">{{'denominacion'|translate}}</th>
+					<th ng-class="{danger:orderby=='cod_plaza' }" ng-click="asc=!asc;orderby='cod_plaza'">{{'cod_plaza'|translate}}</th>
+					<th ng-class="{danger:orderby=='periodos[anyo].totalsolicitudes' }" ng-click="asc=!asc;orderby='periodos[anyo].totalsolicitudes'">Solicitudes {{anyo}}</th>
+					<th ng-class="{danger:orderby=='periodos[anyo].solicitados[mesanterior]' }" ng-click="asc=!asc;orderby='periodos[anyo].solicitados[mesanterior]'">Solicitudes {{meses[mesanterior]}}</th>
+				</thead>
+				<tbody>
+					<tr ng-repeat="proc in procedimientosfiltrados |filter:filtrotxtprocedimiento | orderBy : orderby : asc ">
+						<td class="text-center"><span class="sparkline">{{proc.periodos[anualidad].solicitados | json}}</span></td>
+						<th class="text-center">{{proc.codigo}}</th>
+						<td><a href="/procedimiento/{{proc.codigo}}">{{proc.denominacion}}</a></td>
+						<td class="text-center">{{proc.cod_plaza}}</td>
+						<td class="text-right">{{proc.periodos[anyo].totalsolicitudes}}</td>
+						<td class="text-right">{{proc.periodos[anyo].solicitados[mesanterior]}}</td>
+					</tr>
+				</tbody>
+			</table>
+
 		</div>
 	</div>
 </div>
