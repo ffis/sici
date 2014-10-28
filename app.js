@@ -19,6 +19,8 @@ reglainconsistencia = require('./api/reglainconsistencia'),
 procedimiento = require('./api/procedimiento'),
 persona = require('./api/persona'),
 permiso = require('./api/permiso'),
+upload = require('./api/upload'),
+csvsici = require('./api/csvsici');
 
 
 app.set('mongosrv', process.env.MONGOSVR || 'mongodb://mongosvr/sici');
@@ -43,6 +45,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.use(express.urlencoded());
   app.use(express.bodyParser());
   app.use(express.static(path.join(__dirname, 'public')));
+  app.use(express.multipart({ uploadDir: '/tmp/sici' }));
 
   app.use(express.errorHandler());
   mongoose.set('debug', false);
@@ -82,7 +85,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.delete('/api/reglasinconsistencias/:id', reglainconsistencia.removeReglaInconsistencia(models));
 
   
-  app.get('/api/fprocedimiento', recalculate.fprocedimiento( Q, models));
+  app.get('/api/fprocedimiento', recalculate.fprocedimiento( Q, models, procedimiento));
   app.get('/api/fjerarquia', recalculate.fjerarquia( Q, models));
   app.get('/api/fpermiso', recalculate.fpermiso( Q, models));
 
@@ -90,6 +93,10 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.get('/api/permisosList', permiso.permisosList(models, Q));
   app.delete('/api/permisos/delete-jerarquia/:permiso/:jerarquia', permiso.removePermisoJerarquia(models,Q))
   app.delete('/api/permisos/delete-procedimiento/:permiso/:procedimiento', permiso.removePermisoJerarquia(models,Q))
+
+  app.get('/api/importacion', importador.importacionesprocedimiento(models));
+
+  app.post('/api/updateByFile',upload.update(),csvsici.parse(models));
 
   app.get('/test/testImportadorExcel', importador.testImportadorExcel(Q, models, recalculate));
 

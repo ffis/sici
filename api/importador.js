@@ -17,6 +17,21 @@ var turnObjToArray = function(obj) {
   })
 };
 
+exports.importacionesprocedimiento = function(models){
+	return function(req,res){
+		var Importaciones = models.importacionesprocedimiento();
+		//add check permisos
+		Importaciones.find({mostrable:true}, function(err,datos){
+			if (err){
+				console.error(err);
+				res.send(500,JSON.stringify(err));
+			}else{
+				res.json(datos);		
+			}
+		});
+	}
+}
+
 exports.parseGS = function(){
 	return function (req, res)
 	{
