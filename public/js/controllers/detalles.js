@@ -97,10 +97,10 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 		'resueltos_1','resueltos_5','resueltos_10','resueltos_15','resueltos_30','resueltos_45','resueltos_mas_45',
 		'resueltos_desistimiento_renuncia_caducidad','resueltos_prescripcion',
 		'en_plazo',
-		't_medio_habiles','t_medio_naturales','total_resueltos',
+		't_medio_habiles','t_medio_naturales',
 		];
 		/* 'totalsolicitudes', */
-	$scope.attrstablacalculados = ['fuera_plazo', 'pendientes'];
+	$scope.attrstablacalculados = ['total_resueltos','fuera_plazo', 'pendientes'];
 	$scope.attrsresp = ['codplaza', 'login','nombre','apellidos','telefono'];
 
 	$scope.meses = $rootScope.meses;

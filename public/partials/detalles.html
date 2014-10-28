@@ -6,9 +6,7 @@
 			<h4 class="text-danger">{{procedimientoSeleccionado.denominacion}}</h4>
 			<ol class="breadcrumb">
 				<li ng-repeat="ancestro in procedimientoSeleccionado.ancestros">
-					<a href="/actividad/{{ancestro.id}}">
-						{{ancestro.nombre}}
-					</a>
+					<a href="/actividad/{{ancestro.id}}"> {{ancestro.nombre}}</a>
 				</li>
 				<li class="active">{{procedimientoSeleccionado.denominacion}}</li>
 				<li class="active">{{anualidad}}</li>
@@ -37,10 +35,10 @@
 								<span>&nbsp; {{ responsable[attr] || '-' }}</span>
 							</li>
 						</ul>
-						<p ng-If="procedimientoSeleccionado.responsables.length==0 && procedimientoSeleccionado.cod_plaza">
+						<p ng-If="(!procedimientoSeleccionado.responsables || procedimientoSeleccionado.responsables.length==0) && procedimientoSeleccionado.cod_plaza">
 						No hay ninguna persona asociada al código de plaza {{procedimientoSeleccionado.cod_plaza}}.
 						</p>
-						<p ng-If="procedimientoSeleccionado.responsables.length==0 && !procedimientoSeleccionado.cod_plaza">
+						<p ng-If="(!procedimientoSeleccionado.responsables || procedimientoSeleccionado.responsables.length==0) && !procedimientoSeleccionado.cod_plaza">
 						Debe establecer el código de plaza del responsable de este procedimiento.
 						</p>
 					</div>
@@ -92,6 +90,26 @@
 						</tr>
 					</tbody>
 				</table>
+				<p>Hay campos que se calculan a partir de los datos introducidos en el resto. Las fórmulas usadas son:
+				</p>
+				<ul>
+					<li>
+						<strong>{{"total_resueltos" |translate}}</strong> =
+						<em>{{"resueltos_1" |translate}}</em> + <em>{{"resueltos_5" |translate}}</em> + 
+						<em>{{"resueltos_10" |translate}}</em> + <em>{{"resueltos_15" |translate}}</em> + 
+						<em>{{"resueltos_30" |translate}}</em> + <em>{{"resueltos_45" |translate}}</em> + 
+						<em>{{"resueltos_mas_45" |translate}}</em> + <em>{{"resueltos_desistimiento_renuncia_caducidad" |translate}}</em> + 
+						<em>{{"resueltos_mas_45" |translate}}</em> + <em>{{"resueltos_prescripcion" |translate}}</em> 
+					</li>
+					<li>
+						<strong>{{"fuera_plazo"|translate}}</strong> =
+						<em>{{"total_resueltos" |translate}}</em> - <em>{{"en_plazo" |translate}}</em>  
+					</li>
+					<li>
+						<strong>{{"pendientes"|translate}}</strong> =
+						<em>Pendientes del mes previo</em> + <em>{{'solicitados'|translate}}</em> - <em>{{'total_resueltos'|translate}}</em>
+					</li>
+				</ul>
 			</div>
 			<div ng-if="graphs[0].data" class="row">
 				<div class="col-md-12">
@@ -104,7 +122,7 @@
 						</div>
 					</div>
 				</div>
-				{{numgraphs}}
+				
 				<hr style="clear:both"/>
 				<div ng-repeat="graph in graphs" ng-if="!graficasbarras &amp;&amp; graph.data &amp;&amp; !graficasgrandes" ng-class="{'col-lg-3':(numgraphs%4==0),'col-lg-3':(numgraphs%3==0)}" class="col-md-6 well">
 					<h5 class="text-danger text-center">{{graph.caption}}</h5>
