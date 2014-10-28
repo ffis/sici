@@ -15,60 +15,47 @@ exports.log = function(models){
   }
 }
 
-function cargahijos(Q,Jerarquia, nodo, nivel){
-	var deferred = Q.defer();
-	Jerarquia.find( {ancestros:nodo.id}, function(err, nodos){	
-		var returnValue = [];			
-		var promesas = [];
-		nodos.forEach(function(hijo){
-			if (hijo.ancestros.length!=nivel) return;
-			if (hijo.descendientes && typeof hijo.descendientes === 'object' && hijo.descendientes.length > 0)
-			{			
-				var hijopromesa = cargahijos(Q,Jerarquia, hijo, nivel+1);
-				promesas.push(hijopromesa);
-				hijopromesa.then(function(val){
-					returnValue.push({ _id:hijo._id, id:hijo.id, title: hijo.nombrelargo, nodes: val});
-				});
-			}else{
-				returnValue.push({ _id:hijo._id, id:hijo.id, title: hijo.nombrelargo, nodes: []});
-			}
-		});
-		Q.all(promesas).then(function(){
-			deferred.resolve(returnValue);
-		});
-	});
-	return deferred.promise;
-}
-
-
-//TODO: calcularlo en un solo find de Mongo
-//y cachearlo incluso
 exports.arbol = function(Q, models){
 	return function(req,res){
 	
 		var Jerarquia = models.jerarquia();
 		var returnValue = [];
 		var promises = [];
-		Jerarquia.find({ancestros:[]}, function(err, raiz){
-			if (err){ console.error(err);res.status(500); res.json(err); res.end(); return; }
-			//console.log(raiz);
-			raiz.forEach(function(nodo, idx, arr){
+		var hijos = [];
+		var filterfn = function(jerarquia){ return jerarquia.numprocedimientos; };
 
-				if (nodo.descendientes && typeof nodo.descendientes === 'object' && nodo.descendientes.length > 0)
-				{
-					var nodesPromise = cargahijos(Q,Jerarquia, nodo, 1);
-					nodesPromise.then(function(val){
-						returnValue.push({_id:nodo._id, id:nodo.id, title: nodo.nombrelargo, nodes: val});
-					});
-					promises.push(nodesPromise);
-				}else{
-					returnValue.push({_id:nodo._id, id:nodo.id, title: nodo.nombrelargo, nodes: [] });
+		Jerarquia.find({},function(err,jerarquias){
+			var mappingXid = [];
+			var idsraiz = [];
+			jerarquias.forEach(function(jerarquia){
+				mappingXid [ jerarquia.id ] = jerarquia;
+				if (jerarquia.ancestros.length ==0)
+					idsraiz.push(jerarquia.id)
+				if (jerarquia.ancestrodirecto){
+					if (! hijos [ jerarquia.ancestrodirecto ])
+						hijos [ jerarquia.ancestrodirecto ] = [];
+					hijos [ jerarquia.ancestrodirecto ].push(jerarquia);
 				}
-			});
-			Q.all(promises).then(function(){
-				res.json(returnValue);
-			});
-		});
+			})
+
+			var getHijos = function ( idjerarquia ){
+				if (!hijos[ idjerarquia ]) return null;
+				var returnval = [];
+				for(var i=0,j=hijos[ idjerarquia ].length;i<j;i++){
+					var nodo = hijos[ idjerarquia ][i];
+					if (filterfn(nodo))
+						returnval.push({_id:nodo._id, id:nodo.id, title: nodo.nombrelargo, nodes: getHijos( nodo.id ), numprocedimientos:nodo.numprocedimientos});
+				}
+				return returnval;
+			}
+
+			idsraiz.forEach(function(idraiz){
+				var nodo = mappingXid[idraiz];
+				if (filterfn(nodo))
+					returnValue.push({_id:nodo._id, id:nodo.id, title: nodo.nombrelargo, nodes: getHijos(nodo.id), numprocedimientos:nodo.numprocedimientos });
+			})
+			res.json(returnValue);
+		})
 	}
 };
 //[{ id: '', title:'', nodes:[]}]
@@ -97,25 +84,18 @@ exports.aggregate = function(models){
 		var group = [];
 		var groupfield = {};
 
-		
 		try{
 			groupfield['_id'] = JSON.parse(campostr);
 		}catch(e){
 			groupfield['_id'] = "$"+campostr;
 		}
-
 		var matchstr = req.params.match;
 		if (typeof matchstr === 'string'){
-
 			var match = {};
-
-			//probar 
-			try{
+			try{ //probar 
 				match = JSON.parse(matchstr);
 			}catch(e){
-
 				var condiciones = matchstr.split('|');
-				
 				condiciones.forEach(function(condicion){
 					var partes = condicion.split(':');
 					var campomatch = partes[0];
@@ -123,23 +103,21 @@ exports.aggregate = function(models){
 					if(/^(\-|\+)?([0-9]+|Infinity)$/.test(valor))
 						valor = parseInt(valor);
 					match[campomatch] = valor;
-					
 				});
 			}
-			//console.log(req.user);
 			match.idjerarquia = {'$in':req.user.permisoscalculados.jerarquialectura};
 			group.push({ "$match" : match });
 		}
-		
-
 		groupfield['count'] = {'$sum':1};
 		groupfield['porcumplimentar'] = { '$sum':{'$cond': { if: { '$eq':[0,'$periodos.'+cfg.anyo+'.totalsolicitudes']}, then:1, else: 0 } } };
 
+		group.push({'$unwind':'$ancestros'});
 		group.push({"$group" : groupfield});
 		group.push({"$sort":{ 'count' : -1 } });
-		//console.log(JSON.stringify(group));
+		console.log(JSON.stringify(group));
 		connection.aggregate(group ,function(err,data){
 			if (err) { console.error(err); res.status(500); res.end(); return ; }
+			console.log(JSON.stringify(group));
 			res.json (data);
 		});		
 	}

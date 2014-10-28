@@ -9,7 +9,7 @@ angular.module('sici.services', ['ngResource'])
 		}])
     .factory('Procedimiento', ['$resource',
         function ($resource) {
-            return $resource('/api/procedimiento/:codigo', {}, {  });
+            return $resource('/api/procedimiento/:codigo', {codigo:'@codigo'},   { update: {method:'PUT' } });
 		}])
     .factory('ProcedimientoList', ['$resource',
         function ($resource) {

@@ -1,6 +1,6 @@
 
 <div ng-controller="ActividadCtrl" class="row">
-	<div ng-class="{'col-lg-4': !oculto, 'hidden': oculto}" class="left animated">
+	<div ng-class="{'col-lg-5': !oculto, 'hidden': oculto}" class="left animated">
 		<div class="panel panel-danger">
 			<div class="panel-heading">
 				<h3 class="panel-title">
@@ -9,30 +9,52 @@
 			</div>
 			<div class="panel-body">			
 				<input type="text" ng-model="texto.$" placeholder="Filtro" style="margin-bottom:1em" class="form-control"/>
-				<ul ng-if="arbol.length">
-					<li ng-repeat="element in arbol |filter:texto| filter:filtrojerarquia	">
+				<ul ng-if="arbol.length" style="padding-left:0.6em">
+					<li ng-repeat="element in arbol |filter:texto| filter:filtrojerarquia" ng-class="{'list-group-item-warning':element.id==seleccionado.id}">
+						<p>
 						<strong>
 							[{{element.id}}] &nbsp;
 						</strong>
-						<span ng-class="{'bg-danger':element.id==seleccionado.id }" ng-click="setSeleccionado(element)" class="cursor">
+						<span ng-click="setSeleccionado(element)" class="cursor"  title="Engloba {{element.numprocedimientos}} procedimientos">
 							{{element.title}} 
 						</span>
-						<ul ng-if="element.nodes">
-							<li ng-repeat="elemen in element.nodes |filter:texto | filter:filtrojerarquia">
+						<span class="badge pull-right">{{element.numprocedimientos}}</span>
+						</p>
+						<ul class="list-group" ng-if="element.nodes" style="clear:both">
+							<li class="list-group-item" ng-repeat="elemen in element.nodes |filter:texto | filter:filtrojerarquia" ng-class="{'list-group-item-danger':elemen.id==seleccionado.id}">
+							<p>
 								<strong>
 									[{{elemen.id}}] &nbsp;
 								</strong>
-								<span ng-class="{'bg-danger':elemen.id==seleccionado.id }" ng-click="setSeleccionado(elemen)" class="cursor">
+								<span ng-click="setSeleccionado(elemen)" class="cursor" title="Engloba {{elemen.numprocedimientos}} procedimientos">
 									{{elemen.title}} 
 								</span>
-								<ul ng-if="elemen.nodes">
-									<li ng-repeat="eleme in elemen.nodes |filter:texto |filter:filtrojerarquia">
+								<span class="badge pull-right">{{elemen.numprocedimientos}}</span>
+								</p>
+								<ul ng-if="elemen.nodes" style="clear:both">
+									<li ng-repeat="eleme in elemen.nodes |filter:texto |filter:filtrojerarquia"  ng-class="{'list-group-item-danger':eleme.id==seleccionado.id}" >
+									<p>
 										<strong>
 											[{{eleme.id}}] &nbsp;
 										</strong>
-										<span ng-class="{'bg-danger':eleme.id==seleccionado.id }" ng-click="setSeleccionado(eleme)" class="cursor">
+										<span ng-class="{'bg-danger':eleme.id==seleccionado.id }" ng-click="setSeleccionado(eleme)" class="cursor" title="Engloba {{eleme.numprocedimientos}} procedimientos">
 											{{eleme.title}} 
 										</span>
+										<span class="badge pull-right">{{eleme.numprocedimientos}}</span>
+										</p>
+										<ul ng-if="eleme.nodes" style="clear:both">
+											<li ng-repeat="elem in eleme.nodes |filter:texto |filter:filtrojerarquia">
+											<p>
+												<strong>
+													[{{elem.id}}] &nbsp;
+												</strong>
+												<span ng-class="{'bg-danger':elem.id==seleccionado.id }" ng-click="setSeleccionado(elem)" class="cursor"  title="Engloba {{elem.numprocedimientos}} procedimientos">
+													{{elem.title}} 
+												</span>
+												<span class="badge pull-right">{{elem.numprocedimientos}}</span>
+												</p>
+											</li>
+										</ul>
 									</li>
 								</ul>
 							</li>
@@ -42,7 +64,7 @@
 			</div>
 		</div>
 	</div>
-	<div ng-class="{'col-lg-8': !oculto, 'col-lg-12': oculto}" class="right animated">
+	<div ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated">
 		<div ng-click="oculto=!oculto">
 			<span class="glyphicon glyphicon-fullscreen pull-right">
 			</span>
@@ -64,7 +86,7 @@
 				<form class="form-horizontal">
 					<div ng-repeat="key in camposfiltros" class="form-group">
 						<label class="control-label col-md-3">
-							{{key}}:
+							{{key| translate}}:
 						</label>
 						<div class="col-md-9">
 							<select ng-model="filtro[key]" ng-options="fa.value as fa.name for (ky,fa) in filtros[key]" class="form-control">
@@ -84,7 +106,7 @@
 			{{filtrotxtprocedimiento.codigo}}
 		</div>
 		<div ng-if="procedimientosfiltrados.length">
-			<div ng-click="procedimientosocultos=!procedimientosocultos" class="cursor">
+			<div class="cursor">
 				<span ng-class="{&quot;glyphicon-collapse-down&quot;:!procedimientosocultos,&quot;glyphicon-expand&quot;:procedimientosocultos}" class="glyphicon pull-right">
 				</span>
 				<h3 ng-if="procedimientosfiltrados">
@@ -97,181 +119,20 @@
 					</span>
 				</h3>
 			</div>
-			<ul style="list-style:none" ng-class="{'hidden': procedimientosocultos}">
+			<ul style="list-style:none">
 				<li ng-repeat="proc in procedimientosfiltrados |filter:filtrotxtprocedimiento" ng-click="setProcedimiento(proc)" class="cursor">
 					<span class="sparkline">
-						{{proc.anualidades[anualidad].solicitados | json}}
+						{{proc.periodos[anualidad].solicitados | json}}
 					</span>
 					<strong>
 						&nbsp;[{{proc.codigo}}]&nbsp;
 					</strong>
-					<span ng-class="{'bg-danger':proc.codigo==procedimientoSeleccionado.codigo }">
+					<a ng-class="{'bg-danger':proc.codigo==procedimientoSeleccionado.codigo }" href="/procedimiento/{{proc.codigo}}">
 						{{proc.denominacion}}
-					</span>
+					</a>
 				</li>
 			</ul>
 		</div>
-		<div ng-if="procedimientoSeleccionado" id="procedimientoSeleccionado" class="details">
-			<hr/>
-			<h4>
-				<a title="Abrir en nueva pestaña" href="/procedimiento/{{procedimientoSeleccionado.codigo}}" class="text-danger">
-					{{procedimientoSeleccionado.denominacion}}
-					<span class="glyphicon glyphicon-share">
-					</span>
-				</a>
-			</h4>
-			<div class="col-lg-6">
-				<ul>
-					<li ng-repeat="attr in attrspar">
-						<strong>
-							{{attr}}
-						</strong>
-						<span>
-							&nbsp;
-						</span>
-						<span>
-							{{procedimientoSeleccionado[attr]}}
-						</span>
-					</li>
-				</ul>
-			</div>
-			<div class="col-lg-6 well">
-				<div class="btn-group pull-right">
-					<div ng-click="detallesCarmHTML=true" ng-class="{'btn-danger':detallesCarmHTML,'btn-default':!detallesCarmHTML}" class="btn btn-default">
-						<span class="glyphicon glyphicon-list">
-						</span>
-					</div>
-					<div ng-click="detallesCarmHTML=false" ng-class="{'btn-danger':!detallesCarmHTML,'btn-default':detallesCarmHTML}" class="btn">
-						<span class="glyphicon glyphicon-align-left">
-						</span>
-					</div>
-					<a target="_blank" href="https://www.carm.es/web/pagina?IDTIPO=240&amp;IDCONTENIDO={{procedimientoSeleccionado['CODIGO']}}" class="btn btn-default">
-						<span class="glyphicon glyphicon-info-sign">
-						</span>
-					</a>
-				</div>
-				<div class="procedimiento">
-					<h5 class="text-danger">
-						Cargado desde carm.es
-					</h5>
-					<div ng-repeat="(key,val) in detallesCarm" style="clear:both" ng-bind-html="val |treatAsHTML" ng-class="{ 'hidden':!detallesCarmHTML }">
-					</div>
-					<div ng-repeat="(key,val) in detallesCarm2" style="clear:both" ng-class="{ 'hidden':detallesCarmHTML }">
-						<strong>
-							{{key}}
-						</strong>
-						<span>
-							&nbsp;
-						</span>
-						<span>
-							{{val}}
-						</span>
-					</div>
-					<hr style="clear:both"/>
-				</div>
-			</div>
-			<div ng-if="graphs[0].data" class="row">
-				<div class="col-md-12">
-					<div class="btn-group pull-right">
-						<div ng-click="graficasgrandes=!graficasgrandes" class="btn btn-default">
-							<span ng-class="{'glyphicon-resize-full':!graficasgrandes,'glyphicon-resize-small':graficasgrandes}" class="glyphicon">
-							</span>
-						</div>
-						<div ng-click="graficasbarras=!graficasbarras" ng-class="{active:graficasbarras, 'btn-default':!graficabarras}" class="btn">
-							<span class="glyphicon glyphicon-stats">
-							</span>
-						</div>
-					</div>
-				</div>
-				<hr style="clear:both"/>
-				<div ng-repeat="graph in graphs" ng-if="!graficasbarras &amp;&amp; graph.data &amp;&amp; !graficasgrandes" ng-class="{'col-lg-3':(numgraphs%4==0),'col-lg-3':(numgraphs%3==0)}" class="col-md-6 well">
-					<h5 class="text-danger text-center">
-						{{graph.caption}}
-					</h5>
-					<nvd3-line-chart noData="No hay datos que mostrar" data="graph.data" showXAxis="true" showYAxis="true" showLegend="true" interactive="true" height="350" xAxisTickValues="xAxisTickValuesFunction()" xAxisTickFormat="xAxisTickFormatFunction()" rotateLabels="45" forcey="graph.forcey">
-					<svg>
-					</svg>
-				</nvd3-line-chart>
-			</div>
-			<div ng-repeat="graph in graphs" ng-if="graficasbarras &amp;&amp; graph.data &amp;&amp; !graficasgrandes" ng-class="{'col-lg-3':(numgraphs%4==0),'col-lg-3':(numgraphs%3==0)}" class="col-md-6 well">
-				<h5 class="text-danger text-center">
-					{{graph.caption}}
-				</h5>
-				<nvd3-multi-bar-chart noData="No hay datos que mostrar" data="graph.data" showXAxis="true" showYAxis="true" showLegend="true" interactive="true" height="350" xAxisTickValues="xAxisTickValuesFunction()" xAxisTickFormat="xAxisTickFormatFunction()" rotateLabels="45" forcey="graph.forcey">
-				<svg>
-				</svg>
-			</nvd3-multi-bar-chart>
-		</div>
-		<div ng-repeat="graph in graphs" ng-if="!graficasbarras &amp;&amp; graph.data &amp;&amp; graficasgrandes" style="clear:both" class="col-lg-12 well">
-			<h5 class="text-danger text-center">
-				{{graph.caption}}
-			</h5>
-			<nvd3-line-chart previous="nvd3-multi-bar-chart" noData="No hay datos que mostrar" data="graph.data" showXAxis="true" showYAxis="true" showLegend="true" interactive="true" height="350" xAxisTickValues="xAxisTickValuesFunction()" xAxisTickFormat="xAxisTickFormatFunction()" rotateLabels="45" forcey="graph.forcey">
-			<svg>
-			</svg>
-		</nvd3-line-chart>
 	</div>
-	<div ng-repeat="graph in graphs" ng-if="graficasbarras &amp;&amp; graph.data &amp;&amp; graficasgrandes" style="clear:both" class="col-lg-12 well">
-		<h5 class="text-danger text-center">
-			{{graph.caption}}
-		</h5>
-		<nvd3-multi-bar-chart previous="nvd3-multi-bar-chart" noData="No hay datos que mostrar" data="graph.data" showXAxis="true" showYAxis="true" showLegend="true" interactive="true" height="350" xAxisTickValues="xAxisTickValuesFunction()" xAxisTickFormat="xAxisTickFormatFunction()" rotateLabels="45" forcey="graph.forcey">
-		<svg>
-		</svg>
-	</nvd3-multi-bar-chart>
 </div>
-</div>
-<hr/>
-<div style="clear:both" class="table-responsive">
-	<table class="table table-striped">
-		<thead>
-			<tr>
-				<th>
-				</th>
-				<th ng-repeat="mes in meses">
-					{{mes}}
-				</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr ng-repeat="attr in attrstabla">
-				<th>
-					{{attr}}
-				</th>
-				<td ng-repeat="val in procedimientoSeleccionado[attr] track by $index" class="numberCell">
-					{{val |numberFormat}}
-				</td>
-			</tr>
-		</tbody>
-	</table>
-</div>
-<hr/>
-<h5 class="text-danger">
-	Incidencias
-</h5>
-<div class="table-resposive">
-	<table class="table table-striped">
-		<thead>
-			<tr>
-				<th>
-				</th>
-				<th ng-repeat="mes in meses">
-					{{mes}}
-				</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr ng-repeat="(incumplimiento,valores) in procedimientoSeleccionado.Incidencias">
-				<th>
-					{{incumplimiento}}
-				</th>
-				<td ng-repeat="val in valores track by $index" ng-class="{'text-danger': val }" class="numberCell">
-					{{val}}
-				</td>
-			</tr>
-		</tbody>
-	</table>
-</div>
-</div>
-</div>
-</div>
+

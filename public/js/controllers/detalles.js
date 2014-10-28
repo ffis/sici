@@ -1,10 +1,12 @@
-function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,DetalleCarmProcedimiento,DetalleCarmProcedimiento2,Raw,Aggregate,PersonasByPuesto) {
+function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,DetalleCarmProcedimiento,DetalleCarmProcedimiento2,Raw,Aggregate) {
 
 	$scope.detallesCarm = DetalleCarmProcedimiento.get({codigo:$routeParams.codigo});
 	$scope.detallesCarm2 = DetalleCarmProcedimiento2.get({codigo:$routeParams.codigo});		
 	$scope.numgraphs = 0;
 	$scope.graficasbarras = false;
 	$scope.mesActual = (new Date()).getMonth();
+	$scope.detallesCarmHTML = true;
+	$scope.graphs = false;
 
 	$scope.procedimientoSeleccionado = Procedimiento.get({codigo: $routeParams.codigo } ,function(){
 		$window.document.title ='SICI: '+$scope.procedimientoSeleccionado.denominacion;
@@ -15,33 +17,31 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 		}
 		
 		var cod_plaza = $scope.procedimientoSeleccionado.cod_plaza;
-		$scope.responsables = PersonasByPuesto.query({cod_plaza:cod_plaza}); 
-		
 		var graphskeys = [
-				{caption:'RESUMEN DE DATOS DE GESTIÓN',keys:[
+				{caption:'RESUMEN DE DATOS DE GESTIÓN '+$scope.anualidad,keys:[
 					{caption:'Solicitados', vals:'periodos.'+$scope.anualidad+'.solicitados'},
 					{caption:'Iniciados', vals:'periodos.'+$scope.anualidad+'.iniciados'},
 					{caption:'Pendientes', vals:'periodos.'+$scope.anualidad+'.pendientes'},
 					{caption:'Total resueltos', vals:'periodos.'+$scope.anualidad+'.total_resueltos'},
 					{caption:'Total resueltos '+($scope.anualidad-1), vals:'periodos.'+($scope.anualidad-1)+'.total_resueltos'},
 				]},
-				{caption:'RESUELTOS EN PLAZO',keys:[
+				{caption:'RESUELTOS EN PLAZO '+$scope.anualidad,keys:[
 					{caption:'En plazo', vals:'periodos.'+$scope.anualidad+'.en_plazo'},
 					{caption:'Fuera de plazo', vals:'periodos.'+$scope.anualidad+'.fuera_plazo'},
 					]},
-				{caption:'DESESTIMIENTOS/RENUNCIAS Y PRESCRITOS/CADUCADOS',keys:[
+				{caption:'DESESTIMIENTOS/RENUNCIAS Y PRESCRITOS/CADUCADOS '+$scope.anualidad,keys:[
 					{caption:'Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)', vals:'periodos.'+$scope.anualidad+'.resueltos_desistimiento_renuncia_caducidad'},
 					{caption:'Resueltos por Prescripcion/Caducidad (Resp_Admon)', vals:'periodos.'+$scope.anualidad+'.resueltos_prescripcion'},
 					]},
-				{caption:'QUEJAS Y RECURSOS CONTRA EL PROCEDIMIENTO',keys:[
+				{caption:'QUEJAS Y RECURSOS CONTRA EL PROCEDIMIENTO '+$scope.anualidad,keys:[
 					{caption:'Quejas presentadas en el mes', vals:'periodos.'+$scope.anualidad+'.quejas'},
 					{caption:'Recursos presentados en el mes', vals:'periodos.'+$scope.anualidad+'.recursos'},
 					]},
 			];
 		$scope.graphskeys = graphskeys;
 		$scope.graphs = [];
+		$scope.numgraphs = 0;
 		graphskeys.forEach(function(g, i){
-			$scope.numgraphs = 0;
 			var maxvalue = 0;
 			var data = [];
 			var caption = g.caption;
@@ -66,8 +66,8 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 			})
 			var forcey = [0, Math.ceil(maxvalue*1.3) ];
 			if (maxvalue>0){
-				$scope.graphs.push( { data : data, forcey : forcey, caption:caption} );
-				$scope.numgraphs++;
+				$scope.graphs.push( { data : data, forcey : forcey, caption:caption } );
+				$scope.numgraphs = $scope.numgraphs+1;
 			}
 		})
 
@@ -76,34 +76,19 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 				var campo = {'codigo':'$codigo'};
 				try{
 					var restriccion = JSON.parse(i.restriccion);
-					restriccion.CODIGO = $scope.procedimientoSeleccionado.codigo;
+					restriccion.codigo = $scope.procedimientoSeleccionado.codigo;
 					$scope.inconsistencias[idx].datos = Aggregate.query({ campo : JSON.stringify(campo), restriccion:JSON.stringify(restriccion)});
 				}catch(exception){
 					console.error('La restricción '+i.restriccion+' no es correcta');
 				}
 			});
 		});
-
 	} );	
 	$scope.attrspar = [
-		'codigo',
-		'denominacion',
-		'tipo',
-		'cod_plaza',
-		'fecha_creacion',
-		'fecha_fin',
-		'fecha_version',
-		'Login responsable',
-		'Nombre responsable',
-		'Correo-e responsable',
-		'Teléfono responsable',
-		'Plazo maximo legal para resolver (dias naturales)',
-		'Plazo maximo legal para responder (dias habiles)',
-		'Plazo CS /ANS (dias naturales)',
-		'Plazo CS /ANS (dias habiles)',
-		'Pendientes iniciales (a 31-12)',
+		'codigo', 'denominacion', 'tipo', 'cod_plaza', 'fecha_creacion', 'fecha_version', /* 'fecha_fin', */
 	];
-	$scope.attrsanualidad = ['pendientes_iniciales','periodoscerrados','plazo_CS_ANS_habiles','plazo_CS_ANS_naturales','plazo_maximo_resolver','plazo_maximo_responder'];
+	$scope.attrsanualidad = ['pendientes_iniciales','periodoscerrados',
+		'plazo_CS_ANS_habiles','plazo_CS_ANS_naturales','plazo_maximo_resolver','plazo_maximo_responder'];
 		
 	$scope.attrstabla = [
 		'solicitados',
@@ -112,12 +97,11 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 		'resueltos_1','resueltos_5','resueltos_10','resueltos_15','resueltos_30','resueltos_45','resueltos_mas_45',
 		'resueltos_desistimiento_renuncia_caducidad','resueltos_prescripcion',
 		'en_plazo',
-		't_medio_habiles','t_medio_naturales','total_resueltos',
+		't_medio_habiles','t_medio_naturales',
 		];
 		/* 'totalsolicitudes', */
-	$scope.attrstablacalculados = ['fuera_plazo', 'pendientes'];
+	$scope.attrstablacalculados = ['total_resueltos','fuera_plazo', 'pendientes'];
 	$scope.attrsresp = ['codplaza', 'login','nombre','apellidos','telefono'];
-
 
 	$scope.meses = $rootScope.meses;
 	$scope.colorText = $rootScope.colorText;
@@ -136,10 +120,13 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 	        return colorCategory(i);
 	    };
 	};
-	$scope.graphs = false;
+
 	$scope.recalculate = function(){
 		//
 		console.log('incluir código recálculo, a hacer en el servidor');
+		$scope.procedimientoSeleccionado.$update(function(response){
+			console.error(response);
+		});
 	}
 	$scope.checkNumber = function(data) {
 		var valor = parseInt(data);
@@ -150,7 +137,7 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 	    }
 	};    
 }
-DetallesCtrl.$inject = ['$rootScope','$scope','$routeParams','$window','Procedimiento','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','Raw','Aggregate','PersonasByPuesto'];
+DetallesCtrl.$inject = ['$rootScope','$scope','$routeParams','$window','Procedimiento','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','Raw','Aggregate'];
 
 function parseStr2Int (str){
 	var valor = parseInt(str);

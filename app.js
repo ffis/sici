@@ -71,8 +71,10 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.get('/api/personasByPuesto/:cod_plaza',persona.personasByPuesto(models));
 
   app.get('/api/procedimiento', procedimiento.procedimiento(models) );
-  app.get('/api/procedimiento/:codigo', procedimiento.procedimiento(models) );
   app.get('/api/procedimientoList/:idjerarquia', procedimiento.procedimientoList(models, Q) );
+  
+  app.get('/api/procedimiento/:codigo', procedimiento.procedimiento(models) );
+  app.put('/api/procedimiento/:codigo', procedimiento.updateProcedimiento(Q, models, recalculate) );
 
   app.get('/api/reglasinconsistencias', reglainconsistencia.getReglaInconsistencia(models));
   app.post('/api/reglasinconsistencias', reglainconsistencia.newReglaInconsistencia(models));
@@ -82,10 +84,8 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.get('/api/permisosList/:idjerarquia', permiso.permisosList(models, Q)); 
   app.get('/api/permisosList', permiso.permisosList(models, Q));
 
-
- app.get('/test/fullSyncjerarquia', recalculate.test( Q, models));
-  
- 
+  app.get('/test/recalculate', recalculate.test( Q, models));
+  app.get('/test/testImportadorExcel', importador.testImportadorExcel(Q, models, recalculate));
 
 // redirect all others to the index (HTML5 history)
   app.get('*', routes.index);//devolver el index.html del raiz

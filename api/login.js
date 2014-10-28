@@ -37,11 +37,13 @@ exports.authenticate = function(config){
 						o.permisos = [];
 						o.permisoscalculados = {
 							jerarquialectura :[], jerarquiaescritura :[], procedimientoslectura :[], procedimientosescritura :[],
+							superuser : false
 						};
 						var now = new Date();
 						for(var i=0,j = permisos.length; i<j;i++ ){
 							if (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime())
 							{
+								o.permisoscalculados.superuser = o.permisoscalculados.superuser || permisos[i].superuser;
 								o.permisoscalculados.jerarquialectura   = o.permisoscalculados.jerarquialectura.concat( permisos[i].jerarquialectura);
 								o.permisoscalculados.jerarquiaescritura = o.permisoscalculados.jerarquiaescritura.concat( permisos[i].jerarquiaescritura);
 								o.permisoscalculados.procedimientoslectura   = o.permisoscalculados.procedimientoslectura.concat( permisos[i].procedimientoslectura);

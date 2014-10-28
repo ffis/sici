@@ -2,7 +2,12 @@
 
 function AppCtrl($scope, $rootScope, Session) {
 	$rootScope.setTitle   = function (title){ $scope.name = title; };
-	$rootScope.setLogeado = function(t){ $rootScope.logeado =t; };
+	$rootScope.setLogeado = function(t){
+		$rootScope.logeado =t;
+		if ($rootScope.session){
+			console.log($rootScope.session.permisoscalculados)
+		}
+	};
 	$rootScope.session = Session;
 	$rootScope.nav = '';
 	$rootScope.logeado = false;
@@ -16,6 +21,11 @@ function AppCtrl($scope, $rootScope, Session) {
 		{ id:'update', caption:'Actualizar mediante fichero' },
 		{ id:'logout', caption:'Salir' },
 	];
+	$rootScope.navegabilidadSuper = [
+		{ id:'recalculate', caption:'Recalcular datos' },
+	];
+
+
 
 	$rootScope.colorText = function(i, numcolors, phase)
 	{

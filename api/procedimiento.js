@@ -16,7 +16,7 @@ exports.procedimiento = function(models){
 }
 
 
-exports.procedimientoupdate = function(models){
+exports.updateProcedimiento = function(Q, models, recalculate){
 	return function(req,res){
 		var Procedimiento= models.procedimiento();
 		var restriccion = {};
@@ -26,7 +26,14 @@ exports.procedimientoupdate = function(models){
 			
 		Procedimiento.findOne(restriccion,function(err,data){
 			if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }
-			res.json (data);
+			//res.json (data);
+	    	var procedimiento = req.body;
+
+			recalculate.softCalculateProcedimiento(Q, procedimiento).then(function(procedimiento){
+				recalculate.softCalculateProcedimientoCache(Q, models, procedimiento).then(function(procedimiento){
+			    	res.json(procedimiento);
+			    })
+			});
 		});
 	}
 }
