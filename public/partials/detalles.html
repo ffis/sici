@@ -5,8 +5,8 @@
 			<hr/>
 			<h4 class="text-danger">{{procedimientoSeleccionado.denominacion}}</h4>
 			<ol class="breadcrumb">
-				<li ng-repeat="ancestro in procedimientoSeleccionado.ancestros">
-					<a href="/actividad/{{ancestro.id}}"> {{ancestro.nombre}}</a>
+				<li ng-repeat="ancestro in procedimientoSeleccionado.ancestros |reverse">
+					<a href="/actividad/{{ancestro.id}}">{{ancestro.nombrelargo}}</a>
 				</li>
 				<li class="active">{{procedimientoSeleccionado.denominacion}}</li>
 				<li class="active">{{anualidad}}</li>
@@ -24,7 +24,7 @@
 						<a href="#" onaftersave="recalculate()" editable-text="procedimientoSeleccionado.anualidades[anualidad][attr]">{{ procedimientoSeleccionado.anualidades[anualidad][attr] || '-' }}</a>
 					</li>
 				</ul>
-				<div class="panel panel-default">
+				<div class="panel panel-danger">
 					<div class="panel-heading">
 						<h3 class="panel-title">Responsables</h3>
 					</div>
@@ -44,26 +44,33 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-lg-6 well">
-				<div class="btn-group pull-right">
-					<div ng-click="detallesCarmHTML=true" ng-class="{'btn-danger':detallesCarmHTML,'btn-default':!detallesCarmHTML}" class="btn btn-default">
-						<span class="glyphicon glyphicon-list"></span>
+			<div class="col-lg-6">
+				<div class="panel panel-danger">
+					<div class="panel-heading">
+						<h3 class="panel-title">Detalles según la guía</h3>
 					</div>
-					<div ng-click="detallesCarmHTML=false" ng-class="{'btn-danger':!detallesCarmHTML,'btn-default':detallesCarmHTML}" class="btn">
-						<span class="glyphicon glyphicon-align-left"></span>
-					</div>
-					<a target="_blank" href="https://www.carm.es/web/pagina?IDTIPO=240&amp;IDCONTENIDO={{procedimientoSeleccionado.codigo}}" class="btn btn-default"> 
-						<span class="glyphicon glyphicon-info-sign"></span>
-					</a>
-				</div>
-				<div class="procedimiento">
-					<h5 class="text-danger">Detalles según la guía</h5>
-					<div ng-repeat="(key,val) in detallesCarm" style="clear:both" ng-bind-html="val |treatAsHTML" ng-class="{ 'hidden':!detallesCarmHTML }">
-					</div>
-					<div ng-repeat="(key,val) in detallesCarm2" style="clear:both" ng-class="{ 'hidden':detallesCarmHTML }">
-						<strong>{{key }}</strong>
-						<span>&nbsp;</span>
-						<span>{{val}}</span>
+					<div class="panel-body">
+						<div class="btn-group pull-right">
+							<div ng-click="detallesCarmHTML=true" ng-class="{'btn-danger':detallesCarmHTML,'btn-default':!detallesCarmHTML}" class="btn btn-default">
+								<span class="glyphicon glyphicon-list"></span>
+							</div>
+							<div ng-click="detallesCarmHTML=false" ng-class="{'btn-danger':!detallesCarmHTML,'btn-default':detallesCarmHTML}" class="btn">
+								<span class="glyphicon glyphicon-align-left"></span>
+							</div>
+							<a target="_blank" href="https://www.carm.es/web/pagina?IDTIPO=240&amp;IDCONTENIDO={{procedimientoSeleccionado.codigo}}" class="btn btn-default"> 
+								<span class="glyphicon glyphicon-info-sign"></span>
+							</a>
+						</div>
+						<div class="procedimiento">
+							<div ng-repeat="(key,val) in detallesCarm" style="clear:both" ng-bind-html="val |treatAsHTML" ng-class="{ 'hidden':!detallesCarmHTML }">
+							</div>
+							<div ng-repeat="(key,val) in detallesCarm2" style="clear:both" ng-class="{ 'hidden':detallesCarmHTML }">
+								<strong>{{key }}</strong>
+								<span>&nbsp;</span>
+								<span>{{val}}</span>
+							</div>
+							<div class="clear"></div>
+						</div>	
 					</div>
 				</div>
 			</div>
@@ -124,13 +131,13 @@
 				</div>
 				
 				<hr style="clear:both"/>
-				<div ng-repeat="graph in graphs" ng-if="!graficasbarras &amp;&amp; graph.data &amp;&amp; !graficasgrandes" ng-class="{'col-lg-3':(numgraphs%4==0),'col-lg-3':(numgraphs%3==0)}" class="col-md-6 well">
+				<div ng-repeat="graph in graphs" ng-if="!graficasbarras &amp;&amp; graph.data &amp;&amp; !graficasgrandes" ng-class="{'col-lg-3':(numgraphs%4==0),'col-lg-3':(numgraphs%3==0)}" class="col-md-12 well">
 					<h5 class="text-danger text-center">{{graph.caption}}</h5>
 					<nvd3-line-chart noData="No hay datos que mostrar" data="graph.data" showXAxis="true" showYAxis="true" showLegend="true" interactive="true" height="350" xAxisTickValues="xAxisTickValuesFunction()" xAxisTickFormat="xAxisTickFormatFunction()" rotateLabels="45" forcey="graph.forcey">
 						<svg></svg>
 					</nvd3-line-chart>
 				</div>
-				<div ng-repeat="graph in graphs" ng-if="graficasbarras &amp;&amp; graph.data &amp;&amp; !graficasgrandes" ng-class="{'col-lg-3':(numgraphs%4==0),'col-lg-3':(numgraphs%3==0)}" class="col-md-6 well">
+				<div ng-repeat="graph in graphs" ng-if="graficasbarras &amp;&amp; graph.data &amp;&amp; !graficasgrandes" ng-class="{'col-lg-3':(numgraphs%4==0),'col-lg-3':(numgraphs%3==0)}" class="col-md-12 well">
 					<h5 class="text-danger text-center">{{graph.caption}}</h5>
 					<nvd3-multi-bar-chart noData="No hay datos que mostrar" data="graph.data" showXAxis="true" showYAxis="true" showLegend="true" interactive="true" height="350" xAxisTickValues="xAxisTickValuesFunction()" xAxisTickFormat="xAxisTickFormatFunction()" rotateLabels="45" forcey="graph.forcey">
 						<svg>

@@ -176,8 +176,16 @@ exports.softCalculateProcedimiento = function(Q, procedimiento){
 	var deferred = Q.defer();
 
 	//para cada periodo
+	if (typeof procedimiento.periodos != "object"){
+		console.error('Error en procedimiento '+procedimiento.codigo)
+		deferred.reject(procedimiento);
+
+		return deferred.promise;
+	}
+
 	for(var periodo in procedimiento.periodos)
 	{
+		if (typeof procedimiento.periodos[ periodo ] != 'object') continue;
 		if (typeof procedimiento.periodos[ periodo ].resueltos_1 == 'undefined') continue;
 
 		//nuevos campos
@@ -229,6 +237,52 @@ exports.softCalculateProcedimiento = function(Q, procedimiento){
 	}
 	deferred.resolve(procedimiento);
 
+	return deferred.promise;
+}
+
+exports.fullSyncprocedimiento = function( Q, models){
+
+	var deferred = Q.defer();
+	var Procedimiento = models.procedimiento();
+
+	Procedimiento.find({}, function(err, procedimientos){
+		if (err){ deferred.reject(err); return; }
+
+		var defs = [];
+		procedimientos.forEach(function(procedimiento,i){
+			var promise = Q.defer();
+			var f = function(promise,procedimiento) {
+				var proccodigo = procedimiento.codigo;
+				exports.softCalculateProcedimiento(Q, procedimiento).then(function(procedimiento){
+					exports.softCalculateProcedimientoCache(Q, models, procedimiento).then(function(procedimiento){
+						console.log('Calculado:'+procedimiento.codigo);
+						if (!procedimiento.codigo)
+						{
+							console.error(proccodigo+':'+JSON.stringify(procedimiento));
+							promise.reject(procedimiento);
+						}else{
+							procedimiento.update(function(){
+								console.log('Guardado:'+procedimiento.codigo);
+								promise.resolve();	
+							});
+						}
+				    },function(err){
+				    	promise.reject(err);
+				    })
+				},function(err){
+			    	promise.reject(err);
+				});
+			}
+			f(promise,procedimiento);
+			defs.push(promise.promise);
+		});
+
+		Q.all(defs).then(function(){
+			deferred.resolve();
+		},function(err){
+			deferred.reject(err);
+		})
+	});
 	return deferred.promise;
 }
 
@@ -351,14 +405,15 @@ exports.fullSyncjerarquia = function( Q, models){
 
 exports.test = function(Q,models){
 	return function(req,res){
-
-		exports.fullSyncjerarquia( Q, models).then(function(o){
+		exports.fullSyncprocedimiento( Q, models).then(function(o){
 			console.log('terminado!');
-			res.json(o);
+			res.json({'resultado':'OK'});
 		}, function(e){
 			console.error(e);
 			res.json(e);
 		});
+	};
+}
 
 /*
 		var Permiso = models.permiso();
@@ -384,6 +439,4 @@ permiso.save();
 				});
 		})
 */
-	};
-
-}
+	
