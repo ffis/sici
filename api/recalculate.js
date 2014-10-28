@@ -155,10 +155,14 @@ exports.softCalculateProcedimientoCache = function(Q, models, procedimiento){
 		});
 	});
 
-	Persona.find({codplaza: procedimiento.cod_plaza}, function(err,personas){
-		if (err){ deferred.reject(err); return; }
-		deferredPersona.resolve(personas);
-	});
+	if (procedimiento.cod_plaza){
+		Persona.find({codplaza: procedimiento.cod_plaza}, function(err,personas){
+			if (err){ deferred.reject(err); return; }
+			deferredPersona.resolve(personas);
+		});
+	}else{
+		deferredPersona.resolve([]);
+	}
 
 	deferredJerarquia.promise.then(function(jerarquias){
 		procedimiento.ancestros = jerarquias;
