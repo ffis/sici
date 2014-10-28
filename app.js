@@ -88,7 +88,6 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.get('/api/permisosList/:idjerarquia', permiso.permisosList(models, Q)); 
   app.get('/api/permisosList', permiso.permisosList(models, Q));
 
-  app.get('/test/recalculate', recalculate.test( Q, models));
   app.get('/test/testImportadorExcel', importador.testImportadorExcel(Q, models, recalculate));
 
 // redirect all others to the index (HTML5 history)

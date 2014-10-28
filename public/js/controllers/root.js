@@ -4,9 +4,6 @@ function AppCtrl($scope, $rootScope, Session) {
 	$rootScope.setTitle   = function (title){ $scope.name = title; };
 	$rootScope.setLogeado = function(t){
 		$rootScope.logeado =t;
-		if ($rootScope.session){
-			console.log($rootScope.session.permisoscalculados)
-		}
 	};
 	$rootScope.session = Session;
 	$rootScope.nav = '';
@@ -23,6 +20,7 @@ function AppCtrl($scope, $rootScope, Session) {
 	];
 	$rootScope.navegabilidadSuper = [
 		{ id:'recalculate', caption:'Recalcular datos' },
+		{ id:'permisos', caption:'Gestionar permisos' },
 	];
 
 
