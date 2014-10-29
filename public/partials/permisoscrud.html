@@ -127,7 +127,7 @@
 				</tr>
 				<tr ng-if="show_form_add_permiso">
 					<th colspan="{{ !is_show_recursive_users ? 8 : 9 }}">
-						<autocomplete ng-model="persona_o_plaza" attr-placeholder="Buscar usuario por login o plaza..." click-activation="true" data="personas_plazas" on-type="clearaddpermisoform" on-select="refreshpermisoform" ></autocomplete> 						
+						<!--<autocomplete ng-model="persona_o_plaza" attr-placeholder="Buscar usuario por login o plaza..." click-activation="true" data="personas_plazas" on-type="clearaddpermisoform" on-select="refreshpermisoform" ></autocomplete> 						-->
 						<div class="input-group">
 							<input type="text" class="form-control" placeholder="Login carm" ng-model="logincarm">
 							<span class="input-group-addon">@carm.es</span>
@@ -138,7 +138,7 @@
 				</tr>
 				<tr ng-if="show_details_permiso">
 					<th colspan="{{ !is_show_recursive_users ? 8 : 9 }}">
-						<autocomplete ng-model="persona_o_plaza" attr-placeholder="Buscar usuario por login o plaza..." click-activation="true" data="personas_plazas" on-select="showDetailsPermiso" ></autocomplete> 						
+						<!--<autocomplete ng-model="persona_o_plaza" attr-placeholder="Buscar usuario por login o plaza..." click-activation="true" data="personas_plazas" on-select="showDetailsPermiso" ></autocomplete> 						-->
 					</th>
 				</tr>				
 				<tr>
