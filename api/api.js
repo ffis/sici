@@ -63,12 +63,18 @@ exports.arbol = function(Q, models){
 exports.raw = function(models){
 	return function(req,res){
 		var modelname = req.params.modelname;
+		var fields = req.query.fields;
 		if (typeof models[modelname] !== 'function')
 		{
 			console.error(modelname + " doesn't exists in model"); res.status(500); res.end(); return ; 
 		}
 		var Loader = models[modelname]();
-		Loader.find({},function(err,data){
+		var query = Loader.find({});
+
+		if (typeof fields !== 'undefined'){
+			query.select(fields);
+		}
+		query.exec(function(err,data){
 			if (err) { console.error(err); res.status(500); res.end(); return ; }
 			res.json (data);
 		});
