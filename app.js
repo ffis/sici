@@ -72,6 +72,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
 
 
   app.get('/api/personasByPuesto/:cod_plaza',persona.personasByPuesto(models));
+  app.get('/api/searchpersonas',persona.personassearchlist(models,Q));
 
   app.get('/api/procedimiento', procedimiento.procedimiento(models) );
   app.get('/api/procedimientoList/:idjerarquia', procedimiento.procedimientoList(models, Q) );

@@ -21,6 +21,15 @@
 <div ng-class="{'col-lg-5': !oculto, 'hidden': oculto}" class="left animated">
 		<div class="panel panel-danger">
 			<div class="panel-heading">
+				<div class="input-group">
+				  <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
+				  <autocomplete class="form-control" ng-class="form-control" ng-model="persona_o_plaza" attr-placeholder="Buscar usuario por login o plaza..." click-activation="true" data="personas_plazas" on-select="showDetailsPermiso" ></autocomplete> 						
+				</div>				
+			</div>
+		</div>
+		<br/>
+		<div class="panel panel-danger">
+			<div class="panel-heading">
 				<h3 class="panel-title">
 					Organismos
 				</h3>
@@ -87,13 +96,23 @@
 			</div>
 		</div>
 	</div>
-	<div ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated" >
+	<div ng-if="show_details_permiso">
+		<table class="table table-striped table-bordered table-condensed table-hover">
+			<thead></thead>
+			<tbody>Detalles de los permisos del usuario/plaza seleccionados. TO DO.</tbody>
+			<tfoot></tfoot>
+		</table>
+	</div>
+	<div ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated" ng-if="!show_details_permiso">
 		<table class="table table-striped table-bordered table-condensed table-hover">
 			<caption>Permisos</caption>
 			<thead>
 				<tr>
 					<th colspan="{{ !is_show_recursive_users ? 8 : 9 }}">
 						<div class="btn-group pull-right">
+							<button ng-class="{}" class="btn btn-default" ng-click="searchUser()" title="Buscar los permisos de un usuario o plaza">
+								<span class="glyphicon glyphicon-search"></span>
+							</button>								
 							<button ng-class="{}" class="btn btn-default" ng-click="addPermiso()" title="Añadir permiso sobre la jerarquía seleccionada">
 								<span class="glyphicon glyphicon-plus"></span>
 							</button>								
@@ -108,9 +127,20 @@
 				</tr>
 				<tr ng-if="show_form_add_permiso">
 					<th colspan="{{ !is_show_recursive_users ? 8 : 9 }}">
-						<autocomplete ng-model="persona" attr-placeholder="Buscar usuario por login o plaza..." click-activation="true" data="personas_plazas" ></autocomplete> 
+						<autocomplete ng-model="persona_o_plaza" attr-placeholder="Buscar usuario por login o plaza..." click-activation="true" data="personas_plazas" on-type="clearaddpermisoform" on-select="refreshpermisoform" ></autocomplete> 						
+						<div class="input-group">
+							<input type="text" class="form-control" placeholder="Login carm" ng-model="logincarm">
+							<span class="input-group-addon">@carm.es</span>
+						</div>
+						<input type="text" class="form-control" placeholder="C&oacute;digo plaza" ng-model="plaza">
+						<button class="btn btn-default danger" ng-click="crearpermiso"><span>Crear</span></button>
 					</th>
 				</tr>
+				<tr ng-if="show_details_permiso">
+					<th colspan="{{ !is_show_recursive_users ? 8 : 9 }}">
+						<autocomplete ng-model="persona_o_plaza" attr-placeholder="Buscar usuario por login o plaza..." click-activation="true" data="personas_plazas" on-select="showDetailsPermiso" ></autocomplete> 						
+					</th>
+				</tr>				
 				<tr>
 					<th>Usuario</th>
 					<th>

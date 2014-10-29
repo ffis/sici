@@ -19,9 +19,21 @@ angular.module('sici.services', ['ngResource'])
 		function ($resource) {
 			return $resource('/api/permisosList/:idjerarquia/:recursivo', {}, { query : {method:'GET', isArray:false} });
 		}])
+	.factory('PermisoToDelete',['$resource',
+		function ($resource) {
+			return $resource('/api/permisos/delete-jerarquia/:idpermiso/:idjerarquia', {idpermiso:'@idpermiso',idjerarquia:'@idjerarquia'}, { delete_permiso: {method:'DELETE'} });
+		}])	
+	.factory('Permiso', ['$resource',
+        function ($resource) {
+            return $resource('/api/procedimiento/:id', {id:'@id'},   { update: {method:'PUT' } });
+		}])
     .factory('PersonasByPuesto', ['$resource',
         function ($resource) {
             return $resource('/api/personasByPuesto/:cod_plaza', {}, { query: {method:'GET', isArray:true} });
+        }])
+	.factory('PersonasSearchList', ['$resource',
+        function ($resource) {
+            return $resource('/api/searchpersonas', {}, { query: {method:'GET', isArray:true} });
         }])
 	.factory('DetalleCarmProcedimiento', ['$resource',
         function ($resource) {

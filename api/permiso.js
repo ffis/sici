@@ -145,7 +145,9 @@ exports.permisosList = function(models, Q){
 					var Procedimiento = models.procedimiento();					
 					var dprocedimiento = Q.defer();
 					var promise_procedimiento = dprocedimiento.promise;
-					Procedimiento.find({'idjerarquia':{'$in':jerarquias_buscadas}},function(err,procedimientos){
+					var query = Procedimiento.find({'idjerarquia':{'$in':jerarquias_buscadas}});
+					query.select({cod_plaza:1,codigo:1,responsables:1,idjerarquia:1});
+					query.exec(function(err,procedimientos){
 						if (err) {  dprocedimiento.reject(err);}
 						else {
 							dprocedimiento.resolve(procedimientos);

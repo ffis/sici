@@ -7,6 +7,7 @@ var app = angular.module('sici', [
     'angularFileUpload','xeditable',
     'sici.filters', 'sici.services', 'sici.directives','sici.login.util','sici.translate',
     'pascalprecht.translate',
+	'autocomplete',
   ]).
   config(['$routeProvider', '$locationProvider','$logProvider', function($routeProvider, $locationProvider, $logProvider) {
     $logProvider.debugEnabled(false);
