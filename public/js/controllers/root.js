@@ -3,7 +3,7 @@
 function AppCtrl($scope, $rootScope, Session) {
 	$rootScope.setTitle   = function (title){ $scope.name = title; };
 	$rootScope.setLogeado = function(t){
-		$rootScope.logeado =t;
+		$rootScope.logeado = t;
 	};
 	$rootScope.session = Session;
 	$rootScope.nav = '';
@@ -42,6 +42,10 @@ function AppCtrl($scope, $rootScope, Session) {
             type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"
         });
         saveAs(blob, nombre+".xls");
+	};
+
+	$rootScope.exportDOC = function(idx, nombre){
+		$("#"+idx).wordExport(nombre);
 	};
 
 }

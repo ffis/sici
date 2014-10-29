@@ -1,6 +1,7 @@
+'use strict';
+
 exports.update = function(){
 	return function (req, res, next) {
-		console.log(req.files);
 		if (next){
 			next();
 		}else{

@@ -3,13 +3,16 @@ function StatsCtrl($rootScope,$scope,$window,Aggregate){
 	$rootScope.nav = 'stats';
 	$window.document.title ='SICI: Estadísticas';
 	$scope.graphs = [];
-
-	$scope.campos = ['cod_plaza','denominacion','codigo','ancestros.nombre'];
+	$scope.campos = ['ancestro_v_2','ancestro_v_3','ancestro_v_4','cod_plaza','denominacion','codigo'];
 	$scope.campo = $scope.campos[0];
 
 	$scope.newGraph = function(){
 		var campo = $scope.campo;
 		$scope.tmp  = Aggregate.query({campo: campo},aux(campo,'',null));
+		var index = $scope.campos.indexOf($scope.campo);
+		if (index < $scope.campos.length-1){
+			$scope.campo = $scope.campos[index+1];
+		}
 	}
 	$scope.exportXLS = function(idx){
 	    var blob = new Blob(['<meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8"><table width="100%">'+document.getElementById('tabladatos'+idx).innerHTML+'</table>'], {
@@ -47,7 +50,12 @@ function StatsCtrl($rootScope,$scope,$window,Aggregate){
 	$scope.orden='count';
 	$scope.ascending=true;
 
-	$scope.xFunction  = function () { return function (d) { var a = d._id.replace('CONSEJERIA',"CONSJ.").replace('ORGANISMO',"ORG."); if (a.length > 20) a=a.substring(0,18)+'...'; return a; }; };
+	$scope.xFunction  = function () { return function (d) { 
+
+		var id  = d._id ? d._id : '';
+		
+
+		var a = id.replace('CONSEJERIA',"CONSJ.").replace('ORGANISMO',"ORG."); if (a.length > 20) a=a.substring(0,18)+'...'; return a; }; };
 	$scope.yFunction  = function () { return function (d) { return d.count; }; };
 	$scope.yFunction2 = function () { return function (d) { return d.porcumplimentar; }; };
 	$scope.yFunction3 = function () { return function (d) { return d.cumplimentadas; }; };

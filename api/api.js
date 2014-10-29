@@ -1,3 +1,5 @@
+'use strict';
+
 exports.log = function(models){
   return function(req, res, next){
     var Registroactividad = models.registroactividad();
@@ -58,7 +60,6 @@ exports.arbol = function(Q, models){
 		})
 	}
 };
-//[{ id: '', title:'', nodes:[]}]
 
 exports.raw = function(models){
 	return function(req,res){
@@ -80,7 +81,6 @@ exports.raw = function(models){
 		});
 	}
 }
-
 
 exports.aggregate = function(models){
 	return function(req,res){
@@ -117,7 +117,7 @@ exports.aggregate = function(models){
 		groupfield['count'] = {'$sum':1};
 		groupfield['porcumplimentar'] = { '$sum':{'$cond': { if: { '$eq':[0,'$periodos.'+cfg.anyo+'.totalsolicitudes']}, then:1, else: 0 } } };
 
-		group.push({'$unwind':'$ancestros'});
+		/*group.push({'$unwind':'$ancestros'});*/
 		group.push({"$group" : groupfield});
 		group.push({"$sort":{ 'count' : -1 } });
 		console.log(JSON.stringify(group));
@@ -128,7 +128,4 @@ exports.aggregate = function(models){
 		});		
 	}
 }
-
- 
-
 

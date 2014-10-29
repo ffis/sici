@@ -1,3 +1,4 @@
+'use strict';
 
 exports.getReglaInconsistencia = function(models){
 	return function(req,res){
@@ -37,7 +38,6 @@ exports.updateReglaInconsistencia = function(models){
 exports.newReglaInconsistencia = function(models){
 	return function(req, res) {
 		var Reglasinconsistencias = models.reglasinconsistencias();
-
 	    var content = req.body;
 	    new Reglasinconsistencias(content).save( function(e){
 			if (e){

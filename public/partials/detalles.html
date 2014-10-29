@@ -1,11 +1,14 @@
 
 <div class="row">
 	<div class="col-lg-12">
-		<div ng-if="procedimientoSeleccionado" class="details">
+		<div class="btn btn-default pull-right" ng-click="$root.exportDOC('detalles', 'Procedimiento_'+procedimientoSeleccionado.codigo)">
+			<span class="glyphicon glyphicon-book"></span>
+		</div>
+		<div ng-if="procedimientoSeleccionado" class="details" id="detalles">
 			<hr/>
 			<h4 class="text-danger">{{procedimientoSeleccionado.denominacion}}</h4>
 			<ol class="breadcrumb">
-				<li ng-repeat="ancestro in procedimientoSeleccionado.ancestros |reverse">
+				<li ng-repeat="ancestro in procedimientoSeleccionado.ancestros|reverse ">
 					<a href="/actividad/{{ancestro.id}}">{{ancestro.nombrelargo}}</a>
 				</li>
 				<li class="active">{{procedimientoSeleccionado.denominacion}}</li>
@@ -19,9 +22,9 @@
 						<a href="#" onaftersave="recalculate()" editable-text="procedimientoSeleccionado[attr]">{{ procedimientoSeleccionado[attr] || '-' }}</a>
 					</li>
 					<li ng-repeat="attr in attrsanualidad">
-						<strong>| {{attr| translate}}</strong>
+						<strong>{{attr| translate}}</strong>
 						<span>&nbsp;</span>
-						<a href="#" onaftersave="recalculate()" editable-text="procedimientoSeleccionado.anualidades[anualidad][attr]">{{ procedimientoSeleccionado.anualidades[anualidad][attr] || '-' }}</a>
+						<a href="#" onaftersave="recalculate()" editable-text="procedimientoSeleccionado.periodos[anualidad][attr]">{{ procedimientoSeleccionado.periodos[anualidad][attr] || '-' }}</a>
 					</li>
 				</ul>
 				<div class="panel panel-danger">

@@ -1,11 +1,10 @@
+'use strict';
 
 function parseStr2Int (str){
 	var valor = parseInt(str);
 	if(isNaN(valor)) valor=0;
 	return valor;
 }
-
-
 
 
 exports.softCalculatePermiso = function(Q, models, permiso){

@@ -47,6 +47,10 @@ angular.module('sici.translate', ['pascalprecht.translate'], ['$translateProvide
 		'apellidos' : 'Apellidos',
 		'telefono': 'Teléfono',
 
+		'ancestro_v_1' : 'Nivel 1',
+		'ancestro_v_2' : 'Nivel 2',
+		'ancestro_v_3' : 'Nivel 3',
+		'ancestro_v_4' : 'Nivel 4'
 	});
 	$translateProvider.preferredLanguage('es_ES');
 }]);
