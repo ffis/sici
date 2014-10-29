@@ -8,6 +8,7 @@
     "encoding": "^0.1.10",
     "express": "~3.2.6",
     "express-jwt": "",
+    "jschardet": "^1.1.0",
     "jsonwebtoken": "",
     "mongoose": "^3.8.14",
     "q": "^1.0.1",
