@@ -14,7 +14,7 @@ exports.authenticate = function(config){
 		//if is invalid, return 401
 		//for testing this should be enough
 		if (req.body.password !== 'password') {
-		  res.send(401, 'Wrong user or password');		  
+		  res.status(401).send('Wrong password');
 		  return;
 		}
 
@@ -22,7 +22,7 @@ exports.authenticate = function(config){
 			function(err,personas){			
 				if (err ||personas.length===0)
 				{
-					res.send(401, 'Wrong user or password');					
+					res.status(401).send('Wrong user or password');					
 					return;
 				}
 				personas[0].ultimologin = new Date();

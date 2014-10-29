@@ -13,6 +13,24 @@ angular.module('sici.filters', []).
         	return state;
         }
 	})
+  .filter('extractFromPath', function ($sce) {
+        return function (value, fieldpath) {
+          if (value[fieldpath])
+            return value[fieldpath];
+
+          var parts = fieldpath.split('.');
+          for (var i=0,j=parts.length;i<j;i++){
+            if (typeof value[parts[i]] != 'undefined')
+            {
+              value = value[parts[i]];
+            }else{
+              return '';
+            }
+            
+          }
+          return value;
+        }
+  })
   .filter('numberFormat',function(){
   		return function(text, sepmiles,sepdecimal,simbol){
   			if (typeof sepmiles=== 'undefined') sepmiles = '.';

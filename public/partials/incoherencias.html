@@ -15,20 +15,20 @@
 					<tr>
 						<th>ID</th>
 						<th colspan="{{camposexcel.length + 2 }}" class="text-center">SICI</th>
-						<th colspan="{{camposguia.length  + 2 }}" class="text-center"> Web</th>
+						<th colspan="{{camposguia.length  +camposcrawled.length + 1 }}" class="text-center"> Web</th>
 					</tr>
 					<tr>
 						<th></th>
 						<th>Denominación</th>
-						<th ng-repeat="c in camposexcel" class="text-center">{{c | translate}}</th>
+						<th ng-repeat="c in camposexcel" class="text-center">{{c.split('.').pop() | translate}}</th>
 						<th>Jerarquía</th>
-						<th>Denominación</th>
-						<th ng-repeat="c in camposguia" class="text-center">{{c}}</th>
+						<th ng-repeat="c in camposguia" class="text-center">{{c.split('.').pop()}}</th>
+						<th ng-repeat="c in camposcrawled" class="text-center">{{c.split('.').pop()}}</th>
 						<th>Jerarquía</th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr ng-repeat="(k,val) in idsencomun |orderBy:'val.id'" ng-class="{'danger': !val.guiacarm || !val.procedimiento || !val.crawled,'info': testwarning(val) }">
+					<tr ng-repeat="(k,val) in idsencomun |orderBy:'val.id'" ng-class="{'danger': !val.procedimiento || !val.crawled,'info': testwarning(val) }">
 						<th>
 							<span class="label" ng-class="{'label-danger':!val.procedimiento || parseInt(val.procedimiento.totalsolicitudes)==0,'label-warning':!val.guiacarm, 'label-default': val.procedimiento &amp;&amp; val.guiacarm }">
 								<a ng-if="val.procedimiento" href="/procedimiento/{{val.id}}">{{val.id}}</a>
@@ -41,7 +41,7 @@
 							</div>
 							<span>{{val.procedimiento ? val.procedimiento.denominacion :''}}</span>
 						</td>
-						<td ng-repeat="c in camposexcel" class="text-center">{{val.procedimiento ? val.procedimiento[c] : '' }}</td>
+						<td ng-repeat="c in camposexcel" class="text-center">{{val.procedimiento ? (val.procedimiento | extractFromPath :c) : '' }}</td>
 						<td style="font-size:smaller">
 							<ul ng-if="val.procedimiento.ancestros">
 								<li ng-repeat="jerarquia in val.procedimiento.ancestros | reverse">
@@ -50,13 +50,12 @@
 								</li>
 							</ul>
 						</td>
-						<td>
 						<td ng-repeat="c in camposguia" class="text-center">
 							<a target="_blank" href="https://www.carm.es/web/pagina?IDTIPO=240&amp;IDCONTENIDO={{val.id}}">
-								{{val.crawled && c.startsWith('any.') ? val.crawled[c.replace('any.','')] : 
-								(val.crawled ? val.crawled[c] : '') }}
+								{{ (val.guia ? (val.guia | extractFromPath: c) : '') }}
 							</a>
 						</td>
+						<td ng-repeat="c in camposcrawled" class="text-center">{{val.crawled ? (val.crawled | extractFromPath :c) : '' }}</td>
 						<td style="font-size:smaller">
 							<ul ng-if="val.crawled">
 								<li ng-repeat="j in val.crawled.jerarquia">{{j}}</li>

@@ -11,16 +11,20 @@ function IncoherenciasCtrl($rootScope,$scope,$window, ProcedimientoList, Raw) {
 		'codigo', 'denominacion',
 		'ancestros.id',	'ancestros.nombrelargo',
 		'periodos.'+$scope.anualidad+'.plazo_maximo_resolver',
-		'periodos.'+$scope.anualidad+'.plazo_maximo_resolver',
+		'periodos.'+$scope.anualidad+'.plazo_maximo_responder',
 		'periodos.'+$scope.anualidad+'.plazo_CS_ANS_naturales',
 		'periodos.'+$scope.anualidad+'.plazo_CS_ANS_habiles',
 		'periodos.'+$scope.anualidad+'.totalsolicitudes',
 	];
 	$scope.camposexcel = [
-		'plazo_maximo_resolver', 'plazo_maximo_responder',
-		'plazo_CS_ANS_naturales', 'plazo_CS_ANS_habiles',
+		'periodos.'+$scope.anualidad+'.plazo_maximo_resolver',
+		'periodos.'+$scope.anualidad+'.plazo_maximo_responder',
+		'periodos.'+$scope.anualidad+'.plazo_CS_ANS_naturales',
+		'periodos.'+$scope.anualidad+'.plazo_CS_ANS_habiles',
 	];
-	$scope.camposguia = ['id','any.titulo','any.Plazo de resolución'];
+	//$scope.camposguia = ['titulo'];
+	$scope.camposguia = [];
+	$scope.camposcrawled = ['any.Código y denominación','any.Plazo de resolución'];
 
 	$scope.procedimiento = ProcedimientoList.query({idjerarquia:1, fields:camposprocedimiento.join(' ')},
 		function(){
@@ -32,18 +36,8 @@ function IncoherenciasCtrl($rootScope,$scope,$window, ProcedimientoList, Raw) {
 					$scope.idsencomun['id'+p.codigo].procedimiento = p;
 			});
 		});
-	
-	$scope.guiacarm = Raw.query({model: 'guiacarm', fields:$scope.camposguia.join(' ')}, function(){
-		if (!$scope.idsencomun) $scope.idsencomun = {};
-		$scope.guiacarm.forEach(function(g){
-			if (typeof $scope.idsencomun['id'+g.id] === 'undefined')
-				$scope.idsencomun['id'+g.id] = {id: parseInt(g.id), guiacarm: g};
-			else
-				$scope.idsencomun['id'+g.id].guiacarm = g;
-		});
-	});
 
-	$scope.crawled = Raw.query({model: 'crawled'},function(){
+	$scope.crawled = Raw.query({model: 'crawled', fields:['id','jerarquia','any'].join(' ')}, function(){
 		if (!$scope.idsencomun) $scope.idsencomun = {};
 		$scope.crawled.forEach(function(p){
 			if (typeof $scope.idsencomun['id'+p.id] === 'undefined')
