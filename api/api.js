@@ -115,7 +115,7 @@ exports.aggregate = function(models){
 			group.push({ "$match" : match });
 		}
 		groupfield['count'] = {'$sum':1};
-		groupfield['porcumplimentar'] = { '$sum':{'$cond': { if: { '$eq':[0,'$periodos.'+cfg.anyo+'.totalsolicitudes']}, then:1, else: 0 } } };
+		groupfield['porcumplimentar'] = { '$sum':{'$cond': [ { '$eq':[0,'$periodos.'+cfg.anyo+'.totalsolicitudes']}, 1, 0 ] } };
 
 		/*group.push({'$unwind':'$ancestros'});*/
 		group.push({"$group" : groupfield});
