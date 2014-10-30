@@ -27,6 +27,10 @@ body {
 	list-style:none;
 }
 
+tr.responsable td {
+	background-color:rgba(4,16,12,0.1)	!important;
+}
+
 autocomplete li {
 	padding-left:20px;
 }
@@ -46,6 +50,14 @@ autocomplete li:hover {
 	background-color:transparent;
 	box-shadow: 0px 0px 0px #000000;
    text-shadow: 0px 0px 0px #000000;
+}
+.form-container {
+	padding-top:20px;
+	padding-bottom:20px;
+}
+
+.input-group   {
+	width:100%;
 }
 
 .clear { clear:both;}

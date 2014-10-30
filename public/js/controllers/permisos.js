@@ -29,11 +29,24 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		$scope.setSeleccionado($scope.seleccionado);
 	}
 	$scope.crearpermiso = function() {
+		alert('Función no implementada');
 		if ($scope.logincarm.replace(/^\s+|\s+$/gm,'') || $scope.plaza.replace(/^\s+|\s+$/gm,''))
 		{
 			
 		}
 	}
+	
+	$scope.eliminarPermiso = function() {
+		alert('No implementado');
+	}
+	
+	$scope.searchUser = function(){
+		alert('No implementado');
+	}
+	
+	$scope.eliminarResponable = function(procedimiento, responsable) {
+		alert('Función no implementada');
+	};
 	
 	$scope.showDetailsPermiso = function(){
 		$scope.show_details_permiso = true;

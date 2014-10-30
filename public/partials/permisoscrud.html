@@ -108,7 +108,7 @@
 			<caption>Permisos</caption>
 			<thead>
 				<tr>
-					<th colspan="{{ !is_show_recursive_users ? 8 : 9 }}">
+					<th colspan="{{ !is_show_recursive_users && !procedimientos.length ? 7 : 8 }}">
 						<div class="btn-group pull-right">
 							<button ng-class="{}" class="btn btn-default" ng-click="searchUser()" title="Buscar los permisos de un usuario o plaza">
 								<span class="glyphicon glyphicon-search"></span>
@@ -126,18 +126,21 @@
 					</th>
 				</tr>
 				<tr ng-if="show_form_add_permiso">
-					<th colspan="{{ !is_show_recursive_users ? 8 : 9 }}">
+					<th colspan="{{ !is_show_recursive_users && !procedimientos.length? 7 : 8 }}" class="form-container">
 						<!--<autocomplete ng-model="persona_o_plaza" attr-placeholder="Buscar usuario por login o plaza..." click-activation="true" data="personas_plazas" on-type="clearaddpermisoform" on-select="refreshpermisoform" ></autocomplete> 						-->
 						<div class="input-group">
 							<input type="text" class="form-control" placeholder="Login carm" ng-model="logincarm">
 							<span class="input-group-addon">@carm.es</span>
 						</div>
+						<br/>
 						<input type="text" class="form-control" placeholder="C&oacute;digo plaza" ng-model="plaza">
-						<button class="btn btn-default danger" ng-click="crearpermiso"><span>Crear</span></button>
+						<br/>
+						<button class="btn btn-default danger" ng-click="crearpermiso()"><span>Crear</span></button>
+							
 					</th>
 				</tr>
 				<tr ng-if="show_details_permiso">
-					<th colspan="{{ !is_show_recursive_users ? 8 : 9 }}">
+					<th colspan="{{ !is_show_recursive_users && !procedimientos.length? 7 : 8 }}">
 						<!--<autocomplete ng-model="persona_o_plaza" attr-placeholder="Buscar usuario por login o plaza..." click-activation="true" data="personas_plazas" on-select="showDetailsPermiso" ></autocomplete> 						-->
 					</th>
 				</tr>				
@@ -147,7 +150,7 @@
 						<span class="hidden-sm hidden-xs">Codigo plaza</span>
 						<span class="hidden-lg hidden-md">Plaza</span>
 					</th>
-					<th ng-if="is_show_recursive_users">
+					<th ng-if="is_show_recursive_users || procedimientos.length">
 						Objeto
 					</th>
 					<th>
@@ -164,10 +167,6 @@
 						<span class="hidden-lg hidden-md visible-sm hidden-xs" title="¿Permite introducir datos?"> Escr. datos </span>
 						<span class="hidden-lg hidden-md hidden-sm visible-xs" title="¿Permite introducir datos?"> Escr.</span>
 					</th><th>
-						<span class="visible-lg visible-md hidden-sm hidden-xs" title="¿Permite introducir datos?"> Escribir datos </span>
-						<span class="hidden-lg hidden-md visible-sm hidden-xs" title="¿Permite introducir datos?"> Escr. datos </span>
-						<span class="hidden-lg hidden-md hidden-sm visible-xs" title="¿Permite introducir datos?"> Escr.</span>
-					</th><th>
 						<span class="visible-lg visible-md hidden-sm hidden-xs" title="¿Permite otorgar permisos?"> Dar permisos </span>
 						<span class="hidden-lg hidden-md visible-sm hidden-xs" title="¿Permite otorgar permisos?"> Permisos </span>
 						<span class="hidden-lg hidden-md hidden-sm visible-xs" title="¿Permite otorgar permisos?"> Perm.</span>					
@@ -179,7 +178,7 @@
 				<tr ng-repeat="permiso in permisos" ng-if="permisos.length">
 					<td>{{permiso.login}}</td>
 					<td>{{permiso.codplaza}}</td>
-					<td ng-if="is_show_recursive_users">-</td>
+					<td ng-if="is_show_recursive_users || procedimientos.length">-</td>
 					<td>No</td>
 					<td class="color:gray">{{isR(permiso) ? 'Sí' : 'No'}}</td>
 					<td>{{isW(permiso) ? 'Sí' : 'No'}}</td>					
@@ -187,7 +186,7 @@
 					<td>
 						<div class="btn-group pull-right">
 							<div class="btn btn-xs btn-default" title="Eliminar permiso">
-								<span class="glyphicon glyphicon glyphicon-remove" title="Eliminar del todo el permiso"></span>
+								<span class="glyphicon glyphicon glyphicon-remove" title="Eliminar del todo el permiso" ng-click="eliminarPermiso(permiso)"></span>
 							</div>	
 						<div>
 						<!--<div class="btn-group pull-right">
@@ -205,15 +204,15 @@
 						<span style="font-size:smaller" class="badge alert-warning" ng-if="!procedimiento.responsables  && procedimiento.cod_plaza"><i>No disponible</i></span>
 					</td>
 					<td>{{procedimiento.cod_plaza}}</td>
-					<td ng-if="is_show_recursive_users">{{procedimiento.codigo}}</td>
+					<td><a href="/procedimiento/{{procedimiento.codigo}}" title="{{procedimiento.codigo}}">[{{procedimiento.codigo}}] <span class="visible-lg visible-md">{{procedimiento.denominacion}}</span></a></td>
 					<td>Sí</td>
-					<td>-</td>
-					<td>-</td>					
-					<td>-</td>					
+					<td>Sí</td>
+					<td>Sí</td>					
+					<td>Sí</td>					
 					<td>
 						<div class="btn-group pull-right">
 							<div class="danger btn btn-xs btn-default" title="Eliminar permiso">
-								<span class="glyphicon glyphicon glyphicon-remove" title="Eliminar el permiso sobre el elemento de la estructura orgánica seleccionada"></span>
+								<span class="glyphicon glyphicon glyphicon-remove" title="Eliminar el permiso sobre el elemento de la estructura orgánica seleccionada" ng-click="eliminarResponable(procedimiento,r)"></span>
 							</div>	
 						<div>
 					</td>				
@@ -221,10 +220,10 @@
 			</tbody>
 			<tbody ng-if="!permisos.length && !procedimientos.length">
 				<tr>
-					<td ng-if="is_show_recursive_users" colspan="9">
+					<td ng-if="is_show_recursive_users" colspan="8">
 						No hay permisos asignados a este nivel de jerarquía o en los descendientes.
 					</td>				
-					<td ng-if="!is_show_recursive_users" colspan="8">
+					<td ng-if="!is_show_recursive_users" colspan="7">
 						No hay permisos asignados a este nivel de jerarquía.
 					</td>
 				</tr>

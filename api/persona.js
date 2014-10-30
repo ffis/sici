@@ -52,7 +52,7 @@ exports.personassearchlist = function(models,Q)
 					defer_procedimiento.resolve(data);
 				}
 			});
-		
+			
 		Q.all([defer_persona.promise, defer_procedimiento.promise]).then(function(data){
 			var r = {};
 			var response = [];
@@ -67,9 +67,10 @@ exports.personassearchlist = function(models,Q)
 			}
 			for(var i=0;i<personas_by_responsable.length;i++){
 				var persona = personas_by_responsable[i];
-				var idr = persona._id.login + persona.codplaza;
+				var idr = persona._id.login+'-'+persona._id.codplaza;
 				if (typeof r[idr] === 'undefined') {
-					r[idr] = persona[i];
+					console.log("Saltandose "+idr);
+					r[idr] = persona;
 					response.push({data:persona._id.login+" ; "+persona._id.codplaza+" ; "+persona.nombre+" "+persona.apellidos});
 				}
 			}
