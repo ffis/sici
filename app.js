@@ -75,6 +75,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.get('/api/searchpersonas',persona.personassearchlist(models,Q));
 
   app.get('/api/procedimiento', procedimiento.procedimiento(models) );
+  app.get('/api/procedimientoList/:idjerarquia/:recursivo', procedimiento.procedimientoList(models, Q) );
   app.get('/api/procedimientoList/:idjerarquia', procedimiento.procedimientoList(models, Q) );
   
   app.get('/api/procedimiento/:codigo', procedimiento.procedimiento(models) );
@@ -92,8 +93,12 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
 
   app.get('/api/permisosList/:idjerarquia/:recursivo', permiso.permisosList(models, Q)); 
   app.get('/api/permisosList', permiso.permisosList(models, Q));
-  app.delete('/api/permisos/delete-jerarquia/:permiso/:jerarquia', permiso.removePermisoJerarquia(models,Q))
-  app.delete('/api/permisos/delete-procedimiento/:permiso/:procedimiento', permiso.removePermisoJerarquia(models,Q))
+  app.get('/api/permisosProcedimientoList/:codigoprocedimiento', permiso.permisosDirectosProcedimientoList(models, Q));
+  app.delete('/api/permisos/delete-jerarquia/:permiso/:jerarquia', permiso.removePermisoJerarquia(models,Q));
+  app.delete('/api/permisos/delete-procedimiento/:permiso/:procedimiento', permiso.removePermisoJerarquia(models,Q));
+  app.put('/api/permisos/:id', permiso.update(models));
+  app.post('/api/permisos/', permiso.create(models));
+  
 
   app.get('/api/importacion', importador.importacionesprocedimiento(models));
 

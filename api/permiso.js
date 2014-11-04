@@ -228,3 +228,41 @@ exports.permisosDirectosList = function(models, Q){
 	
 	};
 };
+
+//// Devuelve las instancias de permiso que tienen concedido permiso directo sobre el procedimiento indicado
+exports.permisosDirectosProcedimientoList = function(models,Q){
+	return function(req,res){
+		var Permiso = models.permiso();		
+		var dpermisos = Q.defer();
+		var promise_permisos = dpermisos.promise;
+
+		if (typeof req.params.codigoprocedimiento !== 'undefined') {								
+				var idp = req.params.codigoprocedimiento;
+				var restriccion = {'procedimientodirectalectura':idp};
+				Permiso.find(restriccion, function(err, permisos){
+					if (err) {console.error(restriccion); console.error(err); res.status(500); res.end(); return; }
+					else res.json(permisos);
+				});
+		} else {
+			var err = 'Error. Código de procedimiento no presente o inválido';
+			console.error(restriccion); console.error(err); res.status(500); res.end(); return;
+		}	
+	};
+};
+
+
+exports.update = function(models) {
+	return function(req, res) {
+		console.error('Funcionalidad no implementada');
+	}
+}
+
+exports.create = function(models) {
+	return function(req,res) {				
+		console.error('Funcionalidad no implementada');		
+	}
+}
+
+
+
+

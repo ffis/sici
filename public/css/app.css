@@ -6,6 +6,24 @@ body {
 
 }
 
+
+.green {
+	color:rgb(126, 194, 105);
+}
+
+.gray {
+	color:rgb(140, 142, 140);
+}
+
+.burdeos {
+	color:rgb(173, 56, 56);
+}
+
+ul.organica_proc {
+	margin: 0px 15px 0px 15px;
+	margin-bottom:15px  !important;
+}
+
 .input-group autocomplete input {
 	border:0px;
 	width:100%;

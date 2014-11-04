@@ -47,6 +47,20 @@
 						</span>
 						<span class="badge pull-right">{{element.numprocedimientos}}</span>
 						</p>
+						<ul ng-if="element.id == seleccionado.id" class="bg-warning organica_proc">
+							<li ng-repeat="proc in element.procedimientos | filter:texto " ng-show="element.id == seleccionado.id" class="organica_proc list-group-item-warning">
+								<p>
+									<strong>
+										[{{proc.codigo}}] &nbsp;
+									</strong>
+									<span ng-class="{'bg-warning':element.id==seleccionado.id }" ng-click="setProcSeleccionado(proc)" class="cursor">
+										{{proc.denominacion}} 
+									</span>
+								</p>
+							</li>											
+							
+							<li ng-if="!element.procedimientos"><i>Cargando...</i></li>
+						</ul>						
 						<ul class="list-group" ng-if="element.nodes" style="clear:both">
 							<li class="list-group-item" ng-repeat="elemen in element.nodes |filter:texto | filter:filtrojerarquia" ng-class="{'list-group-item-danger':elemen.id==seleccionado.id}">
 							<p>
@@ -57,7 +71,21 @@
 									{{elemen.title}} 
 								</span>
 								<span class="badge pull-right">{{elemen.numprocedimientos}}</span>
+								<ul ng-if="elemen.id == seleccionado.id" class="bg-warning organica_proc">
 								</p>
+									<li ng-repeat="proc in elemen.procedimientos | filter:texto " ng-show="elemen.id == seleccionado.id" class="organica_proc list-group-item-warning">
+										<p>
+											<strong>
+												[{{proc.codigo}}] &nbsp;
+											</strong>
+											<span ng-class="{'bg-warning':elemen.id==seleccionado.id }" ng-click="setProcSeleccionado(proc)" class="cursor">
+												{{proc.denominacion}} 
+											</span>
+										</p>
+									</li>											
+									
+									<li ng-if="!elemen.procedimientos"><i>Cargando...</i></li>
+								</ul>								
 								<ul ng-if="elemen.nodes" style="clear:both">
 									<li ng-repeat="eleme in elemen.nodes |filter:texto |filter:filtrojerarquia"  ng-class="{'list-group-item-danger':eleme.id==seleccionado.id}" >
 									<p>
@@ -74,8 +102,22 @@
 										</span>-->
 										<span class="badge pull-right">{{eleme.numprocedimientos}}</span>
 										</p>
+											<ul ng-if="eleme.id == seleccionado.id" class="bg-warning organica_proc">
+													<li ng-repeat="proc in eleme.procedimientos | filter:texto " ng-show="eleme.id == seleccionado.id" class="organica_proc list-group-item-warning">
+														<p>
+															<strong>
+																[{{proc.codigo}}] &nbsp;
+															</strong>
+															<span ng-class="{'bg-warning':eleme.id==seleccionado.id }" ng-click="setProcSeleccionado(proc)" class="cursor">
+																{{proc.denominacion}} 
+															</span>
+														</p>
+													</li>											
+													
+													<li ng-if="!eleme.procedimientos"><i>Cargando...</i></li>
+												</ul>										
 										<ul ng-if="eleme.nodes" style="clear:both">
-											<li ng-repeat="elem in eleme.nodes |filter:texto |filter:filtrojerarquia">
+											<li ng-repeat="elem in eleme.nodes |filter:texto |filter:filtrojerarquia" ng-class="{'list-group-item-danger':elem.id==seleccionado.id}">
 											<p>
 												<strong>
 													[{{elem.id}}] &nbsp;
@@ -84,7 +126,22 @@
 													{{elem.title}} 
 												</span>
 												<span class="badge pull-right">{{elem.numprocedimientos}}</span>
-												</p>
+											</p>
+												
+												<ul ng-if="elem.id == seleccionado.id" class="bg-warning organica_proc">
+													<li ng-repeat="proc in elem.procedimientos | filter:texto " ng-show="elem.id == seleccionado.id" class="organica_proc list-group-item-warning">
+														<p>
+															<strong>
+																[{{proc.codigo}}] &nbsp;
+															</strong>
+															<span  ng-click="setProcSeleccionado(proc)" class="cursor">
+																{{proc.denominacion}} 
+															</span>
+														</p>
+													</li>											
+													<li ng-if="elem.procedimientos && !elem.procedimientos.length"><i>No hay procedimientos</i></li>
+													<li ng-if="!elem.procedimientos"><i>Cargando...</i></li>
+												</ul>
 											</li>
 										</ul>
 									</li>
@@ -119,29 +176,45 @@
 							<button ng-class="{'btn-danger':listadetalle,'btn-default':!listadetalle}" class="btn btn-default" ng-click="show_normal()" title="mostrar nodo actual">
 								<span class="glyphicon glyphicon-list"></span>
 							</button>	
-							<button ng-class="{'btn-danger':listadetalle,'btn-default':!listadetalle}" class="btn btn-default" ng-click="show_recursive_users()" title="mostrar recursivamente permisos nodos inferiores">
-								<span class="glyphicon glyphicon-indent-left"></span>
-							</button>							
+							<button ng-class="{'btn-danger':listadetalle,'btn-default':!listadetalle}" class="btn btn-default" ng-click="show_recursive_users()" title="mostrar recursivamente permisos sobre nodos que dependen del actual">
+								<span class="glyphicon glyphicon-import"></span>
+							</button>			
+							<button ng-class="{'btn-danger':listadetalle,'btn-default':!listadetalle}" class="btn btn-default" ng-click="show_inherited_users()" title="mostrar recursivamente permisos sobre el elemento actual establecidos sobre nodos superiores">
+								<span class="glyphicon glyphicon-export"></span>
+							</button>										
 						</div>
 					</th>
-				</tr>
+				</tr>				
+				<p ng-bing="login"></p>
 				<tr ng-if="show_form_add_permiso">
-					<th colspan="{{ !is_show_recursive_users && !procedimientos.length? 7 : 8 }}" class="form-container">
-						<!--<autocomplete ng-model="persona_o_plaza" attr-placeholder="Buscar usuario por login o plaza..." click-activation="true" data="personas_plazas" on-type="clearaddpermisoform" on-select="refreshpermisoform" ></autocomplete> 						-->
-						<div class="input-group">
-							<input type="text" class="form-control" placeholder="Login carm" ng-model="logincarm">
-							<span class="input-group-addon">@carm.es</span>
-						</div>
-						<br/>
-						<input type="text" class="form-control" placeholder="C&oacute;digo plaza" ng-model="plaza">
-						<br/>
-						<button class="btn btn-default danger" ng-click="crearpermiso()"><span>Crear</span></button>
-							
+					<th colspan="{{ !is_show_recursive_users && !procedimientos.length? 7 : 8 }}" class="form-container">						
+						<form name="nuevousuario-form" id="nuevousuario-form">
+							<label for="login"  style="width:100%">
+								<div class="input-group">
+									<input type="text" name="login" class="form-control" placeholder="Login carm" ng-model="logincarm" />
+									<span class="input-group-addon">@carm.es</span>
+								</div>
+							</label>
+							<br/>
+							<label for="plaza" style="width:100%">
+								<input type="text" name="plaza" class="form-control" placeholder="C&oacute;digo plaza" ng-model="plaza" />
+							</label>
+							<br/>
+							<label name="grantoption"  >
+								<input type="checkbox" ng-model="grantoption" name="grantoption" /> Puede conceder permisos
+							</label>
+							<br/>
+							<label name="grantoption"  >
+								<input type="checkbox" ng-model="w_option" name="w_option" /> Puede introducir datos
+							</label>
+							<br class="clear"/>
+							<button class="btn btn-default danger" ng-click="crearpermiso()"><span>Crear</span></button>								
+						</form>
 					</th>
 				</tr>
 				<tr ng-if="show_details_permiso">
 					<th colspan="{{ !is_show_recursive_users && !procedimientos.length? 7 : 8 }}">
-						<!--<autocomplete ng-model="persona_o_plaza" attr-placeholder="Buscar usuario por login o plaza..." click-activation="true" data="personas_plazas" on-select="showDetailsPermiso" ></autocomplete> 						-->
+
 					</th>
 				</tr>				
 				<tr>
@@ -179,16 +252,16 @@
 					<td>{{permiso.login}}</td>
 					<td>{{permiso.codplaza}}</td>
 					<td ng-if="is_show_recursive_users || procedimientos.length">-</td>
-					<td>No</td>
-					<td class="color:gray">{{isR(permiso) ? 'Sí' : 'No'}}</td>
-					<td>{{isW(permiso) ? 'Sí' : 'No'}}</td>					
-					<td>{{isP(permiso) ? 'Sí' : 'No'}}</td>					
+					<td><span class="burdeos glyphicon glyphicon-remove"></span></td>
+					<td style="color:gray"><span class="glyphicon" ng-class="{'glyphicon-ok':isR(permiso),'glyphicon-remove':!isR(permiso)}"></span></td>
+					<td><a ng-click="changeW(permiso)" href="#"><span class="glyphicon" ng-class="{'glyphicon-ok green':isW(permiso),'glyphicon-remove burdeos':!isW(permiso)}"></span></a></td>					
+					<td><a ng-click="changeP(permiso)" href="#"><span class="glyphicon" ng-class="{'glyphicon-ok green':isP(permiso),'glyphicon-remove burdeos':!isP(permiso)}"></span></a></td>					
 					<td>
 						<div class="btn-group pull-right">
 							<div class="btn btn-xs btn-default" title="Eliminar permiso">
 								<span class="glyphicon glyphicon glyphicon-remove" title="Eliminar del todo el permiso" ng-click="eliminarPermiso(permiso)"></span>
 							</div>	
-						<div>
+						</div>
 						<!--<div class="btn-group pull-right">
 							<div class="btn btn-xs btn-default" title="Editar permiso">
 								<span class="glyphicon glyphicon-edit" title="Editar el permiso"></span>
@@ -204,11 +277,11 @@
 						<span style="font-size:smaller" class="badge alert-warning" ng-if="!procedimiento.responsables  && procedimiento.cod_plaza"><i>No disponible</i></span>
 					</td>
 					<td>{{procedimiento.cod_plaza}}</td>
-					<td><a href="/procedimiento/{{procedimiento.codigo}}" title="{{procedimiento.codigo}}">[{{procedimiento.codigo}}] <span class="visible-lg visible-md">{{procedimiento.denominacion}}</span></a></td>
-					<td>Sí</td>
-					<td>Sí</td>
-					<td>Sí</td>					
-					<td>Sí</td>					
+					<td><a href="/admin/procedimiento/{{procedimiento.codigo}}" title="{{procedimiento.codigo}}">[{{procedimiento.codigo}}] <span class="visible-lg visible-md">{{procedimiento.denominacion}}</span></a></td>
+					<td><span class="glyphicon glyphicon-ok gray"></span></td>
+					<td><span class="glyphicon glyphicon-ok gray"></span></td>
+					<td><span class="glyphicon glyphicon-ok gray"></span></td>					
+					<td><span class="glyphicon glyphicon-ok gray"></span></td>					
 					<td>
 						<div class="btn-group pull-right">
 							<div class="danger btn btn-xs btn-default" title="Eliminar permiso">

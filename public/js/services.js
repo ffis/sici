@@ -13,19 +13,27 @@ angular.module('sici.services', ['ngResource'])
 		}])
     .factory('ProcedimientoList', ['$resource',
         function ($resource) {
-            return $resource('/api/procedimientoList/:idjerarquia', {}, { query: {method:'GET', isArray:true} });
-		}])
+            return $resource('/api/procedimientoList/:idjerarquia/:recursivo', {}, { query: {method:'GET', isArray:true} });
+		}])			
 	.factory('PermisosList',['$resource',
 		function ($resource) {
 			return $resource('/api/permisosList/:idjerarquia/:recursivo', {}, { query : {method:'GET', isArray:false} });
 		}])
+	.factory('PermisosProcedimientoList',['$resource',
+		function ($resource) {
+			return $resource('/api/permisosProcedimientoList/:codigoprocedimiento', {}, { query : {method:'GET', isArray:true} });
+		}])		
 	.factory('PermisoToDelete',['$resource',
 		function ($resource) {
 			return $resource('/api/permisos/delete-jerarquia/:idpermiso/:idjerarquia', {idpermiso:'@idpermiso',idjerarquia:'@idjerarquia'}, { delete_permiso: {method:'DELETE'} });
 		}])	
 	.factory('Permiso', ['$resource',
         function ($resource) {
-            return $resource('/api/procedimiento/:id', {id:'@id'},   { update: {method:'PUT' } });
+            return $resource('/api/permisos/:id', {id:'@id'},   { update: {method:'PUT' } });
+		}])
+	.factory('Permiso', ['$resource',
+        function ($resource) {
+            return $resource('/api/permisos/', {},   { create: {method:'POST' } });
 		}])
     .factory('PersonasByPuesto', ['$resource',
         function ($resource) {

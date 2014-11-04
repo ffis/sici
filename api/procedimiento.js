@@ -31,8 +31,6 @@ exports.updateProcedimiento = function(Q, models, recalculate){
 
 			//comprobar qué puede cambiar y qué no
 
-			
-
 			recalculate.softCalculateProcedimiento(Q, procedimiento).then(function(procedimiento){
 				recalculate.softCalculateProcedimientoCache(Q, models, procedimiento).then(function(procedimiento){
 
@@ -51,10 +49,17 @@ exports.procedimientoList = function(models, Q){
 		var fields = req.query.fields;
 		var restriccion =
 			(typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))) ?
-				{ '$and' : [ 
-					{ 'ancestros.id' : { '$in' : [ parseInt(req.params.idjerarquia) ] } } ,
-					{ 'idjerarquia' : { '$in' : req.user.permisoscalculados.jerarquialectura } }
-				]} :
+				(typeof req.params.recursivo === 'undefined' || req.params.recursivo>0  ?
+					{ '$and' : [ 
+						{ 'ancestros.id' : { '$in' : [ parseInt(req.params.idjerarquia) ] } } ,
+						{ 'idjerarquia' : { '$in' : req.user.permisoscalculados.jerarquialectura } }
+					]} :
+					{ '$and' : [ 
+						{ 'idjerarquia' : parseInt(req.params.idjerarquia) } ,
+						{ 'idjerarquia' : { '$in' : req.user.permisoscalculados.jerarquialectura } }
+					]}
+				)
+				:
 				{ 'idjerarquia' : { '$in' : req.user.permisoscalculados.jerarquialectura } };
 
 		var cb = function(err,data){
@@ -68,7 +73,7 @@ exports.procedimientoList = function(models, Q){
 		}
 		query.exec(cb);
 	};
-}		
+}	
 
 exports.saveVersion = function(models, Q, procedimiento){
 	var defer = Q.defer();
