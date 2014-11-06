@@ -115,11 +115,12 @@ exports.permisosList = function(models, Q){
 		var dpermisos = Q.defer();		
 		var promise_permisos = dpermisos.promise;
 		var recursivo = (typeof req.params.recursivo !== 'undefined' && req.params.recursivo==1 ? true : false);
+		var heredado = (typeof req.params.recursivo !== 'undefined' && req.params.recursivo==2 ? true : false);
 		
 		if (typeof req.params.idjerarquia !== 'undefined') {
-			if (isNaN(parseInt(req.params.idjerarquia)))
+			if (isNaN(parseInt(req.params.idjerarquia)) || req.user.permisoscalculados.jerarquialectura.indexOf(parseInt(req.params.idjerarquia))===-1)
 				dpermisos.reject('Error. Id jerarquía no válido');
-			else {												
+			else if (!heredado) {												
 				// obtenemos todos los permisos otorgados sobre esta jerarquía y sus descendientes.
 				var idj = parseInt(req.params.idjerarquia);
 				var Jerarquia = models.jerarquia();
@@ -127,8 +128,9 @@ exports.permisosList = function(models, Q){
 				var d = Q.defer();
 				var promise = d.promise;
 				// buscamos la jerarquia indicada
-				Jerarquia.findOne({'id':idj}, function(err, data){
-					if (err) {  d.reject(err) ; }
+				Jerarquia.findOne({'id':idj}, function(err, data)
+				{
+					if (err) d.reject(err) ;
 					else d.resolve(data);
 				});
 
@@ -170,7 +172,6 @@ exports.permisosList = function(models, Q){
 							]
 						};
 						
-						
 						var respuesta = {
 							'procedimientos':procedimientos
 						};
@@ -191,7 +192,17 @@ exports.permisosList = function(models, Q){
 				}, function(error){
 					dpermisos.reject(err);
 				});
-			}
+			} else if (heredado) {
+				var idj = parseInt(req.params.idjerarquia);				
+				var restriccion = {'jerarquialectura' : idj};
+
+				Permiso.find(restriccion, function(err,permisos){
+					if (err) 
+						dpermisos.reject(err); 
+					else 
+						dpermisos.resolve({ 'procedimientos' : [], 'permisos' : permisos, 'totallength' : permisos.length });					
+				});
+			} 
 		} else {
 			Permiso.find({},function(err, permisos){
 				dpermisos.resolve(permisos);
@@ -239,6 +250,29 @@ exports.permisosDirectosProcedimientoList = function(models,Q){
 		if (typeof req.params.codigoprocedimiento !== 'undefined') {								
 				var idp = req.params.codigoprocedimiento;
 				var restriccion = {'procedimientodirectalectura':idp};
+				Permiso.find(restriccion, function(err, permisos){
+					if (err) {console.error(restriccion); console.error(err); res.status(500); res.end(); return; }
+					else res.json(permisos);
+				});
+		} else {
+			var err = 'Error. Código de procedimiento no presente o inválido';
+			console.error(restriccion); console.error(err); res.status(500); res.end(); return;
+		}	
+	};
+};
+
+
+//// Devuelve las instancias de permiso que tienen concedido permiso sobre el procedimiento indicado
+exports.permisosProcedimientoList = function(models,Q){
+	return function(req,res){
+		var Permiso = models.permiso();		
+		var dpermisos = Q.defer();
+		var promise_permisos = dpermisos.promise;
+
+		console.log("Buscando procedimiento "+req.params.codigoprocedimiento);
+		if (typeof req.params.codigoprocedimiento !== 'undefined') {								
+				var idp = req.params.codigoprocedimiento;
+				var restriccion = {'procedimientoslectura':idp};
 				Permiso.find(restriccion, function(err, permisos){
 					if (err) {console.error(restriccion); console.error(err); res.status(500); res.end(); return; }
 					else res.json(permisos);

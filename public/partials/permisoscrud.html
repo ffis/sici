@@ -173,13 +173,13 @@
 							<button ng-class="{}" class="btn btn-default" ng-click="addPermiso()" title="Añadir permiso sobre la jerarquía seleccionada">
 								<span class="glyphicon glyphicon-plus"></span>
 							</button>								
-							<button ng-class="{'btn-danger':listadetalle,'btn-default':!listadetalle}" class="btn btn-default" ng-click="show_normal()" title="mostrar nodo actual">
-								<span class="glyphicon glyphicon-list"></span>
+							<button ng-class="{'btn-danger':!is_show_recursive_users && !is_show_inherited_users,'btn-default':is_show_recursive_users || is_show_inherited_users}" class="btn btn-default" ng-click="show_normal()" title="Mostrar todos los usuarios con permiso explítico sobre el elemento actual">
+								<span class="glyphicon glyphicon-arrow-right"></span>
 							</button>	
-							<button ng-class="{'btn-danger':listadetalle,'btn-default':!listadetalle}" class="btn btn-default" ng-click="show_recursive_users()" title="mostrar recursivamente permisos sobre nodos que dependen del actual">
+							<button ng-class="{'btn-danger':is_show_recursive_users,'btn-default':!is_show_recursive_users}" class="btn btn-default" ng-click="show_recursive_users()" title="Mostrar recursivamente permisos sobre elementos que dependan jerárquicamente del elemento actual">
 								<span class="glyphicon glyphicon-import"></span>
 							</button>			
-							<button ng-class="{'btn-danger':listadetalle,'btn-default':!listadetalle}" class="btn btn-default" ng-click="show_inherited_users()" title="mostrar recursivamente permisos sobre el elemento actual establecidos sobre nodos superiores">
+							<button ng-class="{'btn-danger':is_show_inherited_users,'btn-default':!is_show_inherited_users}" class="btn btn-default" ng-click="show_inherited_users()" title="Mostrar todos los usuarios con permiso sobre el elemento actual">
 								<span class="glyphicon glyphicon-export"></span>
 							</button>										
 						</div>
@@ -254,8 +254,8 @@
 					<td ng-if="is_show_recursive_users || procedimientos.length">-</td>
 					<td><span class="burdeos glyphicon glyphicon-remove"></span></td>
 					<td style="color:gray"><span class="glyphicon" ng-class="{'glyphicon-ok':isR(permiso),'glyphicon-remove':!isR(permiso)}"></span></td>
-					<td><a ng-click="changeW(permiso)" href="#"><span class="glyphicon" ng-class="{'glyphicon-ok green':isW(permiso),'glyphicon-remove burdeos':!isW(permiso)}"></span></a></td>					
-					<td><a ng-click="changeP(permiso)" href="#"><span class="glyphicon" ng-class="{'glyphicon-ok green':isP(permiso),'glyphicon-remove burdeos':!isP(permiso)}"></span></a></td>					
+					<td><a ng-click="changeW(permiso)" href=""><span class="glyphicon" ng-class="{'glyphicon-ok green':isW(permiso),'glyphicon-remove burdeos':!isW(permiso)}"></span></a></td>					
+					<td><a ng-click="changeP(permiso)" href="" ><span class="glyphicon" ng-class="{'glyphicon-ok green':isP(permiso),'glyphicon-remove burdeos':!isP(permiso)}"></span></a></td>					
 					<td>
 						<div class="btn-group pull-right">
 							<div class="btn btn-xs btn-default" title="Eliminar permiso">

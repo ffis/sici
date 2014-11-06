@@ -19,6 +19,10 @@ angular.module('sici.services', ['ngResource'])
 		function ($resource) {
 			return $resource('/api/permisosList/:idjerarquia/:recursivo', {}, { query : {method:'GET', isArray:false} });
 		}])
+	.factory('PermisosDirectosProcedimientoList',['$resource',
+		function ($resource) {
+			return $resource('/api/permisosDirectosProcedimientoList/:codigoprocedimiento', {}, { query : {method:'GET', isArray:true} });
+		}])		
 	.factory('PermisosProcedimientoList',['$resource',
 		function ($resource) {
 			return $resource('/api/permisosProcedimientoList/:codigoprocedimiento', {}, { query : {method:'GET', isArray:true} });

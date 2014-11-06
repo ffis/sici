@@ -1,11 +1,12 @@
 
-function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosList,PersonasSearchList,ProcedimientoList,PermisosProcedimientoList) {
+function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosList,PersonasSearchList,ProcedimientoList,PermisosProcedimientoList,PermisosDirectosProcedimientoList) {
 	$rootScope.nav = 'permisos';
 	$window.document.title ='SICI: Permisos';
 
 	$scope.arbol = Arbol.query();
 	$scope.oculto = false;	
 	$scope.is_show_recursive_users = false;
+	$scope.is_show_inherited_users = false;
 	$scope.show_responsables = true;
 	$scope.show_form_add_permiso = false;
 	$scope.personas_plazas = [];
@@ -14,7 +15,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 	$scope.logincarm = "";
 	$scope.plaza = "";
 	$scope.procedimiento_seleccionado;
-	$scope.seleccionado_organica = false;
+	$scope.seleccionado_organica = false;	
 	
 	$scope.addPermiso = function() {
 		if ($scope.seleccionado !== 'undefined') {
@@ -23,25 +24,29 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 			$scope.plaza = "";
 		}
 	}	
-/*
-	$scope.refreshpermisoform = function(){
-		$scope.logincarm = persona_o_plaza.login;
-		$scope.plaza = persona_o_plaza.plaza;
-	}
-*/
+
 	$scope.show_recursive_users = function(){
 		$scope.is_show_recursive_users = true;
+		$scope.is_show_inherited_users = false;
+		
+		if ($scope.seleccionado_organica) $scope.setSeleccionado($scope.seleccionado);		
+		else $scope.setProcSeleccionado($scope.procedimiento_seleccionado);		
 	}
 
 	$scope.show_inherited_users	 = function(){
-		alert('Funcionalidad en construcción');
+		$scope.is_show_inherited_users = true;
+		$scope.is_show_recursive_users = false;
+		
+		if ($scope.seleccionado_organica) $scope.setSeleccionado($scope.seleccionado);		
+		else $scope.setProcSeleccionado($scope.procedimiento_seleccionado);		
 	}
 	
 	$scope.show_normal = function(){
 		$scope.is_show_recursive_users = false;
+		$scope.is_show_inherited_users = false;
 
 		if ($scope.seleccionado_organica) $scope.setSeleccionado($scope.seleccionado);		
-		else $scope.setProcSeleccionado($scope.procedimiento);
+		else $scope.setProcSeleccionado($scope.procedimiento_seleccionado);
 	}
 	$scope.crearpermiso = function() {
 		
@@ -77,7 +82,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 	
 	$scope.showDetailsPermiso = function(){
 		$scope.show_details_permiso = true;
-		$scope.seleccionado = false;
+		$scope.seleccionado = false;		
 	}
 	
 	
@@ -101,7 +106,8 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 			$scope.seleccionado_organica = true;
 			$rootScope.setTitle(seleccionad.title); 
 			//$scope.procedimientos = ProcedimientoList.query({idjerarquia:seleccionad.id}); 
-			$scope.permisostotales = PermisosList.query({idjerarquia:seleccionad.id, 'recursivo':($scope.is_show_recursive_users?1:0)}, function() {
+			console.log("recursivo: "+$scope.is_show_recursive_users+" ; heredado: "+$scope.is_show_inherited_users);
+			$scope.permisostotales = PermisosList.query({idjerarquia:seleccionad.id, 'recursivo':($scope.is_show_recursive_users?1:($scope.is_show_inherited_users?2:0))}, function() {
 				$scope.permisos = $scope.permisostotales.permisos;
 				$scope.procedimientos = $scope.permisostotales.procedimientos;
 			});			
@@ -119,11 +125,17 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 			$scope.procedimiento_seleccionado = procedimiento;
 			$scope.seleccionado_organica = false;
 			$rootScope.setTitle('['+procedimiento.codigo+'] '+procedimiento.description);
-			$scope.permisostotales = PermisosProcedimientoList.query({'codigoprocedimiento':$scope.procedimiento_seleccionado},function(){
-				console.log("OBTENIENDO EL PROCEDIMIENTO Y LOS PERMISOS SOBRE ÉL");
+			var procesar_permisos_procedimiento = function(){
 				$scope.permisos = $scope.permisostotales;
 				$scope.procedimientos = [procedimiento];
-			});			
+			} ;
+			if ($scope.is_show_inherited_users) {
+				console.log("Recuperando permisos hacia arriba");
+				$scope.permisostotales = PermisosProcedimientoList.query({'codigoprocedimiento':$scope.procedimiento_seleccionado.codigo}, procesar_permisos_procedimiento);			
+			} else {
+				console.log("Recuperando permisos directos");
+				$scope.permisostotales = PermisosDirectosProcedimientoList.query({'codigoprocedimiento':$scope.procedimiento_seleccionado.codigo}, procesar_permisos_procedimiento );			
+			}
 		}
 	}
 	
@@ -179,6 +191,10 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 			&& permiso.grantoption > 0;
 	}
 
+	$scope.clickHandler = function(e){
+	   e.preventDefault();
+	}	
+	
 	$scope.changeW = function(permiso) {
 		if ($scope.isW(permiso)) {
 			switch ($scope.seleccionado_organica) {
@@ -234,4 +250,4 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
     
 	
 }
-PermisoCtrl.$inject = ['$rootScope','$scope','$location','$window','Arbol','Session','PermisosList','PersonasSearchList','ProcedimientoList','PermisosProcedimientoList'];
+PermisoCtrl.$inject = ['$rootScope','$scope','$location','$window','Arbol','Session','PermisosList','PersonasSearchList','ProcedimientoList','PermisosProcedimientoList','PermisosDirectosProcedimientoList'];
