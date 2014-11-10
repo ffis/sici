@@ -52,7 +52,7 @@ function ActividadCtrl($rootScope,$scope,$location,$window,$routeParams, Arbol, 
 	
 	$scope.procedimientos = [];
 
-	$scope.jerarquia = Session.create().permisoscalculados.jerarquialectura;
+	$scope.jerarquia = Session.create().permisoscalculados.jerarquialectura.concat(Session.create().permisoscalculados.jerarquiaescritura);
 	
 	$scope.filtrojerarquia = function(item) {
 		if ($scope.jerarquia.indexOf(item.id)!=-1 )

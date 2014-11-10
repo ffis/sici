@@ -95,10 +95,12 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.get('/api/permisosList', permiso.permisosList(models, Q));
   app.get('/api/permisosDirectosProcedimientoList/:codigoprocedimiento', permiso.permisosDirectosProcedimientoList(models, Q));
   app.get('/api/permisosProcedimientoList/:codigoprocedimiento', permiso.permisosProcedimientoList(models, Q));
+  //app.get('/api/permisosCalculados', login.permisoscalculados(models)); 
   app.delete('/api/permisos/delete-jerarquia/:permiso/:jerarquia', permiso.removePermisoJerarquia(models,Q));
   app.delete('/api/permisos/delete-procedimiento/:permiso/:procedimiento', permiso.removePermisoJerarquia(models,Q));
   app.put('/api/permisos/:id', permiso.update(models));
   app.post('/api/permisos/', permiso.create(models));
+  
   
 
   app.get('/api/importacion', importador.importacionesprocedimiento(models));

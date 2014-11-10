@@ -111,7 +111,7 @@ exports.aggregate = function(models){
 					match[campomatch] = valor;
 				});
 			}
-			match.idjerarquia = {'$in':req.user.permisoscalculados.jerarquialectura};
+			match.idjerarquia = {'$in':req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)};
 			group.push({ "$match" : match });
 		}
 		groupfield['count'] = {'$sum':1};

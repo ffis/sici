@@ -5,7 +5,7 @@ exports.procedimiento = function(models){
 		var restriccion = {};
 		if (typeof req.params.codigo !== 'undefined')
 			restriccion.codigo = parseInt(req.params.codigo);
-		restriccion.idjerarquia = { '$in': req.user.permisoscalculados.jerarquialectura };
+		restriccion.idjerarquia = { '$in': req.user.permisoscalculados.jerarquialectura.concat( req.user.permisoscalculados.jerarquiaescritura) };
 			
 		Procedimiento.findOne(restriccion,function(err,data){
 			if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }
@@ -22,7 +22,7 @@ exports.updateProcedimiento = function(Q, models, recalculate){
 		var restriccion = {};
 		if (typeof req.params.codigo !== 'undefined')
 			restriccion.codigo = parseInt(req.params.codigo);
-		restriccion.idjerarquia = { '$in': req.user.permisoscalculados.jerarquialectura };
+		restriccion.idjerarquia = { '$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura) };
 			
 		Procedimiento.findOne(restriccion,function(err,original){
 			if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }
@@ -52,15 +52,15 @@ exports.procedimientoList = function(models, Q){
 				(typeof req.params.recursivo === 'undefined' || req.params.recursivo>0  ?
 					{ '$and' : [ 
 						{ 'ancestros.id' : { '$in' : [ parseInt(req.params.idjerarquia) ] } } ,
-						{ 'idjerarquia' : { '$in' : req.user.permisoscalculados.jerarquialectura } }
+						{ 'idjerarquia' : { '$in' : req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura) } }
 					]} :
 					{ '$and' : [ 
 						{ 'idjerarquia' : parseInt(req.params.idjerarquia) } ,
-						{ 'idjerarquia' : { '$in' : req.user.permisoscalculados.jerarquialectura } }
+						{ 'idjerarquia' : { '$in' : req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura) } }
 					]}
 				)
 				:
-				{ 'idjerarquia' : { '$in' : req.user.permisoscalculados.jerarquialectura } };
+				{ 'idjerarquia' : { '$in' : req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura) } };
 
 		var cb = function(err,data){
 			if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }						

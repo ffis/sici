@@ -85,9 +85,22 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		$scope.seleccionado = false;		
 	}
 	
-	
-	$scope.jerarquia = $rootScope.session.permisoscalculados.jerarquialectura;
+	$scope.jerarquia = [];
+	$scope.jerarquia = $scope.jerarquia.concat($rootScope.session.permisoscalculados.jerarquialectura);
+	$scope.jerarquia = $scope.jerarquia.concat($rootScope.session.permisoscalculados.jerarquiaescritura);
 	$scope.superuser = $rootScope.session.permisoscalculados.superuser;
+	
+	console.log($scope.jerarquia);
+	
+	/*
+	if (!$rootScope.session.permisoscalculados || !Array.isArray($rootScope.session.permisoscalculados) || $rootScope.session.permisoscalculados.length==0 )
+	var pc = PermisosCalculados.query({},function(){
+		var spermisoscalculados = JSON.stringify(pc);
+		$rootScope.session.permisoscalculados = JSON.parse(spermisoscalculados);
+		$scope.jerarquia = $rootScope.session.permisoscalculados.jerarquialectura;
+		$scope.superuser = $rootScope.session.permisoscalculados.superuser;
+		console.log($rootScope.session.permisoscalculados);		
+	});*/
 	
 	$scope.filtrojerarquia = function(item) {
 		if ($scope.jerarquia.indexOf(item.id)!=-1 )
@@ -107,7 +120,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 			$rootScope.setTitle(seleccionad.title); 
 			//$scope.procedimientos = ProcedimientoList.query({idjerarquia:seleccionad.id}); 
 			console.log("recursivo: "+$scope.is_show_recursive_users+" ; heredado: "+$scope.is_show_inherited_users);
-			$scope.permisostotales = PermisosList.query({idjerarquia:seleccionad.id, 'recursivo':($scope.is_show_recursive_users?1:($scope.is_show_inherited_users?2:0))}, function() {
+			$scope.permisostotales = PermisosList.query({"idjerarquia":seleccionad.id, 'recursivo':($scope.is_show_recursive_users?1:($scope.is_show_inherited_users?2:0))}, function() {
 				$scope.permisos = $scope.permisostotales.permisos;
 				$scope.procedimientos = $scope.permisostotales.procedimientos;
 			});			

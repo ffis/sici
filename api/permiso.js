@@ -118,7 +118,10 @@ exports.permisosList = function(models, Q){
 		var heredado = (typeof req.params.recursivo !== 'undefined' && req.params.recursivo==2 ? true : false);
 		
 		if (typeof req.params.idjerarquia !== 'undefined') {
-			if (isNaN(parseInt(req.params.idjerarquia)) || req.user.permisoscalculados.jerarquialectura.indexOf(parseInt(req.params.idjerarquia))===-1)
+			if (isNaN(parseInt(req.params.idjerarquia)) || 
+				(req.user.permisoscalculados.jerarquialectura.indexOf(parseInt(req.params.idjerarquia))===-1 && 
+				 req.user.permisoscalculados.jerarquiaescritura.indexOf(parseInt(req.params.idjerarquia))===-1)
+				)
 				dpermisos.reject('Error. Id jerarquía no válido');
 			else if (!heredado) {												
 				// obtenemos todos los permisos otorgados sobre esta jerarquía y sus descendientes.

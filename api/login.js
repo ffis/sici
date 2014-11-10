@@ -45,13 +45,30 @@ exports.authenticate = function(config){
 							if (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime())
 							{
 								o.permisoscalculados.superuser = o.permisoscalculados.superuser || permisos[i].superuser;
-								o.permisoscalculados.jerarquialectura   = o.permisoscalculados.jerarquialectura.concat( permisos[i].jerarquialectura);
 								o.permisoscalculados.jerarquiaescritura = o.permisoscalculados.jerarquiaescritura.concat( permisos[i].jerarquiaescritura);
-								o.permisoscalculados.procedimientoslectura   = o.permisoscalculados.procedimientoslectura.concat( permisos[i].procedimientoslectura);
-								o.permisoscalculados.procedimientosescritura = o.permisoscalculados.procedimientosescritura.concat( permisos[i].procedimientosescritura);
+								o.permisoscalculados.procedimientosescritura = o.permisoscalculados.procedimientosescritura.concat( permisos[i].procedimientosescritura);								
 								//o.permisos.push( permisos[i] );
 							}
 						}
+						for(var i=0,j = permisos.length; i<j;i++ ){
+							for(var k=0,l=permisos[i].jerarquialectura.length;k<l;k++)
+								if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime()) && 
+									(o.permisoscalculados.jerarquiaescritura.indexOf(permisos[i].jerarquialectura[k])==-1 ) )
+								{
+									o.permisoscalculados.jerarquialectura.push( permisos[i].jerarquialectura[k]);								
+								}
+						}
+						for(var i=0,j = permisos.length; i<j;i++ ){
+							for(var k=0,l=permisos[i].procedimientoslectura.length;k<l;k++)
+								if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime()) && 
+									(o.permisoscalculados.procedimientosescritura.indexOf(permisos[i].procedimientoslectura[k])==-1 ) )
+								{
+									o.permisoscalculados.procedimientoslectura.push( permisos[i].procedimientoslectura[k]);
+								}
+						}
+						
+						console.log(o.permisoscalculados);
+						
 						var token = jwt.sign(o, secret, { expiresInMinutes: 60*5 });
 						res.json({ profile: o, token: token });
 					}
