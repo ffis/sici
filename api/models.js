@@ -75,6 +75,11 @@ var schemasfields = {
 		//'avisos': AnyType
 		//'errores': AnyType
 	},
+	etiqueta:{
+		'_id':String,
+		'descripcion':String,
+		'color':String,
+	},
 	procedimiento : {
 		'codigo': Number,
 		'denominacion':String,
@@ -84,6 +89,8 @@ var schemasfields = {
 		'fecha_creacion':Date,
 		'fecha_fin':Date,
 		'fecha_version':Date,
+		'etiquetas':[String],
+		'padre':Number,
 
 		//recalculable: (se incluye como AnyType abajo)
 		//'ancestros' : [ jerarquia],
