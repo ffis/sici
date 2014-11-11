@@ -10,11 +10,12 @@ exports.getEtiqueta = function(models){
 				if (err) { console.error(err); res.status(500); res.end(); return ; }
 				res.json (data);
 			});
+		}else{
+			etiqueta.find({},function(err,data){
+				if (err) { console.error(err); res.status(500); res.end(); return ; }
+				res.json (data);
+			});
 		}
-		etiqueta.find({},function(err,data){
-			if (err) { console.error(err); res.status(500); res.end(); return ; }
-			res.json (data);
-		});
 	}
 }
 

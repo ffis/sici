@@ -21,8 +21,7 @@ exports.importacionesprocedimiento = function(models){
 	return function(req,res){
 		var Importaciones = models.importacionesprocedimiento();
 		//add check permisos
-		var restriccion = {mostrable: true, output:{} };
-		restriccion.output.proceso = { '$in': req.user.permisoscalculados.procedimientosescritura };
+		var restriccion = {mostrable: true, 'output.proceso': { '$in': req.user.permisoscalculados.procedimientosescritura }};
 		Importaciones.find(restriccion, function(err,datos){
 			if (err){
 				console.error(err);
@@ -36,17 +35,16 @@ exports.importacionesprocedimiento = function(models){
 
 exports.removeImportacionProcedimiento = function(models){
 	return function(req,res){
-		var Importacion = models.importacionesprocedimiento();
+		var Importaciones = models.importacionesprocedimiento();
 		var _id = req.params._id;
 		if (!_id){
 			res.status(400).send('Carece de permisos');
 			return;
 		}
 
-		var restriccion = {_id: _id, mostrable: true, output:{} };
-		restriccion.output.proceso = { '$in': req.user.permisoscalculados.procedimientosescritura };
+		var restriccion = {_id: _id, mostrable: true, 'output.proceso': { '$in': req.user.permisoscalculados.procedimientosescritura }};
 
-		Importaciones.find(restriccion, function(err,datos){
+		Importaciones.update(restriccion, {$set: {mostrable: false}}, function(err,datos){
 			if (err){
 				console.error(err);
 				res.status(500).send(JSON.stringify(err));
@@ -56,25 +54,82 @@ exports.removeImportacionProcedimiento = function(models){
 		});
 	}
 }
-exports.applyImportacionProcedimiento = function(models){
+exports.applyImportacionProcedimiento = function(models, Q, recalculate, P){
 	return function(req,res){
-		var Importacion = models.importacionesprocedimiento();
+		var Importaciones = models.importacionesprocedimiento();
+		var Procedimiento = models.procedimiento();
 		var _id = req.params._id;
 		if (!_id){
 			res.status(400).send('Carece de permisos');
 			return;
 		}
-
-		var restriccion = {_id: _id, mostrable: true, output:{} };
-		restriccion.output.proceso = { '$in': req.user.permisoscalculados.procedimientosescritura };
-
-
+		var restriccion = {_id: _id, mostrable: true, 'output.proceso': { '$in': req.user.permisoscalculados.procedimientosescritura }};
 		Importaciones.find(restriccion, function(err,datos){
 			if (err){
 				console.error(err);
 				res.status(500).send(JSON.stringify(err));
 			}else{
-				res.json(datos);		
+				//estructura cargada, tratar atributo
+				//output: [{indicador:solicitados, proceso:1099, mes:01/6/2014, valor:0, fecha:04/09/2014, usuario:MLA25P},…]
+				var defs = [];
+				datos.forEach(function(registro){
+					registro.output.forEach(function(linea){
+						try{
+							var codigo = linea.proceso,
+								anualidad = linea.mes.split('/')[2],
+								mes = parseInt(linea.mes.split('/')[1])-1,
+								valor = linea.valor,
+								indicador = linea.indicador;
+							if (req.user.permisoscalculados.procedimientosescritura.indexOf(codigo)!=-1){
+								var def = Q.defer();
+								defs.push(def.promise);
+								var fn = function(codigo,restriccion, def){
+									Procedimiento.update({codigo:codigo}, restriccion,
+										function(err){
+											if (err) console.error(err);
+											def.resolve(codigo);
+									});
+								}
+								var campo = 'periodos.'+anualidad+'.'+indicador+'.'+mes;
+								var r = {}; r['$set'] = {}; r['$set'][campo] = valor;
+
+								fn(codigo, r, def);
+							}
+						}catch(exc){
+							console.error(exc)
+						}
+					})
+				})
+				Q.all(defs).then(function(valores){
+
+					valores = valores.filter(function(item, pos, self) {
+					    return self.indexOf(item) == pos;
+					});
+
+					defs = [];
+					valores.forEach(function(codigo){
+						var def = Q.defer();
+						defs.push(def.promise);
+						var fn = function(codigo,def){
+							Procedimiento.findOne({codigo:codigo}, function(err,procedimiento){
+								console.log(procedimiento);
+								recalculate.softCalculateProcedimiento(Q, procedimiento).then(function(procedimiento){
+									recalculate.softCalculateProcedimientoCache(Q, models, procedimiento).then(function(procedimiento){
+										P.saveVersion(models, Q, procedimiento).then(function(){
+											def.resolve();
+										})
+									})
+								})
+							})
+						}
+						fn(codigo,def);
+					})
+					Q.all(defs).then(function(valores){
+						Importaciones.update(restriccion, {$set: {mostrable: false}}, function(err,datos){
+							res.json(datos[0]);
+						});
+					});
+				});
 			}
 		});
 	}

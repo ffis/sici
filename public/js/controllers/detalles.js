@@ -21,7 +21,7 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 		if ($scope.procedimientoSeleccionado.ancestros[0].id==1){
 			$scope.procedimientoSeleccionado.ancestros.reverse();//TODO: revisar este parche
 		}
-		$scope.W = $rootScope.W($scope.procedimientoSeleccionado);
+		$scope.W = $rootScope.W($scope.procedimientoSeleccionado) || $rootScope.superuser();
 		
 		var cod_plaza = $scope.procedimientoSeleccionado.cod_plaza;
 		var graphskeys = [

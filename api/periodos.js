@@ -10,11 +10,12 @@ exports.getPeriodo = function(models){
 				if (err) { console.error(err); res.status(500); res.end(); return ; }
 				res.json (data);
 			});
+		}else{
+			periodo.find({},function(err,data){
+				if (err) { console.error(err); res.status(500); res.end(); return ; }
+				res.json (data);
+			});
 		}
-		periodo.find({},function(err,data){
-			if (err) { console.error(err); res.status(500); res.end(); return ; }
-			res.json (data);
-		});
 	}
 }
 
@@ -22,6 +23,7 @@ exports.getPeriodo = function(models){
 exports.updatePeriodo = function(models){
 	return function(req, res) {
 		var periodo = models.periodo();
+		var Procedimiento = models.procedimiento();
 	    var id = req.params.id;
 
 	    var content = req.body;
@@ -29,7 +31,15 @@ exports.updatePeriodo = function(models){
 			if (e){
 				 res.send({'error':'An error has occurred'});
 			}else{
-				res.send(content);
+				var meses = content['2014'];
+				//parche:
+				//periodo 2014 tiene el valor a usar con todos los procedimientos:
+				Procedimiento.update({}, { $set : { 'periodos.2014.periodoscerrados': meses }}, {multi:true} , function(err,doc){
+					if (err)
+						console.error(err);
+					else
+						res.send(content);
+				});
 			}
 		});
 	}
