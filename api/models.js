@@ -3,10 +3,10 @@
 var schemas = {};
 
 var schemasfields = {
-	crawled : { 'id': Number, 'jerarquia': [String], 'completo':'String' },
-	guiacarm: {	'id':Number,'titulo':String },
-	settings: { version:Number,'secret':String, anyo: String, port:Number 	 },
-	reglasinconsistencias : { 'titulo':String, 'restriccion':String},
+	crawled : { 'id': Number, 'jerarquia': [String], 'completo': String },
+	guiacarm: {	'id': Number,'titulo': String },
+	settings: { version:Number, 'secret': String, 'anyo': String, 'port': Number,  },
+	reglasinconsistencias : { 'titulo': String, 'restriccion': String},
 	historico: {},
 	persona : {
 		'codplaza' : String,
@@ -40,17 +40,17 @@ var schemasfields = {
 		'url' : String
 	},
 	expediente: {
-		idexpediente : String,
-		procedimiento: Number,
-		fechainicio : Date,
-		fechafin : Date,
-		periodossuspension: [Number],
-		responsable : Number,
-		metadatos: String,
-		anualidad: Number,
-		duracion : Number,
-		diashabiles : Number,
-		diasnaturales: Number
+		'idexpediente' : String,
+		'procedimiento': Number,
+		'fechainicio' : Date,
+		'fechafin' : Date,
+		'periodossuspension': [Number],
+		'responsable' : Number,
+		'metadatos': String,
+		'anualidad': Number,
+		'duracion' : Number,
+		'diashabiles' : Number,
+		'diasnaturales': Number
 	},
 	jerarquia: {
 		'nombre':String,
