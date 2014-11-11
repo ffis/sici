@@ -7,6 +7,7 @@ function RecalculateCtrl($rootScope,$scope,$window, $http){
     	{ label: 'Procedimientos'  , fn:[ { label: "Recalcular caché", cmd: '/api/fprocedimiento' }] },
     	{ label: 'Jerarquia' , fn:[ { label: "Recalcular", cmd: '/api/fjerarquia' } ] },
     	{ label: 'Permisos'  , fn:[ { label: "Recalcular", cmd: '/api/fpermiso' } ] },
+		{ label: 'Personas'  , fn:[ { label: "Recalcular", cmd: '/api/excelgesper' } ] },
     ];
     $scope.clasefuncionalidades = 'col-md-'+ (12 / $scope.funcionalidades.length);
 

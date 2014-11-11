@@ -297,16 +297,79 @@ exports.update = function(models) {
 exports.create = function(models) {
 	return function(req,res) {				
 		var Permiso = models.permiso();
+		var Persona = models.persona();
+		var tipoobjpermiso = req.body.tiposeleccion;
 		
+		var dpersona = Q.defer();
+		var ppersona = dpersona.promise;
 		
-		
-		
-		Permiso.create({
-			'login': login,
-			'codplaza':codplaza,
-			
-			
+		Persona.findOne({'login': req.user.login},function(err,usuario){
+				if (err) dpersona.reject(err);
+				else dpersona.resolve(usuario);				
 		});
+		
+		ppersona.then(function(usuarioactual){
+			var permiso = {
+			 jerarquialectura : [],
+			 jerarquiaescritura : [],
+			 jerarquiadirectalectura : [],
+			 jerarquiadirectaescritura : [],
+			 procedimientoslectura : [],
+			 procedimientosescritura : [],
+			 procedimientosdirectalectura : [],
+			 procedimientosdirectaescritura : [],
+			 caducidad : usuarioactual.caducidad,
+			 descripcion : '',
+			 grantoption  : req.body.grantoption,
+			 superuser : 0
+			};
+			
+			var err="";
+			if (tiposeleccion == 'jerarquia') {
+				if (!isNaN(parseInt(req.body.nodojerarquia))) {				
+					var id = parseInt(req.body.nodojerarquia);
+					permiso.jerarquiadirectalectura.push(id);
+					if (req.body.w_option)
+						permiso.jerarquiadirectaescritura.push(id);
+				} else {
+					err = "Error. Indentificador de jerarquía incorrecto";
+				}
+			} else if ( tiposeleccion == "procedimiento") {
+				if (req.body.procedimiento && req.body.procedimiento!="") {
+					permiso.procedimientosdirectalectura.push(req.body.procedimiento);
+					if (req.body.w_option)
+						permiso.procedimientodirectaescritura.push(req.body.procedimiento);
+				}else {
+					err = "Error. Identificador de procedimiento incorrecto";
+				}			
+			}
+			
+			if (err!="") {			
+				console.error(err); res.status(500); res.end(); return;
+			}
+					
+			Permiso.create(permiso,function(err,nuevopermiso){
+				res.json(nuevopermiso);
+				if (req.body.nombre && req.body.apellidos) {
+					var persona = {
+						'nombre' : req.body.nombre,
+						'apellidos' : req.body.apellidos,
+						'genero' : req.body.genero,
+						'telefono' : req.body.telefono,
+						'habilitado' : 1					
+					};
+					Persona.create(persona, function(err,nuevapersona){
+						console.log("Creada nueva persona");
+						console.log(nuevapersona);
+					});
+				}
+			});
+
+
+		
+		}, function(err){
+			console.error(err); res.status(500); res.end(); return;
+		});	
 	}
 }
 

@@ -1,4 +1,24 @@
 
+function intersect_safe(a, b)
+{
+  var ai=0, bi=0;
+  var result = new Array();
+
+  while( ai < a.length && bi < b.length )
+  {
+     if      (a[ai] < b[bi] ){ ai++; }
+     else if (a[ai] > b[bi] ){ bi++; }
+     else /* they're equal */
+     {
+       result.push(a[ai]);
+       ai++;
+       bi++;
+     }
+  }
+
+  return result;
+}
+
 function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosList,PersonasSearchList,ProcedimientoList,PermisosProcedimientoList,PermisosDirectosProcedimientoList, Jerarquia, Permiso, PersonasByPuesto, PersonasByLogin) {
 	$rootScope.nav = 'permisos';
 	$window.document.title ='SICI: Permisos';
@@ -96,10 +116,13 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		$scope.buscado_encontrado = false;
 	};
 	
+	$scope.login_search_login_plaza = function () { console.log("hoa"); plaza=""; $scope.search_login_plaza(); };
+	$scope.plaza_search_login_plaza = function () { console.log("hoa"); logincarm=""; $scope.search_login_plaza(); };
 	$scope.search_login_plaza = function () {
 		if ($scope.logincarm) $scope.logincarm = $scope.logincarm.replace(/^\s+|\s+$/gm,'');
 		if ($scope.plaza) $scope.plaza = $scope.plaza.replace(/^\s+|\s+$/gm,'');
-		$scope.value_searched_login_plaza = true;		
+		$scope.value_searched_login_plaza = true;	
+		$scope.found_login_plaza = false;		
 		if ($scope.logincarm &&  $scope.logincarm !="")
 			$scope.personas_encontradas = PersonasByLogin.query({"login":$scope.logincarm}, function(){
 				if ($scope.personas_encontradas.length>0) {
@@ -167,7 +190,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 	};
 	
 	$scope.getObjetoPermiso = function(permiso) {
-		if ($scope.seleccionado_organica){
+		if ($scope.seleccionado_organica){ 
 			if ($scope.seleccionado && $scope.nodo_jerarquia) {				
 				var objeto = -1;
 				var distancia = 1000000;
@@ -177,38 +200,30 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 					s_array_busqueda = "ancestros";
 				else if ($scope.is_show_recursive_users)
 					s_array_busqueda = "descendientes";
-					
-				
-				if ( permiso.jerarquiadirectalectura.indexOf( $scope.seleccionado.id ) !== -1)
+							
+				if ( permiso.jerarquiadirectalectura.indexOf( $scope.seleccionado.id ) !== -1 
+					|| permiso.jerarquiadirectaescritura.indexOf( $scope.seleccionado.id ) !== -1
+					)
 					return $scope.seleccionado;
 					
-				if (s_array_busqueda!="") {
-					console.log("Buscando objeto");
-					console.log($scope.nodo_jerarquia);
-					for(var i=0,j=$scope.nodo_jerarquia[s_array_busqueda].length;i<j;i++)
-					{
-						var nodo = $scope.nodo_jerarquia[s_array_busqueda][i];
-						if (permiso.jerarquiadirectalectura.indexOf( nodo )!==-1 && i < distancia)
-						{	
-							objeto = nodo;
-							distancia = i;
-						}
-					}
-					}
-
-				if (objeto !== -1) {
-					//var dresultado = Q.defer();					
-					//var presultado = dresultado.promise;
-					if ($scope.cacheobjetos[objeto]) 
-						return $scope.cacheobjetos[objeto];
-					var resultado = Jerarquia.query({"idjerarquia":objeto}, function(){
-							//presultado.resolve(resultado.nombre);
-							$scope.cacheobjetos[resultado.id]=resultado.nombre;
-					});
-					return resultado;
+				var objs = [];
+				if (Array.isArray(permiso.jerarquiadirectalectura) && 
+					Array.isArray(permiso.jerarquiadirectaescritura) &&
+					Array.isArray($scope.nodo_jerarquia[s_array_busqueda]))
+						objs = intersect_safe(permiso.jerarquiadirectalectura.concat(permiso.jerarquiadirectaescritura),$scope.nodo_jerarquia[s_array_busqueda]);
+				else  {
+					console.error("Error, alguno de los arrays no es tal");
+					return objs;
 				}
 				
-			}
+				var resultado = [];
+				for(var i=0;i<objs.length;i++){
+					resultado[i] = Jerarquia.query({"idjerarquia":objs[i]}, function(){
+						console.log(resultado[i]);
+					});
+				}				
+				return resultado;
+			} 		
 		} 
 	};
 	

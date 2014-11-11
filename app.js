@@ -120,6 +120,8 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.post('/api/permisos/', permiso.create(models));
   
   
+  app.get('/api/excelgesper', persona.importarGesper(models,Q));
+  
 
   app.get('/api/importacion', importador.importacionesprocedimiento(models));
   app.post('/api/importacion/:_id', importador.applyImportacionProcedimiento(models));
