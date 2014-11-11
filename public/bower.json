@@ -28,7 +28,8 @@
     "angular-translate": "~2.4.1",
     "nvd3": "~1.1.15-beta",
     "allmighty-autocomplete": "*",
-    "angular-bootstrap-colorpicker": "~3.0.8"
+    "angular-bootstrap-colorpicker": "~3.0.8",
+    "angular-bootstrap": "~0.11.2"
   },
   "resolutions": {
     "d3": "~3.4.13"

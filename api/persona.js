@@ -25,6 +25,45 @@ exports.personasByLogin = function(models){
 	};
 };
 
+exports.personasByRegex = function(models){
+	return function(req,res){
+		var Persona = models.persona();
+		var restriccion = {};
+		if (typeof req.params.regex !== 'undefined'){
+			restriccion = {
+				"$or" : [
+					{
+					"login": {
+					"$regex" : req.params.regex+"*",
+					"$options" : "i"
+					}},
+					{
+					"codplaza": {
+					"$regex" : req.params.regex+"*",
+					"$options" : "i"
+					}},					
+					{
+					"nombre": {
+					"$regex" : req.params.regex+"*",
+					"$options" : "i"
+					}},
+					{
+					"apellidos": {
+					"$regex" : req.params.regex+"*",
+					"$options" : "i"
+					}}
+				]
+			}
+			Persona.find(restriccion,function(err,data){
+				if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }
+				res.json (data);
+			});
+		} else {
+			res.status(500); res.end(); return ;
+		}
+	};
+};
+
 
 function transformExcel2Persona(objeto,  models,Q){
 

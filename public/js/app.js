@@ -25,6 +25,7 @@ var app = angular.module('sici', [
     $routeProvider.when('/actividad/:idjerarquia', {templateUrl: 'partials/actividad.html', controller: 'ActividadCtrl'});
     $routeProvider.when('/errors',    {templateUrl: 'partials/incoherencias.html', controller: 'IncoherenciasCtrl'});
     $routeProvider.when('/permisos',    {templateUrl: 'partials/permisoscrud.html', controller: 'PermisoCtrl'});
+	$routeProvider.when('/crearprocedimiento',    {templateUrl: 'partials/procedimientocrud.html', controller: 'NewProcedimientoCtrl'});
     $routeProvider.when('/etiqueta',    {templateUrl: 'partials/etiqueta.html', controller: 'EtiquetaCtrl'});
     $routeProvider.when('/periodos',    {templateUrl: 'partials/periodos.html', controller: 'PeriodosCtrl'});
 
