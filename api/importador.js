@@ -21,16 +21,66 @@ exports.importacionesprocedimiento = function(models){
 	return function(req,res){
 		var Importaciones = models.importacionesprocedimiento();
 		//add check permisos
-		Importaciones.find({mostrable:true}, function(err,datos){
+		var restriccion = {mostrable: true, output:{} };
+		restriccion.output.proceso = { '$in': req.user.permisoscalculados.procedimientosescritura };
+		Importaciones.find(restriccion, function(err,datos){
 			if (err){
 				console.error(err);
-				res.send(500,JSON.stringify(err));
+				res.status(500).send(JSON.stringify(err));
 			}else{
 				res.json(datos);		
 			}
 		});
 	}
 }
+
+exports.removeImportacionProcedimiento = function(models){
+	return function(req,res){
+		var Importacion = models.importacionesprocedimiento();
+		var _id = req.params._id;
+		if (!_id){
+			res.status(400).send('Carece de permisos');
+			return;
+		}
+
+		var restriccion = {_id: _id, mostrable: true, output:{} };
+		restriccion.output.proceso = { '$in': req.user.permisoscalculados.procedimientosescritura };
+
+
+		Importaciones.find(restriccion, function(err,datos){
+			if (err){
+				console.error(err);
+				res.status(500).send(JSON.stringify(err));
+			}else{
+				res.json(datos);		
+			}
+		});
+	}
+}
+exports.applyImportacionProcedimiento = function(models){
+	return function(req,res){
+		var Importacion = models.importacionesprocedimiento();
+		var _id = req.params._id;
+		if (!_id){
+			res.status(400).send('Carece de permisos');
+			return;
+		}
+
+		var restriccion = {_id: _id, mostrable: true, output:{} };
+		restriccion.output.proceso = { '$in': req.user.permisoscalculados.procedimientosescritura };
+
+
+		Importaciones.find(restriccion, function(err,datos){
+			if (err){
+				console.error(err);
+				res.status(500).send(JSON.stringify(err));
+			}else{
+				res.json(datos);		
+			}
+		});
+	}
+}
+
 
 exports.parseGS = function(){
 	return function (req, res)
