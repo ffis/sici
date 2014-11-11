@@ -2,6 +2,7 @@
 
 function PeriodosCtrl($rootScope, $scope, $routeParams, Periodo) {
 	$rootScope.nav = 'periodos';
+	$window.document.title ='SICI: Períodos';
 	$scope.meses = $rootScope.meses;
 	$scope.periodo = false;
 	$scope.periodos = Periodo.query( function(){

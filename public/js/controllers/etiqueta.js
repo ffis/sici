@@ -1,5 +1,6 @@
 function EtiquetaCtrl($rootScope,$scope,$routeParams,Etiqueta) {
 	$rootScope.nav = 'etiqueta';
+	$window.document.title ='SICI: Etiquetas';
 	$scope.cambios = [];
 	$scope.etiquetas =  Etiqueta.query();
 	$scope.nuevo =  new Etiqueta();
