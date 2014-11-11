@@ -1,6 +1,6 @@
 'use strict';
 
-function AppCtrl($scope, $rootScope, Session) {
+function AppCtrl($scope, $rootScope, Session, $location) {
 	$rootScope.setTitle   = function (title){ $scope.name = title; };
 	$rootScope.setLogeado = function(t){
 		$rootScope.logeado = t;
@@ -21,8 +21,15 @@ function AppCtrl($scope, $rootScope, Session) {
 	$rootScope.navegabilidadSuper = [
 		{ id:'recalculate', caption:'Recalcular datos' },
 		{ id:'permisos', caption:'Gestionar permisos' },
-		{ id:'etiqueta', caption: 'Gestionar etiquetas'},
+		{ id:'etiquetas', caption: 'Gestionar etiquetas'},
 	];
+
+	$rootScope.irProcedimiento = function(){
+		var id = parseInt($rootScope.procedimiento);
+		if (id>0){
+			$location.path('/procedimiento/'+id);
+		}
+	}
 
 	$rootScope.colorText = function(i, numcolors, phase)
 	{
@@ -64,4 +71,4 @@ function AppCtrl($scope, $rootScope, Session) {
 	}
 }
 
-AppCtrl.$inject = ['$scope','$rootScope','Session'];
+AppCtrl.$inject = ['$scope','$rootScope','Session', '$location'];

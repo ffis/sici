@@ -16,6 +16,9 @@
 							<input ng-model="nuevo._id" class="form-control"/>
 						</th>
 						<td>
+							<input ng-model="nuevo.familia" class="form-control"/>
+						</td>
+						<td>
 							<input ng-model="nuevo.descripcion" class="form-control"/>
 						</td>
 						<td>
@@ -33,6 +36,9 @@
 						<th>
 							<input readonly="readonly" ng-model="etiqueta._id" class="form-control" ng-change="cambios[$index]=true"/>
 						</th>
+						<td>
+							<input ng-model="etiqueta.familia" class="form-control" ng-change="cambios[$index]=true"/>
+						</td>
 						<td>
 							<input ng-model="etiqueta.descripcion" class="form-control" ng-change="cambios[$index]=true"/>
 						</td>

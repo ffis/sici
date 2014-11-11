@@ -12,6 +12,7 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 
 	$scope.procedimientoSeleccionado = Procedimiento.get({codigo: $routeParams.codigo } ,function(){
 		$window.document.title ='SICI: '+$scope.procedimientoSeleccionado.denominacion;
+		$rootScope.procedimiento = $scope.procedimientoSeleccionado.codigo;
 		$scope.anualidad = 0;
 		for (var anualidad in $scope.procedimientoSeleccionado.periodos){
 			if (parseInt(anualidad) > $scope.anualidad)
