@@ -1,17 +1,17 @@
 'use strict';
 
-exports.getReglaInconsistencia = function(models){
+exports.getEtiqueta = function(models){
 	return function(req,res){
-		var Reglasinconsistencias = models.reglasinconsistencias();
+		var etiqueta = models.etiqueta();
 		var _id = req.params._id;
 		if (_id)
 		{
-			Reglasinconsistencias.findOne({'_id':id},function(err,data){
+			etiqueta.findOne({'_id':id},function(err,data){
 				if (err) { console.error(err); res.status(500); res.end(); return ; }
 				res.json (data);
 			});
 		}else{
-			Reglasinconsistencias.find({},function(err,data){
+			etiqueta.find({},function(err,data){
 				if (err) { console.error(err); res.status(500); res.end(); return ; }
 				res.json (data);
 			});
@@ -20,13 +20,13 @@ exports.getReglaInconsistencia = function(models){
 }
 
 
-exports.updateReglaInconsistencia = function(models){
+exports.updateEtiqueta = function(models){
 	return function(req, res) {
-		var Reglasinconsistencias = models.reglasinconsistencias();
+		var etiqueta = models.etiqueta();
 	    var id = req.params.id;
 
 	    var content = req.body;
-	    Reglasinconsistencias.update({'_id':id}, content, { upsert: true }, function(e){
+	    etiqueta.update({'_id':id}, content, { upsert: true }, function(e){
 			if (e){
 				 res.send({'error':'An error has occurred'});
 			}else{
@@ -36,11 +36,12 @@ exports.updateReglaInconsistencia = function(models){
 	}
 }
 
-exports.newReglaInconsistencia = function(models){
+exports.newEtiqueta = function(models){
 	return function(req, res) {
-		var Reglasinconsistencias = models.reglasinconsistencias();
+		var etiqueta = models.etiqueta();
 	    var content = req.body;
-	    new Reglasinconsistencias(content).save( function(e){
+	    new etiqueta(content).save( function(e){
+		//etiqueta.update({'_id':id}, content, { upsert: true }, function(e){
 			if (e){
 				 res.send({'error':'An error has occurred'});
 			}else{
@@ -50,12 +51,12 @@ exports.newReglaInconsistencia = function(models){
 	}
 }
 
-exports.removeReglaInconsistencia = function(models){
+exports.removeEtiqueta = function(models){
 	return function(req, res) {
-		var Reglasinconsistencias = models.reglasinconsistencias();
+		var etiqueta = models.etiqueta();
 	    var id = req.params.id;
 	    var content = req.body;
-	    Reglasinconsistencias.remove({'_id':id}, function(e){
+	    etiqueta.remove({'_id':id}, function(e){
 			if (e){
 				 res.send({'error':'An error has occurred'});
 			}else{

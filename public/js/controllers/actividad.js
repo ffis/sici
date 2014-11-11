@@ -1,4 +1,4 @@
-function ActividadCtrl($rootScope,$scope,$location,$window,$routeParams, Arbol, ProcedimientoList,DetalleCarmProcedimiento,DetalleCarmProcedimiento2, PersonasByPuesto, Session) {
+function ActividadCtrl($rootScope,$scope,$location,$window,$routeParams, Arbol, ProcedimientoList,DetalleCarmProcedimiento,DetalleCarmProcedimiento2, PersonasByPuesto, Session, Etiqueta) {
 	$rootScope.nav = 'actividad';
 	$window.document.title ='SICI: Actividad';
 	$scope.idjerarquia = ($routeParams.idjerarquia) ? $routeParams.idjerarquia :false;
@@ -13,6 +13,18 @@ function ActividadCtrl($rootScope,$scope,$location,$window,$routeParams, Arbol, 
 	$scope.reverse = false;
 	$scope.anualidad = new Date().getFullYear();
 	$scope.mesanterior = new Date().getMonth()-1;
+	$scope.etiquetas = Etiqueta.query(function(){
+		$scope.etiquetasPorTipo	= {};
+		$scope.etiquetas.forEach(function(etiqueta){
+			if (typeof $scope.etiquetasPorTipo[etiqueta.familia] == 'undefined')
+			{
+				$scope.etiquetasPorTipo[etiqueta.familia] = [];
+			}
+			$scope.etiquetasPorTipo[etiqueta.familia].push(etiqueta);
+		})
+		
+	});
+	
 	
 	if ($scope.mesanterior < 0)
 		$scope.mesanterior = 11;
@@ -189,4 +201,4 @@ function ActividadCtrl($rootScope,$scope,$location,$window,$routeParams, Arbol, 
 
 	
 }
-ActividadCtrl.$inject = ['$rootScope','$scope','$location','$window','$routeParams','Arbol','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','PersonasByPuesto','Session'];
+ActividadCtrl.$inject = ['$rootScope','$scope','$location','$window','$routeParams','Arbol','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','PersonasByPuesto','Session', 'Etiqueta'];

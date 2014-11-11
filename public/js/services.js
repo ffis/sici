@@ -19,10 +19,10 @@ angular.module('sici.services', ['ngResource'])
 		function ($resource) {
 			return $resource('/api/permisosList/:idjerarquia/:recursivo', {}, { query : {method:'GET', isArray:false} });
 		}])
-    /*.factory('PermisosCalculados', ['$resource',
-        function ($resource) {
-            return $resource('/api/permisosCalculados', {}, { query: {method:'GET', isArray:false} });
-		}])*/
+	.factory('Jerarquia',['$resource',
+		function ($resource) {
+			return $resource('/api/jerarquia/:idjerarquia', {}, { query : {method:'GET', isArray:false} });
+		}])
 	.factory('PermisosDirectosProcedimientoList',['$resource',
 		function ($resource) {
 			return $resource('/api/permisosDirectosProcedimientoList/:codigoprocedimiento', {}, { query : {method:'GET', isArray:true} });
@@ -37,16 +37,20 @@ angular.module('sici.services', ['ngResource'])
 		}])	
 	.factory('Permiso', ['$resource',
         function ($resource) {
-            return $resource('/api/permisos/:id', {id:'@id'},   { update: {method:'PUT' } });
-		}])
-	.factory('Permiso', ['$resource',
-        function ($resource) {
-            return $resource('/api/permisos/', {},   { create: {method:'POST' } });
+            return $resource('/api/permisos/:id', {id:'@id'},   { update: {method:'PUT' }, create: {method:'POST' } });
 		}])
     .factory('PersonasByPuesto', ['$resource',
         function ($resource) {
             return $resource('/api/personasByPuesto/:cod_plaza', {}, { query: {method:'GET', isArray:true} });
         }])
+    .factory('PersonasByLogin', ['$resource',
+        function ($resource) {
+            return $resource('/api/personasByLogin/:login', {}, { query: {method:'GET', isArray:true} });
+        }])
+    .factory('PersonasByRegexp', ['$resource',
+        function ($resource) {
+            return $resource('/api/PersonasByRegexp/:regex', {}, { query: {method:'GET', isArray:true} });
+        }])		
 	.factory('PersonasSearchList', ['$resource',
         function ($resource) {
             return $resource('/api/searchpersonas', {}, { query: {method:'GET', isArray:true} });
@@ -70,6 +74,14 @@ angular.module('sici.services', ['ngResource'])
     .factory('ReglasInconsistencias', ['$resource',
         function ($resource) {
             return $resource('/api/reglasinconsistencias/:id', {id:'@_id'},   { update: {method:'PUT' } });
+        }])
+    .factory('Etiqueta', ['$resource',
+        function ($resource) {
+            return $resource('/api/etiqueta/:id', {id:'@_id'},   { update: {method:'PUT' } });
+        }])
+    .factory('Periodo', ['$resource',
+        function ($resource) {
+            return $resource('/api/periodos/:id', {id:'@_id'},   { update: {method:'PUT' } });
         }])
     .factory('Importacion', ['$resource',
         function ($resource) {

@@ -1,6 +1,6 @@
 
-<div ng-controller="ActividadCtrl" class="row">
-	<div ng-class="{'col-lg-5': !oculto, 'hidden': oculto}" class="left animated">
+<div ng-controller="NewProcedimientoCtrl" class="row">
+	<div ng-class="{'col-lg-12': !seleccionado, 'col-lg-5': !!seleccionado}" class="left animated">
 		<div class="panel panel-danger">
 			<div class="panel-heading">
 				<h3 class="panel-title">
@@ -64,7 +64,7 @@
 			</div>
 		</div>
 	</div>
-	<div ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated" id="detallesjerarquia">
+	<div ng-class="{'col-lg-7': !!seleccionado, 'hidden': !seleccionado}" class="right animated" id="detallesjerarquia">
 		<div ng-click="oculto=!oculto">
 			<span class="glyphicon glyphicon-fullscreen pull-right">
 			</span>
@@ -72,54 +72,31 @@
 				{{seleccionado.title}}
 			</h2>
 		</div>
-		<div ng-if="procedimientos.length" class="panel panel-danger">
-			<div ng-click="filtrosocultos=!filtrosocultos" class="panel-heading">
-				<span ng-class="{&quot;glyphicon-collapse-down&quot;:!filtrosocultos,&quot;glyphicon-expand&quot;:filtrosocultos}" class="glyphicon pull-right">
-				</span>
-				<div class="progress">
-					<div role="progressbar" aria-valuenow="{{100*cumplimentados / count}}" aria-valuemin="0" aria-valuemax="100" style="width:{{100*cumplimentados / count}}%" class="progress-bar progress-bar-striped progress-bar-danger">
-						{{(100*cumplimentados / count).toFixed(2)}}% ({{cumplimentados}} / {{count}})
-					</div>
+		
+		<div class="panel panel-danger">
+			<div class="panel-heading">
+				<h3 class="panel-title">{{accion}} procedimiento</h3>
+			</div>
+			<div class="panel-body">
+				<div class="btn-group">					
 				</div>
-			</div>
-			<div ng-class="{'hidden': filtrosocultos}" class="panel-body">
-				<form class="form-horizontal">
-					<div ng-repeat="key in camposfiltros" class="form-groupcol-sm-12">
-						<label class="control-label col-md-3">
-							{{key| translate}}:
-						</label>
-						<div class="col-md-9">
-							<select ng-model="filtro[key]" ng-options="fa.value as fa.name for (ky,fa) in filtros[key]" class="form-control">
-							</select>
-						</div>
-					</div>
-					<div class="form-groupcol-sm-12">
-						<label class="control-label col-md-3">Filtro:</label>
-						<div class="col-md-9">
-							<input ng-model="filtrotxtprocedimiento.$" class="form-control"/>
-						</div>
-					</div>
-
-					<div class="form-group col-sm-12"  ng-repeat="(familia,etiquetas) in etiquetasPorTipo track by $index" >
-						<label class="control-label col-sm-3">{{familia}}:</label>
-						<div class="col-sm-9">
-							<div ng-repeat="etiqueta in etiquetas track by $index" class="col-sm-6">
-								<label class="control-label col-sm-3">
-									<input type="checkbox" name="" id="et{{$index}}" value="{{etiqueta._id}}" >
-								</label>
-								<div class="col-sm-9">
-									<label for="et{{$index}}"> <span class="label label-danger" title="{{etiqueta.descripcion}}" >{{etiqueta._id}}</span></label>
-								</div>
-							</div>
-						</div>
-					</div>
-				</form>
+				<label name="nombre" style="width:100%">
+					<span>Denominaci&oacute;n: </span><input  class="form-control" type="text" ng-model="nombre" name="nombre" /> 					
+				</label>
+				<br/>
+				<label name="codigo" style="width:100%">
+					<span>C&oacute;digo: </span><input  class="form-control" type="text" ng-model="codigo" name="codigo" /> 
+				</label>
+				<br/>
+				<label name="responsable" style="width:100%"> 
+					<span>Responsable: </span><input placeholder="Plaza o nombre o login carm"  type="text" typeahead="eresp for eresp in getPersonas($viewValue)" ng-model="responsable" name="responsable" /> 
+				</label>
+				<label name="padre" style="width:100%">
+					<span>Procedimiento padre: </span>
+					<input  placeholder="Introduce cualquier parte del c&oacute;digo o denominaci&oacute;n" class="form-control" type="text" ng-model="padre" name="padre" typeahead="procpadre for procpadre in oallprocedimientos  | filter:{denominacion:$viewValue} | limitTo:10" /> 
+				</label>
 			</div>
 		</div>
-		<div>
-			{{filtrotxtprocedimiento.codigo}}
-		</div>
-		<div ng-if="procedimientosfiltrados.length" class="table-responsive">
 			<table class="table table-striped table-bordered table-condensed table-hover" id="procedimientostable">
 				<thead>
 					<tr>

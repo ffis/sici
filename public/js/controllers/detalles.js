@@ -8,10 +8,11 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 	$scope.detallesCarmHTML = true;
 	$scope.graphs = false;
 
-	$scope.save 
+	
 
 	$scope.procedimientoSeleccionado = Procedimiento.get({codigo: $routeParams.codigo } ,function(){
 		$window.document.title ='SICI: '+$scope.procedimientoSeleccionado.denominacion;
+		$rootScope.procedimiento = $scope.procedimientoSeleccionado.codigo;
 		$scope.anualidad = 0;
 		for (var anualidad in $scope.procedimientoSeleccionado.periodos){
 			if (parseInt(anualidad) > $scope.anualidad)
@@ -20,6 +21,7 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 		if ($scope.procedimientoSeleccionado.ancestros[0].id==1){
 			$scope.procedimientoSeleccionado.ancestros.reverse();//TODO: revisar este parche
 		}
+		$scope.W = $rootScope.W($scope.procedimientoSeleccionado) || $rootScope.superuser();
 		
 		var cod_plaza = $scope.procedimientoSeleccionado.cod_plaza;
 		var graphskeys = [
@@ -61,11 +63,11 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 				}
 				if (typeof k != 'undefined' && k.length >0){
 					k.forEach(function (val,idx) {
-						try{
+						/*try{
 						console.log(idx +':'+graphskeys[i].keys[indx].maxx);
 					}catch(e){
 						console.error(i+':'+indx);
-					}
+					}*/
 						if (idx < graphskeys[i].keys[indx].maxx  ){
 							values.push( [ idx, val] ) ;
 							if (maxvalue< val) maxvalue=val;
@@ -147,7 +149,7 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 	    }else if (valor<0){
 	    	return "No se admiten valores menores de 0";
 	    }
-	};    
+	};
 }
 DetallesCtrl.$inject = ['$rootScope','$scope','$routeParams','$window','Procedimiento','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','Raw','Aggregate'];
 

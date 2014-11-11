@@ -1,0 +1,28 @@
+<div class="row" style="clear:both; margin-top:2em" >
+	<div class="col-lg-12">
+		<div style="clear:both" class="table-responsive">
+			<h3>Períodos cerrados</h3>
+			<table class="table table-striped" ng-If="$root.superuser">
+				<thead>
+					<tr>
+						<th></th>
+						<th ng-repeat="mes in $root.meses">{{mes}}</th>
+					</tr>
+				</thead>
+				<tbody  ng-repeat="periodo in periodos">
+					<tr ng-If="clave!='_id'" ng-repeat="(clave,valor) in periodo">
+						<th>{{clave}}</th>
+						<td ng-repeat="v in valor track by $index">
+							<a  href="#" editable-text="periodo[clave][$index]" onaftersave="actualizar(periodo)" onbeforesave="checkNumber($data)">
+									{{ periodo[clave][$index] || 0  |numberFormat}}
+							</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<p>Esta tabla representa los valores de cierre de los distintos períodos de los procedimientos. Un 0 representará un período abierto, es decir de libre edición, mientras que un 1 representará un período cerrado. Un período cerrado no podrá ser modificado.
+			</p>
+		</div>
+	</div>
+</div>

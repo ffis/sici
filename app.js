@@ -14,8 +14,11 @@ models = require('./api/models');
 
 api = require('./api/api'),
 login = require('./api/login'),
+jerarquia = require('./api/jerarquia'),
 importador = require('./api/importador'),
 reglainconsistencia = require('./api/reglainconsistencia'),
+etiqueta = require('./api/etiqueta'),
+periodos = require('./api/periodos'),
 procedimiento = require('./api/procedimiento'),
 persona = require('./api/persona'),
 permiso = require('./api/permiso'),
@@ -72,7 +75,17 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
 
 
   app.get('/api/personasByPuesto/:cod_plaza',persona.personasByPuesto(models));
+  app.get('/api/personasByLogin/:cod_plaza',persona.personasByLogin(models));
+  app.get('/api/PersonasByRegexp/:regex',persona.personasByRegex(models));
   app.get('/api/searchpersonas',persona.personassearchlist(models,Q));
+
+//  app.get('/api/periodos', procedimiento.setPeriodosCerrados(models));
+
+  app.get('/api/periodos', periodos.getPeriodo(models));
+  app.get('/api/periodos/:id', periodos.getPeriodo(models));
+  app.put('/api/periodos/:id', periodos.updatePeriodo(models));
+  app.post('/api/periodos/:id', periodos.newPeriodo(models));
+  app.delete('/api/periodos/:id', periodos.removePeriodo(models));
 
   app.get('/api/procedimiento', procedimiento.procedimiento(models) );
   app.get('/api/procedimientoList/:idjerarquia/:recursivo', procedimiento.procedimientoList(models, Q) );
@@ -80,12 +93,18 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   
   app.get('/api/procedimiento/:codigo', procedimiento.procedimiento(models) );
   app.put('/api/procedimiento/:codigo', procedimiento.updateProcedimiento(Q, models, recalculate) );
+  
+  app.get('/api/jerarquia/:idjerarquia', jerarquia.getNodoJerarquia(models));
 
   app.get('/api/reglasinconsistencias', reglainconsistencia.getReglaInconsistencia(models));
   app.post('/api/reglasinconsistencias', reglainconsistencia.newReglaInconsistencia(models));
   app.put('/api/reglasinconsistencias/:id', reglainconsistencia.updateReglaInconsistencia(models));
   app.delete('/api/reglasinconsistencias/:id', reglainconsistencia.removeReglaInconsistencia(models));
 
+  app.get('/api/etiqueta', etiqueta.getEtiqueta(models));
+  app.put('/api/etiqueta/:id', etiqueta.updateEtiqueta(models));
+  app.post('/api/etiqueta/:id', etiqueta.newEtiqueta(models));
+  app.delete('/api/etiqueta/:id', etiqueta.removeEtiqueta(models));
   
   app.get('/api/fprocedimiento', recalculate.fprocedimiento( Q, models, procedimiento));
   app.get('/api/fjerarquia', recalculate.fjerarquia( Q, models));
@@ -102,8 +121,13 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.post('/api/permisos/', permiso.create(models));
   
   
+  app.get('/api/excelgesper', persona.importarGesper(models,Q));
+  
 
   app.get('/api/importacion', importador.importacionesprocedimiento(models));
+  app.post('/api/importacion/:_id', importador.applyImportacionProcedimiento(models, Q, recalculate, procedimiento));
+  app.delete('/api/importacion/:_id', importador.removeImportacionProcedimiento(models));
+  
 
   app.post('/api/updateByFile',upload.update(),csvsici.parse(models));
 

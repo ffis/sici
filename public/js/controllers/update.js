@@ -3,7 +3,21 @@ function UpdateCtrl($rootScope,$scope,$window,$upload,Importacion){
     $scope.actualizando = 0;
     $window.document.title ='SICI - Importación';
     $scope.respuestas= Importacion.query();
-    //$scope.importaciones 
+
+    $scope.remove = function(respuesta){
+    	if (confirm('¿Está seguro de querer borrar esta importación? Esta operación no es reversible.'))
+		respuesta.$delete(function(){
+			$scope.respuestas= Importacion.query();
+		});
+    }
+
+    $scope.confirm = function(respuesta){
+        if (confirm('¿Está seguro de querer aplicar esta importación? Esta operación no es reversible.'))
+			respuesta.$save(function(){
+				$scope.respuestas= Importacion.query();
+			});
+    }
+
 
     $scope.onFileSelect = function($files) {
     //$files: an array of files selected, each file has name, size, and type.

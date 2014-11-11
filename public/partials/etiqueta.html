@@ -1,0 +1,61 @@
+<div class="row">
+	<div class="col-lg-12">
+		<div style="clear:both" class="table-responsive">
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Etiqueta</th>
+						<th>Descripción</th>
+						<th>Color</th>
+						<th>Operaciones</th>
+					</tr>
+				</thead>
+				<tfoot style="background-color:#eee">
+					<tr>
+						<th>
+							<input ng-model="nuevo._id" class="form-control"/>
+						</th>
+						<td>
+							<input ng-model="nuevo.familia" class="form-control"/>
+						</td>
+						<td>
+							<input ng-model="nuevo.descripcion" class="form-control"/>
+						</td>
+						<td>
+							<input colorpicker ng-model="nuevo.color" class="form-control"/>
+						</td>
+						<td>
+							<button ng-click="guardar(nuevo)" class="btn btn-default">
+								<span class="glyphicon glyphicon-ok"></span>
+							</button>
+						</td>
+					</tr>
+				</tfoot>
+				<tbody>
+					<tr ng-repeat="etiqueta in etiquetas track by $index">
+						<th>
+							<input readonly="readonly" ng-model="etiqueta._id" class="form-control" ng-change="cambios[$index]=true"/>
+						</th>
+						<td>
+							<input ng-model="etiqueta.familia" class="form-control" ng-change="cambios[$index]=true"/>
+						</td>
+						<td>
+							<input ng-model="etiqueta.descripcion" class="form-control" ng-change="cambios[$index]=true"/>
+						</td>
+						<td>
+							<input colorpicker ng-model="etiqueta.color" class="form-control" ng-change="cambios[$index]=true"/>
+						</td>
+						<td>
+							<button ng-click="actualizar(etiqueta)" class="btn btn-default" ng-show="cambios[$index]">
+								<span class="glyphicon glyphicon-ok"></span>
+							</button>
+							<button ng-click="eliminar(etiqueta)" class="btn btn-danger" >
+								<span class="glyphicon glyphicon-remove"></span>
+							</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>

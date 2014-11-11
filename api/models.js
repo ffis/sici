@@ -3,11 +3,12 @@
 var schemas = {};
 
 var schemasfields = {
-	crawled : { 'id': Number, 'jerarquia': [String], 'completo':'String' },
-	guiacarm: {	'id':Number,'titulo':String },
-	settings: { version:Number,'secret':String, anyo: String, port:Number 	 },
-	reglasinconsistencias : { 'titulo':String, 'restriccion':String},
+	crawled : { 'id': Number, 'jerarquia': [String], 'completo': String },
+	guiacarm: {	'id': Number,'titulo': String },
+	settings: { version:Number, 'secret': String, 'anyo': String, 'port': Number,  },
+	reglasinconsistencias : { 'titulo': String, 'restriccion': String},
 	historico: {},
+	periodo: { '2014' : [Number] },
 	persona : {
 		'codplaza' : String,
 		'login' : String,
@@ -25,10 +26,10 @@ var schemasfields = {
 		'jerarquiaescritura' : [Number],/*calculados, cacheados*/
 		'jerarquiadirectalectura' : [Number], /*reales, asignados*/
 		'jerarquiadirectaescritura' : [Number], /*reales, asignados*/
-		'procedimientoslectura' : [Number],  /*calculados, cacheados*/
-		'procedimientosescritura' : [Number],  /*calculados, cacheados*/
-		'procedimientosdirectalectura' : [Number], /*reales, asignados*/
-		'procedimientosdirectaescritura' : [Number], /*reales, asignados*/		
+		'procedimientoslectura' : [String],  /*calculados, cacheados*/
+		'procedimientosescritura' : [String],  /*calculados, cacheados*/
+		'procedimientosdirectalectura' : [String], /*reales, asignados*/
+		'procedimientosdirectaescritura' : [String], /*reales, asignados*/		
 		'caducidad' : Date,
 		'descripcion' : String,
 		'grantoption': Boolean, /* puede clonar su permiso */
@@ -40,17 +41,17 @@ var schemasfields = {
 		'url' : String
 	},
 	expediente: {
-		idexpediente : String,
-		procedimiento: Number,
-		fechainicio : Date,
-		fechafin : Date,
-		periodossuspension: [Number],
-		responsable : Number,
-		metadatos: String,
-		anualidad: Number,
-		duracion : Number,
-		diashabiles : Number,
-		diasnaturales: Number
+		'idexpediente' : String,
+		'procedimiento': Number,
+		'fechainicio' : Date,
+		'fechafin' : Date,
+		'periodossuspension': [Number],
+		'responsable' : Number,
+		'metadatos': String,
+		'anualidad': Number,
+		'duracion' : Number,
+		'diashabiles' : Number,
+		'diasnaturales': Number
 	},
 	jerarquia: {
 		'nombre':String,
@@ -76,12 +77,13 @@ var schemasfields = {
 		//'errores': AnyType
 	},
 	etiqueta:{
-		'_id':String,
+		'_id' : String,
 		'descripcion':String,
+		'familia' : String,
 		'color':String,
 	},
 	procedimiento : {
-		'codigo': Number,
+		'codigo': String,
 		'denominacion':String,
 		'idjerarquia': Number,
 		'tipo':String,
@@ -90,7 +92,7 @@ var schemasfields = {
 		'fecha_fin':Date,
 		'fecha_version':Date,
 		'etiquetas':[String],
-		'padre':Number,
+		'padre':String,
 
 		//recalculable: (se incluye como AnyType abajo)
 		//'ancestros' : [ jerarquia],
@@ -192,4 +194,3 @@ function constructorschema(name){
 for(var name in schemasfields){
 	exports[name] = constructorschema(name);
 }
-

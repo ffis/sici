@@ -1,4 +1,5 @@
 function ReglasInconsistenciasCtrl($rootScope,$scope,$routeParams,ReglasInconsistencias) {
+	$window.document.title ='SICI: Reglas Inconsistencias';
 	$scope.cambios = [];
 	$scope.inconsistencias =  ReglasInconsistencias.query();
 	$scope.nuevo =  new ReglasInconsistencias();

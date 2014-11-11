@@ -1,6 +1,6 @@
 'use strict';
 
-function AppCtrl($scope, $rootScope, Session) {
+function AppCtrl($scope, $rootScope, Session, $location) {
 	$rootScope.setTitle   = function (title){ $scope.name = title; };
 	$rootScope.setLogeado = function(t){
 		$rootScope.logeado = t;
@@ -21,7 +21,16 @@ function AppCtrl($scope, $rootScope, Session) {
 	$rootScope.navegabilidadSuper = [
 		{ id:'recalculate', caption:'Recalcular datos' },
 		{ id:'permisos', caption:'Gestionar permisos' },
+		{ id:'etiqueta', caption: 'Gestionar etiquetas'},
+		{ id:'periodos', caption: 'Gestionar períodos'},
 	];
+
+	$rootScope.irProcedimiento = function(){
+		var id = parseInt($rootScope.procedimiento);
+		if (id>0){
+			$location.path('/procedimiento/'+id);
+		}
+	}
 
 	$rootScope.colorText = function(i, numcolors, phase)
 	{
@@ -48,6 +57,19 @@ function AppCtrl($scope, $rootScope, Session) {
 		$("#"+idx).wordExport(nombre);
 	};
 
+	$rootScope.R = function(procedimiento) {
+		return
+		$rootScope.session.permisoscalculados.procedimientoslectura.indexOf(procedimiento.codigo)!==-1 ||
+		$rootScope.session.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo)!==-1
+	};
+	
+	$rootScope.W = function(procedimiento) {
+		return $rootScope.session.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo)!==-1;	
+	};
+	
+	$rootScope.superuser = function() {
+		return !!$rootScope.session.permisoscalculados.superuser;
+	}
 }
 
-AppCtrl.$inject = ['$scope','$rootScope','Session'];
+AppCtrl.$inject = ['$scope','$rootScope','Session', '$location'];
