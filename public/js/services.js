@@ -75,6 +75,10 @@ angular.module('sici.services', ['ngResource'])
         function ($resource) {
             return $resource('/api/etiqueta/:id', {id:'@_id'},   { update: {method:'PUT' } });
         }])
+    .factory('Periodo', ['$resource',
+        function ($resource) {
+            return $resource('/api/periodos/:id', {id:'@_id'},   { update: {method:'PUT' } });
+        }])
     .factory('Importacion', ['$resource',
         function ($resource) {
             return $resource('/api/importacion/:id', {id:'@_id'},   { update: {method:'PUT' } });

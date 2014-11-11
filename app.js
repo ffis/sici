@@ -18,6 +18,7 @@ jerarquia = require('./api/jerarquia'),
 importador = require('./api/importador'),
 reglainconsistencia = require('./api/reglainconsistencia'),
 etiqueta = require('./api/etiqueta'),
+periodos = require('./api/periodos'),
 procedimiento = require('./api/procedimiento'),
 persona = require('./api/persona'),
 permiso = require('./api/permiso'),
@@ -77,7 +78,13 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.get('/api/personasByLogin/:cod_plaza',persona.personasByLogin(models));
   app.get('/api/searchpersonas',persona.personassearchlist(models,Q));
 
-  app.get('/api/setPeriodosCerrados', procedimiento.setPeriodosCerrados(models));
+//  app.get('/api/periodos', procedimiento.setPeriodosCerrados(models));
+
+  app.get('/api/periodos', periodos.getPeriodo(models));
+  app.get('/api/periodos/:id', periodos.getPeriodo(models));
+  app.put('/api/periodos/:id', periodos.updatePeriodo(models));
+  app.post('/api/periodos/:id', periodos.newPeriodo(models));
+  app.delete('/api/periodos/:id', periodos.removePeriodo(models));
 
   app.get('/api/procedimiento', procedimiento.procedimiento(models) );
   app.get('/api/procedimientoList/:idjerarquia/:recursivo', procedimiento.procedimientoList(models, Q) );

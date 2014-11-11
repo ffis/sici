@@ -10,11 +10,12 @@ exports.getReglaInconsistencia = function(models){
 				if (err) { console.error(err); res.status(500); res.end(); return ; }
 				res.json (data);
 			});
+		}else{
+			Reglasinconsistencias.find({},function(err,data){
+				if (err) { console.error(err); res.status(500); res.end(); return ; }
+				res.json (data);
+			});
 		}
-		Reglasinconsistencias.find({},function(err,data){
-			if (err) { console.error(err); res.status(500); res.end(); return ; }
-			res.json (data);
-		});
 	}
 }
 
