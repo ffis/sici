@@ -8,6 +8,7 @@ var schemasfields = {
 	settings: { version:Number, 'secret': String, 'anyo': String, 'port': Number,  },
 	reglasinconsistencias : { 'titulo': String, 'restriccion': String},
 	historico: {},
+	periodo: { '2014' : [Number] },
 	persona : {
 		'codplaza' : String,
 		'login' : String,
@@ -193,4 +194,3 @@ function constructorschema(name){
 for(var name in schemasfields){
 	exports[name] = constructorschema(name);
 }
-

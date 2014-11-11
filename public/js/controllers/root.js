@@ -21,7 +21,8 @@ function AppCtrl($scope, $rootScope, Session, $location) {
 	$rootScope.navegabilidadSuper = [
 		{ id:'recalculate', caption:'Recalcular datos' },
 		{ id:'permisos', caption:'Gestionar permisos' },
-		{ id:'etiquetas', caption: 'Gestionar etiquetas'},
+		{ id:'etiqueta', caption: 'Gestionar etiquetas'},
+		{ id:'periodos', caption: 'Gestionar períodos'},
 	];
 
 	$rootScope.irProcedimiento = function(){
