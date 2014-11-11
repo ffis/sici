@@ -75,6 +75,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
 
   app.get('/api/personasByPuesto/:cod_plaza',persona.personasByPuesto(models));
   app.get('/api/personasByLogin/:cod_plaza',persona.personasByLogin(models));
+  app.get('/api/PersonasByRegexp/:regex',persona.personasByRegex(models));
   app.get('/api/searchpersonas',persona.personassearchlist(models,Q));
 
   app.get('/api/setPeriodosCerrados', procedimiento.setPeriodosCerrados(models));

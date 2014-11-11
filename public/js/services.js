@@ -47,6 +47,10 @@ angular.module('sici.services', ['ngResource'])
         function ($resource) {
             return $resource('/api/personasByLogin/:login', {}, { query: {method:'GET', isArray:true} });
         }])
+    .factory('PersonasByRegexp', ['$resource',
+        function ($resource) {
+            return $resource('/api/PersonasByRegexp/:regex', {}, { query: {method:'GET', isArray:true} });
+        }])		
 	.factory('PersonasSearchList', ['$resource',
         function ($resource) {
             return $resource('/api/searchpersonas', {}, { query: {method:'GET', isArray:true} });
