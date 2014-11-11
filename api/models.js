@@ -26,10 +26,10 @@ var schemasfields = {
 		'jerarquiaescritura' : [Number],/*calculados, cacheados*/
 		'jerarquiadirectalectura' : [Number], /*reales, asignados*/
 		'jerarquiadirectaescritura' : [Number], /*reales, asignados*/
-		'procedimientoslectura' : [Number],  /*calculados, cacheados*/
-		'procedimientosescritura' : [Number],  /*calculados, cacheados*/
-		'procedimientosdirectalectura' : [Number], /*reales, asignados*/
-		'procedimientosdirectaescritura' : [Number], /*reales, asignados*/		
+		'procedimientoslectura' : [String],  /*calculados, cacheados*/
+		'procedimientosescritura' : [String],  /*calculados, cacheados*/
+		'procedimientosdirectalectura' : [String], /*reales, asignados*/
+		'procedimientosdirectaescritura' : [String], /*reales, asignados*/		
 		'caducidad' : Date,
 		'descripcion' : String,
 		'grantoption': Boolean, /* puede clonar su permiso */
@@ -83,7 +83,7 @@ var schemasfields = {
 		'color':String,
 	},
 	procedimiento : {
-		'codigo': Number,
+		'codigo': String,
 		'denominacion':String,
 		'idjerarquia': Number,
 		'tipo':String,
@@ -92,7 +92,7 @@ var schemasfields = {
 		'fecha_fin':Date,
 		'fecha_version':Date,
 		'etiquetas':[String],
-		'padre':Number,
+		'padre':String,
 
 		//recalculable: (se incluye como AnyType abajo)
 		//'ancestros' : [ jerarquia],

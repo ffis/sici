@@ -21,8 +21,8 @@ exports.importacionesprocedimiento = function(models){
 	return function(req,res){
 		var Importaciones = models.importacionesprocedimiento();
 		//add check permisos
-		var restriccion = {mostrable: true, output:{} };
-		restriccion.output.proceso = { '$in': req.user.permisoscalculados.procedimientosescritura };
+		var restriccion = {mostrable: true, 'output.proceso': { '$in': req.user.permisoscalculados.procedimientosescritura }};
+		console.log(JSON.stringify(restriccion));
 		Importaciones.find(restriccion, function(err,datos){
 			if (err){
 				console.error(err);
