@@ -76,7 +76,7 @@ var schemasfields = {
 		//'errores': AnyType
 	},
 	etiqueta:{
-		'_id':String,
+		'_id' : String,
 		'descripcion':String,
 		'color':String,
 	},

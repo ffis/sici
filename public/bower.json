@@ -27,7 +27,8 @@
     "angular-xeditable": "~0.1.8",
     "angular-translate": "~2.4.1",
     "nvd3": "~1.1.15-beta",
-    "allmighty-autocomplete": "*"
+    "allmighty-autocomplete": "*",
+    "angular-bootstrap-colorpicker": "~3.0.8"
   },
   "resolutions": {
     "d3": "~3.4.13"

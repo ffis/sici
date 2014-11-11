@@ -1,7 +1,33 @@
 
+exports.setPeriodosCerrados = function(models){
+	return function(req,res){
+		//espera recibir en el body el array de periodos cerrados
+		if (req.user.permisoscalculados && req.user.permisoscalculados.superuser){
+
+			var anualidad = req.params.anualidad ? req.params.anualidad : new Date().getFullYear();
+
+			var periodoscerrados = req.body,
+				field = 'periodos.'+anualidad+'.periodoscerrados',
+				conditions = {  },
+				update = { $set : {} },
+				options = { multi: true },
+				Procedimiento = models.procedimiento() ;
+
+				update.$set[field ] = periodoscerrados;
+
+			var callback = function(err,doc){
+				if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }
+				res.json(periodoscerrados);
+			};
+			res.json(periodoscerrados);
+			//Procedimiento.update(conditions, update, options, callback);
+		}
+	}
+}
+
 exports.procedimiento = function(models){
 	return function(req,res){
-		var Procedimiento= models.procedimiento();
+		var Procedimiento = models.procedimiento();
 		var restriccion = {};
 		if (typeof req.params.codigo !== 'undefined')
 			restriccion.codigo = parseInt(req.params.codigo);
@@ -22,20 +48,22 @@ exports.updateProcedimiento = function(Q, models, recalculate){
 		var restriccion = {};
 		if (typeof req.params.codigo !== 'undefined')
 			restriccion.codigo = parseInt(req.params.codigo);
-		restriccion.idjerarquia = { '$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura) };
+		//comprobar si tiene permiso el usuario actual
+		restriccion.idjerarquia = { '$in': req.user.permisoscalculados.jerarquiaescritura };
 			
 		Procedimiento.findOne(restriccion,function(err,original){
 			if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }
 
 	    	var procedimiento = req.body;
-
-			//comprobar qué puede cambiar y qué no
+			//TODO: comprobar qué puede cambiar y qué no
+		
 
 			recalculate.softCalculateProcedimiento(Q, procedimiento).then(function(procedimiento){
 				recalculate.softCalculateProcedimientoCache(Q, models, procedimiento).then(function(procedimiento){
-
-			    	res.json(procedimiento);
-			    })
+					exports.saveVersion(models, Q, procedimiento).then(function(){
+						res.json(procedimiento);
+					});
+			    });
 			});
 		});
 	}
@@ -88,43 +116,3 @@ exports.saveVersion = function(models, Q, procedimiento){
 	return defer.promise;
 }
 
-		
-
-		/*
-		var jerarquia = req.user.permisoscalculados.jerarquialectura;				
-		restriccion.id = {"$in" : jerarquia} ;		
-		if (typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))){
-			restriccion = { "$and" : [ restriccion , {'id':  parseInt(req.params.idjerarquia) } ] };			
-		}
-		//if (typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))){
-		//	restriccion.id = parseInt(req.params.idjerarquia);
-		//}
-		Jerarquia.find(restriccion,function(err,data){
-			if (err) {  console.error(restriccion); console.error(err); res.status(500); res.end();  return ; }
-			console.error(data);
-			
-			if (data.length>0) {
-				var dfs = [];
-				for(var i=0;i<data.length;i++){
-					var d = Q.defer();					
-					dfs.push(d.promise);
-					var descendientes = data[i].descendientes;
-					descendientes.push(data[i].id);
-					restriccion = { "idjerarquia" : { "$in" : descendientes} };
-					Procedimiento.find(restriccion,function(err,data){
-						if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }						
-						d.resolve(data);
-					});
-				}
-				var resultado = [];
-				Q.all(dfs).then(function(data){
-					for(var j=0;j<data.length;j++)
-					{
-						if (Array.isArray(data[j]))
-							resultado = resultado.concat(data[j]);
-					}
-					res.json(resultado);
-				});
-			}
-
-		});*/					   

@@ -37,11 +37,7 @@ angular.module('sici.services', ['ngResource'])
 		}])	
 	.factory('Permiso', ['$resource',
         function ($resource) {
-            return $resource('/api/permisos/:id', {id:'@id'},   { update: {method:'PUT' } });
-		}])
-	.factory('Permiso', ['$resource',
-        function ($resource) {
-            return $resource('/api/permisos/', {},   { create: {method:'POST' } });
+            return $resource('/api/permisos/:id', {id:'@id'},   { update: {method:'PUT' }, create: {method:'POST' } });
 		}])
     .factory('PersonasByPuesto', ['$resource',
         function ($resource) {
@@ -74,6 +70,10 @@ angular.module('sici.services', ['ngResource'])
     .factory('ReglasInconsistencias', ['$resource',
         function ($resource) {
             return $resource('/api/reglasinconsistencias/:id', {id:'@_id'},   { update: {method:'PUT' } });
+        }])
+    .factory('Etiqueta', ['$resource',
+        function ($resource) {
+            return $resource('/api/etiqueta/:id', {id:'@_id'},   { update: {method:'PUT' } });
         }])
     .factory('Importacion', ['$resource',
         function ($resource) {

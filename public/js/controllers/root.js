@@ -21,6 +21,7 @@ function AppCtrl($scope, $rootScope, Session) {
 	$rootScope.navegabilidadSuper = [
 		{ id:'recalculate', caption:'Recalcular datos' },
 		{ id:'permisos', caption:'Gestionar permisos' },
+		{ id:'etiqueta', caption: 'Gestionar etiquetas'},
 	];
 
 	$rootScope.colorText = function(i, numcolors, phase)
