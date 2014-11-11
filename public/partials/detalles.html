@@ -19,14 +19,14 @@
 					<li ng-repeat="attr in attrspar">
 						<strong>{{attr| translate}}</strong>
 						<span>&nbsp;</span>
-						<a ng-if="superuser()" href="#" onaftersave="recalculate()" editable-text="procedimientoSeleccionado[attr]">{{ procedimientoSeleccionado[attr] || '-' }}</a>
-						<a ng-if="!superuser()" href="#" >{{ procedimientoSeleccionado[attr] || '-' }}</a>
+						<a ng-if="$root.superuser()" href="#" onaftersave="recalculate()" editable-text="procedimientoSeleccionado[attr]">{{ procedimientoSeleccionado[attr] || '-' }}</a>
+						<a ng-if="!$root.superuser()" href="#" >{{ procedimientoSeleccionado[attr] || '-' }}</a>
 					</li>
 					<li ng-repeat="attr in attrsanualidad">
 						<strong>{{attr| translate}}</strong>
 						<span>&nbsp;</span>
-						<a href="#" ng-if="W(procedimientoSeleccionado)" onaftersave="recalculate()" editable-text="procedimientoSeleccionado.periodos[anualidad][attr]">{{ procedimientoSeleccionado.periodos[anualidad][attr] || '-' }}</a>
-						<a href="#" ng-if="!W(procedimientoSeleccionado)" {{ procedimientoSeleccionado.periodos[anualidad][attr] || '-' }}</a>
+						<a href="#" ng-if="$root.W(procedimientoSeleccionado)" onaftersave="recalculate()" editable-text="procedimientoSeleccionado.periodos[anualidad][attr]">{{ procedimientoSeleccionado.periodos[anualidad][attr] || '-' }}</a>
+						<a href="#" ng-if="!$root.W(procedimientoSeleccionado)" {{ procedimientoSeleccionado.periodos[anualidad][attr] || '-' }}</a>
 					</li>
 				</ul>
 				<div class="panel panel-danger">
@@ -91,10 +91,11 @@
 						<tr ng-repeat="attr in attrstabla"> 
 							<th>{{attr | translate}}</th>
 							<td ng-repeat="val in procedimientoSeleccionado.periodos[anualidad][attr] track by $index" class="numberCell">
-								<a ng-if="W(procedimientoSeleccionado)" href="#" editable-text="procedimientoSeleccionado.periodos[anualidad][attr][$index]" onaftersave="recalculate()" onbeforesave="checkNumber($data)">
+
+								<a ng-if="W && procedimientoSeleccionado.periodos[anualidad].periodoscerrados[$index]==0" href="#" editable-text="procedimientoSeleccionado.periodos[anualidad][attr][$index]" onaftersave="recalculate()" onbeforesave="checkNumber($data)">
 									{{ procedimientoSeleccionado.periodos[anualidad][attr][$index] || 0  |numberFormat}}
 								</a>
-								<a ng-if="!W(procedimientoSeleccionado)" href="#">{{ procedimientoSeleccionado.periodos[anualidad][attr][$index] || 0  |numberFormat}}</a>
+								<span ng-if="!W || procedimientoSeleccionado.periodos[anualidad].periodoscerrados[$index]!=0">{{ procedimientoSeleccionado.periodos[anualidad][attr][$index] || 0  |numberFormat}}</span>
 							</td>
 						</tr>
 						<tr ng-repeat="attr in attrstablacalculados"> 
@@ -112,7 +113,7 @@
 						<em>{{"resueltos_10" |translate}}</em> + <em>{{"resueltos_15" |translate}}</em> + 
 						<em>{{"resueltos_30" |translate}}</em> + <em>{{"resueltos_45" |translate}}</em> + 
 						<em>{{"resueltos_mas_45" |translate}}</em> + <em>{{"resueltos_desistimiento_renuncia_caducidad" |translate}}</em> + 
-						<em>{{"resueltos_mas_45" |translate}}</em> + <em>{{"resueltos_prescripcion" |translate}}</em> 
+						<em>{{"resueltos_prescripcion" |translate}}</em> 
 					</li>
 					<li>
 						<strong>{{"fuera_plazo"|translate}}</strong> =

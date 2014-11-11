@@ -46,7 +46,6 @@ exports.removeImportacionProcedimiento = function(models){
 		var restriccion = {_id: _id, mostrable: true, output:{} };
 		restriccion.output.proceso = { '$in': req.user.permisoscalculados.procedimientosescritura };
 
-
 		Importaciones.find(restriccion, function(err,datos){
 			if (err){
 				console.error(err);

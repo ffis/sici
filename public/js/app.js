@@ -26,6 +26,7 @@ var app = angular.module('sici', [
     $routeProvider.when('/errors',    {templateUrl: 'partials/incoherencias.html', controller: 'IncoherenciasCtrl'});
     $routeProvider.when('/permisos',    {templateUrl: 'partials/permisoscrud.html', controller: 'PermisoCtrl'});
     $routeProvider.when('/etiqueta',    {templateUrl: 'partials/etiqueta.html', controller: 'EtiquetaCtrl'});
+    $routeProvider.when('/periodos',    {templateUrl: 'partials/periodos.html', controller: 'PeriodosCtrl'});
 
     $routeProvider.otherwise({redirectTo: '/welcome'});
     $locationProvider.html5Mode(true);
