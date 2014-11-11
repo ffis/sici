@@ -185,36 +185,68 @@
 						</div>
 					</th>
 				</tr>				
-				<p ng-bing="login"></p>
 				<tr ng-if="show_form_add_permiso">
 					<th colspan="{{ !is_show_recursive_users && !procedimientos.length? 7 : 8 }}" class="form-container">						
 						<form name="nuevousuario-form" id="nuevousuario-form">
 							<label for="login"  style="width:100%">
 								<div class="input-group">
-									<input type="text" name="login" class="form-control" placeholder="Login carm" ng-model="logincarm" />
+									<input type="text" name="login" class="form-control" placeholder="Login carm" ng-model="logincarm" onchange="clear_searched_login_plaza()"/>
 									<span class="input-group-addon">@carm.es</span>
 								</div>
 							</label>
 							<br/>
 							<label for="plaza" style="width:100%">
-								<input type="text" name="plaza" class="form-control" placeholder="C&oacute;digo plaza" ng-model="plaza" />
+								<input type="text" name="plaza" class="form-control" placeholder="C&oacute;digo plaza" ng-model="plaza"  onchange="clear_searched_login_plaza()"/>
 							</label>
 							<br/>
-							<label name="grantoption"  >
-								<input type="checkbox" ng-model="grantoption" name="grantoption" /> Puede conceder permisos
+							<button type="button" class="btn btn-default" ng-click="search_login_plaza()">
+							  <span class="glyphicon glyphicon-search"></span> Buscar usuario
+							</button>											
+							<div ng-if="searched_login_plaza() && not_found_login_plaza()">
+								<br/>
+								<label name="buscado_nombre">
+									<span>Nombre: </span><input  class="form-control" type="text" ng-model="buscado_nombre" name="buscado_nombre" /> 
+								</label>
+								<br/>
+								<label name="buscado_apellidos">
+									<span>Apellidos: </span><input  class="form-control" type="text" ng-model="buscado_apellidos" name="buscado_apellidos" /> 
+								</label>
+								<br/>
+								<label name="buscado_genero">
+									<span>G&eacute;nero: </span>
+									<select ng-model="buscado_genero" name="buscado_genero" class="form-control" >
+										<option value="Hombre">Hombre</option>
+										<option value="Mujer">Mujer</option>
+									</select>									
+								</label>
+								<br/>
+								<label name="buscado_telefono">
+									<span>Telefono: </span><input type="text" ng-model="buscado_telefono" name="buscado_telefono" class="form-control"  /> 
+								</label>
+							</div>
+							<input type="hidden" name="procedimiento" value="{{procedimiento_seleccionado.codigo || 0}}" />
+							<input type="hidden" name="nodojerarquia" value="{{seleccionado.id || 0}}" />
+							<input type="hidden" name="tiposeleccion" value="{{seleccionado_organica?'jerarquia':'procedimiento'}}" />
+							<div ng-if="searched_login_plaza() && !not_found_login_plaza()">
+								<span><i>Encontradas {{ personas_encontradas.length } personas</i></span>
+							</div>
+							<br/>
+							<br/>
+							<label name="grantoption">
+								<input type="checkbox" ng-model="grantoption" name="grantoption" ng-disabled="!plaza || !logincarm"/> Puede conceder permisos
 							</label>
 							<br/>
-							<label name="grantoption"  >
-								<input type="checkbox" ng-model="w_option" name="w_option" /> Puede introducir datos
+							<label name="grantoption">
+								<input type="checkbox" ng-model="w_option" name="w_option" ng-disabled="!plaza || !logincarm" /> Puede introducir datos
 							</label>
 							<br class="clear"/>
-							<button class="btn btn-default danger" ng-click="crearpermiso()"><span>Crear</span></button>								
+							<button class="btn btn-default danger" ng-disabled="!plaza || !logincarm" ng-click="crearpermiso()" ng-disabled="searched_login_plaza()"><span>Crear</span></button>								
 						</form>
 					</th>
 				</tr>
 				<tr ng-if="show_details_permiso">
-					<th colspan="{{ !is_show_recursive_users && !procedimientos.length? 7 : 8 }}">
-
+					<th colspan="{{ !is_show_inherited_users && !is_show_recursive_users && !procedimientos.length? 7 : 8 }}">
+						
 					</th>
 				</tr>				
 				<tr>
@@ -223,7 +255,7 @@
 						<span class="hidden-sm hidden-xs">Codigo plaza</span>
 						<span class="hidden-lg hidden-md">Plaza</span>
 					</th>
-					<th ng-if="is_show_recursive_users || procedimientos.length">
+					<th ng-if="is_show_recursive_users || is_show_inherited_users || procedimientos.length">
 						Objeto
 					</th>
 					<th>
@@ -248,10 +280,10 @@
 				</tr>
 			</thead>
 			<tbody ng-if="permisos.length || procedimientos.length " >				
-				<tr ng-repeat="permiso in permisos" ng-if="permisos.length">
+				<tr ng-repeat="permiso in permisos" ng-if="permisos.length" ng-init="objetopermiso=getObjetoPermiso(permiso)">
 					<td>{{permiso.login}}</td>
 					<td>{{permiso.codplaza}}</td>
-					<td ng-if="is_show_recursive_users || procedimientos.length">-</td>
+					<td ng-if="is_show_recursive_users || is_show_inherited_users || procedimientos.length">{{objetopermiso.nombre}}</td>
 					<td><span class="burdeos glyphicon glyphicon-remove"></span></td>
 					<td style="color:gray"><span class="glyphicon" ng-class="{'glyphicon-ok':isR(permiso),'glyphicon-remove':!isR(permiso)}"></span></td>
 					<td><a ng-click="changeW(permiso)" href=""><span class="glyphicon" ng-class="{'glyphicon-ok green':isW(permiso),'glyphicon-remove burdeos':!isW(permiso)}"></span></a></td>					

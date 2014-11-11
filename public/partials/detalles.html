@@ -1,5 +1,5 @@
 
-<div class="row">
+<div class="row" >
 	<div class="col-lg-12">
 		<div class="btn btn-default pull-right" ng-click="$root.exportDOC('detalles', 'Procedimiento_'+procedimientoSeleccionado.codigo)">
 			<span class="glyphicon glyphicon-book"></span>
@@ -19,12 +19,14 @@
 					<li ng-repeat="attr in attrspar">
 						<strong>{{attr| translate}}</strong>
 						<span>&nbsp;</span>
-						<a href="#" onaftersave="recalculate()" editable-text="procedimientoSeleccionado[attr]">{{ procedimientoSeleccionado[attr] || '-' }}</a>
+						<a ng-if="superuser()" href="#" onaftersave="recalculate()" editable-text="procedimientoSeleccionado[attr]">{{ procedimientoSeleccionado[attr] || '-' }}</a>
+						<a ng-if="!superuser()" href="#" >{{ procedimientoSeleccionado[attr] || '-' }}</a>
 					</li>
 					<li ng-repeat="attr in attrsanualidad">
 						<strong>{{attr| translate}}</strong>
 						<span>&nbsp;</span>
-						<a href="#" onaftersave="recalculate()" editable-text="procedimientoSeleccionado.periodos[anualidad][attr]">{{ procedimientoSeleccionado.periodos[anualidad][attr] || '-' }}</a>
+						<a href="#" ng-if="W(procedimientoSeleccionado)" onaftersave="recalculate()" editable-text="procedimientoSeleccionado.periodos[anualidad][attr]">{{ procedimientoSeleccionado.periodos[anualidad][attr] || '-' }}</a>
+						<a href="#" ng-if="!W(procedimientoSeleccionado)" {{ procedimientoSeleccionado.periodos[anualidad][attr] || '-' }}</a>
 					</li>
 				</ul>
 				<div class="panel panel-danger">
@@ -89,9 +91,10 @@
 						<tr ng-repeat="attr in attrstabla"> 
 							<th>{{attr | translate}}</th>
 							<td ng-repeat="val in procedimientoSeleccionado.periodos[anualidad][attr] track by $index" class="numberCell">
-								<a href="#" editable-text="procedimientoSeleccionado.periodos[anualidad][attr][$index]" onaftersave="recalculate()" onbeforesave="checkNumber($data)">
+								<a ng-if="W(procedimientoSeleccionado)" href="#" editable-text="procedimientoSeleccionado.periodos[anualidad][attr][$index]" onaftersave="recalculate()" onbeforesave="checkNumber($data)">
 									{{ procedimientoSeleccionado.periodos[anualidad][attr][$index] || 0  |numberFormat}}
 								</a>
+								<a ng-if="!W(procedimientoSeleccionado)" href="#">{{ procedimientoSeleccionado.periodos[anualidad][attr][$index] || 0  |numberFormat}}</a>
 							</td>
 						</tr>
 						<tr ng-repeat="attr in attrstablacalculados"> 

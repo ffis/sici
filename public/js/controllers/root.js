@@ -48,6 +48,19 @@ function AppCtrl($scope, $rootScope, Session) {
 		$("#"+idx).wordExport(nombre);
 	};
 
+	$rootScope.R = function(procedimiento) {
+		return
+		$rootScope.session.permisoscalculados.procedimientoslectura.indexOf(procedimiento.codigo)!==-1 ||
+		$rootScope.session.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo)!==-1
+	};
+	
+	$rootScope.W = function(procedimiento) {
+		return $rootScope.session.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo)!==-1;	
+	};
+	
+	$rootScope.superuser = function() {
+		return !!$rootScope.session.permisoscalculados.superuser;
+	}
 }
 
 AppCtrl.$inject = ['$scope','$rootScope','Session'];

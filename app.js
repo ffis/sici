@@ -14,6 +14,7 @@ models = require('./api/models');
 
 api = require('./api/api'),
 login = require('./api/login'),
+jerarquia = require('./api/jerarquia'),
 importador = require('./api/importador'),
 reglainconsistencia = require('./api/reglainconsistencia'),
 procedimiento = require('./api/procedimiento'),
@@ -72,6 +73,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
 
 
   app.get('/api/personasByPuesto/:cod_plaza',persona.personasByPuesto(models));
+  app.get('/api/personasByLogin/:cod_plaza',persona.personasByLogin(models));
   app.get('/api/searchpersonas',persona.personassearchlist(models,Q));
 
   app.get('/api/procedimiento', procedimiento.procedimiento(models) );
@@ -80,6 +82,8 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   
   app.get('/api/procedimiento/:codigo', procedimiento.procedimiento(models) );
   app.put('/api/procedimiento/:codigo', procedimiento.updateProcedimiento(Q, models, recalculate) );
+  
+  app.get('/api/jerarquia/:idjerarquia', jerarquia.getNodoJerarquia(models));
 
   app.get('/api/reglasinconsistencias', reglainconsistencia.getReglaInconsistencia(models));
   app.post('/api/reglasinconsistencias', reglainconsistencia.newReglaInconsistencia(models));

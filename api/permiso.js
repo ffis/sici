@@ -296,7 +296,17 @@ exports.update = function(models) {
 
 exports.create = function(models) {
 	return function(req,res) {				
-		console.error('Funcionalidad no implementada');		
+		var Permiso = models.permiso();
+		
+		
+		
+		
+		Permiso.create({
+			'login': login,
+			'codplaza':codplaza,
+			
+			
+		});
 	}
 }
 

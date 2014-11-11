@@ -12,6 +12,18 @@ exports.personasByPuesto = function(models){
 	};
 };
 
+exports.personasByLogin = function(models){
+	return function(req,res){
+		var Persona = models.persona();
+		var restriccion = {};
+		if (typeof req.params.login !== 'undefined')
+			restriccion.login = req.params.login;
+		Persona.find(restriccion,function(err,data){
+			if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }
+			res.json (data);
+		});
+	};
+};
 
 exports.personassearchlist = function(models,Q)
 {
