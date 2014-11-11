@@ -13,7 +13,18 @@ function ActividadCtrl($rootScope,$scope,$location,$window,$routeParams, Arbol, 
 	$scope.reverse = false;
 	$scope.anualidad = new Date().getFullYear();
 	$scope.mesanterior = new Date().getMonth()-1;
-	$scope.etiquetas = Etiqueta.query();
+	$scope.etiquetas = Etiqueta.query(function(){
+		$scope.etiquetasPorTipo	= {};
+		$scope.etiquetas.forEach(function(etiqueta){
+			if (typeof $scope.etiquetasPorTipo[etiqueta.familia] == 'undefined')
+			{
+				$scope.etiquetasPorTipo[etiqueta.familia] = [];
+			}
+			$scope.etiquetasPorTipo[etiqueta.familia].push(etiqueta);
+		})
+		
+	});
+	
 	
 	if ($scope.mesanterior < 0)
 		$scope.mesanterior = 11;

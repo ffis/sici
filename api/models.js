@@ -78,6 +78,7 @@ var schemasfields = {
 	etiqueta:{
 		'_id' : String,
 		'descripcion':String,
+		'familia' : String,
 		'color':String,
 	},
 	procedimiento : {
