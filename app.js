@@ -124,7 +124,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   
 
   app.get('/api/importacion', importador.importacionesprocedimiento(models));
-  app.post('/api/importacion/:_id', importador.applyImportacionProcedimiento(models));
+  app.post('/api/importacion/:_id', importador.applyImportacionProcedimiento(models, Q, recalculate, procedimiento));
   app.delete('/api/importacion/:_id', importador.removeImportacionProcedimiento(models));
   
 
