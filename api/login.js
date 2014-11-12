@@ -13,6 +13,7 @@ exports.authenticate = function(config){
 		//should delegate 
 		//if is invalid, return 401
 		//for testing this should be enough
+
 		if (req.body.password !== 'password') {
 		  res.status(401).send('Wrong password');
 		  return;
@@ -67,7 +68,7 @@ exports.authenticate = function(config){
 								}
 						}
 						
-						console.log(o.permisoscalculados);
+						//console.log(o.permisoscalculados);
 						
 						var token = jwt.sign(o, secret, { expiresInMinutes: 60*5 });
 						res.json({ profile: o, token: token });

@@ -19,14 +19,14 @@
 					<li ng-repeat="attr in attrspar">
 						<strong>{{attr| translate}}</strong>
 						<span>&nbsp;</span>
-						<a ng-if="$root.superuser()" href="#" onaftersave="recalculate()" editable-text="procedimientoSeleccionado[attr]">{{ procedimientoSeleccionado[attr] || '-' }}</a>
-						<a ng-if="!$root.superuser()" href="#" >{{ procedimientoSeleccionado[attr] || '-' }}</a>
+						<a ng-if="superuser" href="#" onaftersave="recalculate()" editable-text="procedimientoSeleccionado[attr]">{{procedimientoSeleccionado[attr]!=null ?procedimientoSeleccionado[attr] : '-' }}</a>
+						<span ng-if="!superuser" >{{ procedimientoSeleccionado[attr]!=null ?procedimientoSeleccionado[attr]  : '-' }}</span>
 					</li>
 					<li ng-repeat="attr in attrsanualidad">
 						<strong>{{attr| translate}}</strong>
 						<span>&nbsp;</span>
-						<a href="#" ng-if="$root.W(procedimientoSeleccionado)" onaftersave="recalculate()" editable-text="procedimientoSeleccionado.periodos[anualidad][attr]">{{ procedimientoSeleccionado.periodos[anualidad][attr] || '-' }}</a>
-						<a href="#" ng-if="!$root.W(procedimientoSeleccionado)" {{ procedimientoSeleccionado.periodos[anualidad][attr] || '-' }}</a>
+						<a href="#" ng-if="W" onaftersave="recalculate()" editable-text="procedimientoSeleccionado.periodos[anualidad][attr]">{{ procedimientoSeleccionado.periodos[anualidad][attr]!=null ? procedimientoSeleccionado.periodos[anualidad][attr] :  '-' }}</a>
+						<span ng-if="!W" >{{ procedimientoSeleccionado.periodos[anualidad][attr]!=null ? procedimientoSeleccionado.periodos[anualidad][attr] : '-' }}</span>
 					</li>
 				</ul>
 				<div class="panel panel-danger">

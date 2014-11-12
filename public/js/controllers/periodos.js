@@ -1,6 +1,6 @@
 'use strict';
 
-function PeriodosCtrl($rootScope, $scope, $routeParams, Periodo) {
+function PeriodosCtrl($rootScope, $scope, $routeParams, $window, Periodo) {
 	$rootScope.nav = 'periodos';
 	$window.document.title ='SICI: Períodos';
 	$scope.meses = $rootScope.meses;
@@ -19,5 +19,5 @@ function PeriodosCtrl($rootScope, $scope, $routeParams, Periodo) {
 	}
 }
 
-PeriodosCtrl.$inject = ['$rootScope','$scope','$routeParams', 'Periodo'];
+PeriodosCtrl.$inject = ['$rootScope','$scope','$routeParams', '$window', 'Periodo'];
 

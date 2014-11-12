@@ -23,6 +23,7 @@ procedimiento = require('./api/procedimiento'),
 persona = require('./api/persona'),
 permiso = require('./api/permiso'),
 upload = require('./api/upload'),
+logincarm = require('./api/login.carm'),
 csvsici = require('./api/csvsici');
 
 
@@ -56,8 +57,10 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.use('/api', expressJwt({secret: cfg.secret}));
   app.use('/api', api.log(models));
 
-  app.post('/authenticate', login.authenticate({secret: cfg.secret, jwt:jwt, models:models }));
-
+  if (cfg.logincarm)
+    app.post('/authenticate', logincarm.uncrypt(cfg.urlbasedecrypt), login.authenticate({secret: cfg.secret, jwt:jwt, models:models }));
+  else
+    app.post('/authenticate', login.authenticate({secret: cfg.secret, jwt:jwt, models:models }));
 
   app.get('/', routes.index);
 
@@ -78,6 +81,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.get('/api/personasByLogin/:cod_plaza',persona.personasByLogin(models));
   app.get('/api/PersonasByRegexp/:regex',persona.personasByRegex(models));
   app.get('/api/searchpersonas',persona.personassearchlist(models,Q));
+  app.post('/api/persona', persona.newPersona(models));
 
 //  app.get('/api/periodos', procedimiento.setPeriodosCerrados(models));
 
@@ -92,7 +96,8 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.get('/api/procedimientoList/:idjerarquia', procedimiento.procedimientoList(models, Q) );
   
   app.get('/api/procedimiento/:codigo', procedimiento.procedimiento(models) );
-  app.put('/api/procedimiento/:codigo', procedimiento.updateProcedimiento(Q, models, recalculate) );
+  app.put('/api/procedimiento/:codigo', procedimiento.updateProcedimiento(Q, models, recalculate) );  
+  app.post('/api/procedimiento', procedimiento.createProcedimiento(Q, models, recalculate) );
   
   app.get('/api/jerarquia/:idjerarquia', jerarquia.getNodoJerarquia(models));
 

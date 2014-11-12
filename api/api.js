@@ -120,10 +120,10 @@ exports.aggregate = function(models){
 		/*group.push({'$unwind':'$ancestros'});*/
 		group.push({"$group" : groupfield});
 		group.push({"$sort":{ 'count' : -1 } });
-		console.log(JSON.stringify(group));
+		//console.log(JSON.stringify(group));
 		connection.aggregate(group ,function(err,data){
 			if (err) { console.error(err); res.status(500); res.end(); return ; }
-			console.log(JSON.stringify(group));
+			//console.log(JSON.stringify(group));
 			res.json (data);
 		});		
 	}

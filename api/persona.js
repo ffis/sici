@@ -25,6 +25,21 @@ exports.personasByLogin = function(models){
 	};
 };
 
+
+exports.newPersona = function(models){
+	return function(req, res) {
+		var Persona = models.persona();
+	    var content = req.body;
+	    new Persona(content).save( function(e){
+			if (e){
+				 res.send({'error':'An error has occurred'});
+			}else{
+				res.send(content);
+			}
+		});
+	}
+}
+
 exports.personasByRegex = function(models){
 	return function(req,res){
 		var Persona = models.persona();
@@ -34,22 +49,22 @@ exports.personasByRegex = function(models){
 				"$or" : [
 					{
 					"login": {
-					"$regex" : req.params.regex+"*",
+					"$regex" : "^"+req.params.regex+"",
 					"$options" : "i"
 					}},
 					{
 					"codplaza": {
-					"$regex" : req.params.regex+"*",
+					"$regex" : "^"+req.params.regex+"",
 					"$options" : "i"
 					}},					
 					{
 					"nombre": {
-					"$regex" : req.params.regex+"*",
+					"$regex" : "^"+req.params.regex+"",
 					"$options" : "i"
 					}},
 					{
 					"apellidos": {
-					"$regex" : req.params.regex+"*",
+					"$regex" : "^"+req.params.regex+"",
 					"$options" : "i"
 					}}
 				]
