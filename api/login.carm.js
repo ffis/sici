@@ -18,6 +18,7 @@ exports.uncrypt = function(encryption_key){
 			try{
 				parsed = JSON.parse(txt);
 				req.body.token = parsed;
+				console.log(parsed);
 				next();
 			}catch(exc){
 				console.error('Error parseando JSON token-sesión '+txt);
