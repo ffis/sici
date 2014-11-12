@@ -1,7 +1,7 @@
 'use strict';
 
 var app = angular.module('sici', [
-  	'ngRoute','ngAnimate','ngSanitize','angular.filter',
+  	'ngRoute','ngAnimate','ngSanitize', 'ngCookies', 'angular.filter',
   	'ui.bootstrap',
     'easypiechart','nvd3ChartDirectives',
     'angularFileUpload','xeditable','colorpicker.module',
