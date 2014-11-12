@@ -1,4 +1,4 @@
-function LogoutCtrl($scope,$rootScope, $routeParams, $location,AuthService,AUTH_EVENTS,$window){
+function LogoutCtrl($scope,$rootScope, $routeParams, $location,AuthService,AUTH_EVENTS,$window, $http){
 	console.error('intentando destruir sesión')
 	$scope.imagen = "background: transparent url('imgs/flag.svg')";
 	$window.document.title ='Sesión cerrada';
@@ -7,31 +7,17 @@ function LogoutCtrl($scope,$rootScope, $routeParams, $location,AuthService,AUTH_
 	AuthService.logout();
 	$rootScope.setLogeado(false);
 
+	if ($rootScope.loginCarm){
+		$http.get('/SICI_SSO/Logout').success(function(){
+			console.log('Sesión cerrada');
+		});
+	}
+
 	$window.document.title ='Inicio de sesión';
 
 	$scope.imagen = "background: transparent url('/imgs/flag.svg')";
 	$scope.back = function() { window.history.back(); };
 	/*** inicializamos la credenciales a valores vacíos **/
-	$scope.credentials = { username: '', password: '' };
-	/** login será una función que comprueba las credenciales y propaga un evento 
-	    loginSuccess o loginFailed dependiendo de si ha sido o no autenticado 
-	    el usuario **/
-	$scope.login = function (credentials) {
-	    /** preguntamos si se ha conseguido o no autenticar mediante la función login del servicio AuthService descrito más abajo **/
-	    if(credentials.username.trim()=='' ||credentials.password.trim()=='' )
-	    {
-	     	$scope.mensaje = 'Introduzca su nombre de usuario y contraseña para continuar';
-	    }else{
-	        AuthService.login(credentials,$scope).then(
-		        function() {
-			        $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
-		        },
-		        function(){
-			        $rootScope.$broadcast(AUTH_EVENTS.loginFailed);
-		        }
-	        );
-	    }
-	};
 	$scope.logout = function(){  AuthService.logout();	}
 	$scope.mensaje = '';
 } 
@@ -79,5 +65,5 @@ function LoginCtrl($scope, $rootScope, AUTH_EVENTS, AuthService, $window, $locat
 }
 
 
-LogoutCtrl.$inject = ['$scope', '$rootScope','$routeParams', '$location','AuthService','AUTH_EVENTS','$window'];
+LogoutCtrl.$inject = ['$scope', '$rootScope','$routeParams', '$location','AuthService','AUTH_EVENTS','$window', '$http'];
 LoginCtrl.$inject =  ['$scope', '$rootScope', 'AUTH_EVENTS','AuthService','$window','$location','$route'];
