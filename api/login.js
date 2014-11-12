@@ -13,6 +13,9 @@ exports.authenticate = function(config){
 		//should delegate 
 		//if is invalid, return 401
 		//for testing this should be enough
+		console.log(req.body.password);
+		console.log(req.body.username);
+
 		if (req.body.password !== 'password') {
 		  res.status(401).send('Wrong password');
 		  return;

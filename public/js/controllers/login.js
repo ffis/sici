@@ -76,9 +76,6 @@ function LoginCtrl($scope, $rootScope, AUTH_EVENTS, AuthService, $window, $locat
 	$scope.logout = function(){  AuthService.logout();	}
 	$scope.mensaje = '';
 	
-	if ($rootScope.loginCarm)
-		$scope.login({});
-	
 }
 
 
