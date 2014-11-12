@@ -25,6 +25,32 @@ exports.setPeriodosCerrados = function(models){
 	}
 }
 
+exports.createProcedimiento = function(Q, models, recalculate) {
+	return function(req,res){
+		if (req.body.idjerarquia && !isNaN(parseInt(req.body.idjerarquia)) &&
+			req.body.nombre && 
+			req.body.codigo)
+		{
+			var Procedimiento= models.procedimiento();
+			var procedimiento = new Procedimiento();
+			var idjerarquia = parseInt(req.body.idjerarquia);
+			
+			procedimiento.idjerarquia = parseInt(req.body.idjerarquia);
+			procedimiento.denominacion = req.body.denominacion;
+			procedimiento.codigo = req.body.codigo;
+			if (req.body.responsable)
+				procedimiento.responsable = req.body.responsable;
+			if (req.body.padre && !isNaN(parseInt(req.body.padre)))
+				procedimiento.padre = parseInt(req.body.padre);
+		}
+		
+		procedimiento.save(function(err){
+			console.error(err);
+			res.status(500); res.end(); return ;
+		});
+	}
+}
+
 exports.procedimiento = function(models){
 	return function(req,res){
 		var Procedimiento = models.procedimiento();
