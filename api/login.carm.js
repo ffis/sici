@@ -10,10 +10,23 @@ exports.uncrypt = function(encryption_key){
 		var txt = chunks.join("");
 		txt = new Buffer(txt, "binary").toString("utf-8");
 		console.log(fullBuffer);
-		console.log(txt);
 		if (txt){
-			req.body = txt;
-			next();
+			//aqui debería comprobarse si el lapso de tiempo es válido
+			console.log('Token password OK');
+			console.log(txt);
+			var parsed = {};
+			try{
+				parsed = JSON.parse(txt);
+				req.body.token = parsed;
+				next();
+			}catch(exc){
+				console.error('Error parseando JSON token-sesión '+txt);
+				console.error('Wrong token password');
+				res.status(401).send('Wrong token password');
+			}
+		}else{
+			console.error('Wrong token password');
+			res.status(401).send('Wrong token password');
 		}
 	}
 }
