@@ -44,7 +44,12 @@ angular.module('sici.login.util', ['ngResource'])
 				$window.localStorage.client_session = '';
 				delete $window.localStorage.client_session;
 				$rootScope.setLogeado(false); 
+				/*Set-Cookie:JSESSIONID=; Path=/SICI_SSO/; HttpOnly*/
+				$http.get('/SICI_SSO/Logout').success(function(){
+					console.log('Sesión cerrada');
+				});
 				$cookieStore.remove("JSESSIONID");
+				document.cookie = "JSESSIONID=; Path=/SICI_SSO/; HttpOnly; expires=Thu, 01 Jan 1970 00:00:00 UTC";
 			  };
 			  return this;
 	}])	
