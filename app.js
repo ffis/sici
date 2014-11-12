@@ -57,7 +57,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.use('/api', expressJwt({secret: cfg.secret}));
   app.use('/api', api.log(models));
 
-  if (true || cfg.logincarm)
+  if (cfg.logincarm)
     app.post('/authenticate', logincarm.uncrypt(cfg.urlbasedecrypt), login.authenticate({secret: cfg.secret, jwt:jwt, models:models }));
   else
     app.post('/authenticate', login.authenticate({secret: cfg.secret, jwt:jwt, models:models }));
