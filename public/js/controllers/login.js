@@ -50,7 +50,7 @@ function LoginCtrl($scope, $rootScope, AUTH_EVENTS, AuthService, $window, $locat
 	    el usuario **/
 	$scope.login = function (credentials) {
 	    /** preguntamos si se ha conseguido o no autenticar mediante la función login del servicio AuthService descrito más abajo **/
-	    if(credentials.username.trim()=='' ||credentials.password.trim()=='' )
+	    if(!$rootScope.loginCarm && (credentials.username.trim()=='' ||credentials.password.trim()=='' ))
 	    {
 	     	$scope.mensaje = 'Introduzca su nombre de usuario y contraseña para continuar';
 	    }else{
@@ -75,6 +75,10 @@ function LoginCtrl($scope, $rootScope, AUTH_EVENTS, AuthService, $window, $locat
 	};
 	$scope.logout = function(){  AuthService.logout();	}
 	$scope.mensaje = '';
+	
+	if ($rootScope.loginCarm)
+		$scope.login({});
+	
 }
 
 
