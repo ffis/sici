@@ -1,6 +1,6 @@
 angular.module('sici.login.util', ['ngResource'])
-	.service('Session', ['$rootScope','$window', '$log',
-		function ($rootScope, $window, $log ) {
+	.service('Session', ['$rootScope','$window', '$log', '$cookieStore',
+		function ($rootScope, $window, $log, $cookieStore ) {
 			this.userId = false;
 	  		this.create = function (data) {
 			    if (data)
@@ -44,6 +44,7 @@ angular.module('sici.login.util', ['ngResource'])
 				$window.localStorage.client_session = '';
 				delete $window.localStorage.client_session;
 				$rootScope.setLogeado(false); 
+				$cookieStore.remove("JSESSIONID");
 			  };
 			  return this;
 	}])	
