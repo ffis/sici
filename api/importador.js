@@ -112,7 +112,6 @@ exports.applyImportacionProcedimiento = function(models, Q, recalculate, P){
 						defs.push(def.promise);
 						var fn = function(codigo,def){
 							Procedimiento.findOne({codigo:codigo}, function(err,procedimiento){
-								console.log(procedimiento);
 								recalculate.softCalculateProcedimiento(Q, procedimiento).then(function(procedimiento){
 									recalculate.softCalculateProcedimientoCache(Q, models, procedimiento).then(function(procedimiento){
 										P.saveVersion(models, Q, procedimiento).then(function(){

@@ -22,6 +22,7 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 			$scope.procedimientoSeleccionado.ancestros.reverse();//TODO: revisar este parche
 		}
 		$scope.W = $rootScope.W($scope.procedimientoSeleccionado) || $rootScope.superuser();
+		$scope.superuser = $rootScope.superuser();
 		
 		var cod_plaza = $scope.procedimientoSeleccionado.cod_plaza;
 		var graphskeys = [
