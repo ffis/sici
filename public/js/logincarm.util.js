@@ -1,6 +1,6 @@
 angular.module('sici.login.util', ['ngResource'])
-	.service('Session', ['$rootScope','$window', '$log', '$cookieStore',
-		function ($rootScope, $window, $log, $cookieStore ) {
+	.service('Session', ['$rootScope','$window', '$log', '$cookieStore','$http',
+		function ($rootScope, $window, $log, $cookieStore,$http ) {
 			this.userId = false;
 	  		this.create = function (data) {
 			    if (data)
