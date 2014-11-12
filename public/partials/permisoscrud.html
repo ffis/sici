@@ -186,46 +186,55 @@
 					</th>
 				</tr>				
 				<tr ng-if="show_form_add_permiso">
+					<h2 class="center">Permisos</h2>
 					<th colspan="{{ !is_show_recursive_users && !procedimientos.length? 7 : 8 }}" class="form-container">						
 						<form name="nuevousuario-form" id="nuevousuario-form">
-							<label for="login"  style="width:100%">
-								<div class="input-group">
-									<input type="text" name="login" class="form-control" placeholder="Login carm" ng-model="logincarm" ng-keydown="login_clear_searched_login_plaza()"/>
-									<span class="input-group-addon">@carm.es</span>
-								</div>
+							<label name="responsable" style="width:100%" ng-if="!is_nuevousuario"> 
+								<input  class="form-control" placeholder="Buscar por llaza, login carm o nombre"  type="text" typeahead-min-lengt="3" typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)" ng-model="usuarioseleccionado" name="usuario" /> 
 							</label>
 							<br/>
-							<label for="plaza" style="width:100%">
-								<input type="text" name="plaza" class="form-control" placeholder="C&oacute;digo plaza" ng-model="plaza"  ng-keydown="plaza_clear_searched_login_plaza()"/>
-							</label>
-							<br/>
-							<button type="button" class="btn btn-default" ng-click="search_login_plaza()">
-							  <span class="glyphicon glyphicon-search"></span> Buscar usuario
+							<button type="button" class="btn btn-default" ng-click="crearnuevousuario()" ng-if="!is_nuevousuario">
+							  <span class="glyphicon glyphicon-search"></span> Nuevo usuario
 							</button>											
-							<div ng-if="searched_login_plaza() && not_found_login_plaza() && superuser()">
+							<fieldset ng-if="is_nuevousuario"><legend>Nuevo usuario</legend>
 								<br/>
-								<span><strong>Puede asociar una nueva persona al nuevo permiso.</strong></span>
+								<span><strong>Introducir nueva persona.</strong></span><br/>
 								<br/>
-								<label name="nombre">
-									<span>Nombre: </span><input  class="form-control" type="text" ng-model="buscado_nombre" name="nombre" /> 
+								<label name="nombre"  style="width:100%">
+									<span>Nombre: </span><input  class="form-control" type="text" ng-model="nuevousuario.nombre" name="nombre" /> 
 								</label>
 								<br/>
-								<label name="apellidos">
-									<span>Apellidos: </span><input  class="form-control" type="text" ng-model="buscado_apellidos" name="apellidos" /> 
+								<label name="apellidos" style="width:100%">
+									<span>Apellidos: </span><input  class="form-control" type="text" ng-model="nuevousuario.apellidos" name="apellidos" /> 
 								</label>
 								<br/>
-								<label name="genero">
+								<label name="genero" style="width:100%">
 									<span>G&eacute;nero: </span>
-									<select ng-model="buscado_genero" name="genero" class="form-control" >
+									<select ng-model="nuevousuario.genero" name="genero" class="form-control" >
 										<option value="Hombre">Hombre</option>
 										<option value="Mujer">Mujer</option>
 									</select>									
 								</label>
 								<br/>
-								<label name="telefono">
-									<span>Telefono: </span><input type="text" ng-model="buscado_telefono" name="telefono" class="form-control"  /> 
+								<label name="telefono" style="width:100%">
+									<span>Telefono: </span><input type="text" ng-model="buscado_telefono" name="nuevousuario.telefono" class="form-control"  /> 
 								</label>
-							</div>
+								<br/>
+								<label name="login" style="width:100%">
+									<span>Login: </span><input type="text" ng-model="nuevousuario.login" name="login" class="form-control"  /> 
+								</label>		
+								<br/>
+								<label name="plaza" style="width:100%">
+									<span>Plaza: </span><input type="text" ng-model="nuevousuario.codplaza" name="plaza" class="form-control"  /> 
+								</label>	
+								<br/>
+								<button type="button" class="btn btn-default" ng-click="_crearnuevousuario()">
+									<span class="glyphicon glyphicon-search"></span> Crear
+								</button>
+								<button type="button" class="btn btn-default" ng-click="cancelarnuevousuario()">
+									<span class="glyphicon glyphicon-remove"></span> Cancelar
+								</button>								
+							</fieldset>
 							<input type="hidden" name="procedimiento" value="{{procedimiento_seleccionado.codigo || 0}}" />
 							<input type="hidden" name="nodojerarquia" value="{{seleccionado.id || 0}}" />
 							<input type="hidden" name="tiposeleccion" value="{{seleccionado_organica?'jerarquia':'procedimiento'}}" />
@@ -235,14 +244,18 @@
 							<br/>
 							<br/>
 							<label name="grantoption">
-								<input type="checkbox" ng-model="grantoption" name="grantoption" ng-disabled="!searched_login_plaza()" value="1"/> Puede conceder permisos
+								<input type="checkbox" ng-model="grantoption" name="grantoption" ng-disabled="is_nuevousuario || !usuarioseleccionado" value="1"/> Puede conceder permisos
 							</label>
 							<br/>
 							<label name="w_option">
-								<input type="checkbox" ng-model="w_option" name="w_option" ng-disabled="!searched_login_plaza()" value="1" /> Puede introducir datos
+								<input type="checkbox" ng-model="w_option" name="w_option" ng-disabled="is_nuevousuario || !usuarioseleccionado" value="1" /> Puede introducir datos
 							</label>
+							<br/>
+							<label name="p_superuser" ng-if="$root.superuser()">
+								<input type="checkbox" ng-model="psuperuser" name="p_superuser" ng-disabled="is_nuevousuario || !usuarioseleccionado" value="1" /> Superusuario
+							</label>							
 							<br class="clear"/>
-							<button class="btn btn-default danger" ng-disabled="!searched_login_plaza()" ng-click="crearpermiso()" ><span>Crear</span></button>								
+							<button class="btn btn-default danger" ng-disabled="is_nuevousuario" ng-click="crearpermiso(usuarioseleccionado)" ><span>Crear</span></button>								
 						</form>
 					</th>
 				</tr>
@@ -345,4 +358,5 @@
 
 	</div>
 </div>
+
 

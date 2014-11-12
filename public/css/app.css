@@ -6,6 +6,10 @@ body {
 
 }
 
+#nuevousuario-form label {
+	font-weight:normal !important;
+	width:100%;
+}
 
 .green {
 	color:rgb(126, 194, 105);

@@ -80,6 +80,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.get('/api/personasByLogin/:cod_plaza',persona.personasByLogin(models));
   app.get('/api/PersonasByRegexp/:regex',persona.personasByRegex(models));
   app.get('/api/searchpersonas',persona.personassearchlist(models,Q));
+  app.post('/api/persona', persona.newPersona(models));
 
 //  app.get('/api/periodos', procedimiento.setPeriodosCerrados(models));
 

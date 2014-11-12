@@ -9,7 +9,7 @@ angular.module('sici.services', ['ngResource'])
 		}])
     .factory('Procedimiento', ['$resource',
         function ($resource) {
-            return $resource('/api/procedimiento/:codigo', {codigo:'@codigo'},   { update: {method:'PUT' } });
+            return $resource('/api/procedimiento/:codigo', {codigo:'@codigo'},   { update: {method:'PUT' }, create:{method:'POST'} });
 		}])
     .factory('ProcedimientoList', ['$resource',
         function ($resource) {
@@ -54,6 +54,10 @@ angular.module('sici.services', ['ngResource'])
 	.factory('PersonasSearchList', ['$resource',
         function ($resource) {
             return $resource('/api/searchpersonas', {}, { query: {method:'GET', isArray:true} });
+        }])
+	.factory('Persona', ['$resource',
+        function ($resource) {
+            return $resource('/api/persona', {}, { create: {method:'POST' }} );
         }])
 	.factory('DetalleCarmProcedimiento', ['$resource',
         function ($resource) {
