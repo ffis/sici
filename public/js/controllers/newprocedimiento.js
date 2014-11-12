@@ -19,10 +19,18 @@ function NewProcedimientoCtrl($rootScope,$scope,$location,$window,$routeParams, 
 	
 	$scope.getPersonas = function(viewValue) {
 		var regex = ""+viewValue
-		if (viewValue.length>2)
-			return PersonasByRegexp.query({"regex":viewValue});
+		if (viewValue.length>2) {
+			var p = PersonasByRegexp.query({"regex":viewValue}).$promise;
+			return p;
+		}
 		else return [];
 	};
+	
+	$scope.showPersona = function (persona){
+		if (persona && persona.login && persona.codplaza && persona.nombre && persona.apellidos)
+			return persona.login + "-" + persona.codplaza + "-" + persona.nombre+ " " + persona.apellidos;
+		else return "";
+	}
 	
 	$scope.setJerarquiaById = function(idjerarquia){
 		var setJ = function(nodo, idjerarquia){

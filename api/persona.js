@@ -34,22 +34,22 @@ exports.personasByRegex = function(models){
 				"$or" : [
 					{
 					"login": {
-					"$regex" : req.params.regex+"*",
+					"$regex" : "^"+req.params.regex+"",
 					"$options" : "i"
 					}},
 					{
 					"codplaza": {
-					"$regex" : req.params.regex+"*",
+					"$regex" : "^"+req.params.regex+"",
 					"$options" : "i"
 					}},					
 					{
 					"nombre": {
-					"$regex" : req.params.regex+"*",
+					"$regex" : "^"+req.params.regex+"",
 					"$options" : "i"
 					}},
 					{
 					"apellidos": {
-					"$regex" : req.params.regex+"*",
+					"$regex" : "^"+req.params.regex+"",
 					"$options" : "i"
 					}}
 				]

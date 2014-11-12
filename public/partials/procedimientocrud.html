@@ -89,11 +89,11 @@
 				</label>
 				<br/>
 				<label name="responsable" style="width:100%"> 
-					<span>Responsable: </span><input placeholder="Plaza o nombre o login carm"  type="text" typeahead="eresp for eresp in getPersonas($viewValue)" ng-model="responsable" name="responsable" /> 
+					<span>Responsable: </span><input  class="form-control" placeholder="Plaza o nombre o login carm"  type="text" typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)" ng-model="responsable" name="responsable" /> 
 				</label>
 				<label name="padre" style="width:100%">
 					<span>Procedimiento padre: </span>
-					<input  placeholder="Introduce cualquier parte del c&oacute;digo o denominaci&oacute;n" class="form-control" type="text" ng-model="padre" name="padre" typeahead="procpadre for procpadre in oallprocedimientos  | filter:{denominacion:$viewValue} | limitTo:10" /> 
+					<input  placeholder="Introduce cualquier parte del c&oacute;digo o denominaci&oacute;n" class="form-control" type="text" ng-model="padre" name="padre" typeahead="procpadre.denominacion for procpadre in oallprocedimientos  | filter:{denominacion:$viewValue} | limitTo:10" /> 
 				</label>
 			</div>
 		</div>
