@@ -24,6 +24,8 @@ function AppCtrl($scope, $rootScope, Session, $location) {
 		{ id:'etiqueta', caption: 'Gestionar etiquetas'},
 		{ id:'periodos', caption: 'Gestionar períodos'},
 	];
+	
+	$rootScope.loginCarm = true;
 
 	$rootScope.irProcedimiento = function(){
 		var id = parseInt($rootScope.procedimiento);
