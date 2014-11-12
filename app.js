@@ -23,6 +23,7 @@ procedimiento = require('./api/procedimiento'),
 persona = require('./api/persona'),
 permiso = require('./api/permiso'),
 upload = require('./api/upload'),
+logincarm = require('./api/login.carm'),
 csvsici = require('./api/csvsici');
 
 
@@ -56,8 +57,8 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.use('/api', expressJwt({secret: cfg.secret}));
   app.use('/api', api.log(models));
 
-  if (cfg.logincarm)
-    app.post('/authenticate', logincarm.uncrypt(cfg.secret), login.authenticate({secret: cfg.secret, jwt:jwt, models:models }));
+  if (true || cfg.logincarm)
+    app.post('/authenticate', logincarm.uncrypt(cfg.urlbasedecrypt), login.authenticate({secret: cfg.secret, jwt:jwt, models:models }));
   else
     app.post('/authenticate', login.authenticate({secret: cfg.secret, jwt:jwt, models:models }));
 

@@ -13,6 +13,7 @@
     "jsonwebtoken": "",
     "mongoose": "^3.8.14",
     "q": "^1.0.1",
+    "request": "^2.48.0",
     "underscore": "^1.7.0",
     "xlsx": "^0.7.12",
     "zombie": "^2.0.8"

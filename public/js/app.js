@@ -1,7 +1,7 @@
 'use strict';
 
 var app = angular.module('sici', [
-  	'ngRoute','ngAnimate','ngSanitize','angular.filter',
+  	'ngRoute','ngAnimate','ngSanitize', 'ngCookies', 'angular.filter',
   	'ui.bootstrap',
     'easypiechart','nvd3ChartDirectives',
     'angularFileUpload','xeditable','colorpicker.module',
@@ -10,7 +10,7 @@ var app = angular.module('sici', [
     'autocomplete',
   ]).
   config(['$routeProvider', '$locationProvider','$logProvider', function($routeProvider, $locationProvider, $logProvider) {
-    $logProvider.debugEnabled(false);
+    $logProvider.debugEnabled(true);
 
     $routeProvider.when('/stats', {templateUrl: 'partials/stats.html', controller: 'StatsCtrl'});
     $routeProvider.when('/inconsistencias', {templateUrl: 'partials/inconsistencias.html', controller: 'InconsistenciasCtrl'});

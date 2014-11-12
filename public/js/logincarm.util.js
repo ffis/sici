@@ -1,6 +1,6 @@
 angular.module('sici.login.util', ['ngResource'])
-	.service('Session', ['$rootScope','$window', '$log',
-		function ($rootScope, $window, $log ) {
+	.service('Session', ['$rootScope','$window', '$log', '$cookieStore', 
+		function ($rootScope, $window, $log, $cookieStore ) {
 			this.userId = false;
 	  		this.create = function (data) {
 			    if (data)
@@ -44,6 +44,9 @@ angular.module('sici.login.util', ['ngResource'])
 				$window.localStorage.client_session = '';
 				delete $window.localStorage.client_session;
 				$rootScope.setLogeado(false); 
+				/*Set-Cookie:JSESSIONID=; Path=/SICI_SSO/; HttpOnly*/
+				$cookieStore.remove("JSESSIONID");
+				document.cookie = "JSESSIONID=; Path=/SICI_SSO/; HttpOnly; expires=Thu, 01 Jan 1970 00:00:00 UTC";
 			  };
 			  return this;
 	}])	
@@ -79,16 +82,18 @@ angular.module('sici.login.util', ['ngResource'])
 
 		  return {
 			login: function (credentials) {
-				var urlconsulta = 'http://10.166.47.22:8080/SICI_SSO/login_sso.jsp';
-				var urllogin = 'http://10.166.47.22:8080/SICI_SSO/index.jsp';
+				var urlconsulta = '/SICI_SSO/LoginSSO';
+				var urllogin = '/SICI_SSO/';
 				
 				var deferred = $q.defer()
 				$http.get(urlconsulta).success(
-					function(data){
+					function(data, status, headers, config){
 						if (typeof data.t === 'undefined') {								
 							$log.info('URL sesión no iniciada');
-							window.location.href=urllogin;
+							var full = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+							window.location.href=full+urllogin;
 						}else{
+							
 							/** hacemos un post a la dirección del login. Esperamos respuesta. Si statusCode=401 hay error de autenticación **/				
 							$http.post('/authenticate', data)
 								.success(function (data, status, headers, config) {
@@ -105,6 +110,7 @@ angular.module('sici.login.util', ['ngResource'])
 					}
 				).error(function(data, status, headers, config){
 					$log.info('URL sesión no iniciada');
+					alert('He fallado '+ JSON.stringify(data));
 					deferred.reject();
 				});
 				return deferred.promise;
@@ -177,5 +183,7 @@ angular.module('sici.login.util', ['ngResource'])
 		}
 	])
 	.config(function ($httpProvider) {
+		$httpProvider.defaults.useXDomain = true;
+        delete $httpProvider.defaults.headers.common['X-Requested-With'];
 		$httpProvider.interceptors.push('AuthInterceptor');
 	})
