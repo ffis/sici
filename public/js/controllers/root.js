@@ -25,7 +25,7 @@ function AppCtrl($scope, $rootScope, Session, $location) {
 		{ id:'periodos', caption: 'Gestionar períodos'},
 	];
 	
-	$rootScope.loginCarm = false;
+	$rootScope.loginCarm = true;
 
 	$rootScope.irProcedimiento = function(){
 		var id = parseInt($rootScope.procedimiento);
