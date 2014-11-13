@@ -82,6 +82,8 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.get('/api/PersonasByRegexp/:regex',persona.personasByRegex(models));
   app.get('/api/searchpersonas',persona.personassearchlist(models,Q));
   app.post('/api/persona', persona.newPersona(models));
+  app.put('/api/persona/:id', persona.updatePersona(models));
+  
 
 //  app.get('/api/periodos', procedimiento.setPeriodosCerrados(models));
 
@@ -123,7 +125,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.delete('/api/permisos/delete-jerarquia/:permiso/:jerarquia', permiso.removePermisoJerarquia(models,Q));
   app.delete('/api/permisos/delete-procedimiento/:permiso/:procedimiento', permiso.removePermisoJerarquia(models,Q));
   app.put('/api/permisos/:id', permiso.update(models));
-  app.post('/api/permisos/', permiso.create(models));
+  app.post('/api/permisos/', permiso.create(models,Q,recalculate));
   
   
   app.get('/api/excelgesper', persona.importarGesper(models,Q));

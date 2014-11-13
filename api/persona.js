@@ -25,6 +25,21 @@ exports.personasByLogin = function(models){
 	};
 };
 
+exports.updatePersona = function(models){
+	return function(req, res) {
+		var Persona = models.persona();
+	    var id = req.params.id;
+
+	    var content = req.body;
+	    Persona.update({'_id':id}, content, { upsert: true }, function(e){
+			if (e){
+				 res.send({'error':'An error has occurred'});
+			}else{
+				res.send(content);
+			}
+		});
+	}
+}
 
 exports.newPersona = function(models){
 	return function(req, res) {

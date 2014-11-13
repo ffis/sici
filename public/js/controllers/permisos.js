@@ -19,7 +19,7 @@ function intersect_safe(a, b)
   return result;
 }
 
-function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosList,PersonasSearchList,ProcedimientoList,PermisosProcedimientoList,PermisosDirectosProcedimientoList, Jerarquia, Permiso, PersonasByPuesto, PersonasByLogin, PersonasByRegexp, Persona, $q) {
+function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosList,PersonasSearchList,ProcedimientoList,PermisosProcedimientoList,PermisosDirectosProcedimientoList, Jerarquia, Permiso, PersonasByPuesto, PersonasByLogin, PersonasByRegexp, Persona, $q, Procedimiento) {
 	$rootScope.nav = 'permisos';
 	$window.document.title ='SICI: Permisos';
 
@@ -145,6 +145,31 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 			return;
 		}
 		var loginpersona = partes[0];
+
+		if ($scope.procedimiento_seleccionado && $scope.propietario){
+			if (partes.length<2) {
+				alert('No se encuentra el código de plaza de la persona buscada');
+				return;
+			}
+			var codplaza = partes[1];
+			var proc = Procedimiento.get({'codigo':$scope.procedimiento_seleccionado.codigo},function(){
+				proc.cod_plaza = $codpaza;
+				proc.$update(function(){
+					console.log("Actualizada código de plaza del procedimiento");
+					var per = PersonasByPuesto.query({"cod_plaza":codplaza},function(){
+						for(var i=0;i<per.length;i++){
+							per.habilitado = true;
+							per.$update(function(){
+								console.log("Persona habilitada");
+							})
+						}
+					})
+				})
+			});
+			return;
+		}
+
+
 		var permiso;
 		var deferred = $q.defer();
 		var promise = deferred.promise;
@@ -174,7 +199,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 				if ($scope.w_option) permiso.jerarquiadirectaescritura = [ $scope.seleccionado.id ];
 				permiso.procedimientodirectalectura = [];
 				permiso.procedimientodirectaescritura = [];
-			} else if ($procedimiento_seleccionado) {
+			} else if ($scope.procedimiento_seleccionado) {
 				permiso.jerarquiadirectaescritura = [ ];
 				permiso.jerarquiadirectalectura = [ ];
 				permiso.procedimientodirectalectura = [ $scope.procedimiento_seleccionado.codigo ];
@@ -186,8 +211,17 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 			Permiso.save(permiso,function(){
 				delete $scope.usuarioseleccionado ;
 				$scope.nuevousuario = {};
+				$scope.clearFormNuevoPermiso();
+				// recalcula los permisos cargados en la lista
+				if ($scope.seleccionado_organica)
+					$scope.setSeleccionado($scope.seleccionado);
+				else if ($scope.procedimiento_seleccionado){
+					$scope.setProcSeleccionado($scope.procedimiento_seleccionado);
+				}
 			});	
-			$scope.clearFormNuevoPermiso();
+
+
+			
 			
 		}, function(err){
 			alert('Error asignando permisos');
@@ -195,6 +229,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 	}
 	
 	$scope.crearpermiso = function(usuarioseleccionado) {
+
 		if (usuarioseleccionado)
 		{		
 			$scope.crearpermiso2(usuarioseleccionado);
@@ -450,4 +485,4 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
     
 	
 }
-PermisoCtrl.$inject = ['$rootScope','$scope','$location','$window','Arbol','Session','PermisosList','PersonasSearchList','ProcedimientoList','PermisosProcedimientoList','PermisosDirectosProcedimientoList','Jerarquia','Permiso', 'PersonasByPuesto', 'PersonasByLogin', 'PersonasByRegexp','Persona','$q'];
+PermisoCtrl.$inject = ['$rootScope','$scope','$location','$window','Arbol','Session','PermisosList','PersonasSearchList','ProcedimientoList','PermisosProcedimientoList','PermisosDirectosProcedimientoList','Jerarquia','Permiso', 'PersonasByPuesto', 'PersonasByLogin', 'PersonasByRegexp','Persona','$q','Procedimiento'];
