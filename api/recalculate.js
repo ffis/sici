@@ -140,20 +140,28 @@ exports.softCalculateProcedimientoCache = function(Q, models, procedimiento){
 	var idjerarquia = procedimiento.idjerarquia;
 	var Jerarquia = models.jerarquia();
 	var Persona = models.persona();
-	
-	Jerarquia.findOne({id:idjerarquia},function(err,jerarquia){
-		if (err){ deferred.reject(err); return; }
-		if (!jerarquia){ deferred.resolve([]); return; }
-		var ids = [idjerarquia].concat(jerarquia.ancestros);
+	if (!idjerarquia){
+		//parche inconsistencia
+		procedimiento.idjerarquia = 1;
+		idjerarquia = procedimiento.idjerarquia;
+	}
+	if (idjerarquia){
 		
-		Jerarquia.find({ id: {'$in' : ids } }, function(id, jerarquias){
-			jerarquias.sort(function(j1,j2){
-				return j2.ancestros.length - j1.ancestros.length ;
+		Jerarquia.findOne({id:idjerarquia},function(err,jerarquia){
+			if (err){ deferred.reject(err); return; }
+			if (!jerarquia){ deferred.resolve([]); return; }
+			var ids = [idjerarquia].concat(jerarquia.ancestros);
+			
+			Jerarquia.find({ id: {'$in' : ids } }, function(id, jerarquias){
+				jerarquias.sort(function(j1,j2){
+					return j2.ancestros.length - j1.ancestros.length ;
+				});
+				deferredJerarquia.resolve(jerarquias);
 			});
-			deferredJerarquia.resolve(jerarquias);
 		});
-	});
-
+	}else{
+		deferredJerarquia.resolve([]);
+	}
 	if (procedimiento.cod_plaza){
 		Persona.find({codplaza: procedimiento.cod_plaza}, function(err,personas){
 			if (err){ deferred.reject(err); return; }

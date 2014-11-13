@@ -20,7 +20,7 @@ exports.personasByLogin = function(models){
 			restriccion.login = req.params.login;
 		Persona.find(restriccion,function(err,data){
 			if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }
-			res.json (data);
+			res.json (data);			
 		});
 	};
 };

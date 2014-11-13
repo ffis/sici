@@ -19,7 +19,7 @@ function intersect_safe(a, b)
   return result;
 }
 
-function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosList,PersonasSearchList,ProcedimientoList,PermisosProcedimientoList,PermisosDirectosProcedimientoList, Jerarquia, Permiso, PersonasByPuesto, PersonasByLogin, PersonasByRegexp, Persona, $q, Procedimiento) {
+function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosList,PersonasSearchList,ProcedimientoList,PermisosProcedimientoList,PermisosDirectosProcedimientoList, Jerarquia, Permiso, PersonasByPuesto, PersonasByLogin, PersonasByRegexp, Persona, $q, Procedimiento,PersonasByLoginPlaza,PermisosDelegar) {
 	$rootScope.nav = 'permisos';
 	$window.document.title ='SICI: Permisos';
 
@@ -40,6 +40,37 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 	$scope.nuevousuario = {};
 	$scope.is_nuevousuario = false;
 	$scope.psuperuser = false;
+	$scope.usuariosbuscado = "";
+	$scope.ousuariobuscado = {};
+	$scope.normal_user_permisos;
+	
+	$scope.superuser = $rootScope.superuser();
+	$rootScope.superuser().then(function(superuser){
+		if (!superuser) {
+			
+			var login = $rootScope.session.login || "-";
+			var cod_plaza = $rootScope.session.codplaza || "-";
+			var permisosaux = PersonasByLoginPlaza.query({"login":login,"cod_plaza":cod_plaza}, function(){
+				$scope.normal_user_permisos = [];
+				for(var i=0;i<permisosaux.length;i++) {
+					if (permisosaux[i].grantoption) 
+						$scope.normal_user_permisos.push(permisosaux[i]);
+				}				
+			});		
+		}
+	});
+		
+	$scope.delegar = function(normal_user_usuariodelegado){
+		var partes = normal_user_usuariodelegado.split("-");
+		var login = "-";
+		var cod_plaza = "-";
+		var permisos_delegados = PermisosDelegar.query({'login':login,'cod_plaza':cod_plaza},function(){
+			alert('Permisos delegados correctamente');
+		});
+	}
+	
+	
+	
 	
 	$scope.clearFormNuevoPermiso = function(){
 		$scope.grantoption = false;
@@ -88,6 +119,31 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		else $scope.setProcSeleccionado($scope.procedimiento_seleccionado);
 	}
 		
+	$scope.$watch("usuariosbuscado", function(old, _new){
+		if (_new.indexOf('-')!==-1) {
+			var partes = _new.split("-");
+			var pd = $q.defer();
+			var pp = pd.promise;
+			if (partes[0] && partes[0]!=""){
+				p = PersonasByLogin.query({"login":partes[0]},function(){
+					if (p.length>0) {
+						pd.resolve(p[0]);
+					} else pd.reject();
+				});
+			} else if (partes.length>1 && partes[1]!="") {
+				p = PersonasByPuesto.query({"cod_plaza":partes[1]},function(){
+					if (p.length>0) {
+						pd.resolve(p[0]);
+					} else pd.reject();
+				});			
+			} else pd.reject();
+			
+			pp.then(function(persona){
+				ousuariobuscado = persona;
+			});
+		}
+	});
+		
 	$scope.$watch('usuarioseleccionado', function(old, _new){
 		if ($scope.usuarioseleccionado) {			
 			$scope.usuarioencontrado = true;
@@ -101,7 +157,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		$scope.usuarioencontrado = false;
 		delete $scope.usuarioseleccionado ;
 		$scope.is_nuevousuario = true;
-	
+		
 	}
 	
 	$scope._crearnuevousuario = function(){
@@ -256,9 +312,10 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 	}
 	
 	$scope.jerarquia = [];
-	$scope.jerarquia = $scope.jerarquia.concat($rootScope.session.permisoscalculados.jerarquialectura);
-	$scope.jerarquia = $scope.jerarquia.concat($rootScope.session.permisoscalculados.jerarquiaescritura);
-	$scope.superuser = $rootScope.session.permisoscalculados.superuser;
+	$rootScope.jerarquialectura().then(function(jerarquialectura){ $scope.jerarquia=$scope.jerarquia.concat(jerarquialectura); });
+	$rootScope.jerarquiaescritura().then(function(jerarquiaescritura){ $scope.jerarquia$scope.jerarquia.concat(jerarquiaescritura); });
+	$rootScope.superuser().then(function(superuser){ $scope.superuser = superuser; });
+	
 	
 
 	$scope.filtrojerarquia = function(item) {
@@ -485,4 +542,4 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
     
 	
 }
-PermisoCtrl.$inject = ['$rootScope','$scope','$location','$window','Arbol','Session','PermisosList','PersonasSearchList','ProcedimientoList','PermisosProcedimientoList','PermisosDirectosProcedimientoList','Jerarquia','Permiso', 'PersonasByPuesto', 'PersonasByLogin', 'PersonasByRegexp','Persona','$q','Procedimiento'];
+PermisoCtrl.$inject = ['$rootScope','$scope','$location','$window','Arbol','Session','PermisosList','PersonasSearchList','ProcedimientoList','PermisosProcedimientoList','PermisosDirectosProcedimientoList','Jerarquia','Permiso', 'PersonasByPuesto', 'PersonasByLogin', 'PersonasByRegexp','Persona','$q','Procedimiento','PersonasByLoginPlaza','PermisosDelegar'];

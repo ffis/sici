@@ -55,6 +55,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   mongoose.set('debug', false);
 
   app.use('/api', expressJwt({secret: cfg.secret}));
+  app.use('/api', login.setpermisoscalculados({models:models}));
   app.use('/api', api.log(models));
 
   if (cfg.logincarm)
@@ -119,6 +120,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
 
   app.get('/api/permisosList/:idjerarquia/:recursivo', permiso.permisosList(models, Q)); 
   app.get('/api/permisosList', permiso.permisosList(models, Q));
+  app.get('/api/permisosByLoginPlaza/:login/:cod_plaza', permiso.permisosByLoginPlaza(models));
   app.get('/api/permisosDirectosProcedimientoList/:codigoprocedimiento', permiso.permisosDirectosProcedimientoList(models, Q));
   app.get('/api/permisosProcedimientoList/:codigoprocedimiento', permiso.permisosProcedimientoList(models, Q));
   //app.get('/api/permisosCalculados', login.permisoscalculados(models)); 
@@ -126,7 +128,8 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.delete('/api/permisos/delete-procedimiento/:permiso/:procedimiento', permiso.removePermisoJerarquia(models,Q));
   app.put('/api/permisos/:id', permiso.update(models));
   app.post('/api/permisos/', permiso.create(models,Q,recalculate));
-  
+  app.get('/api/permisoscalculados', login.getpermisoscalculados(models));
+  app.get('/api/permisosdelegar/:login/:cod_plaza/', permiso.delegarpermisos(models,Q));
   
   app.get('/api/excelgesper', persona.importarGesper(models,Q));
   
@@ -139,6 +142,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.post('/api/updateByFile',upload.update(),csvsici.parse(models));
 
   app.get('/test/testImportadorExcel', importador.testImportadorExcel(Q, models, recalculate));
+  app.get('/test/testImportadorExcel/:firstrow/:maxrows', importador.testImportadorExcel(Q, models, recalculate));
 
 // redirect all others to the index (HTML5 history)
   app.get('*', routes.index);//devolver el index.html del raiz

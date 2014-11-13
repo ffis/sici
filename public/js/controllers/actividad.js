@@ -1,4 +1,4 @@
-function ActividadCtrl($rootScope,$scope,$location,$window,$routeParams, Arbol, ProcedimientoList,DetalleCarmProcedimiento,DetalleCarmProcedimiento2, PersonasByPuesto, Session, Etiqueta) {
+function ActividadCtrl($q,$rootScope,$scope,$location,$window,$routeParams, Arbol, ProcedimientoList,DetalleCarmProcedimiento,DetalleCarmProcedimiento2, PersonasByPuesto, Session, Etiqueta) {
 	$rootScope.nav = 'actividad';
 	$window.document.title ='SICI: Actividad';
 	$scope.idjerarquia = ($routeParams.idjerarquia) ? $routeParams.idjerarquia :false;
@@ -64,9 +64,17 @@ function ActividadCtrl($rootScope,$scope,$location,$window,$routeParams, Arbol, 
 	
 	$scope.procedimientos = [];
 
-	$scope.jerarquia = Session.create().permisoscalculados.jerarquialectura.concat(Session.create().permisoscalculados.jerarquiaescritura);
+	var defjerarquia = $q.defer();
+	$scope.pjerarquia = defjerarquia.promise;
+	$rootScope.jerarquialectura().then(function(j){ 
+		$rootScope.jerarquiaescritura().then(function(j2){
+			$scope.jerarquia = j.concat(j2);
+			defjerarquia.resolve($scope.jerarquia);
+		});
+	});
 	
-	$scope.filtrojerarquia = function(item) {
+	/*$scope.filtrojerarquia*/ 
+	$scope.fj = function(item) {
 		if ($scope.jerarquia.indexOf(item.id)!=-1 )
 			return true;		
 		if (item.nodes){
@@ -76,6 +84,17 @@ function ActividadCtrl($rootScope,$scope,$location,$window,$routeParams, Arbol, 
 		}
 		return false;
 	};
+	
+	
+	$scope.filtrojerarquia = function(item) {
+		var def = $q.defer();
+		$scope.pjerarquia.then( function(){			
+			def.resolve($scope.fj(item));
+			$scope.filtrojerarquia = $scope.fj;
+		},function(err){def.reject(err);});
+		return def.promise;
+	}
+	
 	
 	$scope.filtrosocultos = false;
 	$scope.setSeleccionado = function(seleccionad){
@@ -201,4 +220,4 @@ function ActividadCtrl($rootScope,$scope,$location,$window,$routeParams, Arbol, 
 
 	
 }
-ActividadCtrl.$inject = ['$rootScope','$scope','$location','$window','$routeParams','Arbol','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','PersonasByPuesto','Session', 'Etiqueta'];
+ActividadCtrl.$inject = ['$q','$rootScope','$scope','$location','$window','$routeParams','Arbol','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','PersonasByPuesto','Session', 'Etiqueta'];

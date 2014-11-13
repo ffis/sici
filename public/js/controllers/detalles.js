@@ -1,4 +1,4 @@
-function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,DetalleCarmProcedimiento,DetalleCarmProcedimiento2,Raw,Aggregate) {
+function DetallesCtrl($q,$rootScope,$scope, $routeParams, $window, Procedimiento,DetalleCarmProcedimiento,DetalleCarmProcedimiento2,Raw,Aggregate) {
 
 	$scope.detallesCarm = DetalleCarmProcedimiento.get({codigo:$routeParams.codigo});
 	$scope.detallesCarm2 = DetalleCarmProcedimiento2.get({codigo:$routeParams.codigo});		
@@ -21,7 +21,13 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 		if ($scope.procedimientoSeleccionado.ancestros[0].id==1){
 			$scope.procedimientoSeleccionado.ancestros.reverse();//TODO: revisar este parche
 		}
-		$scope.W = $rootScope.W($scope.procedimientoSeleccionado) || $rootScope.superuser();
+		
+		var dW = $q.defer();
+		$rootScope.W($scope.procedimientoSeleccionado).then(function(val){ 
+			$rootScope.superuser().then(function(val2){ dW.resolve(val || val2); },function(err){dW.reject(err);});
+		},function(err){dW.reject(err);});
+		
+		$scope.W = dW.promise;//$rootScope.W($scope.procedimientoSeleccionado) || $rootScope.superuser();
 		$scope.superuser = $rootScope.superuser();
 		
 		var cod_plaza = $scope.procedimientoSeleccionado.cod_plaza;
@@ -152,7 +158,7 @@ function DetallesCtrl($rootScope,$scope, $routeParams, $window, Procedimiento,De
 	    }
 	};
 }
-DetallesCtrl.$inject = ['$rootScope','$scope','$routeParams','$window','Procedimiento','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','Raw','Aggregate'];
+DetallesCtrl.$inject = ['$q','$rootScope','$scope','$routeParams','$window','Procedimiento','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','Raw','Aggregate'];
 
 function parseStr2Int (str){
 	var valor = parseInt(str);
