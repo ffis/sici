@@ -1,6 +1,6 @@
 'use strict';
 
-function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados) {
+function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados, AuthService) {
 
 	$rootScope.setTitle   = function (title){ $scope.name = title; };
 	$rootScope.setLogeado = function(t){
@@ -33,9 +33,7 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados)
 	if ($rootScope.logeado) {
 		$rootScope.permisosCalculados = PermisosCalculados.query({});
 	}
-	
-	
-	$rootScope.loginCarm = false;
+	$rootScope.loginCarm = AuthService.carmlogin;
 
 	$rootScope.irProcedimiento = function(){
 		var id = parseInt($rootScope.procedimiento);
@@ -149,4 +147,4 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados)
 
 }
 
-AppCtrl.$inject = ['$q','$scope','$rootScope','Session', '$location','PermisosCalculados'];
+AppCtrl.$inject = ['$q','$scope','$rootScope','Session', '$location','PermisosCalculados','AuthService'];

@@ -142,6 +142,11 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
 
   app.post('/api/updateByFile',upload.update(),csvsici.parse(models));
 
+
+  app.get('/tipologin', function(req,res){
+    res.json({logincarm:cfg.logincarm});
+  })
+
   app.get('/test/testImportadorExcel', importador.testImportadorExcel(Q, models, recalculate));
   app.get('/test/testImportadorExcel/:firstrow/:maxrows', importador.testImportadorExcel(Q, models, recalculate));
 

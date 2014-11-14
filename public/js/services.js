@@ -103,4 +103,8 @@ angular.module('sici.services', ['ngResource'])
         function ($resource) {
             return $resource('/api/importacion/:id', {id:'@_id'},   { update: {method:'PUT' } });
         }])
+    .factory('TipoLogin', ['$resource',
+        function( $resource){
+            return $resource('/tipologin');
+        }])
 	.value('version', '0.1');
