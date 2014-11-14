@@ -1,12 +1,6 @@
 'use strict';
 
 
-$.getJSON('/tipologin', function(val){
-    if (val.logincarm){
-        $('body').append('<script src="/js/logincarm.util.js"></script>');
-    }else{
-        $('body').append('<script src="/js/login.util.js"></script>');
-    }
 
 
     var app = angular.module('sici', [
@@ -41,6 +35,4 @@ $.getJSON('/tipologin', function(val){
         $routeProvider.otherwise({redirectTo: '/welcome'});
         $locationProvider.html5Mode(true);
       }]);
-
-});
 

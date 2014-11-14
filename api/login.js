@@ -56,7 +56,6 @@ exports.getpermisoscalculados = function(models) {
 
 exports.setpermisoscalculados = function(config){
 	return function(req, res, next) {
-		console.log('teng');
 		var Permisos = config.models.permiso();
 		Permisos.find({"_id":{"$in":req.user.idspermisos}},function(err, permisos){
 			if (err){ console.error(err); next(err);		}

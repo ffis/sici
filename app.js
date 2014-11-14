@@ -143,8 +143,12 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.post('/api/updateByFile',upload.update(),csvsici.parse(models));
 
 
-  app.get('/tipologin', function(req,res){
-    res.json({logincarm:cfg.logincarm});
+  app.get('/tipologin.js', function(req,res){
+    var r  = (cfg.logincarm) ?
+        '$("body").append("<script src=\'/js/logincarm.util.js\'></script>");' :
+        '$("body").append("<script src=\'/js/login.util.js\'></script>");' ;
+
+    res.status(200).type('application/javascript').send(r);
   })
 
   app.get('/test/testImportadorExcel', importador.testImportadorExcel(Q, models, recalculate));
