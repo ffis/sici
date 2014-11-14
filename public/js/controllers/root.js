@@ -5,9 +5,9 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados)
 	$rootScope.setTitle   = function (title){ $scope.name = title; };
 	$rootScope.setLogeado = function(t){
 		$rootScope.logeado = t;
-		console.log(t);
-		if ($rootScope.session && $rootScope.session.login)
+		if (t) {
 			$rootScope.permisosCalculados = PermisosCalculados.query({});
+		}
 	};
 	$rootScope.session = Session;
 	$rootScope.nav = '';
@@ -29,9 +29,11 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados)
 		{ id:'periodos', caption: 'Gestionar períodos'},
 	];
 	
-	if ($rootScope.session && $rootScope.session.login)
+	if ($rootScope.logeado) {
+		console.log($rootScope.session);
 		$rootScope.permisosCalculados = PermisosCalculados.query({});
-	console.log($rootScope.permisosCalculados);
+	}
+	console.log($rootScope.session);
 	
 	$rootScope.loginCarm = false;
 
@@ -92,16 +94,18 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados)
 		return def.promise;
 	};
 	
+	var defsuperuser = $q.defer();
+	
 	$rootScope.superuser = function() {
-		var def = $q.defer();
+		
 		$rootScope.permisosCalculados.$promise.then(function(){
-			def.resolve(
+			defsuperuser.resolve(
 				!!$rootScope.permisosCalculados.superuser
 			);
 		}, function(){
-			def.reject();
+			defsuperuser.reject();
 		});
-		return def.promise;
+		return defsuperuser.promise;
 	}
 	
 	$rootScope.jerarquialectura = function(){
