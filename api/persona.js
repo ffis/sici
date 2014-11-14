@@ -20,10 +20,40 @@ exports.personasByLogin = function(models){
 			restriccion.login = req.params.login;
 		Persona.find(restriccion,function(err,data){
 			if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }
-			res.json (data);
+			res.json (data);			
 		});
 	};
 };
+
+exports.updatePersona = function(models){
+	return function(req, res) {
+		var Persona = models.persona();
+	    var id = req.params.id;
+
+	    var content = req.body;
+	    Persona.update({'_id':id}, content, { upsert: true }, function(e){
+			if (e){
+				 res.send({'error':'An error has occurred'});
+			}else{
+				res.send(content);
+			}
+		});
+	}
+}
+
+exports.newPersona = function(models){
+	return function(req, res) {
+		var Persona = models.persona();
+	    var content = req.body;
+	    new Persona(content).save( function(e){
+			if (e){
+				 res.send({'error':'An error has occurred'});
+			}else{
+				res.send(content);
+			}
+		});
+	}
+}
 
 exports.personasByRegex = function(models){
 	return function(req,res){

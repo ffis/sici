@@ -1,9 +1,13 @@
 'use strict';
 
-function AppCtrl($scope, $rootScope, Session, $location) {
+function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados) {
+
 	$rootScope.setTitle   = function (title){ $scope.name = title; };
 	$rootScope.setLogeado = function(t){
 		$rootScope.logeado = t;
+		if (t) {
+			$rootScope.permisosCalculados = PermisosCalculados.query({});
+		}
 	};
 	$rootScope.session = Session;
 	$rootScope.nav = '';
@@ -25,7 +29,13 @@ function AppCtrl($scope, $rootScope, Session, $location) {
 		{ id:'periodos', caption: 'Gestionar períodos'},
 	];
 	
-	$rootScope.loginCarm = true;
+	if ($rootScope.logeado) {
+		console.log($rootScope.session);
+		$rootScope.permisosCalculados = PermisosCalculados.query({});
+	}
+	console.log($rootScope.session);
+	
+	$rootScope.loginCarm = false;
 
 	$rootScope.irProcedimiento = function(){
 		var id = parseInt($rootScope.procedimiento);
@@ -60,18 +70,70 @@ function AppCtrl($scope, $rootScope, Session, $location) {
 	};
 
 	$rootScope.R = function(procedimiento) {
-		return
-		$rootScope.session.permisoscalculados.procedimientoslectura.indexOf(procedimiento.codigo)!==-1 ||
-		$rootScope.session.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo)!==-1
+		var def = $q.defer();
+		$rootScope.permisosCalculados.$promise.then(function(){
+			def.resolve(
+				$rootScope.permisosCalculados.procedimientoslectura.indexOf(procedimiento.codigo)!==-1 ||
+				$rootScope.permisosCalculados.procedimientosescritura.indexOf(procedimiento.codigo)!==-1
+			);
+		}, function(){
+			def.reject();
+		});
+		return def.promise;
 	};
 	
 	$rootScope.W = function(procedimiento) {
-		return $rootScope.session.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo)!==-1;	
+		var def = $q.defer();
+		$rootScope.permisosCalculados.$promise.then(function(){
+			def.resolve(
+				$rootScope.permisosCalculados.procedimientosescritura.indexOf(procedimiento.codigo)!==-1
+			);
+		}, function(){
+			def.reject();
+		});
+		return def.promise;
 	};
 	
+	var defsuperuser = $q.defer();
+	
 	$rootScope.superuser = function() {
-		return !!$rootScope.session.permisoscalculados.superuser;
+		
+		$rootScope.permisosCalculados.$promise.then(function(){
+			defsuperuser.resolve(
+				!!$rootScope.permisosCalculados.superuser
+			);
+		}, function(){
+			defsuperuser.reject();
+		});
+		return defsuperuser.promise;
 	}
+	
+	$rootScope.jerarquialectura = function(){
+		var def = $q.defer();
+
+		$rootScope.permisosCalculados.$promise.then(function(){
+			def.resolve(
+				$rootScope.permisosCalculados.jerarquialectura
+			);
+		}, function(){
+			def.reject();
+		});
+		return def.promise;
+	}
+	
+	$rootScope.jerarquiaescritura = function(){
+		var def = $q.defer();
+
+		$rootScope.permisosCalculados.$promise.then(function(){
+			def.resolve(
+				$rootScope.permisosCalculados.jerarquiaescritura
+			);
+		}, function(){
+			def.reject();
+		});
+		return def.promise;
+	}	
+
 }
 
-AppCtrl.$inject = ['$scope','$rootScope','Session', '$location'];
+AppCtrl.$inject = ['$q','$scope','$rootScope','Session', '$location','PermisosCalculados'];

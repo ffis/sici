@@ -8,6 +8,7 @@ function RecalculateCtrl($rootScope,$scope,$window, $http){
     	{ label: 'Jerarquia' , fn:[ { label: "Recalcular", cmd: '/api/fjerarquia' } ] },
     	{ label: 'Permisos'  , fn:[ { label: "Recalcular", cmd: '/api/fpermiso' } ] },
 		{ label: 'Personas'  , fn:[ { label: "Recalcular", cmd: '/api/excelgesper' } ] },
+		{ label: 'Importar Procedimientos', fn:[ { label: "Importar", cmd: '/test/testImportadorExcel' } ] },
     ];
     $scope.clasefuncionalidades = 'col-md-'+ (12 / $scope.funcionalidades.length);
 
@@ -31,6 +32,7 @@ function RecalculateCtrl($rootScope,$scope,$window, $http){
 	    	});
     	});
     }
+	
 
 }
 

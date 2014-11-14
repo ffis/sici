@@ -53,6 +53,93 @@ exports.removePermisoProcedimiento = function(models, Q) {
 }
 
 
+function getPermisosByLoginPlaza(models,Q)
+{
+		var Permiso = models.permiso();
+		var login;
+		var cod_plaza;
+		var restriccion = {};
+		
+		if (req.params.login && req.params.login!="-"){
+			login = req.params.login;
+			restriccion.login = login;
+		}
+		
+		if (req.params.cod_plaza && req.params.cod_plaza!="-"){
+			codplaza = req.params.codplaza;
+			restriccion.codplaza = codplaza;
+		}
+		
+		var df = Q.defer();
+		var permisos_promise = df.promise;
+		
+		Permiso.find(restriccion,function(err, permisos){
+			if (err) df.reject(err);
+			else df.resolve(permisos);
+		});
+		
+		return permisos_promise;
+}
+
+
+exports.delegarpermisos = function(models,Q)
+{
+	return function(req, res) {
+		var Permiso = models.permiso();
+		var promesa_permisos = getPermisosByLoginPlaza(models,Q);
+		promesa_permisos.then(
+			function(permisos){
+				var promesas_permisos = [];
+				for(var i=0;i<permisos.length;i++)
+				{	
+					var p = JSON.stringify(permisos[i]);
+					delete permisos[i]._id;				
+					if (req.params.login && req.params.login != "-")
+						permisos[i].login=req.params.login
+					if (req.params.cod_plaza && req.params.cod_plaza)
+						permisos[i].codplaza = req.params.cod_plaza;
+					var op = new Permiso(p);
+					
+					var defer = Q.defer();
+					promesas_permisos.push(defer.promise);
+					
+					op.save(function(err){
+						if (err) {
+							 console.error(err); res.status(500); res.end(); return;
+							defer.reject(err);
+						} else {
+							defer.resolve(op);
+						}
+					});
+				}
+				Q.all(promesas_permisos,function(err,permisos){
+					if (err) { console.error(err); res.status(500); res.end(); }
+					else {
+						res.json(permisos);
+					}
+				});
+			},
+			function(err){
+				console.error(err); res.status(500); res.end(); return;
+			}
+		);		
+	}
+}
+
+exports.permisosByLoginPlaza = function(models,Q) {
+	return function(req, res) {
+		var promesa_permisos = getPermisosByLoginPlaza(models,Q);
+		promesa_permisos.then(
+			function(permisos){
+				res.json(permisos)
+			},
+			function(err){
+				console.error(err); res.status(500); res.end(); return;
+			}
+		);
+	}
+};
+
 exports.removePermisoJerarquia = function(models, Q) {
 	return function(req, res) {
 		if (typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia)) &&
@@ -104,6 +191,8 @@ exports.removePermisoJerarquia = function(models, Q) {
 		console.error('Invocación inválida para la eliminación de un permiso'); res.status(500); res.end(); return;
 	}
 }
+
+
 
 
 //// Devuelve las instancias de permiso que tienen concedido permiso directo sobre el id de jerarquía
@@ -294,6 +383,65 @@ exports.update = function(models) {
 	}
 }
 
+exports.create = function(models, Q, recalculate){
+	return function(req,res){
+	var Permiso = models.permiso();
+	var arg_permiso = req.body;
+	var permiso = {
+	 login : arg_permiso.login,
+	 codplaza : arg_permiso.codplaza,
+	 jerarquialectura : (typeof arg_permiso.jerarquialectura !== 'undefined' ? arg_permiso.jerarquialectura : []),
+	 jerarquiaescritura : (typeof arg_permiso.jerarquiaescritura !== 'undefined' ? arg_permiso.jerarquiaescritura : []),
+	 jerarquiadirectalectura : (typeof arg_permiso.jerarquiadirectalectura !== 'undefined' ? arg_permiso.jerarquiadirectalectura : []),
+	 jerarquiadirectaescritura : (typeof arg_permiso.jerarquiadirectaescritura !== 'undefined' ? arg_permiso.jerarquiadirectaescritura : []),
+	 procedimientoslectura : (typeof arg_permiso.procedimientoslectura !== 'undefined' ? arg_permiso.procedimientoslectura : []),
+	 procedimientosescritura : (typeof arg_permiso.procedimientosescritura !== 'undefined' ? arg_permiso.procedimientosescritura : []),
+	 procedimientosdirectalectura : (typeof arg_permiso.procedimientosdirectalectura !== 'undefined' ? arg_permiso.procedimientosdirectalectura : []),
+	 procedimientosdirectaescritura : (typeof arg_permiso.procedimientosdirectaescritura !== 'undefined' ? arg_permiso.procedimientosdirectaescritura : []),
+	 caducidad : usuarioactual.caducidad,
+	 descripcion : '',
+	 grantoption  : arg_permiso.grantoption,
+	 superuser : arg_permiso.superuser
+	};	
+	
+	var dpersona = Q.defer();
+	var ppersona = dpersona.promise;
+		
+	if (permiso.codplaza) {
+		Persona.findOne({'codplaza': permiso.codplaza},function(err,usuario){
+			if (err) dpersona.reject(err);
+			else dpersona.resolve(usuario);				
+		});
+	} else {
+		Persona.findOne({'login': permiso.login},function(err,usuario){
+			if (err) dpersona.reject(err);
+			else dpersona.resolve(usuario);				
+		});	
+	}
+	
+	ppersona.then(function(){
+		opermiso = new Permiso(permiso);
+		opermiso.save(permiso,function(err){
+			if (err) {
+				console.error(err); res.status(500); res.end(); return;
+			} else {
+					recalculate.recalculate.softCalculatePermiso(Q, models, permiso).then(
+						function(permiso){
+							res.json(permiso);
+						},
+						function(err){
+							console.error(err); res.status(500); res.end(); return;
+						}
+					);
+				
+			}
+		});		
+	},function(err){
+		console.error(err); res.status(500); res.end(); return;
+	});	
+	}
+}
+/*
 exports.create = function(models) {
 	return function(req,res) {				
 		var Permiso = models.permiso();
@@ -307,6 +455,23 @@ exports.create = function(models) {
 				if (err) dpersona.reject(err);
 				else dpersona.resolve(usuario);				
 		});
+		
+		Permiso.save(permiso,function(err,nuevopermiso){
+				res.json(nuevopermiso);
+				if (req.body.nombre && req.body.apellidos) {
+					var persona = {
+						'nombre' : req.body.nombre,
+						'apellidos' : req.body.apellidos,
+						'genero' : req.body.genero,
+						'telefono' : req.body.telefono,
+						'habilitado' : 1					
+					};
+					Persona.create(persona, function(err,nuevapersona){
+						console.log("Creada nueva persona");
+						console.log(nuevapersona);
+					});
+				}
+			});		
 		
 		ppersona.then(function(usuarioactual){
 			var permiso = {
@@ -371,7 +536,7 @@ exports.create = function(models) {
 			console.error(err); res.status(500); res.end(); return;
 		});	
 	}
-}
+}*/
 
 
 

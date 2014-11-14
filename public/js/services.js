@@ -9,7 +9,7 @@ angular.module('sici.services', ['ngResource'])
 		}])
     .factory('Procedimiento', ['$resource',
         function ($resource) {
-            return $resource('/api/procedimiento/:codigo', {codigo:'@codigo'},   { update: {method:'PUT' } });
+            return $resource('/api/procedimiento/:codigo', {codigo:'@codigo'},   { get : {method:'GET', isArray:false} , update: {method:'PUT' }, create:{method:'POST'} });
 		}])
     .factory('ProcedimientoList', ['$resource',
         function ($resource) {
@@ -39,6 +39,18 @@ angular.module('sici.services', ['ngResource'])
         function ($resource) {
             return $resource('/api/permisos/:id', {id:'@id'},   { update: {method:'PUT' }, create: {method:'POST' } });
 		}])
+	.factory('PermisosCalculados', ['$resource',
+        function ($resource) {
+            return $resource('/api/permisoscalculados', {},   { query: {method:'GET', isArray:false }});
+		}])
+	.factory('PermisosDelegar', ['$resource',
+        function ($resource) {
+            return $resource('/api/permisosdelegar/:login/:cod_plaza', {},   { query: {method:'GET', isArray:false }});
+		}])		
+    .factory('PersonasByLoginPlaza', ['$resource',
+        function ($resource) {
+            return $resource('/api/permisosByLoginPlaza/:login/:cod_plaza', {}, { query: {method:'GET', isArray:true} });
+        }])		
     .factory('PersonasByPuesto', ['$resource',
         function ($resource) {
             return $resource('/api/personasByPuesto/:cod_plaza', {}, { query: {method:'GET', isArray:true} });
@@ -54,6 +66,10 @@ angular.module('sici.services', ['ngResource'])
 	.factory('PersonasSearchList', ['$resource',
         function ($resource) {
             return $resource('/api/searchpersonas', {}, { query: {method:'GET', isArray:true} });
+        }])
+	.factory('Persona', ['$resource',
+        function ($resource) {
+            return $resource('/api/persona/:id', {id:'@id'}, { create: {method:'POST' }, update: {method:'PUT'}} );
         }])
 	.factory('DetalleCarmProcedimiento', ['$resource',
         function ($resource) {
