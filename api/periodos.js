@@ -29,7 +29,7 @@ exports.updatePeriodo = function(models){
 	    var content = req.body;
 	    periodo.update({'_id':id}, content, { upsert: true }, function(e){
 			if (e){
-				 res.send({'error':'An error has occurred'});
+				 res.send({'error':'An error has occurred:' +e});
 			}else{
 				var meses = content['2014'];
 				//parche:
