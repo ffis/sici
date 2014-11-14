@@ -6,7 +6,7 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados,
 	$rootScope.setLogeado = function(t){
 		$rootScope.logeado = t;
 		if (t) {
-			$rootScope.permisosCalculados = PermisosCalculados.query({});
+			$rootScope.permisoscalculados = PermisosCalculados.query({});
 		}
 	};
 	$rootScope.session = Session;
@@ -31,7 +31,7 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados,
 	];
 	
 	if ($rootScope.logeado) {
-		$rootScope.permisosCalculados = PermisosCalculados.query({});
+		$rootScope.permisoscalculados = permisoscalculados.query({});
 	}
 	$rootScope.loginCarm = AuthService.carmlogin;
 
@@ -69,10 +69,10 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados,
 
 	$rootScope.R = function(procedimiento) {
 		var def = $q.defer();
-		$rootScope.permisosCalculados.$promise.then(function(){
+		$rootScope.permisoscalculados.$promise.then(function(){
 			def.resolve(
-				$rootScope.permisosCalculados.procedimientoslectura.indexOf(procedimiento.codigo)!==-1 ||
-				$rootScope.permisosCalculados.procedimientosescritura.indexOf(procedimiento.codigo)!==-1
+				$rootScope.permisoscalculados.procedimientoslectura.indexOf(procedimiento.codigo)!==-1 ||
+				$rootScope.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo)!==-1
 			);
 		}, function(){
 			def.reject();
@@ -82,9 +82,9 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados,
 	
 	$rootScope.W = function(procedimiento) {
 		var def = $q.defer();
-		$rootScope.permisosCalculados.$promise.then(function(){
+		$rootScope.permisoscalculados.$promise.then(function(){
 			def.resolve(
-				$rootScope.permisosCalculados.procedimientosescritura.indexOf(procedimiento.codigo)!==-1
+				$rootScope.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo)!==-1
 			);
 		}, function(){
 			def.reject();
@@ -96,9 +96,9 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados,
 	
 	$rootScope.superuser = function() {
 		
-		$rootScope.permisosCalculados.$promise.then(function(){
+		$rootScope.permisoscalculados.$promise.then(function(){
 			defsuperuser.resolve(
-				!!$rootScope.permisosCalculados.superuser
+				!!$rootScope.permisoscalculados.superuser
 			);
 		}, function(){
 			defsuperuser.reject();
@@ -109,9 +109,9 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados,
 	$rootScope.jerarquialectura = function(){
 		var def = $q.defer();
 
-		$rootScope.permisosCalculados.$promise.then(function(){
+		$rootScope.permisoscalculados.$promise.then(function(){
 			def.resolve(
-				$rootScope.permisosCalculados.jerarquialectura
+				$rootScope.permisoscalculados.jerarquialectura
 			);
 		}, function(){
 			def.reject();
@@ -122,9 +122,9 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados,
 	$rootScope.jerarquiaescritura = function(){
 		var def = $q.defer();
 
-		$rootScope.permisosCalculados.$promise.then(function(){
+		$rootScope.permisoscalculados.$promise.then(function(){
 			def.resolve(
-				$rootScope.permisosCalculados.jerarquiaescritura
+				$rootScope.permisoscalculados.jerarquiaescritura
 			);
 		}, function(){
 			def.reject();
@@ -135,9 +135,9 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados,
 	$rootScope.grantoption = function(){
 		var def = $q.defer();
 
-		$rootScope.permisosCalculados.$promise.then(function(){
+		$rootScope.permisoscalculados.$promise.then(function(){
 			def.resolve(
-				$rootScope.permisosCalculados.grantoption
+				$rootScope.permisoscalculados.grantoption
 			);
 		}, function(){
 			def.reject();

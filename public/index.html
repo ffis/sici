@@ -33,7 +33,7 @@
 					<li ng-class="{active:$root.nav==navg.id}" ng-repeat="navg in $root.navegabilidad">
 						<a href="{{navg.id}}">{{navg.caption}}</a>
 					</li>
-					<li class="dropdown" ng-If="$root.permisosCalculados.superuser" >
+					<li class="dropdown" ng-If="$root.permisoscalculados.superuser" >
 			          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Administrar <span class="caret"></span></a>
 			          <ul class="dropdown-menu" role="menu">
 						<li ng-class="{active:$root.nav==navg.id}" ng-repeat="navg in $root.navegabilidadSuper">
