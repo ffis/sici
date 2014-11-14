@@ -1,4 +1,4 @@
-function EtiquetaCtrl($rootScope,$scope,$routeParams,Etiqueta) {
+function EtiquetaCtrl($rootScope,$scope,$window, $routeParams,Etiqueta) {
 	$rootScope.nav = 'etiqueta';
 	$window.document.title ='SICI: Etiquetas';
 	$scope.cambios = [];
@@ -24,4 +24,4 @@ function EtiquetaCtrl($rootScope,$scope,$routeParams,Etiqueta) {
 	}
 }
 
-ReglasInconsistenciasCtrl.$inject = ['$rootScope','$scope','$routeParams','Etiqueta'];
+ReglasInconsistenciasCtrl.$inject = ['$rootScope','$scope','$window', '$routeParams','Etiqueta'];
