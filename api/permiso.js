@@ -53,30 +53,37 @@ exports.removePermisoProcedimiento = function(models, Q) {
 }
 
 
-function getPermisosByLoginPlaza(models,Q)
+function getPermisosByLoginPlaza(models,Q,login, cod_plaza)
 {
 		var Permiso = models.permiso();
-		var login;
-		var cod_plaza;
 		var restriccion = {};
 		
-		if (req.params.login && req.params.login!="-"){
-			login = req.params.login;
-			restriccion.login = login;
-		}
-		
-		if (req.params.cod_plaza && req.params.cod_plaza!="-"){
-			codplaza = req.params.codplaza;
-			restriccion.codplaza = codplaza;
-		}
+		if (!login && req.params.login && req.params.login!="-")
+			login = req.params.login;			
+			
+		if (!cod_plaza && req.params.cod_plaza && req.params.cod_plaza!="-")
+			cod_plaza = req.params.codplaza;			
+			
+		if (login && cod_plaza)
+			restriccion = { "$or":[
+					{ 'login' : login },
+					{ 'codplaza' : cod_plaza }
+				] };
+		else if (login)
+			restriccion.login = login;						
+		else if (cod_plaza)
+			restriccion.codplaza = cod_plaza;
 		
 		var df = Q.defer();
 		var permisos_promise = df.promise;
 		
-		Permiso.find(restriccion,function(err, permisos){
-			if (err) df.reject(err);
-			else df.resolve(permisos);
-		});
+		if (login=="-" || cod_plaza!="-")
+			Permiso.find(restriccion,function(err, permisos){
+				if (err) df.reject(err);
+				else df.resolve(permisos);
+			});		
+		else 
+			df.resolve([]);
 		
 		return permisos_promise;
 }
@@ -86,37 +93,44 @@ exports.delegarpermisos = function(models,Q)
 {
 	return function(req, res) {
 		var Permiso = models.permiso();
-		var promesa_permisos = getPermisosByLoginPlaza(models,Q);
+		var promesa_permisos = getPermisosByLoginPlaza(models,Q,req.user.login,req.user.codplaza);console.log("hola0");
 		promesa_permisos.then(
 			function(permisos){
+				console.log("nump "+permisos.length);
 				var promesas_permisos = [];
 				for(var i=0;i<permisos.length;i++)
 				{	
-					var p = JSON.stringify(permisos[i]);
-					delete permisos[i]._id;				
+					var p = JSON.parse(JSON.stringify(permisos[i]));	
+					console.log("hola");
+					delete p._id;		
 					if (req.params.login && req.params.login != "-")
-						permisos[i].login=req.params.login
-					if (req.params.cod_plaza && req.params.cod_plaza)
-						permisos[i].codplaza = req.params.cod_plaza;
-					var op = new Permiso(p);
-					
+						p.login=req.params.login
+					if (req.params.cod_plaza && req.params.cod_plaza != "-")
+						p.codplaza = req.params.cod_plaza;
+										
+					var op = new Permiso(p);														
+					op.grantoption = false;
+					console.log("hola2");
 					var defer = Q.defer();
 					promesas_permisos.push(defer.promise);
-					
+										console.log("hola3");
 					op.save(function(err){
 						if (err) {
-							 console.error(err); res.status(500); res.end(); return;
+							console.error("Imposible salvar nuevo procedimiento"); console.error(err); res.status(500); res.end(); return;
 							defer.reject(err);
-						} else {
-							defer.resolve(op);
+						} else {		
+							console.log("Guardando permiso delegado");
+							defer.resolve(p);
+							console.log("Hecho!");
 						}
 					});
 				}
-				Q.all(promesas_permisos,function(err,permisos){
-					if (err) { console.error(err); res.status(500); res.end(); }
-					else {
-						res.json(permisos);
-					}
+				Q.all(promesas_permisos).then(function(permisos){
+					//console.log(permisos);
+					res.json(permisos);
+				}, function(err){
+					console.error("Problemas modificando permisos...");
+					console.error(err); res.status(500); res.end();				
 				});
 			},
 			function(err){
