@@ -188,7 +188,7 @@ exports.softCalculateProcedimientoCache = function(Q, models, procedimiento){
 }
 
 
-exports.softCalculateProcedimiento = function(Q, procedimiento){
+exports.softCalculateProcedimiento = function(Q, models, procedimiento){
 	var deferred = Q.defer();
 
 	//para cada periodo
@@ -202,6 +202,17 @@ exports.softCalculateProcedimiento = function(Q, procedimiento){
 	for(var periodo in procedimiento.periodos)
 	{
 		if (typeof procedimiento.periodos[ periodo ] != 'object') continue;
+
+		//comprobar si está inicilializados los campos de tipo array a 12 elementos
+		var campos = models.getSchema('procedimiento').periodos[periodo];
+		for(var campo in campos){
+			if (Array.isArray(procedimiento.periodos[ periodo ][campo]) && procedimiento.periodos[ periodo ][campo].length==0){
+				procedimiento.periodos[ periodo ][campo] = [0,0,0,0,0,0,0,0,0,0,0,0];
+			}else{
+				console.error('campo:'+ campo + ' '+ typeof procedimiento.periodos[ periodo ][campo]);
+			}
+		}
+
 		if (typeof procedimiento.periodos[ periodo ].resueltos_1 == 'undefined') continue;
 
 		//nuevos campos
@@ -269,7 +280,7 @@ exports.fullSyncprocedimiento = function( Q, models, fnprocedimiento){
 			var promise = Q.defer();
 			var f = function(promise,procedimiento) {
 				var proccodigo = procedimiento.codigo;
-				exports.softCalculateProcedimiento(Q, procedimiento).then(function(procedimiento){
+				exports.softCalculateProcedimiento(Q, models, procedimiento).then(function(procedimiento){
 					exports.softCalculateProcedimientoCache(Q, models, procedimiento).then(function(procedimiento){
 						if (!procedimiento.codigo)
 						{

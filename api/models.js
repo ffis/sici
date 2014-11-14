@@ -134,6 +134,7 @@ var schemasfields = {
 				'recursos':[Number],
 				'fuera_plazo':[Number],
 				'pendientes':[Number],
+				'periodoscerrados':[Number],
 				'totalsolicitudes':Number,
 				'Incidencias': {
 					'Se han resuelto expedientes fuera de Plazo': [Number],
@@ -143,7 +144,6 @@ var schemasfields = {
 					'Las solicitudes aumentan al menos 20%': [Number],
 					'Posible incumplimiento de compromisos': [Number],
 				},
-				'periodoscerrados':[Number]
 			}
 		}
 	}

@@ -100,7 +100,8 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   
   app.get('/api/procedimiento/:codigo', procedimiento.procedimiento(models) );
   app.put('/api/procedimiento/:codigo', procedimiento.updateProcedimiento(Q, models, recalculate) );  
-  app.post('/api/procedimiento', procedimiento.createProcedimiento(Q, models, recalculate) );
+  //app.post('/api/procedimiento', procedimiento.createProcedimiento(Q, models, recalculate) );
+  app.post('/api/procedimiento/:codigo', procedimiento.createProcedimiento(Q, models, recalculate) );
   
   app.get('/api/jerarquia/:idjerarquia', jerarquia.getNodoJerarquia(models));
 

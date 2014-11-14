@@ -113,7 +113,7 @@ function DetallesCtrl($q,$rootScope,$scope, $routeParams, $window, Procedimiento
 		
 	$scope.attrstabla = [
 		'solicitados',
-		'iniciados','periodos_cerrados',
+		'iniciados',
 		'quejas','recursos',
 		'resueltos_1','resueltos_5','resueltos_10','resueltos_15','resueltos_30','resueltos_45','resueltos_mas_45',
 		'resueltos_desistimiento_renuncia_caducidad','resueltos_prescripcion',
