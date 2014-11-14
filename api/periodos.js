@@ -24,9 +24,9 @@ exports.updatePeriodo = function(models){
 	return function(req, res) {
 		var periodo = models.periodo();
 		var Procedimiento = models.procedimiento();
+	    var content = req.body;
 	    var id = content._id;
 
-	    var content = req.body;
 	    delete content._id;
 	    periodo.update({'_id':id}, content, { upsert: true }, function(e){
 			if (e){
