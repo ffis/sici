@@ -62,11 +62,11 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 			Jerarquia.find({ id:{ '$in':idsjerarquia } },function(err,jerarquias){
 				if (err){ def.reject( err ); return; }
 				jerarquias.forEach(function(jerarquia){
-					if (permiso[ attr ].indexOf(jerarquia.id) < 0)
-						permiso[ attr ].push(jerarquia.id);
+					if (permiso[ attr ].indexOf(parseInt(jerarquia.id)) < 0)
+						permiso[ attr ].push(parseInt(jerarquia.id));
 					jerarquia.descendientes.forEach(function(idjerarquia){
-						if (permiso[ attr ].indexOf(idjerarquia) < 0)
-							permiso[ attr ].push(idjerarquia);
+						if (permiso[ attr ].indexOf(parseInt(idjerarquia)) < 0)
+							permiso[ attr ].push(parseInt(idjerarquia));
 					});
 				});
 
@@ -78,35 +78,36 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 
 		var defs2 = [];
 		Q.all(defs).then(function(){
-
-			var attrprocedimientos = ['procedimientoslectura', 'procedimientosescritura'];
 			var attrsOrigenjerarquia = ['jerarquialectura', 'jerarquiaescritura'];
+			var attrprocedimientos = ['procedimientoslectura', 'procedimientosescritura'];
 			var attrprocedimientosDirecto = ['procedimientosdirectalectura', 'procedimientosdirectaescritura'];
 
 			attrprocedimientos.forEach(function(attr, idx){
 
-				if (permiso [ attrprocedimientosDirecto[idx] ])
-					permiso[ attr ] = permiso[ attr ].concat( permiso [ attrprocedimientosDirecto[idx] ]);
-				else
+				if (!permiso [ attrprocedimientosDirecto[idx] ])
 					permiso [ attrprocedimientosDirecto[idx] ] = [];
+
+				permiso[ attr ] = permiso [ attrprocedimientosDirecto[idx] ];
 
 				var idsjerarquia = permiso[ attrsOrigenjerarquia[idx] ];
 				if (idsjerarquia && idsjerarquia.length==0) return;
 
 				var def = Q.defer();
-				var f = function(attr){
+				var f = function(def,attr){
 					return function(err,procedimientos){
 						if (err){ console.error(err);console.error(93); def.reject( err ); return; }
 
 						procedimientos.forEach(function(procedimiento){
-							if (permiso[ attr ].indexOf(procedimiento.codigo) < 0)
-								permiso[ attr ].push(procedimiento.codigo);
+							if (permiso[ attr ].indexOf(""+procedimiento.codigo) < 0)
+							{
+								permiso[ attr ].push(""+procedimiento.codigo);
+							}
 						});
 						def.resolve();
 					};	
 				};
 
-				Procedimiento.find({ idjerarquia:{ '$in':idsjerarquia } }, f(attr));
+				Procedimiento.find({ idjerarquia:{ '$in':idsjerarquia } }, f(def,attr));
 				defs2.push(def.promise);
 			});
 
