@@ -27,13 +27,13 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados)
 		{ id:'permisos', caption:'Gestionar permisos' },
 		{ id:'etiqueta', caption: 'Gestionar etiquetas'},
 		{ id:'periodos', caption: 'Gestionar períodos'},
+		{ id:'crearprocedimiento', caption: 'Crear procedimiento'},
 	];
 	
 	if ($rootScope.logeado) {
-		console.log($rootScope.session);
 		$rootScope.permisosCalculados = PermisosCalculados.query({});
 	}
-	console.log($rootScope.session);
+	
 	
 	$rootScope.loginCarm = false;
 
@@ -132,7 +132,20 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados)
 			def.reject();
 		});
 		return def.promise;
-	}	
+	}
+
+	$rootScope.grantoption = function(){
+		var def = $q.defer();
+
+		$rootScope.permisosCalculados.$promise.then(function(){
+			def.resolve(
+				$rootScope.permisosCalculados.grantoption
+			);
+		}, function(){
+			def.reject();
+		});
+		return def.promise;	
+	}
 
 }
 
