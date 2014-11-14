@@ -35,7 +35,7 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados)
 	}
 	
 	
-	$rootScope.loginCarm = false;
+	$rootScope.loginCarm = true;
 
 	$rootScope.irProcedimiento = function(){
 		var id = parseInt($rootScope.procedimiento);
