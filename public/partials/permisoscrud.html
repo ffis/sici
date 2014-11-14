@@ -1,7 +1,7 @@
 
 
 <div ng-controller="PermisoCtrl" class="row">
-<div id="superuser" ng-if="$root.grantoption">
+<div id="superuser" ng-if="$root.permisoscalculados.grantoption">
 	<div ng-class="{'col-lg-5': !oculto, 'hidden': oculto}" class="left animated">
 		<div class="panel panel-danger">
 			<div class="panel-heading">
@@ -223,7 +223,7 @@
 							<input type="hidden" name="nodojerarquia" value="{{seleccionado.id || 0}}" />
 							<input type="hidden" name="tiposeleccion" value="{{seleccionado_organica?'jerarquia':'procedimiento'}}" />		
 							<br/>							
-							<div ng-if="$root.superuser">							
+							<div ng-if="$root.permisoscalculados.superuser">							
 								<label for="propietario" ng-if="!seleccionado_organica && procedimiento_seleccionado">
 									<input type="checkbox" ng-model="propietario" name="propietario" ng-disabled="  !usuarioseleccionado " value="1"/> Es propietario del procedimiento
 								</label>							
@@ -236,7 +236,7 @@
 									<input type="checkbox" ng-model="w_option" name="w_option" ng-disabled="  !usuarioseleccionado || propietario" value="1" /> Puede introducir datos
 								</label>
 								<br/>
-								<label for="p_superuser" ng-if="$root.superuser()">
+								<label for="p_superuser" ng-if="$root.permisoscalculados.superuser">
 									<input type="checkbox" ng-model="psuperuser" name="p_superuser" ng-disabled=" !usuarioseleccionado  || propietario" value="1" /> Superusuario
 								</label>							
 								<br class="clear"/>
@@ -244,7 +244,7 @@
 								<button class="btn btn-default danger" ng-disabled="is_nuevousuario || !usuarioseleccionado" ng-click="crearpermiso(usuarioseleccionado)" ><span class="glyphicon glyphicon-ok"></span> <span>Crear</span></button>									
 								 &nbsp;<button class="btn btn-default danger" ng-disabled="is_nuevousuario || !usuarioseleccionado" ng-click="delegar(usuarioseleccionado)" title="concede tus permisos, salvo la capacidad de dar permiso a otros" ><span class="glyphicon glyphicon-share"></span> <span>Delegar permisos</span></button>	
 							</div>
-							<div ng-if="!$root.superuser">
+							<div ng-if="!$root.permisoscalculados.superuser">
 								&nbsp;<button class="btn btn-default danger" ng-disabled="is_nuevousuario || !usuarioseleccionado" ng-click="delegar(usuarioseleccionado)" title="concede tus permisos, salvo la capacidad de dar permiso a otros" ><span class="glyphicon glyphicon-share"></span> <span>Delegar permisos</span></button>	
 							</div>
 						</form>
