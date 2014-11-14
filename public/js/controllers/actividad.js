@@ -1,4 +1,4 @@
-function ActividadCtrl($q,$rootScope,$scope,$location,$window,$routeParams, Arbol, ProcedimientoList,DetalleCarmProcedimiento,DetalleCarmProcedimiento2, PersonasByPuesto, Session, Etiqueta) {
+function ActividadCtrl($q,$rootScope,$scope,$location,$window,$routeParams,$timeout, Arbol, ProcedimientoList,DetalleCarmProcedimiento,DetalleCarmProcedimiento2, PersonasByPuesto, Session, Etiqueta) {
 	$rootScope.nav = 'actividad';
 	$window.document.title ='SICI: Actividad';
 	$scope.idjerarquia = ($routeParams.idjerarquia) ? $routeParams.idjerarquia :false;
@@ -104,7 +104,9 @@ function ActividadCtrl($q,$rootScope,$scope,$location,$window,$routeParams, Arbo
 				$scope.procedimientos = ProcedimientoList.query({idjerarquia:seleccionad.id, fields:camposProcedimientos.join(' ')}); 
 				$scope.cumplimentados = 0;
 				$scope.count = 1;
-				$("body").animate({scrollTop: $('#detallesjerarquia').offset().top}, "slow");
+				$timeout(function(){
+					$("body").animate({scrollTop: $('#detallesjerarquia').offset().top}, "slow");
+				}, 20);
 			}
 		};
 
@@ -211,13 +213,11 @@ function ActividadCtrl($q,$rootScope,$scope,$location,$window,$routeParams, Arbo
 				for(var a in $scope.responsables)
 					$scope.responsable = $scope.responsables[a];
 			}
-			
 			$scope.sparkline();
-			
 		}
 	});
 	
 
 	
 }
-ActividadCtrl.$inject = ['$q','$rootScope','$scope','$location','$window','$routeParams','Arbol','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','PersonasByPuesto','Session', 'Etiqueta'];
+ActividadCtrl.$inject = ['$q','$rootScope','$scope','$location','$window','$routeParams','$timeout','Arbol','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','PersonasByPuesto','Session', 'Etiqueta'];

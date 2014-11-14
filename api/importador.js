@@ -112,7 +112,7 @@ exports.applyImportacionProcedimiento = function(models, Q, recalculate, P){
 						defs.push(def.promise);
 						var fn = function(codigo,def){
 							Procedimiento.findOne({codigo:codigo}, function(err,procedimiento){
-								recalculate.softCalculateProcedimiento(Q, procedimiento).then(function(procedimiento){
+								recalculate.softCalculateProcedimiento(Q, models, procedimiento).then(function(procedimiento){
 									recalculate.softCalculateProcedimientoCache(Q, models, procedimiento).then(function(procedimiento){
 										P.saveVersion(models, Q, procedimiento).then(function(){
 											def.resolve();
@@ -318,7 +318,7 @@ exports.postParseExcel = function(Q, models, procedimientos, recalculate){
 	var procs = [];
 	procedimientos.forEach(function(procedimiento, i){
 		var q = Q.defer();
-		recalculate.softCalculateProcedimiento(Q, procedimiento).then(function(procedimiento){
+		recalculate.softCalculateProcedimiento(Q, models, procedimiento).then(function(procedimiento){
 			recalculate.softCalculateProcedimientoCache(Q, models, procedimiento).then(function(procedimiento){
 				procs.push(procedimiento);
 				q.resolve(procedimiento);
