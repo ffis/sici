@@ -121,7 +121,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
 
   app.get('/api/permisosList/:idjerarquia/:recursivo', permiso.permisosList(models, Q)); 
   app.get('/api/permisosList', permiso.permisosList(models, Q));
-  app.get('/api/permisosByLoginPlaza/:login/:cod_plaza', permiso.permisosByLoginPlaza(models));
+  app.get('/api/permisosByLoginPlaza/:login/:cod_plaza', permiso.permisosByLoginPlaza(models,Q));
   app.get('/api/permisosDirectosProcedimientoList/:codigoprocedimiento', permiso.permisosDirectosProcedimientoList(models, Q));
   app.get('/api/permisosProcedimientoList/:codigoprocedimiento', permiso.permisosProcedimientoList(models, Q));
   //app.get('/api/permisosCalculados', login.permisoscalculados(models)); 
