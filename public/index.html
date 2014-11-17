@@ -50,11 +50,12 @@
 		<div class="container-fluid">
 			<div ng-view></div>
 		</div>
-
+		<script>
+		//IE sucks
+			if (typeof console === "undefined" || typeof console.log === "undefined") { console = { log: function(){} } };
+		</script>
 		<script src="/js/lib/jquery/jquery-2.0.3.min.js"></script>
-
 		<script src="/bower_components/ng-file-upload/angular-file-upload-shim.js"></script>
-
 		<script src="/js/lib/angular/angular.js"></script>
 		<script src="/js/lib/angular/angular-route.js"></script>
 		<script src="/js/lib/angular/angular-sanitize.js"></script>
