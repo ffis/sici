@@ -3,7 +3,8 @@ function calcularPermisos(permisos) {
 	var permisoscalculados = {
 			jerarquialectura :[], jerarquiaescritura :[],
 			procedimientoslectura :[], procedimientosescritura :[],
-			superuser : false
+			superuser : false,
+			grantoption: false,
 	};
 	for(var i=0;i<permisos.length;i++)
 	{
@@ -17,6 +18,7 @@ function calcularPermisos(permisos) {
 				permisoscalculados.superuser = permisoscalculados.superuser || permisos[i].superuser;
 				permisoscalculados.jerarquiaescritura = permisoscalculados.jerarquiaescritura.concat( permisos[i].jerarquiaescritura);
 				permisoscalculados.procedimientosescritura = permisoscalculados.procedimientosescritura.concat( permisos[i].procedimientosescritura);								
+				permisoscalculados.grantoption = permisoscalculados.grantoption ||  permisos[i].grantoption;
 				//o.permisos.push( permisos[i] );
 			}
 		}
