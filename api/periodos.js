@@ -24,12 +24,13 @@ exports.updatePeriodo = function(models){
 	return function(req, res) {
 		var periodo = models.periodo();
 		var Procedimiento = models.procedimiento();
-	    var id = req.params.id;
-
 	    var content = req.body;
+	    var id = content._id;
+
+	    delete content._id;
 	    periodo.update({'_id':id}, content, { upsert: true }, function(e){
 			if (e){
-				 res.send({'error':'An error has occurred'});
+				 res.send({'error':'An error has occurred:' +e});
 			}else{
 				var meses = content['2014'];
 				//parche:

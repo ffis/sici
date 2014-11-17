@@ -207,8 +207,11 @@ exports.softCalculateProcedimiento = function(Q, models, procedimiento){
 		//comprobar si está inicilializados los campos de tipo array a 12 elementos
 		var campos = models.getSchema('procedimiento').periodos[periodo];
 		for(var campo in campos){
-			if (Array.isArray(procedimiento.periodos[ periodo ][campo]) && procedimiento.periodos[ periodo ][campo].length==0){
-				procedimiento.periodos[ periodo ][campo] = [0,0,0,0,0,0,0,0,0,0,0,0];
+			if (Array.isArray(procedimiento.periodos[ periodo ][campo]) && procedimiento.periodos[ periodo ][campo].length!=12){
+				while ( procedimiento.periodos[ periodo ][campo].length<12 )
+					procedimiento.periodos[ periodo ][campo].push(0);
+
+				//procedimiento.periodos[ periodo ][campo] = [0,0,0,0,0,0,0,0,0,0,0,0];
 			}else{
 				console.error('campo:'+ campo + ' '+ typeof procedimiento.periodos[ periodo ][campo]);
 			}

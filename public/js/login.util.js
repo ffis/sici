@@ -78,6 +78,7 @@ angular.module('sici.login.util', ['ngResource'])
 		function ($http, Session, $rootScope, $location, $route, $window,$log) {
 
 		  return {
+		  	carmlogin: false,
 			login: function (credentials) {
 				/** hacemos un post a la dirección del login. Esperamos respuesta. Si statusCode=401 hay error de autenticación **/				
 				return $http.post('/authenticate', credentials)
