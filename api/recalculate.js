@@ -62,11 +62,11 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 			Jerarquia.find({ id:{ '$in':idsjerarquia } },function(err,jerarquias){
 				if (err){ def.reject( err ); return; }
 				jerarquias.forEach(function(jerarquia){
-					if (permiso[ attr ].indexOf(jerarquia.id) < 0)
-						permiso[ attr ].push(jerarquia.id);
+					if (permiso[ attr ].indexOf(parseInt(jerarquia.id)) < 0)
+						permiso[ attr ].push(parseInt(jerarquia.id));
 					jerarquia.descendientes.forEach(function(idjerarquia){
-						if (permiso[ attr ].indexOf(idjerarquia) < 0)
-							permiso[ attr ].push(idjerarquia);
+						if (permiso[ attr ].indexOf(parseInt(idjerarquia)) < 0)
+							permiso[ attr ].push(parseInt(idjerarquia));
 					});
 				});
 
@@ -78,35 +78,36 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 
 		var defs2 = [];
 		Q.all(defs).then(function(){
-
-			var attrprocedimientos = ['procedimientoslectura', 'procedimientosescritura'];
 			var attrsOrigenjerarquia = ['jerarquialectura', 'jerarquiaescritura'];
+			var attrprocedimientos = ['procedimientoslectura', 'procedimientosescritura'];
 			var attrprocedimientosDirecto = ['procedimientosdirectalectura', 'procedimientosdirectaescritura'];
 
 			attrprocedimientos.forEach(function(attr, idx){
 
-				if (permiso [ attrprocedimientosDirecto[idx] ])
-					permiso[ attr ] = permiso[ attr ].concat( permiso [ attrprocedimientosDirecto[idx] ]);
-				else
+				if (!permiso [ attrprocedimientosDirecto[idx] ])
 					permiso [ attrprocedimientosDirecto[idx] ] = [];
+
+				permiso[ attr ] = permiso [ attrprocedimientosDirecto[idx] ];
 
 				var idsjerarquia = permiso[ attrsOrigenjerarquia[idx] ];
 				if (idsjerarquia && idsjerarquia.length==0) return;
 
 				var def = Q.defer();
-				var f = function(attr){
+				var f = function(def,attr){
 					return function(err,procedimientos){
 						if (err){ console.error(err);console.error(93); def.reject( err ); return; }
 
 						procedimientos.forEach(function(procedimiento){
-							if (permiso[ attr ].indexOf(procedimiento.codigo) < 0)
-								permiso[ attr ].push(procedimiento.codigo);
+							if (permiso[ attr ].indexOf(""+procedimiento.codigo) < 0)
+							{
+								permiso[ attr ].push(""+procedimiento.codigo);
+							}
 						});
 						def.resolve();
 					};	
 				};
 
-				Procedimiento.find({ idjerarquia:{ '$in':idsjerarquia } }, f(attr));
+				Procedimiento.find({ idjerarquia:{ '$in':idsjerarquia } }, f(def,attr));
 				defs2.push(def.promise);
 			});
 
@@ -188,7 +189,7 @@ exports.softCalculateProcedimientoCache = function(Q, models, procedimiento){
 }
 
 
-exports.softCalculateProcedimiento = function(Q, procedimiento){
+exports.softCalculateProcedimiento = function(Q, models, procedimiento){
 	var deferred = Q.defer();
 
 	//para cada periodo
@@ -202,6 +203,20 @@ exports.softCalculateProcedimiento = function(Q, procedimiento){
 	for(var periodo in procedimiento.periodos)
 	{
 		if (typeof procedimiento.periodos[ periodo ] != 'object') continue;
+
+		//comprobar si está inicilializados los campos de tipo array a 12 elementos
+		var campos = models.getSchema('procedimiento').periodos[periodo];
+		for(var campo in campos){
+			if (Array.isArray(procedimiento.periodos[ periodo ][campo]) && procedimiento.periodos[ periodo ][campo].length!=12){
+				while ( procedimiento.periodos[ periodo ][campo].length<12 )
+					procedimiento.periodos[ periodo ][campo].push(0);
+
+				//procedimiento.periodos[ periodo ][campo] = [0,0,0,0,0,0,0,0,0,0,0,0];
+			}else{
+				console.error('campo:'+ campo + ' '+ typeof procedimiento.periodos[ periodo ][campo]);
+			}
+		}
+
 		if (typeof procedimiento.periodos[ periodo ].resueltos_1 == 'undefined') continue;
 
 		//nuevos campos
@@ -269,7 +284,7 @@ exports.fullSyncprocedimiento = function( Q, models, fnprocedimiento){
 			var promise = Q.defer();
 			var f = function(promise,procedimiento) {
 				var proccodigo = procedimiento.codigo;
-				exports.softCalculateProcedimiento(Q, procedimiento).then(function(procedimiento){
+				exports.softCalculateProcedimiento(Q, models, procedimiento).then(function(procedimiento){
 					exports.softCalculateProcedimientoCache(Q, models, procedimiento).then(function(procedimiento){
 						if (!procedimiento.codigo)
 						{

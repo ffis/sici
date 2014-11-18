@@ -47,10 +47,14 @@ angular.module('sici.services', ['ngResource'])
         function ($resource) {
             return $resource('/api/permisosdelegar/:login/:cod_plaza', {},   { query: {method:'GET', isArray:false }});
 		}])		
+    .factory('PermisosByLoginPlaza', ['$resource',
+        function ($resource) {
+            return $resource('/api/permisosByLoginPlaza/:login/:cod_plaza', {}, { query: {method:'GET', isArray:true} });
+        }])           
     .factory('PersonasByLoginPlaza', ['$resource',
         function ($resource) {
             return $resource('/api/permisosByLoginPlaza/:login/:cod_plaza', {}, { query: {method:'GET', isArray:true} });
-        }])		
+        }])		        
     .factory('PersonasByPuesto', ['$resource',
         function ($resource) {
             return $resource('/api/personasByPuesto/:cod_plaza', {}, { query: {method:'GET', isArray:true} });
@@ -102,5 +106,9 @@ angular.module('sici.services', ['ngResource'])
     .factory('Importacion', ['$resource',
         function ($resource) {
             return $resource('/api/importacion/:id', {id:'@_id'},   { update: {method:'PUT' } });
+        }])
+    .factory('TipoLogin', ['$resource',
+        function( $resource){
+            return $resource('/tipologin');
         }])
 	.value('version', '0.1');

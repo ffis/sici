@@ -42,7 +42,7 @@ function WelcomeCtrl($rootScope,$scope,$window,Aggregate){
         });
     });
     $scope.indicadores = [
-        {bg:'red-soft',descripcion:'Solicitudes',number:255,icon:'fa-folder-open'},
+        {bg:'red-soft',descripcion:'Procedimientos',number:255,icon:'fa-folder-open'},
         {bg:'green-soft',descripcion:'Trámites',number:349,icon:'fa-comments'},
         {bg:'purple-soft',descripcion:'Tiempo medio',number:'3 días',icon:'fa-pie-chart'},
         {bg:'blue-soft',descripcion:'Cumplimiento',number:'98%',icon:'fa-bar-chart'},

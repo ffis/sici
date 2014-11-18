@@ -19,8 +19,8 @@
 					<li ng-repeat="attr in attrspar">
 						<strong>{{attr| translate}}</strong>
 						<span>&nbsp;</span>
-						<a ng-if="superuser" href="#" onaftersave="recalculate()" editable-text="procedimientoSeleccionado[attr]">{{procedimientoSeleccionado[attr]!=null ?procedimientoSeleccionado[attr] : '-' }}</a>
-						<span ng-if="!superuser" >{{ procedimientoSeleccionado[attr]!=null ?procedimientoSeleccionado[attr]  : '-' }}</span>
+						<a ng-if="$root.permisoscalculados.superuser" href="#" onaftersave="recalculate()" editable-text="procedimientoSeleccionado[attr]">{{procedimientoSeleccionado[attr]!=null ?procedimientoSeleccionado[attr] : '-' }}</a>
+						<span ng-if="!$root.permisoscalculados.superuser" >{{ procedimientoSeleccionado[attr]!=null ?procedimientoSeleccionado[attr]  : '-' }}</span>
 					</li>
 					<li ng-repeat="attr in attrsanualidad">
 						<strong>{{attr| translate}}</strong>

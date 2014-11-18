@@ -3,7 +3,8 @@ function calcularPermisos(permisos) {
 	var permisoscalculados = {
 			jerarquialectura :[], jerarquiaescritura :[],
 			procedimientoslectura :[], procedimientosescritura :[],
-			superuser : false
+			superuser : false,
+			grantoption: false,
 	};
 	for(var i=0;i<permisos.length;i++)
 	{
@@ -17,6 +18,7 @@ function calcularPermisos(permisos) {
 				permisoscalculados.superuser = permisoscalculados.superuser || permisos[i].superuser;
 				permisoscalculados.jerarquiaescritura = permisoscalculados.jerarquiaescritura.concat( permisos[i].jerarquiaescritura);
 				permisoscalculados.procedimientosescritura = permisoscalculados.procedimientosescritura.concat( permisos[i].procedimientosescritura);								
+				permisoscalculados.grantoption = permisoscalculados.grantoption ||  permisos[i].grantoption;
 				//o.permisos.push( permisos[i] );
 			}
 		}
@@ -56,7 +58,6 @@ exports.getpermisoscalculados = function(models) {
 
 exports.setpermisoscalculados = function(config){
 	return function(req, res, next) {
-		console.log('teng');
 		var Permisos = config.models.permiso();
 		Permisos.find({"_id":{"$in":req.user.idspermisos}},function(err, permisos){
 			if (err){ console.error(err); next(err);		}

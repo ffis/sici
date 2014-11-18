@@ -64,7 +64,7 @@
 			</div>
 		</div>
 	</div>
-	<div ng-class="{'col-lg-7': !!seleccionado, 'hidden': !seleccionado}" class="right animated" id="detallesjerarquia">
+	<div ng-class="{'col-lg-7': !!seleccionado, 'hidden': !seleccionado}" class="right animated" id="detallesjerarquiaproc">
 		<div ng-click="oculto=!oculto">
 			<span class="glyphicon glyphicon-fullscreen pull-right">
 			</span>
@@ -78,24 +78,28 @@
 				<h3 class="panel-title">{{(guardado?'Actualizar':'Crear')}} procedimiento</h3>
 			</div>
 			<div class="panel-body">			
-				<label name="nombre" style="width:100%">
+				<label for="nombre" style="width:100%">
 					<span>Denominaci&oacute;n: </span><input  class="form-control" type="text" ng-model="procedimiento.denominacion" name="nombre" /> 					
 				</label>
 				<br/>
-				<label name="codigo" style="width:100%">
+				<label for="codigo" style="width:100%">
 					<span>C&oacute;digo: </span><input  class="form-control" type="text" ng-model="procedimiento.codigo" name="codigo" /> 
 				</label>
 				<br/>
-				<label name="responsable" style="width:100%"> 
-					<span>Responsable: </span><input  class="form-control" placeholder="Plaza o nombre o login carm"  type="text" typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)" ng-model="responsable" name="responsable" /> 
+				<label for="responsable" style="width:100%"> 
+					<span>Responsable: </span><input  class="form-control" placeholder="Plaza del responsable"  type="text" typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)" ng-model="responsable" name="responsable" /> 
 				</label>
-				<label name="padre" style="width:100%">
+				<label for="cod_plaza" style="width:100%"> 
+					<span>Código plaza: </span><input  class="form-control" readonly placeholder="Plaza o nombre del responsable"  type="text" ng-model="procedimiento.cod_plaza" name="cod_plaza" /> 
+				</label>
+				<label for="padre" style="width:100%">
 					<span>Procedimiento padre: </span>
-					<input  placeholder="Introduce cualquier parte del c&oacute;digo o denominaci&oacute;n" class="form-control" type="text" ng-model="padre" name="padre" typeahead="procpadre.denominacion for procpadre in oallprocedimientos  | filter:{denominacion:$viewValue} | limitTo:10" /> 
+					<input placeholder="Introduce cualquier parte del c&oacute;digo o denominaci&oacute;n" class="form-control" type="text" ng-model="padre" name="padre" typeahead="procpadre.denominacion for procpadre in oallprocedimientos  | filter:{denominacion:$viewValue} | limitTo:10" /> 
 				</label>
 				<br/>
+				<p>Los permisos se establecerán en función del código de plaza, y no sobre la persona concreta, a pesar de ser mostrada como ayuda durante el registro del procedimiento.</p>
 				<button type="button" class="btn btn-default" ng-click="guardar()">
-					<span class="glyphicon glyphicon-floppy-disk"></span> {{ (guardado?'Actualizar':'Crear') }}
+					<span class="glyphicon glyphicon-floppy-disk"></span> {{ (guardado ? 'Actualizar':'Crear') }}
 				</button>				
 			</div>
 		</div>

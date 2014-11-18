@@ -1,23 +1,22 @@
-function NewProcedimientoCtrl($rootScope,$scope,$location,$window,$routeParams, Arbol, ProcedimientoList,DetalleCarmProcedimiento,DetalleCarmProcedimiento2, PersonasByPuesto, Session, Etiqueta,PersonasByRegexp, Procedimiento) {
+function NewProcedimientoCtrl($rootScope,$scope,$location,$window,$routeParams, $timeout, Arbol, ProcedimientoList,DetalleCarmProcedimiento,DetalleCarmProcedimiento2, PersonasByPuesto, Session, Etiqueta,PersonasByRegexp, Procedimiento) {
 	$rootScope.nav = 'procedimiento';
-	$window.document.title ='SICI: Procedimiento - New';
+	$window.document.title ='SICI: Registrar nuevo procedimiento';
+
 	$scope.idjerarquia = ($routeParams.idjerarquia) ? $routeParams.idjerarquia :false;
-	
 	$scope.camposfiltros = ['cod_plaza'];
 	$scope.filtros = {};
 	$scope.filtro = {};
-	$scope.reverse = false;
 	$scope.nodoseleccionado = false;
-	$scope.padre = "";
+	$scope.padre = '';
 	$scope.seleccionado = false;
 	$scope.procedimiento = new Procedimiento();
-	$scope.responsable = {};
-	$scope.padre = {};
-	$scope.guardado = false;
+	$scope.responsable = "";
+	$scope.padre = "";
+	$scope.filtrosocultos = false;
 	
 	///$scope.oallprocedimientos = ProcedimientoList.query({'idjerarquia':seleccionado.id,'recursivo':false});
 	
-	$scope.$watch('seleccionado', function(old, _new){
+	$scope.$watch('seleccionado', function(_new,old){
 		$scope.oallprocedimientos = ProcedimientoList.query({'idjerarquia':_new.id,'recursivo':false});
 		if ($scope.procedimiento.padre) {			
 			delete $scope.procedimiento.padre;
@@ -25,11 +24,12 @@ function NewProcedimientoCtrl($rootScope,$scope,$location,$window,$routeParams, 
 		}
 	});
 	
-	$scope.$watch('responsable', function(old, _new){
-		$scope.procedimiento.cod_plaza = _new.codplaza ;
+	$scope.$watch('responsable', function(_new,old){
+		var partes = _new.split('-');
+		$scope.procedimiento.cod_plaza = partes[0] ;
 	});
 
-	$scope.$watch('padre', function(old, _new){
+	$scope.$watch('padre', function( _new, old){
 		$scope.procedimiento.responsable = ( typeof _new.codplaza !== 'undefined' ? _new.codplaza : _new.login );		
 	});
 	
@@ -43,17 +43,26 @@ function NewProcedimientoCtrl($rootScope,$scope,$location,$window,$routeParams, 
 	};
 	
 	$scope.guardar = function(){
-		if ($scope.denominacion && $scope.codigo && $scope.seleccionado) {
-			$scope.guardado = true;
-			Procedimiento.save($scope.procedimiento);
+		console.log($scope.responsable);
+		if ($scope.seleccionado && $scope.procedimiento.denominacion && $scope.procedimiento.codigo&& $scope.responsable) {
+			Procedimiento.save($scope.procedimiento, function(){
+				alert('Procedimiento registrado correctamente. Redirigiendo...');
+				$location.path ("/procedimiento/"+$scope.procedimiento.codigo);
+				/*
+				$scope.procedimiento = new Procedimiento();
+				$scope.procedimiento.idjerarquia = $scope.seleccionado.id;
+				$scope.responsable = '';*/
+			}, function(xhr,msg){
+				alert('Error durante el registro: '+msg);
+			});
 		} else {
-			alert('Imposible crear/actualizar el procedimiento. Debe indicar denominacion y codigo');
+			alert('Imposible crear/actualizar el procedimiento. Debe indicar denominación y código');
 		}
 	}
 	
 	$scope.showPersona = function (persona){
 		if (persona && persona.login && persona.codplaza && persona.nombre && persona.apellidos)
-			return persona.login + "-" + persona.codplaza + "-" + persona.nombre+ " " + persona.apellidos;
+			return persona.codplaza + "-" + persona.login + "-" + persona.nombre+ " " + persona.apellidos;
 		else return "";
 	}
 	
@@ -64,20 +73,13 @@ function NewProcedimientoCtrl($rootScope,$scope,$location,$window,$routeParams, 
 	});
 	$scope.oculto = false;
 
-	$scope.jerarquia = Session.create().permisoscalculados.jerarquialectura.concat(Session.create().permisoscalculados.jerarquiaescritura);
+	//$scope.jerarquia = Session.create().permisoscalculados.jerarquialectura.concat(Session.create().permisoscalculados.jerarquiaescritura);
 	
 	$scope.filtrojerarquia = function(item) {
-		if ($scope.jerarquia.indexOf(item.id)!=-1 )
-			return true;		
-		if (item.nodes){
-			for(var i=0;i<item.nodes.length;i++) 
-				if ($scope.filtrojerarquia(item.nodes[i])) 
-					return true;		
-		}
-		return false;
+		//es superusuario, no hace falta filtrar
+		return true;
 	};
-	
-	$scope.filtrosocultos = false;
+
 	
 	$scope.setSeleccionado = function(seleccionad){
 		if (seleccionad) {			
@@ -85,16 +87,16 @@ function NewProcedimientoCtrl($rootScope,$scope,$location,$window,$routeParams, 
 			$rootScope.setTitle(seleccionad.title); 
 			$scope.cumplimentados = 0;				
 			$scope.count = 1;
-			$scope.procedimiento = seleccionado.id;
-			$("body").animate({scrollTop: $('#detallesjerarquia').offset().top}, "slow");
+			$scope.procedimiento.idjerarquia = seleccionad.id;
+			$timeout(function(){
+				$("body").animate({scrollTop: $('#detallesjerarquiaproc').offset().top}, "slow");
+			}, 20);
 		}
 	};
 		
 	$scope.isFiltroSelected= function(filtro,key,fa){
 		return (typeof filtro[key] != 'undefined' && fa.name==filtro[key]);
 	}
-	
-	
 }
 
-NewProcedimientoCtrl.$inject = ['$rootScope','$scope','$location','$window','$routeParams','Arbol','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','PersonasByPuesto','Session', 'Etiqueta','PersonasByRegexp','Procedimiento'];
+NewProcedimientoCtrl.$inject = ['$rootScope','$scope','$location','$window','$routeParams','$timeout', 'Arbol','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','PersonasByPuesto','Session', 'Etiqueta','PersonasByRegexp','Procedimiento'];

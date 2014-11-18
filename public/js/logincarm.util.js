@@ -81,6 +81,7 @@ angular.module('sici.login.util', ['ngResource'])
 		function ($http, Session, $rootScope, $location, $route, $window,$log, $q) {
 
 		  return {
+		  	carmlogin: true,
 			login: function (credentials) {
 				var urlconsulta = '/SICI_SSO/LoginSSO';
 				var urllogin = '/SICI_SSO/';

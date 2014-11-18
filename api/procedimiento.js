@@ -28,26 +28,57 @@ exports.setPeriodosCerrados = function(models){
 exports.createProcedimiento = function(Q, models, recalculate) {
 	return function(req,res){
 		if (req.body.idjerarquia && !isNaN(parseInt(req.body.idjerarquia)) &&
-			req.body.nombre && 
-			req.body.codigo)
+			req.body.denominacion && 
+			req.body.codigo && req.body.cod_plaza && parseInt(req.body.idjerarquia)>0)
 		{
-			var Procedimiento= models.procedimiento();
+			var Procedimiento = models.procedimiento();
+			var Jerarquia = models.jerarquia();
 			var procedimiento = new Procedimiento();
 			var idjerarquia = parseInt(req.body.idjerarquia);
 			
-			procedimiento.idjerarquia = parseInt(req.body.idjerarquia);
+			procedimiento.idjerarquia = idjerarquia;
 			procedimiento.denominacion = req.body.denominacion;
 			procedimiento.codigo = req.body.codigo;
-			if (req.body.responsable)
-				procedimiento.responsable = req.body.responsable;
-			if (req.body.padre && !isNaN(parseInt(req.body.padre)))
-				procedimiento.padre = parseInt(req.body.padre);
+			if (req.body.cod_plaza)
+				procedimiento.cod_plaza = req.body.cod_plaza;
+			if (req.body.padre)
+				procedimiento.padre = ""+req.body.padre;
+
+			//check jerarquia $exists
+			Jerarquia.find({id:idjerarquia}, function(err,jerarquias){
+				if (jerarquias.length>0)
+				{
+					//check codigo $exists:0
+					Procedimiento.find({codigo:procedimiento.codigo}, function(err, procs){
+						if (procs.length>0){
+							res.status(500).send('Error 55 guardando'); res.end(); return ;
+						}else{
+							procedimiento.save(function(err){
+								if (err){
+									console.error(err);	res.status(500).send('Error 57 guardando'); res.end(); return ;
+								}else{
+									recalculate.softCalculateProcedimiento(Q, models, procedimiento).then(function(procedimiento){
+										recalculate.softCalculateProcedimientoCache(Q, models, procedimiento).then(function(procedimiento){
+											procedimiento.save(function(err){
+												if (err){
+													console.error(err);	res.status(500).send('Error 67 guardando'); res.end(); return ;
+												}else{
+													res.json(procedimiento);
+												}
+											});
+										});
+									});
+								}
+							});
+						}
+					})
+				}else{
+					res.status(500).send('Error 67 guardando'); res.end(); return ;
+				}
+			})
+		}else{
+			console.error(JSON.stringify(req.body)); res.status(500).send('Error 71 guardando'); res.end(); return ;
 		}
-		
-		procedimiento.save(function(err){
-			console.error(err);
-			res.status(500); res.end(); return ;
-		});
 	}
 }
 
@@ -132,13 +163,14 @@ exports.updateProcedimiento = function(Q, models, recalculate){
 				}
 			}
 
-			recalculate.softCalculateProcedimiento(Q, original).then(function(original){
+			recalculate.softCalculateProcedimiento(Q, models, original).then(function(original){
 				recalculate.softCalculateProcedimientoCache(Q, models, original).then(function(original){
 					exports.saveVersion(models, Q, original).then(function(){
 						original.fecha_version = new Date();
 						original.save(function(err){
-							if (err){ console.error(err); }
-							res.json(original);	
+							if (err){  console.error(err); res.status(500).send(JSON.stringify(err)); res.end(); return ;  }
+							else
+								res.json(original);	
 						});
 					});
 			    });

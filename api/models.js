@@ -5,7 +5,7 @@ var schemas = {};
 var schemasfields = {
 	crawled : { 'id': Number, 'jerarquia': [String], 'completo': String },
 	guiacarm: {	'id': Number,'titulo': String },
-	settings: { version:Number, 'secret': String, 'secret2': String, 'anyo': String, 'port': Number,  'urlbasedecrypt': String, },
+	settings: { version:Number, 'secret': String, 'secret2': String, 'anyo': String, 'port': Number,  'urlbasedecrypt': String, logincarm: Boolean },
 	reglasinconsistencias : { 'titulo': String, 'restriccion': String},
 	historico: {},
 	periodo: { '2014' : [Number] },
@@ -21,19 +21,24 @@ var schemasfields = {
 	},
 	permiso : {
 		'codplaza' : String,
+
 		'login' : String,
 		'jerarquialectura' : [Number], /*calculados, cacheados*/
 		'jerarquiaescritura' : [Number],/*calculados, cacheados*/
-		'jerarquiadirectalectura' : [Number], /*reales, asignados*/
-		'jerarquiadirectaescritura' : [Number], /*reales, asignados*/
 		'procedimientoslectura' : [String],  /*calculados, cacheados*/
 		'procedimientosescritura' : [String],  /*calculados, cacheados*/
+
+		'jerarquiadirectalectura' : [Number], /*reales, asignados*/
+		'jerarquiadirectaescritura' : [Number], /*reales, asignados*/
 		'procedimientosdirectalectura' : [String], /*reales, asignados*/
 		'procedimientosdirectaescritura' : [String], /*reales, asignados*/		
+
 		'caducidad' : Date,
 		'descripcion' : String,
 		'grantoption': Boolean, /* puede clonar su permiso */
 		'superuser' : Number,
+
+		'cod_plaza_grantt': String,
 	},
 	registroactividad : {
 		'usr' : String,
@@ -134,6 +139,7 @@ var schemasfields = {
 				'recursos':[Number],
 				'fuera_plazo':[Number],
 				'pendientes':[Number],
+				'periodoscerrados':[Number],
 				'totalsolicitudes':Number,
 				'Incidencias': {
 					'Se han resuelto expedientes fuera de Plazo': [Number],
@@ -143,7 +149,6 @@ var schemasfields = {
 					'Las solicitudes aumentan al menos 20%': [Number],
 					'Posible incumplimiento de compromisos': [Number],
 				},
-				'periodoscerrados':[Number]
 			}
 		}
 	}

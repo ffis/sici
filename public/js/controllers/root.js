@@ -1,12 +1,12 @@
 'use strict';
 
-function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados) {
+function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados, AuthService) {
 
 	$rootScope.setTitle   = function (title){ $scope.name = title; };
 	$rootScope.setLogeado = function(t){
 		$rootScope.logeado = t;
 		if (t) {
-			$rootScope.permisosCalculados = PermisosCalculados.query({});
+			$rootScope.permisoscalculados = PermisosCalculados.query({});
 		}
 	};
 	$rootScope.session = Session;
@@ -27,15 +27,13 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados)
 		{ id:'permisos', caption:'Gestionar permisos' },
 		{ id:'etiqueta', caption: 'Gestionar etiquetas'},
 		{ id:'periodos', caption: 'Gestionar períodos'},
+		{ id:'crearprocedimiento', caption: 'Crear procedimiento'},
 	];
 	
 	if ($rootScope.logeado) {
-		console.log($rootScope.session);
-		$rootScope.permisosCalculados = PermisosCalculados.query({});
+		$rootScope.permisoscalculados = permisoscalculados.query({});
 	}
-	console.log($rootScope.session);
-	
-	$rootScope.loginCarm = false;
+	$rootScope.loginCarm = AuthService.carmlogin;
 
 	$rootScope.irProcedimiento = function(){
 		var id = parseInt($rootScope.procedimiento);
@@ -71,10 +69,10 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados)
 
 	$rootScope.R = function(procedimiento) {
 		var def = $q.defer();
-		$rootScope.permisosCalculados.$promise.then(function(){
+		$rootScope.permisoscalculados.$promise.then(function(){
 			def.resolve(
-				$rootScope.permisosCalculados.procedimientoslectura.indexOf(procedimiento.codigo)!==-1 ||
-				$rootScope.permisosCalculados.procedimientosescritura.indexOf(procedimiento.codigo)!==-1
+				$rootScope.permisoscalculados.procedimientoslectura.indexOf(procedimiento.codigo)!==-1 ||
+				$rootScope.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo)!==-1
 			);
 		}, function(){
 			def.reject();
@@ -84,9 +82,9 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados)
 	
 	$rootScope.W = function(procedimiento) {
 		var def = $q.defer();
-		$rootScope.permisosCalculados.$promise.then(function(){
+		$rootScope.permisoscalculados.$promise.then(function(){
 			def.resolve(
-				$rootScope.permisosCalculados.procedimientosescritura.indexOf(procedimiento.codigo)!==-1
+				$rootScope.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo)!==-1
 			);
 		}, function(){
 			def.reject();
@@ -98,9 +96,9 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados)
 	
 	$rootScope.superuser = function() {
 		
-		$rootScope.permisosCalculados.$promise.then(function(){
+		$rootScope.permisoscalculados.$promise.then(function(){
 			defsuperuser.resolve(
-				!!$rootScope.permisosCalculados.superuser
+				!!$rootScope.permisoscalculados.superuser
 			);
 		}, function(){
 			defsuperuser.reject();
@@ -111,9 +109,9 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados)
 	$rootScope.jerarquialectura = function(){
 		var def = $q.defer();
 
-		$rootScope.permisosCalculados.$promise.then(function(){
+		$rootScope.permisoscalculados.$promise.then(function(){
 			def.resolve(
-				$rootScope.permisosCalculados.jerarquialectura
+				$rootScope.permisoscalculados.jerarquialectura
 			);
 		}, function(){
 			def.reject();
@@ -124,16 +122,29 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados)
 	$rootScope.jerarquiaescritura = function(){
 		var def = $q.defer();
 
-		$rootScope.permisosCalculados.$promise.then(function(){
+		$rootScope.permisoscalculados.$promise.then(function(){
 			def.resolve(
-				$rootScope.permisosCalculados.jerarquiaescritura
+				$rootScope.permisoscalculados.jerarquiaescritura
 			);
 		}, function(){
 			def.reject();
 		});
 		return def.promise;
-	}	
+	}
+
+	$rootScope.grantoption = function(){
+		var def = $q.defer();
+
+		$rootScope.permisoscalculados.$promise.then(function(){
+			def.resolve(
+				$rootScope.permisoscalculados.grantoption
+			);
+		}, function(){
+			def.reject();
+		});
+		return def.promise;	
+	}
 
 }
 
-AppCtrl.$inject = ['$q','$scope','$rootScope','Session', '$location','PermisosCalculados'];
+AppCtrl.$inject = ['$q','$scope','$rootScope','Session', '$location','PermisosCalculados','AuthService'];
