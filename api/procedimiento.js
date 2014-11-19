@@ -168,8 +168,9 @@ exports.updateProcedimiento = function(Q, models, recalculate){
 					exports.saveVersion(models, Q, original).then(function(){
 						original.fecha_version = new Date();
 						original.save(function(err){
-							if (err){ console.error(err); }
-							res.json(original);	
+							if (err){  console.error(err); res.status(500).send(JSON.stringify(err)); res.end(); return ;  }
+							else
+								res.json(original);	
 						});
 					});
 			    });
