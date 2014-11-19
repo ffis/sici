@@ -7,17 +7,44 @@ function DetallesCtrl($q,$rootScope,$scope, $routeParams, $window, Procedimiento
 	$scope.mesActual = (new Date()).getMonth();
 	$scope.detallesCarmHTML = true;
 	$scope.graphs = false;
-
 	
+	$scope.nextYear = function() {
+		$scope.anualidad = ''+(parseInt($scope.anualidad)+1);		
+	}
 
+	$scope.prevYear = function() {
+		$scope.anualidad = ''+(parseInt($scope.anualidad)-1);
+		console.log("anualidad = "+$scope.anualidad);
+	}
+	
+	$scope.exists = function(attr) {
+		if ($scope.anualidad) {
+			
+			return $scope.procedimientoSeleccionado.periodos[$scope.anualidad] && typeof $scope.procedimientoSeleccionado.periodos[$scope.anualidad][attr] != 'undefined';
+		}
+	}
+	
+	$scope.getNext=function(){
+		if ($scope.anualidad) {
+			return ""+(parseInt(""+$scope.anualidad)+1);
+		}
+	}
+	
+	$scope.getPrev=function(){
+		if ($scope.anualidad) {
+			return ""+(parseInt(""+$scope.anualidad)-1);
+		}
+	}
+	
 	$scope.procedimientoSeleccionado = Procedimiento.get({codigo: $routeParams.codigo } ,function(){
 		$window.document.title ='SICI: '+$scope.procedimientoSeleccionado.denominacion;
 		$rootScope.procedimiento = $scope.procedimientoSeleccionado.codigo;
-		$scope.anualidad = 0;
+		$scope.anualidad = 0;		
+		
 		for (var anualidad in $scope.procedimientoSeleccionado.periodos){
-			if (parseInt(anualidad) > $scope.anualidad)
-				$scope.anualidad = anualidad;	
-		}
+			if (parseInt(anualidad) > $scope.anualidad) 
+				$scope.anualidad = anualidad;				
+		}		
 		if ($scope.procedimientoSeleccionado.ancestros[0].id==1){
 			$scope.procedimientoSeleccionado.ancestros.reverse();//TODO: revisar este parche
 		}
