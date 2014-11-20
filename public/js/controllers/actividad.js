@@ -11,7 +11,7 @@ function ActividadCtrl($q,$rootScope,$scope,$location,$window,$routeParams,$time
 	$scope.procedimientosocultos = false;
 	$scope.meses = $rootScope.meses;
 	$scope.reverse = false;
-	$scope.anualidad = new Date().getFullYear();
+	$scope.anualidad = 'a'+new Date().getFullYear();
 	$scope.mesanterior = new Date().getMonth()-1;
 	$scope.etiquetas = Etiqueta.query(function(){
 		$scope.etiquetasPorTipo	= {};

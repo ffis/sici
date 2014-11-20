@@ -9,11 +9,11 @@ function DetallesCtrl($q,$rootScope,$scope, $routeParams, $window, Procedimiento
 	$scope.graphs = false;
 	
 	$scope.nextYear = function() {
-		$scope.anualidad = ''+(parseInt($scope.anualidad)+1);		
+		$scope.anualidad = 'a'+(parseInt($scope.anualidad.substring(1,5))+1);		
 	}
 
 	$scope.prevYear = function() {
-		$scope.anualidad = ''+(parseInt($scope.anualidad)-1);
+		$scope.anualidad = 'a'+(parseInt($scope.anualidad.substring(1,5))-1);
 		console.log("anualidad = "+$scope.anualidad);
 	}
 	
@@ -26,23 +26,24 @@ function DetallesCtrl($q,$rootScope,$scope, $routeParams, $window, Procedimiento
 	
 	$scope.getNext=function(){
 		if ($scope.anualidad) {
-			return ""+(parseInt(""+$scope.anualidad)+1);
+			return ""+(parseInt(""+$scope.anualidad.substring(1,5))+1);
 		}
 	}
 	
 	$scope.getPrev=function(){
 		if ($scope.anualidad) {
-			return ""+(parseInt(""+$scope.anualidad)-1);
+			return ""+(parseInt(""+$scope.anualidad.substring(1,5))-1);
 		}
 	}
 	
 	$scope.procedimientoSeleccionado = Procedimiento.get({codigo: $routeParams.codigo } ,function(){
 		$window.document.title ='SICI: '+$scope.procedimientoSeleccionado.denominacion;
 		$rootScope.procedimiento = $scope.procedimientoSeleccionado.codigo;
-		$scope.anualidad = 0;		
+		$scope.anualidad = '0000000000';		
 		
 		for (var anualidad in $scope.procedimientoSeleccionado.periodos){
-			if (parseInt(anualidad) > $scope.anualidad) 
+		console.log(anualidad);
+			if (parseInt(anualidad.substring(1,5)) > parseInt($scope.anualidad.substring(1,5))) 
 				$scope.anualidad = anualidad;				
 		}		
 		if ($scope.procedimientoSeleccionado.ancestros[0].id==1){
@@ -59,24 +60,24 @@ function DetallesCtrl($q,$rootScope,$scope, $routeParams, $window, Procedimiento
 		
 		var cod_plaza = $scope.procedimientoSeleccionado.cod_plaza;
 		var graphskeys = [
-				{caption:'RESUMEN DE DATOS DE GESTIÓN '+$scope.anualidad,keys:[
-					{caption:'Solicitados', vals:'periodos.'+$scope.anualidad+'.solicitados', maxx: $scope.mesActual},
-					{caption:'Iniciados', vals:'periodos.'+$scope.anualidad+'.iniciados', maxx: $scope.mesActual},
-					{caption:'Pendientes', vals:'periodos.'+$scope.anualidad+'.pendientes', maxx: $scope.mesActual},
-					{caption:'Total resueltos', vals:'periodos.'+$scope.anualidad+'.total_resueltos', maxx: $scope.mesActual},
-					{caption:'Total resueltos '+($scope.anualidad-1), vals:'periodos.'+($scope.anualidad-1)+'.total_resueltos', maxx: 12},
+				{caption:'RESUMEN DE DATOS DE GESTIÓN '+$scope.anualidad.substring(1,5),keys:[
+					{caption:'Solicitados', vals:'periodos.a'+$scope.anualidad+'.solicitados', maxx: $scope.mesActual},
+					{caption:'Iniciados', vals:'periodos.a'+$scope.anualidad+'.iniciados', maxx: $scope.mesActual},
+					{caption:'Pendientes', vals:'periodos.a'+$scope.anualidad+'.pendientes', maxx: $scope.mesActual},
+					{caption:'Total resueltos', vals:'periodos.a'+$scope.anualidad+'.total_resueltos', maxx: $scope.mesActual},
+					{caption:'Total resueltos '+($scope.anualidad-1), vals:'periodos.a'+($scope.anualidad-1)+'.total_resueltos', maxx: 12},
 				]},
-				{caption:'RESUELTOS EN PLAZO '+$scope.anualidad,keys:[
-					{caption:'En plazo', vals:'periodos.'+$scope.anualidad+'.en_plazo', maxx: $scope.mesActual},
-					{caption:'Fuera de plazo', vals:'periodos.'+$scope.anualidad+'.fuera_plazo', maxx: $scope.mesActual},
+				{caption:'RESUELTOS EN PLAZO '+$scope.anualidad.substring(1,5),keys:[
+					{caption:'En plazo', vals:'periodos.a'+$scope.anualidad+'.en_plazo', maxx: $scope.mesActual},
+					{caption:'Fuera de plazo', vals:'periodos.a'+$scope.anualidad+'.fuera_plazo', maxx: $scope.mesActual},
 					]},
-				{caption:'DESESTIMIENTOS/RENUNCIAS Y PRESCRITOS/CADUCADOS '+$scope.anualidad,keys:[
-					{caption:'Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)', vals:'periodos.'+$scope.anualidad+'.resueltos_desistimiento_renuncia_caducidad', maxx: $scope.mesActual},
-					{caption:'Resueltos por Prescripcion/Caducidad (Resp_Admon)', vals:'periodos.'+$scope.anualidad+'.resueltos_prescripcion', maxx: $scope.mesActual},
+				{caption:'DESESTIMIENTOS/RENUNCIAS Y PRESCRITOS/CADUCADOS '+$scope.anualidad.substring(1,5),keys:[
+					{caption:'Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)', vals:'periodos.a'+$scope.anualidad+'.resueltos_desistimiento_renuncia_caducidad', maxx: $scope.mesActual},
+					{caption:'Resueltos por Prescripcion/Caducidad (Resp_Admon)', vals:'periodos.a'+$scope.anualidad+'.resueltos_prescripcion', maxx: $scope.mesActual},
 					]},
-				{caption:'QUEJAS Y RECURSOS CONTRA EL PROCEDIMIENTO '+$scope.anualidad,keys:[
-					{caption:'Quejas presentadas en el mes', vals:'periodos.'+$scope.anualidad+'.quejas', maxx: $scope.mesActual},
-					{caption:'Recursos presentados en el mes', vals:'periodos.'+$scope.anualidad+'.recursos', maxx: $scope.mesActual},
+				{caption:'QUEJAS Y RECURSOS CONTRA EL PROCEDIMIENTO '+$scope.anualidad.substring(1,5),keys:[
+					{caption:'Quejas presentadas en el mes', vals:'periodos.a'+$scope.anualidad+'.quejas', maxx: $scope.mesActual},
+					{caption:'Recursos presentados en el mes', vals:'periodos.a'+$scope.anualidad+'.recursos', maxx: $scope.mesActual},
 					]},
 			];
 		$scope.graphskeys = graphskeys;
@@ -135,8 +136,10 @@ function DetallesCtrl($q,$rootScope,$scope, $routeParams, $window, Procedimiento
 	$scope.attrspar = [
 		'codigo', 'denominacion', 'tipo', 'cod_plaza', 'fecha_creacion', 'fecha_version', /* 'fecha_fin', */
 	];
+	
 	$scope.attrsanualidad = ['pendientes_iniciales','periodoscerrados',
 		'plazo_CS_ANS_habiles','plazo_CS_ANS_naturales','plazo_maximo_resolver','plazo_maximo_responder'];
+	$scope.attrsanualidad_permisos = ['w','s','w','w','w','w'];
 		
 	$scope.attrstabla = [
 		'solicitados',

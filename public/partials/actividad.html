@@ -128,7 +128,7 @@
 						<th ng-class="{danger:orderby=='denominacion' }" ng-click="reverse=!reverse;orderby='denominacion'">{{'denominacion'|translate}}</th>
 						<th ng-class="{danger:orderby=='cod_plaza' }" ng-click="reverse=!reverse;orderby='cod_plaza'">{{'cod_plaza'|translate}}</th>
 						<th ng-class="{danger:orderby=='ancestro' }" ng-click="reverse=!reverse;orderby='ancestro'">{{'A cargo de'|translate}}</th>
-						<th ng-class="{danger:orderby=='periodos[anualidad].totalsolicitudes' }" ng-click="reverse=!reverse;orderby='periodos[anualidad].totalsolicitudes'">Solicitudes {{anualidad}}</th>
+						<th ng-class="{danger:orderby=='periodos[anualidad].totalsolicitudes' }" ng-click="reverse=!reverse;orderby='periodos[anualidad].totalsolicitudes'">Solicitudes {{anualidad.substring(1,5)}}</th>
 						<th ng-class="{danger:orderby=='periodos[anualidad].solicitados[mesanterior]' }" ng-click="reverse=!reverse;orderby='periodos[anualidad].solicitados[mesanterior]'">Solicitudes {{meses[mesanterior]}}</th>
 					</tr>
 				</thead>

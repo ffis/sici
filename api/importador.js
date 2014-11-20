@@ -90,7 +90,7 @@ exports.applyImportacionProcedimiento = function(models, Q, recalculate, P){
 											def.resolve(codigo);
 									});
 								}
-								var campo = 'periodos.'+anualidad+'.'+indicador+'.'+mes;
+								var campo = 'periodos.a'+anualidad+'.'+indicador+'.'+mes;
 								var r = {}; r['$set'] = {}; r['$set'][campo] = valor;
 
 								fn(codigo, r, def);
@@ -391,7 +391,7 @@ function transformExcel2Procedimiento(objeto){
 
 	if (!objeto.periodos)
 		objeto.periodos = {};
-	objeto.periodos['2013'] = {
+	objeto.periodos['a2013'] = {
 		plazo_maximo_resolver : (objeto['Plazo maximo legal para resolver (dias naturales)']),
 		plazo_maximo_responder : (objeto['Plazo maximo legal para responder (dias habiles)']),
 		plazo_CS_ANS_naturales : (objeto['Plazo CS /ANS (dias naturales)']),
@@ -416,9 +416,9 @@ function transformExcel2Procedimiento(objeto){
 		objeto[campo] = objeto[ nuevomapping [ campo] ];
 		delete  objeto[ nuevomapping [ campo] ];
 	}
-	if (!objeto.periodos['2014']) objeto.periodos['2014'] = {};
+	if (!objeto.periodos['a2014']) objeto.periodos['a2014'] = {};
 	for(var campo in mappinganyo){
-		objeto.periodos['2014'][campo] = objeto[ mappinganyo [ campo ] ];
+		objeto.periodos['a2014'][campo] = objeto[ mappinganyo [ campo ] ];
 		delete  objeto[ mappinganyo [ campo ] ];	
 	}
 

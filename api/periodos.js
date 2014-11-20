@@ -32,10 +32,10 @@ exports.updatePeriodo = function(models){
 			if (e){
 				 res.send({'error':'An error has occurred:' +e});
 			}else{
-				var meses = content['2014'];
+				var meses = content['a2014'];
 				//parche:
 				//periodo 2014 tiene el valor a usar con todos los procedimientos:
-				Procedimiento.update({}, { $set : { 'periodos.2014.periodoscerrados': meses }}, {multi:true} , function(err,doc){
+				Procedimiento.update({}, { $set : { 'periodos.a2014.periodoscerrados': meses }}, {multi:true} , function(err,doc){
 					if (err)
 						console.error(err);
 					else

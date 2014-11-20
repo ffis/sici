@@ -8,7 +8,7 @@ var schemasfields = {
 	settings: { version:Number, 'secret': String, 'secret2': String, 'anyo': String, 'port': Number,  'urlbasedecrypt': String, logincarm: Boolean },
 	reglasinconsistencias : { 'titulo': String, 'restriccion': String},
 	historico: {},
-	periodo: { '2014' : [Number] },
+	periodo: { 'a2014' : [Number] },
 	persona : {
 		'codplaza' : String,
 		'login' : String,
@@ -104,16 +104,17 @@ var schemasfields = {
 		//responsables : [persona]
 
 		'periodos':{
-			'2013':
+			'a2013':
 			{
 				'plazo_maximo_resolver':Number,
 				'plazo_maximo_responder':Number,
 				'plazo_CS_ANS_naturales':Number,
 				'plazo_CS_ANS_habiles':Number,
 				'pendientes_iniciales':Number,
+				'periodoscerrados':[Number],
 				'total_resueltos':[Number],
 			},
-			'2014':
+			'a2014':
 			{
 				'plazo_maximo_resolver':Number,
 				'plazo_maximo_responder':Number,

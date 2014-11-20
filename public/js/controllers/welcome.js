@@ -53,12 +53,12 @@ function WelcomeCtrl($rootScope,$scope,$window,Aggregate){
     $scope.pendientes =
             Aggregate.query({
                 campo: JSON.stringify({'codigo':'$codigo','denominacion':'$denominacion'}),
-                restriccion: "{\"periodos."+$scope.anyoActual+".totalsolicitudes\":{\"$lt\":1}}"
+                restriccion: "{\"periodos.a"+$scope.anyoActual+".totalsolicitudes\":{\"$lt\":1}}"
             });
     $scope.inconsistencias =
             Aggregate.query({
                 campo: JSON.stringify({'codigo':'$codigo','denominacion':'$denominacion'}),
-                restriccion: "{\"periodos."+$scope.anyoActual+".pendientes\":{\"$lt\":0}}"
+                restriccion: "{\"periodos.a"+$scope.anyoActual+".pendientes\":{\"$lt\":0}}"
             });
 }
 
