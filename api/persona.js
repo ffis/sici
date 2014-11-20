@@ -271,28 +271,29 @@ function getColumn(x){
 	return mapping[x];
 }
 
-	/* mapping for using XY coordinates on excel */
-	var mapping = [];
-	var index=0;
+
+/* mapping for using XY coordinates on excel */
+var mapping = [];
+var index=0;
+for (var i ='A'.charCodeAt(0),j='Z'.charCodeAt(0); i<=j;i++){
+	mapping.push(String.fromCharCode(i));
+	index++;
+}
+
+for (var prefixi ='A'.charCodeAt(0),prefixj='Z'.charCodeAt(0); prefixi<=prefixj;prefixi++){
 	for (var i ='A'.charCodeAt(0),j='Z'.charCodeAt(0); i<=j;i++){
-		mapping.push(String.fromCharCode(i));
+		mapping.push(String.fromCharCode(prefixi) + String.fromCharCode(i));
 		index++;
 	}
-
+}
+for (var prefix ='A'.charCodeAt(0),prefixk='Z'.charCodeAt(0); prefix<=prefixk;prefix++){
 	for (var prefixi ='A'.charCodeAt(0),prefixj='Z'.charCodeAt(0); prefixi<=prefixj;prefixi++){
 		for (var i ='A'.charCodeAt(0),j='Z'.charCodeAt(0); i<=j;i++){
-			mapping.push(String.fromCharCode(prefixi) + String.fromCharCode(i));
+			mapping.push( String.fromCharCode(prefix) +String.fromCharCode(prefixi) + String.fromCharCode(i) );
 			index++;
 		}
 	}
-	for (var prefix ='A'.charCodeAt(0),prefixk='Z'.charCodeAt(0); prefix<=prefixk;prefix++){
-		for (var prefixi ='A'.charCodeAt(0),prefixj='Z'.charCodeAt(0); prefixi<=prefixj;prefixi++){
-			for (var i ='A'.charCodeAt(0),j='Z'.charCodeAt(0); i<=j;i++){
-				mapping.push( String.fromCharCode(prefix) +String.fromCharCode(prefixi) + String.fromCharCode(i) );
-				index++;
-			}
-		}
-	}
+}
 
 
 
