@@ -1,3 +1,4 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED="0";
 
 exports.personasByPuesto = function(models){
 	return function(req,res){
@@ -92,10 +93,40 @@ exports.personasByRegex = function(models){
 			res.status(500); res.end(); return ;
 		}
 	};
-};
+}
 
+var soap = require('soap');
 
-function transformExcel2Persona(objeto,  models,Q){
+exports.infoByLogin = function(models, Q) {
+   return function(req, res) {
+      var Persona = models.persona();
+      var login = req.params.login;
+      var url = 'https://jad.carm.es/jAD/webservice/WSGesper/wsSICI?wsdl';
+      var args = {arg0: {key: 'P_PLAZA', value: 'A700115'}};
+      var options = {
+         ignoredNamespaces: {
+            namespaces: ['tns']
+         }
+       }
+      soap.createClient(url, options, function(err, client) {
+         if (err){
+            console.error(JSON.stringify(err));return;
+         } else {
+            client.SacaOcupante(args, function(err, result) {
+               if (err) {
+                  res.status(400).send('Error');
+                  console.error('Error');
+               } else {
+                  console.log(JSON.stringify(result));
+                  res.json(result);
+               }
+            });
+         }
+      });
+   }
+}
+
+function transformExcel2Persona(objeto, models, Q){
 
 	var Persona = models.persona();
 	var persona = {
@@ -108,7 +139,7 @@ function transformExcel2Persona(objeto,  models,Q){
 
 	var dpersonaresultado = Q.defer();
 	var ppersonaresultado = dpersonaresultado.promise;
-	
+
 	var informeresultado = {
 		actualizado : true,
 		persona : ppersonaresultado

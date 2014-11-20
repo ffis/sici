@@ -9,6 +9,7 @@ function RecalculateCtrl($rootScope,$scope,$window, $http){
     	{ label: 'Permisos'  , fn:[ { label: "Recalcular", cmd: '/api/fpermiso' } ] },
 		{ label: 'Personas'  , fn:[ { label: "Recalcular", cmd: '/api/excelgesper' } ] },
 		{ label: 'Importar Procedimientos', fn:[ { label: "Importar", cmd: '/test/testImportadorExcel' } ] },
+		{ label: 'Consultar login', fn:[ { label: "Consultar login", cmd: '/api/persona/infoByLogin/ain51q' } ] },
     ];
     $scope.clasefuncionalidades = 'col-md-'+ (12 / $scope.funcionalidades.length);
 
