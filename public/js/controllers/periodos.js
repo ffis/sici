@@ -9,7 +9,8 @@ function PeriodosCtrl($rootScope, $scope, $routeParams, $window, Periodo) {
 		if ($scope.periodos.length)
 			$scope.periodo = $scope.periodos[0];
 	});
-	$scope.actualizar = function(periodo){
+	$scope.actualizar = function(periodo,clave,index){
+		periodo[clave][index]=parseInt(''+periodo[clave][index]);
 		periodo.$update(function(){
 			$scope.cambios = [];
 		});

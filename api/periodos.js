@@ -28,14 +28,22 @@ exports.updatePeriodo = function(models){
 	    var id = content._id;
 
 	    delete content._id;
+	    console.log(content);
 	    periodo.update({'_id':id}, content, { upsert: true }, function(e){
 			if (e){
 				 res.send({'error':'An error has occurred:' +e});
 			}else{
-				var meses = content['a2014'];
+
+				var set = {};
+				var meses = {};
+				for(var p in content){					
+					meses[p]= content[p];
+					set['periodos.'+p+'.periodoscerrados']=meses[p];
+				}
+				console.log(set);
 				//parche:
 				//periodo 2014 tiene el valor a usar con todos los procedimientos:
-				Procedimiento.update({}, { $set : { 'periodos.a2014.periodoscerrados': meses }}, {multi:true} , function(err,doc){
+				Procedimiento.update({}, { "set" : set}, {multi:true} , function(err,doc){
 					if (err)
 						console.error(err);
 					else

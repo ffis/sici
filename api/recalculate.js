@@ -26,13 +26,17 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 	permiso.procedimientoslectura = [];
 	permiso.procedimientosescritura = [];
 
-
+	// si el permiso es otorgado a un codigo de plaza...
 	if (permiso.codplaza && permiso.codplaza!='')
 	{
 
-		//por codplaza
+		//buscamos los procedimientos cuyo responsable sea el del permiso
 		Procedimiento.find({cod_plaza: permiso.codplaza}, function(err,procedimientos){
 			if (err){ console.error(err);console.error(32); deferredProcedimiento.reject( err ); return; }
+			// para cada procedimiento cuyo responsable sea el del permiso dado, comprobamos que el permiso especifica tal relación, es decir, que 
+			// existe permisos explícito, y de no ser así se incluye. Esto significa establecer como permiso calculado de lecutra y escritura.
+			// siendo solo en el calculado, de cambiar el propietario del procedimiento, desaparecerá su permiso explícito en cuanto se alcancen las
+			// labores de mantenimiento
 			procedimientos.forEach(function(procedimiento){
 				if (permiso.jerarquialectura.indexOf(procedimiento.idjerarquia) < 0)
 					permiso.jerarquialectura.push(procedimiento.idjerarquia);
@@ -52,15 +56,21 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 		var attrsjerarquia = ['jerarquialectura', 'jerarquiaescritura'];
 		
 		var defs = [];
-
+		// para cada uno de los arrays de permisos calculados
 		attrsjerarquia.forEach(function(attr, idx){
+			// obtenemos el array de permisos directos del mismo tipo
 			var idsjerarquia = permiso[ attrsOrigenjerarquia[idx] ];
+			// si no existe lo creamos			
 			if (!idsjerarquia)
 				permiso[ attrsOrigenjerarquia[idx] ] = [];
 			if (idsjerarquia && idsjerarquia.length==0) return;
 			var def = Q.defer();
+			// buscamos todas las jerarquías indicadas en el mismo
 			Jerarquia.find({ id:{ '$in':idsjerarquia } },function(err,jerarquias){
 				if (err){ def.reject( err ); return; }
+				// para cada una de las jerarquías indicadas en el permiso, obtenemos los descendientes ya
+				// se tendrán permisos no explícitos sobre dichas jerarquías. Añadimos a los arrays de 
+				// permisos calculados.
 				jerarquias.forEach(function(jerarquia){
 					if (permiso[ attr ].indexOf(parseInt(jerarquia.id)) < 0)
 						permiso[ attr ].push(parseInt(jerarquia.id));

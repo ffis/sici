@@ -11,9 +11,9 @@
 				</thead>
 				<tbody  ng-repeat="periodo in periodos">
 					<tr ng-If="clave!='_id'" ng-repeat="(clave,valor) in periodo">
-						<th>{{clave}}</th>
+						<th>{{clave.substring(1,5)}}</th>
 						<td ng-repeat="v in valor track by $index">
-							<a  href="#" editable-text="periodo[clave][$index]" onaftersave="actualizar(periodo)" onbeforesave="checkNumber($data)">
+							<a  href="#" editable-text="periodo[clave][$index]" onaftersave="actualizar(periodo,clave,$index)" onbeforesave="checkNumber($data)">
 									{{ periodo[clave][$index] || 0  |numberFormat}}
 							</a>
 						</td>
