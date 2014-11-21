@@ -1,41 +1,21 @@
 
-function WelcomeCtrl($rootScope,$scope,$window,Aggregate){
+function WelcomeCtrl($rootScope, $scope, $window, Aggregate){
     $rootScope.nav = 'inicio';
-    $window.document.title ='SICI';
-    $scope.colorText = function(i, numcolors, phase)
-        {
-            if (phase == undefined) phase = 0;
-            center = 128;
-            width = 127;
-            frequency = Math.PI*2/numcolors;
-            
-            return {
-                red   : Math.ceil(Math.sin(frequency*i+2+phase) * width + center),
-                green : Math.ceil(Math.sin(frequency*i+0+phase) * width + center),
-                blue  : Math.ceil(Math.sin(frequency*i+4+phase) * width + center)
-            };
-        };
+    $window.document.title ='SICI - Portada';
     
     $scope.percent = [];
-    $scope.options = []
-
-    $scope.decimalToHex = function(d) {
-      var hex = Number(d).toString(16);
-      hex = "00".substr(0, 2 - hex.length) + hex; 
-      return hex;
-    }
+    $scope.options = [];
 
     $scope.meses = $rootScope.meses;
     $scope.meses.forEach(function(m,idx){
         $scope.percent.push(Math.floor((Math.random() * 80) + 21));
-        var color = $scope.colorText(idx,12,60);
-        var col = '#'+$scope.decimalToHex(color.red)+$scope.decimalToHex(color.green)+$scope.decimalToHex(color.blue);
+        var color = $rootScope.colorToHex( $rootScope.colorText(idx,$scope.meses.length,60) );
         $scope.options.push({
             animate:{
                 duration:1000,
                 enabled:true
             },
-            barColor:col,
+            barColor:color,
             scaleColor:false,
             lineWidth:3,
             lineCap:'circle'
@@ -51,15 +31,15 @@ function WelcomeCtrl($rootScope,$scope,$window,Aggregate){
     $scope.mesActual  = date.getMonth();
     $scope.anyoActual = date.getFullYear();
     $scope.pendientes =
-            Aggregate.query({
-                campo: JSON.stringify({'codigo':'$codigo','denominacion':'$denominacion'}),
-                restriccion: "{\"periodos.a"+$scope.anyoActual+".totalsolicitudes\":{\"$lt\":1}}"
-            });
+        Aggregate.query({
+            campo: JSON.stringify({'codigo':'$codigo','denominacion':'$denominacion'}),
+            restriccion: "{\"periodos.a"+$scope.anyoActual+".totalsolicitudes\":{\"$lt\":1}}"
+    });
     $scope.inconsistencias =
-            Aggregate.query({
-                campo: JSON.stringify({'codigo':'$codigo','denominacion':'$denominacion'}),
-                restriccion: "{\"periodos.a"+$scope.anyoActual+".pendientes\":{\"$lt\":0}}"
-            });
+        Aggregate.query({
+            campo: JSON.stringify({'codigo':'$codigo','denominacion':'$denominacion'}),
+            restriccion: "{\"periodos.a"+$scope.anyoActual+".pendientes\":{\"$lt\":0}}"
+    });
 }
 
 WelcomeCtrl.$inject =  ['$rootScope','$scope','$window','Aggregate'];

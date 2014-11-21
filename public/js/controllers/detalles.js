@@ -160,11 +160,7 @@ function DetallesCtrl($q,$rootScope,$scope, $routeParams, $window, Procedimiento
 	$scope.graficasgrandes = false;
 	$scope.xAxisTickValuesFunction = function(){ return function(d){ return [0,1,2,3,4,5,6,7,8,9,10,11]; };};
 	$scope.xAxisTickFormatFunction = function(){ return function(d){ return $scope.meses[d]; } };
-	$scope.colorFunction2= function(){ return function(d,i){ 
-		var color = $scope.colorText(i, 5, 60);
-		var r = (color.red<16 ? '0': '')+color.red.toString(16), g = (color.green<16 ? '0': '')+color.green.toString(16), b = (color.blue<16 ? '0': '')+color.blue.toString(16);
-	 	return '#'+r+g+b;
-	}};
+	$scope.colorFunction2= function(){ return function(d,i){ return $rootScope.colorToHex ( $rootScope.colorText(i, 5, 60) ); } };
 	var colorCategory = d3.scale.category20b()
 	$scope.colorFunction = function() {
 	    return function(d, i) {
