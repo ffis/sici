@@ -174,10 +174,10 @@ exports.updateProcedimiento = function(Q, models, recalculate){
 				recalculate.softCalculateProcedimientoCache(Q, models, original).then(function(original){
 					exports.saveVersion(models, Q, original).then(function(){
 						original.fecha_version = new Date();
-						original.save(function(err,elemento,coincidencias){
+						Procedimiento.update({codigo:original.codigo}, JSON.parse(JSON.stringify(original)), {multi:false, upsert:false}, function(err,coincidencias, elemento){
 							if (err){  console.error(err); res.status(500).send(JSON.stringify(err)); res.end(); return ;  }
 							else{
-								res.json(elemento);	
+								res.json(original);	
 								console.log(JSON.stringify(elemento));
 								console.log(coincidencias);
 							}
