@@ -128,7 +128,7 @@
 						<th ng-class="{danger:orderby=='denominacion' }" ng-click="reverse=!reverse;orderby='denominacion'">{{'denominacion'|translate}}</th>
 						<th ng-class="{danger:orderby=='cod_plaza' }" ng-click="reverse=!reverse;orderby='cod_plaza'">{{'cod_plaza'|translate}}</th>
 						<th ng-class="{danger:orderby=='ancestro' }" ng-click="reverse=!reverse;orderby='ancestro'">{{'A cargo de'|translate}}</th>
-						<th ng-class="{danger:orderby=='periodos[anualidad].totalsolicitudes' }" ng-click="reverse=!reverse;orderby='periodos[anualidad].totalsolicitudes'">Solicitudes {{anualidad}}</th>
+						<th ng-class="{danger:orderby=='periodos[anualidad].totalsolicitudes' }" ng-click="reverse=!reverse;orderby='periodos[anualidad].totalsolicitudes'">Solicitudes {{anualidad.substring(1,5)}}</th>
 						<th ng-class="{danger:orderby=='periodos[anualidad].solicitados[mesanterior]' }" ng-click="reverse=!reverse;orderby='periodos[anualidad].solicitados[mesanterior]'">Solicitudes {{meses[mesanterior]}}</th>
 					</tr>
 				</thead>
@@ -142,7 +142,7 @@
 					</tr>
 				</tfoot>
 				<tbody>
-					<tr ng-repeat="proc in procedimientosfiltrados |filter:filtrotxtprocedimiento | orderBy : orderby : reverse">
+					<tr ng-repeat="proc in procedimientosfiltrados |filter:filtrotxtprocedimiento | orderBy : orderby : reverse | pagination : currentPage*itemsPerPage | limitTo: itemsPerPage">
 						<td class="text-center"><span class="sparkline">{{proc.periodos[anualidad].solicitados | json}}</span></td>
 						<th class="text-center">{{proc.codigo}}</th>
 						<td><a href="/procedimiento/{{proc.codigo}}">{{proc.denominacion}}</a></td>
@@ -154,6 +154,21 @@
 				</tbody>
 			</table>
 
+			<div class="col-md-12 text-center" ng-If="pageCount()>0">
+				<div class="pagination-div">
+				 <ul class="pagination">
+				  <li ng-class="DisablePrevPage()">
+					  <span  ng-click="prevPage()">Anteriores</span>
+				  </li>
+				  <li ng-repeat="n in range()" ng-class="{active: n == currentPage}" ng-click="setPage(n)">
+					  <span >{{n+1}}</span>
+				  </li>
+				  <li ng-class="DisableNextPage()">
+					  <span ng-click="nextPage()">Siguientes</span>
+				  </li>
+				 </ul>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>

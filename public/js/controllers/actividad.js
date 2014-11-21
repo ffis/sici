@@ -11,7 +11,7 @@ function ActividadCtrl($q,$rootScope,$scope,$location,$window,$routeParams,$time
 	$scope.procedimientosocultos = false;
 	$scope.meses = $rootScope.meses;
 	$scope.reverse = false;
-	$scope.anualidad = new Date().getFullYear();
+	$scope.anualidad = 'a'+new Date().getFullYear();
 	$scope.mesanterior = new Date().getMonth()-1;
 	$scope.etiquetas = Etiqueta.query(function(){
 		$scope.etiquetasPorTipo	= {};
@@ -169,6 +169,7 @@ function ActividadCtrl($q,$rootScope,$scope,$location,$window,$routeParams,$time
 		$scope.procedimientosfiltrados = $scope.procedimientos;
 		if (newValue && $scope.procedimientos.length>0)
 		{
+			$scope.currentPage = 0;
 			$scope.responsables = {};
 			$scope.filtros = {};
 			$scope.filtro = {};
@@ -217,7 +218,48 @@ function ActividadCtrl($q,$rootScope,$scope,$location,$window,$routeParams,$time
 		}
 	});
 	
+	$scope.itemsPerPage = 20;
+ 	$scope.currentPage = 0;
+ 	$scope.range = function() {
+		var rangeSize = 4;
+		var ps = [];
+		var start;
+		start = $scope.currentPage;
+		if ( start > $scope.pageCount()-rangeSize ) {
+			start = $scope.pageCount()-rangeSize+1;
+		}
+		for (var i=start; i<start+rangeSize; i++) {
+			if(i>=0) 
+				ps.push(i);
+		}
+		return ps;
+	};
 
+	$scope.prevPage = function() {
+		if ($scope.currentPage > 0) {
+			$scope.currentPage--;
+			 $scope.sparkline();
+		}
+	};
+	$scope.DisablePrevPage = function() {
+		return $scope.currentPage === 0 ? "disabled" : "";
+	};
+	$scope.pageCount = function() {
+		return Math.ceil($scope.procedimientosfiltrados.length/$scope.itemsPerPage)-1;
+	};
+	$scope.nextPage = function() {
+		if ($scope.currentPage < $scope.pageCount()) {
+			$scope.currentPage++;
+			$scope.sparkline();
+		}
+	};
+	$scope.DisableNextPage = function() {
+		return $scope.currentPage === $scope.pageCount() ? "disabled" : "";
+	};
+	$scope.setPage = function(n) {
+		$scope.currentPage = n;
+		$scope.sparkline();
+	};
 	
 }
 ActividadCtrl.$inject = ['$q','$rootScope','$scope','$location','$window','$routeParams','$timeout','Arbol','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','PersonasByPuesto','Session', 'Etiqueta'];

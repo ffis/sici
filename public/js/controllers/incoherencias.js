@@ -10,17 +10,17 @@ function IncoherenciasCtrl($rootScope,$scope,$window, ProcedimientoList, Raw) {
 	var camposprocedimiento = [
 		'codigo', 'denominacion',
 		'ancestros.id',	'ancestros.nombrelargo',
-		'periodos.'+$scope.anualidad+'.plazo_maximo_resolver',
-		'periodos.'+$scope.anualidad+'.plazo_maximo_responder',
-		'periodos.'+$scope.anualidad+'.plazo_CS_ANS_naturales',
-		'periodos.'+$scope.anualidad+'.plazo_CS_ANS_habiles',
-		'periodos.'+$scope.anualidad+'.totalsolicitudes',
+		'periodos.a'+$scope.anualidad+'.plazo_maximo_resolver',
+		'periodos.a'+$scope.anualidad+'.plazo_maximo_responder',
+		'periodos.a'+$scope.anualidad+'.plazo_CS_ANS_naturales',
+		'periodos.a'+$scope.anualidad+'.plazo_CS_ANS_habiles',
+		'periodos.a'+$scope.anualidad+'.totalsolicitudes',
 	];
 	$scope.camposexcel = [
-		'periodos.'+$scope.anualidad+'.plazo_maximo_resolver',
-		'periodos.'+$scope.anualidad+'.plazo_maximo_responder',
-		'periodos.'+$scope.anualidad+'.plazo_CS_ANS_naturales',
-		'periodos.'+$scope.anualidad+'.plazo_CS_ANS_habiles',
+		'periodos.a'+$scope.anualidad+'.plazo_maximo_resolver',
+		'periodos.a'+$scope.anualidad+'.plazo_maximo_responder',
+		'periodos.a'+$scope.anualidad+'.plazo_CS_ANS_naturales',
+		'periodos.a'+$scope.anualidad+'.plazo_CS_ANS_habiles',
 	];
 	//$scope.camposguia = ['titulo'];
 	$scope.camposguia = [];
@@ -58,10 +58,10 @@ function IncoherenciasCtrl($rootScope,$scope,$window, ProcedimientoList, Raw) {
 		if (!row.crawled || !row.crawled.any || !row.crawled.any['Plazo de resolución']) return true;
 		if (!row.procedimiento ) return true;
 		var sum =
-			$scope.parseInt(row.procedimiento.periodos[$scope.anualidad].plazo_maximo_resolver) +
-			$scope.parseInt(row.procedimiento.periodos[$scope.anualidad].plazo_maximo_responder) +
-			$scope.parseInt(row.procedimiento.periodos[$scope.anualidad].plazo_CS_ANS_naturales) +
-			$scope.parseInt(row.procedimiento.periodos[$scope.anualidad].plazo_CS_ANS_habiles);
+			$scope.parseInt(row.procedimiento.periodos['a'+$scope.anualidad].plazo_maximo_resolver) +
+			$scope.parseInt(row.procedimiento.periodos['a'+$scope.anualidad].plazo_maximo_responder) +
+			$scope.parseInt(row.procedimiento.periodos['a'+$scope.anualidad].plazo_CS_ANS_naturales) +
+			$scope.parseInt(row.procedimiento.periodos['a'+$scope.anualidad].plazo_CS_ANS_habiles);
 		var	plazo = $scope.toDays( row.crawled.any['Plazo de resolución']);
 		return ( sum != plazo );
 	}
