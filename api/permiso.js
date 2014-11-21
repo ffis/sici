@@ -93,6 +93,64 @@ function getPermisosByLoginPlaza(req, res, models ,Q ,login, cod_plaza)
 }
 
 
+exports.delegarpermisosProcedimiento = function(models,Q){
+	return function(req,res){
+		var proc = req.params.procedimiento;
+		console.log(req.user);
+		/**if (req.user.permisoscalculados.procedimientosescritura.indexOf(proc)!==-1 ){*/
+			var Permiso = models.permiso();
+			var Procedimiento = models.procedimiento();
+			var Jerarquia = models.jerarquia();
+			Procedimiento.findOne({'codigo':proc},function(err,procedimiento){
+				if (err){console.error("Imposible salvar nuevo permiso"); console.error(err); res.status(500); res.end(); return;}
+				var idjerarquia= procedimiento.idjerarquia;
+				Jerarquia.findOne({'id':idjerarquia},function(err, jerarquia){
+					if (err){console.error("Imposible salvar nuevo permiso (2)"); console.error(err); res.status(500); res.end(); return;}
+					var ep = {};
+					if (req.params.cod_plaza && req.params.cod_plaza!='-' && req.params.cod_plaza!='') ep.codplaza = req.params.cod_plaza;
+					if (req.params.login && req.params.login!='-' && req.params.login!='') ep.login = req.params.login;
+					ep.jerarquialectura = [idjerarquia];
+					ep.jerarquiaescritura = [idjerarquia];
+					ep.jerarquiadirectalectura = [idjerarquia];
+					ep.jerarquiadirectaescritura = [idjerarquia];
+					ep.procedimientosescritura = [procedimiento.codigo];
+					ep.procedimientoslectura = [procedimiento.codigo];
+					ep.procedimientosdirectalectura = [procedimiento.codigo];
+					ep.procedimientosdirectaescritura = [procedimiento.codigo];
+					ep.superuser = 0;
+					ep.cod_plaza_grantt = req.user.login;
+					ep.descripcion = 'Permisos delegados por ' + ep.cod_plaza_grantt;
+					ep.grantoption = false;
+
+					Permiso.find({'$or':[{'procedimientoescritura' : procedimiento.codigo},{'procedimientosdirectaescritura' : procedimiento.codigo}]},function(err,procs){
+						if (err) {
+								console.error("Imposible salvar nuevo permiso (5)"); console.error(err); res.status(500); res.end(); return;
+						}
+						var caducidad = new Date();
+						caducidad.setFullYear(caducidad.getFullYear() + 2); ////////// PARCHE POR LAS CADUCIDADES A NULL
+						for(var i=0;i<procs.length;i++){
+							var ptemp = procs[i];
+							if (ptemp.caducidad && ptemp.caducidad.getTime()>caducidad.getTime())
+								caducidad = ptemp.caducidad;
+						}
+						ep.caducidad = caducidad;
+
+						var op = new Permiso(ep);
+						console.log(op);
+						op.save(function(err){
+							if (err) {
+								console.error("Imposible salvar nuevo permiso (3)"); console.error(err); res.status(500); res.end(); return;
+							} else {		
+								res.json(op);
+							}							
+						});
+					});
+				});
+			});
+		/*} else {console.error("Imposible salvar nuevo permiso (4)");  res.status(500); res.end(); return;}*/
+	};
+};
+
 exports.delegarpermisos = function(models,Q)
 {
 	return function(req, res) {
@@ -121,7 +179,7 @@ exports.delegarpermisos = function(models,Q)
 										
 					op.save(function(err){
 						if (err) {
-							console.error("Imposible salvar nuevo procedimiento"); console.error(err); res.status(500); res.end(); return;
+							console.error("Imposible salvar nuevo permiso"); console.error(err); res.status(500); res.end(); return;
 							defer.reject(err);
 						} else {		
 							defer.resolve(p);

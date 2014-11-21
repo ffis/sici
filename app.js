@@ -132,7 +132,8 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.post('/api/permisos/', permiso.create(models,Q,recalculate));
   app.get('/api/permisoscalculados', login.getpermisoscalculados(models));
   app.get('/api/permisosdelegar/:login/:cod_plaza', permiso.delegarpermisos(models,Q));
-  
+  app.get('/api/permisosdelegar/:login/:cod_plaza/:procedimiento', permiso.delegarpermisosProcedimiento(models,Q));
+
   app.get('/api/excelgesper', persona.importarGesper(models,Q));
   
 
