@@ -55,10 +55,30 @@
 		</div>
 		<script>
 		//IE sucks
-			if (typeof console === "undefined" || typeof console.log === "undefined") { console = { log: function(){} } };
+			if (typeof console === "undefined" || typeof console.log === "undefined") { console = { log: function(){}, error: function(){} } };
 		</script>
-		<script src="/js/lib/jquery/jquery-2.0.3.min.js"></script>
-		<script src="/bower_components/ng-file-upload/angular-file-upload-shim.js"></script>
+
+		<!--[if lt IE 9]>
+		  <script src="/js/lib/es5.js"></script>
+		  <script src="/js/lib/jquery/jquery-1.11.1.min.js"></script>
+		  <script>angularFileUploadLoaded=false;</script>
+		<![endif]-->
+
+		<!--[if (gte IE 9) | (!IE)]><!-->  
+			<script>angularFileUploadLoaded=true;</script>
+			<script>
+			    //optional need to be loaded before angular-file-upload-shim(.min).js
+			    FileAPI = {
+			        jsUrl: '/js/lib/fileapi/FileAPI.min.js',
+			        flashUrl: '/js/lib/fileapi/FileAPI.flash.swf',
+			        //forceLoad: true, html5: false //to debug flash in HTML5 browsers
+			    }
+
+		  </script>
+		  <script src="/js/lib/jquery/jquery-2.0.3.min.js"></script>
+		  <script src="/bower_components/ng-file-upload/angular-file-upload-shim.js"></script>
+		<!--<![endif]--> 
+		
 		<script src="/js/lib/angular/angular.js"></script>
 		<script src="/js/lib/angular/angular-route.js"></script>
 		<script src="/js/lib/angular/angular-sanitize.js"></script>
@@ -66,7 +86,10 @@
 		<script src="/js/lib/angular/angular-animate.js"></script>
 		<script src="/js/lib/angular/angular-cookies.js"></script>
 
+
 		<script src="/bower_components/ng-file-upload/angular-file-upload.min.js"></script>
+
+
 		<script src="/bower_components/angular-translate/angular-translate.js"></script>
 		<script src="/bower_components/allmighty-autocomplete/script/autocomplete.js"></script>
 		
