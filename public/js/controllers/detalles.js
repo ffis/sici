@@ -44,8 +44,9 @@ function DetallesCtrl($q,$rootScope,$scope, $routeParams, $window, Procedimiento
 		console.log(anualidad);
 			if (parseInt(anualidad.substring(1,5)) > parseInt($scope.anualidad.substring(1,5))) 
 				$scope.anualidad = anualidad;				
-		}		
-		if ($scope.procedimientoSeleccionado.ancestros[0].id==1){
+		}
+		if ($scope.procedimientoSeleccionado.ancestros && $scope.procedimientoSeleccionado.ancestros[0].id==1)		
+		{
 			$scope.procedimientoSeleccionado.ancestros.reverse();//TODO: revisar este parche
 		}
 		
