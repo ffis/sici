@@ -31,6 +31,7 @@
     	$routeProvider.when('/crearprocedimiento',    {templateUrl: 'partials/procedimientocrud.html', controller: 'NewProcedimientoCtrl'});
         $routeProvider.when('/etiqueta',    {templateUrl: 'partials/etiqueta.html', controller: 'EtiquetaCtrl'});
         $routeProvider.when('/periodos',    {templateUrl: 'partials/periodos.html', controller: 'PeriodosCtrl'});
+        $routeProvider.when('/testexpediente',    {templateUrl: 'partials/testexpediente.html', controller: 'TestExpedienteCtrl'});
 
         $routeProvider.otherwise({redirectTo: '/welcome'});
         $locationProvider.html5Mode(true);

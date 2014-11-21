@@ -1,5 +1,5 @@
 
-function WelcomeCtrl($rootScope,$scope,$window,Aggregate){
+function WelcomeCtrl($rootScope,$scope,$window,Aggregate,ProcedimientoCount,TramitesCount){
     $rootScope.nav = 'inicio';
     $window.document.title ='SICI';
     $scope.colorText = function(i, numcolors, phase)
@@ -42,11 +42,17 @@ function WelcomeCtrl($rootScope,$scope,$window,Aggregate){
         });
     });
     $scope.indicadores = [
-        {bg:'red-soft',descripcion:'Procedimientos',number:255,icon:'fa-folder-open'},
-        {bg:'green-soft',descripcion:'Trámites',number:349,icon:'fa-comments'},
+        {bg:'red-soft',descripcion:'Trámites',number:368,icon:'fa-folder-open'},
         {bg:'purple-soft',descripcion:'Tiempo medio',number:'3 días',icon:'fa-pie-chart'},
         {bg:'blue-soft',descripcion:'Cumplimiento',number:'98%',icon:'fa-bar-chart'},
     ];
+    $scope.procedimientos = ProcedimientoCount.get(function(){
+        $scope.indicadores.push( {bg:'red-soft',descripcion:'Procedimientos',number:$scope.procedimientos.count,icon:'fa-folder-open'});
+    });
+    /*$scope.tramites = TramitesCount.get(function(){
+        $scope.indicadores.push( {bg:'red-soft',descripcion:'Tramites',number:$scope.tramites.count,icon:'fa-folder-open'});
+    });*/
+    
     var date = (new Date());
     $scope.mesActual  = date.getMonth();
     $scope.anyoActual = date.getFullYear();
@@ -62,4 +68,4 @@ function WelcomeCtrl($rootScope,$scope,$window,Aggregate){
             });
 }
 
-WelcomeCtrl.$inject =  ['$rootScope','$scope','$window','Aggregate'];
+WelcomeCtrl.$inject =  ['$rootScope','$scope','$window','Aggregate','ProcedimientoCount', 'TramitesCount'];

@@ -1,3 +1,4 @@
+'use strict';
 
 var express = require('express'),
 http = require('http'),
@@ -10,13 +11,14 @@ jwt = require('jsonwebtoken'),
 
 recalculate = require('./api/recalculate'),
 routes = require('./routes'),
-models = require('./api/models');
+models = require('./api/models'),
 
 api = require('./api/api'),
 login = require('./api/login'),
 jerarquia = require('./api/jerarquia'),
 importador = require('./api/importador'),
 reglainconsistencia = require('./api/reglainconsistencia'),
+expediente = require('./api/expediente'),
 etiqueta = require('./api/etiqueta'),
 periodos = require('./api/periodos'),
 procedimiento = require('./api/procedimiento'),
@@ -39,7 +41,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   if (err)
     throw err;
 
-  cfg = cfgs[0];
+  var cfg = cfgs[0];
 
   app.disable( 'x-powered-by' );
   app.set('port', process.env.PORT || cfg.port ||6000);
@@ -103,6 +105,10 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.put('/api/procedimiento/:codigo', procedimiento.updateProcedimiento(Q, models, recalculate) );  
   //app.post('/api/procedimiento', procedimiento.createProcedimiento(Q, models, recalculate) );
   app.post('/api/procedimiento/:codigo', procedimiento.createProcedimiento(Q, models, recalculate) );
+  app.get('/api/procedimientoCount', procedimiento.totalProcedimientos(models));
+  app.get('/api/tramiteCount', procedimiento.totalTramites(Settings, models));
+  app.get('/api/tramitesMediaMes', procedimiento.mediaMesTramites(models));
+  
   
   app.get('/api/jerarquia/:idjerarquia', jerarquia.getNodoJerarquia(models));
 
@@ -110,6 +116,12 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.post('/api/reglasinconsistencias', reglainconsistencia.newReglaInconsistencia(models));
   app.put('/api/reglasinconsistencias/:id', reglainconsistencia.updateReglaInconsistencia(models));
   app.delete('/api/reglasinconsistencias/:id', reglainconsistencia.removeReglaInconsistencia(models));
+
+
+  app.post('/api/v1/expediente/:procedimiento', expediente.initExpediente(models));
+  app.put('/api/v1/expediente/:procedimiento/:id', expediente.updateExpediente(models));
+  app.get('/api/v1/expediente/:procedimiento/:id', expediente.expediente(models));
+  app.delete('/api/v1/expediente/:procedimiento/:id', expediente.deleteExpediente(models));
 
   app.get('/api/etiqueta', etiqueta.getEtiqueta(models));
   app.put('/api/etiqueta/:id', etiqueta.updateEtiqueta(models));

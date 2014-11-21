@@ -47,7 +47,7 @@ var schemasfields = {
 	},
 	expediente: {
 		'idexpediente' : String,
-		'procedimiento': Number,
+		'procedimiento': String,
 		'fechainicio' : Date,
 		'fechafin' : Date,
 		'periodossuspension': [Number],

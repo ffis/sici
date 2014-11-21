@@ -24,4 +24,4 @@ function EtiquetaCtrl($rootScope,$scope,$window, $routeParams,Etiqueta) {
 	}
 }
 
-ReglasInconsistenciasCtrl.$inject = ['$rootScope','$scope','$window', '$routeParams','Etiqueta'];
+EtiquetaCtrl.$inject = ['$rootScope','$scope','$window', '$routeParams','Etiqueta'];
