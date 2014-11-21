@@ -203,7 +203,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr ng-repeat="(incidencia,valores) in procedimientoSeleccionado.periodos[anualidad].incidencias"> 
+						<tr ng-repeat="(incidencia,valores) in procedimientoSeleccionado.periodos[anualidad].Incidencias"> 
 							<th>{{incidencia}}</th>
 							<td ng-repeat="val in valores track by $index" ng-class="{'text-danger': val }" class="numberCell">{{val}}</td>
 						</tr>
