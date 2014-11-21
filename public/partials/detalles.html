@@ -193,8 +193,8 @@
 				</div>
 			</div>
 			<hr/>
-			<h5 class="text-danger">Incidencias</h5>
-			<div class="table-resposive">
+			<h5 class="text-danger" ng-If="procedimientoSeleccionado.periodos[anualidad].Incidencias">Incidencias</h5>
+			<div class="table-resposive" ng-If="procedimientoSeleccionado.periodos[anualidad].Incidencias">
 				<table class="table table-striped table-bordered">
 					<thead>
 						<tr>
@@ -211,7 +211,7 @@
 				</table>
 			</div>
 
-			<hr/>
+			<hr  ng-If="procedimientoSeleccionado.periodos[anualidad].Incidencias"/>
 			<h5 class="text-danger" ng-If="inconsistencias.length>0">Inconsistencias</h5>
 			<p ng-If="inconsistencias.length>0">Una inconsistencia se da cuando alguno de los datos introducidos no refleja valores coherentes con el resto. Así, por ejemplo, no es consistente que haya un número negativo de expedientes resueltos, ni que el número de expedientes resueltos sea superior al de expedientes solicitados.</p>
 			<div ng-repeat="inconsistencia in inconsistencias" role="alert" ng-if="inconsistencia.datos.length > 0" class="alert alert-warning">

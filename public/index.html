@@ -61,7 +61,7 @@
 		<!--[if lt IE 9]>
 		  <script src="/js/lib/es5.js"></script>
 		  <script src="/js/lib/jquery/jquery-1.11.1.min.js"></script>
-		  <script>angularFileUploadLoaded=false;</script>
+		  <script>angularFileUploadLoaded=false;ie8=true;</script>
 		<![endif]-->
 
 		<!--[if (gte IE 9) | (!IE)]><!-->  
@@ -73,7 +73,7 @@
 			        flashUrl: '/js/lib/fileapi/FileAPI.flash.swf',
 			        //forceLoad: true, html5: false //to debug flash in HTML5 browsers
 			    }
-
+				ie8=false;
 		  </script>
 		  <script src="/js/lib/jquery/jquery-2.0.3.min.js"></script>
 		  <script src="/bower_components/ng-file-upload/angular-file-upload-shim.js"></script>
