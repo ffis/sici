@@ -8,7 +8,7 @@ var schemasfields = {
 	settings: { version:Number, 'secret': String, 'secret2': String, 'anyo': String, 'port': Number,  'urlbasedecrypt': String, logincarm: Boolean },
 	reglasinconsistencias : { 'titulo': String, 'restriccion': String},
 	historico: {},
-	periodo: { 'a2014' : [Number] },
+	periodo: { 'a2013' : [Number] , 'a2014' : [Number] },
 	persona : {
 		'codplaza' : String,
 		'login' : String,
