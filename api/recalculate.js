@@ -10,6 +10,7 @@ function parseStr2Int (str){
 exports.softCalculatePermiso = function(Q, models, permiso){
 	var Jerarquia = models.jerarquia();
 	var Procedimiento = models.procedimiento();
+	var Persona = models.persona();
 	/*
 	origen de datos:
 	'jerarquiadirectalectura' : [Number],
@@ -25,7 +26,27 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 	permiso.jerarquiaescritura = [];
 	permiso.procedimientoslectura = [];
 	permiso.procedimientosescritura = [];
-
+	
+	/**** PARCHE PARA HABILITAR A LAS PERSONAS CON ALGÚN PERMISO ***/
+	var restriccion_persona = {};
+	if (permiso.login)
+		restriccion_persona.login=permiso.login;
+	if (permiso.codplaza)
+		restriccion_persona.codplaza=permiso.codplaza;
+		
+	Persona.find(restriccion_persona,function(err,personas){
+		if (err) { console.log(err); return; }
+		for(var i=0;i<personas.length;i++)
+		{
+			var persona = personas[i];
+			persona.habilitado = true;
+			persona.save(function(err){
+				if (err) console.log(err);
+			});
+		}
+	});
+	/**** FIN PARCHE ***/
+	
 	// si el permiso es otorgado a un codigo de plaza...
 	if (permiso.codplaza && permiso.codplaza!='')
 	{
