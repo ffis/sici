@@ -1,4 +1,4 @@
-function DetallesCtrl($q,$rootScope,$scope, $routeParams, $window, Procedimiento,DetalleCarmProcedimiento,DetalleCarmProcedimiento2,Raw,Aggregate) {
+function DetallesCtrl($q,$rootScope,$scope, $routeParams, $window, $location, $timeout,$http, Procedimiento,DetalleCarmProcedimiento,DetalleCarmProcedimiento2,Raw,Aggregate,Arbol) {
 
 	$scope.detallesCarm = DetalleCarmProcedimiento.get({codigo:$routeParams.codigo});
 	$scope.detallesCarm2 = DetalleCarmProcedimiento2.get({codigo:$routeParams.codigo});		
@@ -7,6 +7,7 @@ function DetallesCtrl($q,$rootScope,$scope, $routeParams, $window, Procedimiento
 	$scope.mesActual = (new Date()).getMonth();
 	$scope.detallesCarmHTML = true;
 	$scope.graphs = false;
+
 	
 	$scope.nextYear = function() {
 		$scope.anualidad = 'a'+(parseInt($scope.anualidad.substring(1,5))+1);		
@@ -132,6 +133,133 @@ function DetallesCtrl($q,$rootScope,$scope, $routeParams, $window, Procedimiento
 				}
 			});
 		});
+
+
+		/***** CAMBIO DE JERARQUIA ****/
+
+		var defjerarquia = $q.defer();
+		$scope.pjerarquia = defjerarquia.promise;
+		$rootScope.jerarquialectura().then(function(j){ 
+			$rootScope.jerarquiaescritura().then(function(j2){
+				$scope.jerarquia = j.concat(j2);
+				defjerarquia.resolve($scope.jerarquia);
+			});
+		});
+
+		/*$scope.filtrojerarquia*/ 
+		$scope.fj = function(item) {
+			if ($scope.jerarquia.indexOf(item.id)!=-1 )
+				return true;		
+			if (item.nodes){
+				for(var i=0;i<item.nodes.length;i++) 
+					if ($scope.filtrojerarquia(item.nodes[i])) 
+						return true;		
+			}
+			return false;
+		};
+		
+		
+		$scope.filtrojerarquia = function(item) {
+			var def = $q.defer();
+			$scope.pjerarquia.then( function(){			
+				def.resolve($scope.fj(item));
+				$scope.filtrojerarquia = $scope.fj;
+			},function(err){def.reject(err);});
+			return def.promise;
+		}
+		
+		
+		$scope.filtrosocultos = false;	
+		$scope.seleccinado = null;
+		$scope.mensaje_moviendo = '';
+		$scope.msj_base = 'Moviendo (Esta operación puede tardar un tiempo)...';
+
+
+		$scope.setSeleccionado = function(elemento){
+			$scope.seleccionado = elemento;
+			$timeout($scope.gotOkCancel,500);
+		}
+
+		$rootScope.superuser().then(function(){
+			console.log('Obteniendo arbol para funcionalidad cambio de jerarquia');
+			$scope.arbol = Arbol.query();	
+		});
+
+		$scope.execCmd = function(cmds, i){			
+			cmds[i-1].defer.promise.then(function(){
+				$scope.mensaje_moviendo = $scope.msj_base + cmds[i].msj;
+				$http.get(cmds[i].cmd).then(function(){
+					$scope.mensaje_moviendo = $scope.mensaje_moviendo + " OK¡";
+					cmds[i].defer.resolve({'index':i,'msj':'Comando '+cmds[i].cmd+' OK'});
+			    },function(){
+			    	cmds[i].defer.reject('Error al solicitar un recalculo '+i);
+			    });
+			}, function(){
+				cmds[i].defer.reject('No se ha ejecutado el comando previo '+i);
+			})
+			return cmds[i].defer.promise;
+		};
+
+		$scope.changeOrganica = function(){
+			// cambiamos idjerarquia.
+			$scope.procedimientoSeleccionado.idjerarquia = $scope.seleccionado.id;
+			console.log('Salvando ');console.log($scope.procedimientoSeleccionado);
+			$scope.procedimientoSeleccionado.$update(function(response){
+				console.log(response);
+				// salvamos y ordenamos el recalculo.
+				var cmds = [
+					{ cmd:'', defer: $q.defer() },
+					{ cmd:'/api/fprocedimiento', defer: $q.defer(), msj:'Ajustando procedimiento' },
+					{ cmd:'/api/fjerarquia', defer : $q.defer(), msj:'Ajustando organica' },
+					{ cmd:'/api/fpermiso', defer : $q.defer(), msj:'Comprobando permisos' }
+				];
+				cmds[0].defer.resolve();			
+				$scope.mensaje_moviendo = $scope.msj_base;
+				for(var i=1;i<cmds.length;i++){				
+					$scope.execCmd(cmds, i).then(function(data){
+						console.log(data.msj);
+						if (data.index==cmds.length-1) {
+							$scope.mensaje_moviendo = $scope.msj_base+' ¡¡Listo!!';
+							$timeout($scope.cancelChangeOrganica,1500);
+						} else {
+							$scope.mensaje_moviendo = $scope.mensaje_moviendo+'.';
+						}
+						
+					},function(err){
+						$scope.mensaje_moviendo = 'Error. Ocurrió un error realizando la operación. Si es posible ejecute manualmente las operaciones de mantenimiento y recálculo. ';
+						console.log(err);
+					});
+				}
+				$scope.recalculate();
+			});
+		};
+
+		$scope.gotoBreadCrumb = function(){
+			//$location.hash('breadcrumb');	
+		} 
+
+		$scope.gotOkCancel = function(){
+			//$location.hash('ok_cancel_changeOrganica');
+		}
+
+		$scope.cancelChangeOrganica = function(){
+			$scope.seleccinado = null;
+			$scope.showArbol = false;
+			$scope.mensaje_moviendo  = '';
+			$timeout($scope.gotoBreadCrumb,1000);
+		};
+
+		$scope.setShowArbol = function(){
+			$scope.showArbol = true;
+		}
+
+		$scope.isShowArbol = function(){
+			return $scope.showArbol;
+		}
+		/******************************/
+
+
+
 	} );	
 	$scope.attrspar = [
 		'codigo', 'denominacion', 'tipo', 'cod_plaza', 'fecha_creacion', 'fecha_version', /* 'fecha_fin', */
@@ -175,8 +303,10 @@ function DetallesCtrl($q,$rootScope,$scope, $routeParams, $window, Procedimiento
 	    	return "No se admiten valores menores de 0";
 	    }
 	};
+
+
 }
-DetallesCtrl.$inject = ['$q','$rootScope','$scope','$routeParams','$window','Procedimiento','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','Raw','Aggregate'];
+DetallesCtrl.$inject = ['$q','$rootScope','$scope','$routeParams','$window','$location','$timeout','$http','Procedimiento','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','Raw','Aggregate','Arbol'];
 
 function parseStr2Int (str){
 	var valor = parseInt(str);

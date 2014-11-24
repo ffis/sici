@@ -85,46 +85,54 @@ exports.raw = function(models){
 exports.aggregate = function(models){
 	return function(req,res){
 		var Procedimiento = models.procedimiento();
-		var connection = Procedimiento.collection;
-		var campostr = req.params.campo;
-		var group = [];
-		var groupfield = {};
-
-		try{
-			groupfield['_id'] = JSON.parse(campostr);
-		}catch(e){
-			groupfield['_id'] = "$"+campostr;
-		}
-		var matchstr = req.params.match;
-		if (typeof matchstr === 'string'){
-			var match = {};
-			try{ //probar 
-				match = JSON.parse(matchstr);
-			}catch(e){
-				var condiciones = matchstr.split('|');
-				condiciones.forEach(function(condicion){
-					var partes = condicion.split(':');
-					var campomatch = partes[0];
-					var valor = typeof partes[1] !== 'undefined' ? (partes[1]) : '';
-					if(/^(\-|\+)?([0-9]+|Infinity)$/.test(valor))
-						valor = parseInt(valor);
-					match[campomatch] = valor;
-				});
-			}
-			match.idjerarquia = {'$in':req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)};
-			group.push({ "$match" : match });
-		}
-		groupfield['count'] = {'$sum':1};
-		groupfield['porcumplimentar'] = { '$sum':{'$cond': [ { '$eq':[0,'$periodos.a'+cfg.anyo+'.totalsolicitudes']}, 1, 0 ] } };
-
-		/*group.push({'$unwind':'$ancestros'});*/
-		group.push({"$group" : groupfield});
-		group.push({"$sort":{ 'count' : -1 } });
-		//console.log(JSON.stringify(group));
-		connection.aggregate(group ,function(err,data){
+		/*** parche ***/
+		var Settings = models.settings();
+		var cfg;
+		Settings.findOne({},function(err, settings){
 			if (err) { console.error(err); res.status(500); res.end(); return ; }
+			cfg = settings;	
+		/*** ***/
+			var connection = Procedimiento.collection;
+			var campostr = req.params.campo;
+			var group = [];
+			var groupfield = {};
+
+			try{
+				groupfield['_id'] = JSON.parse(campostr);
+			}catch(e){
+				groupfield['_id'] = "$"+campostr;
+			}
+			var matchstr = req.params.match;
+			if (typeof matchstr === 'string'){
+				var match = {};
+				try{ //probar 
+					match = JSON.parse(matchstr);
+				}catch(e){
+					var condiciones = matchstr.split('|');
+					condiciones.forEach(function(condicion){
+						var partes = condicion.split(':');
+						var campomatch = partes[0];
+						var valor = typeof partes[1] !== 'undefined' ? (partes[1]) : '';
+						if(/^(\-|\+)?([0-9]+|Infinity)$/.test(valor))
+							valor = parseInt(valor);
+						match[campomatch] = valor;
+					});
+				}
+				match.idjerarquia = {'$in':req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)};
+				group.push({ "$match" : match });
+			}
+			groupfield['count'] = {'$sum':1};
+			groupfield['porcumplimentar'] = { '$sum':{'$cond': [ { '$eq':[0,'$periodos.a'+cfg.anyo+'.totalsolicitudes']}, 1, 0 ] } };
+
+			/*group.push({'$unwind':'$ancestros'});*/
+			group.push({"$group" : groupfield});
+			group.push({"$sort":{ 'count' : -1 } });
 			//console.log(JSON.stringify(group));
-			res.json (data);
+			connection.aggregate(group ,function(err,data){
+				if (err) { console.error(err); res.status(500); res.end(); return ; }
+				//console.log(JSON.stringify(group));
+				res.json (data);
+			});
 		});		
 	}
 }

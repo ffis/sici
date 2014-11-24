@@ -139,7 +139,9 @@ exports.updateProcedimiento = function(Q, models, recalculate){
 
 			var puedeEscribirSiempre = req.user.permisoscalculados.superuser;
 
-			
+			if (puedeEscribirSiempre && original.idjerarquia!=procedimiento.idjerarquia) {
+				original.idjerarquia = procedimiento.idjerarquia;
+			}
 			//TODO: IMPEDIR EDICION DE ANUALIDADES MUY PRETÉRITAS		
 			var schema = models.getSchema('procedimiento');
 			
