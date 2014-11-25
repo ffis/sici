@@ -1,6 +1,6 @@
-﻿// JavaScript Document
-var Crawler = require("crawler").Crawler;
-var Browser = require("zombie");
+// JavaScript Document
+/*var Crawler = require("crawler").Crawler;
+var Browser = require("zombie");*/
 var encoding  = require("encoding");
 var util = require('util');
 var XLSX = require('xlsx');
@@ -137,7 +137,7 @@ exports.applyImportacionProcedimiento = function(models, Q, recalculate, P){
 
 exports.parseGS = function(){
 	return function (req, res)
-	{
+	{/*
 			var id = parseInt(req.params.id);
 			var url = "http://www.carm.es/web/pagina?IDTIPO=240&IDCONTENIDO="+id;
 			var browser = new Browser();
@@ -170,7 +170,7 @@ exports.parseGS = function(){
 
 exports.parseCr = function(Q,models){
 	return function (req, res)
-	{
+	{/*
 		var id = parseInt(req.params.id);
 		var url = "http://www.carm.es/web/pagina?IDTIPO=240&IDCONTENIDO="+id;
 		var Crawled = models.crawled();		
@@ -227,7 +227,7 @@ exports.parseCr = function(Q,models){
 		}else{
 			res.json(data);
 		}
-		});
+		});*/
 	}
 }
 

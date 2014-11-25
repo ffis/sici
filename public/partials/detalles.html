@@ -7,16 +7,99 @@
 		<div class="btn btn-default pull-right" ng-click="$root.exportDOC('detalles', 'Procedimiento_'+procedimientoSeleccionado.codigo)">
 			<span class="glyphicon glyphicon-book"></span>
 		</div>
-		<div ng-if="procedimientoSeleccionado" class="details" id="detalles">
+		<div ng-if="procedimientoSeleccionado" class="details" id="detalles" >
 			<hr/>
 			<h4 class="text-danger">{{procedimientoSeleccionado.denominacion}}</h4>
-			<ol class="breadcrumb">
+			<ol class="breadcrumb" id="breadcrumb">
 				<li ng-repeat="ancestro in procedimientoSeleccionado.ancestros|reverse ">
 					<a href="/actividad/{{ancestro.id}}">{{ancestro.nombrelargo}}</a>
 				</li>
 				<li class="active">{{procedimientoSeleccionado.denominacion}}</li>
-				<li class="active">{{anualidad.substring(1,5)}}</li>
+				<li class="active" >{{anualidad.substring(1,5)}} 
+					<a ng-if="$root.permisoscalculados.superuser" href="" ng-click="setShowArbol()">&nbsp;
+						<span  class="glyphicon glyphicon-pencil"></span>
+					</a>
+				</li>
 			</ol>
+			<!--- ARBOL PARA CAMBIO EN JERARQUÍA -->
+			<div  ng-if="$root.permisoscalculados.superuser" ng-class="{'hidden':!isShowArbol()}" class="animated">
+				<div class="panel panel-danger">
+					<div class="panel-heading">
+						<h3 class="panel-title">
+							Organismos
+						</h3>
+					</div>
+					<div class="panel-body">			
+						<input type="text" ng-model="texto.$" placeholder="Filtro" style="margin-bottom:1em" class="form-control"/>
+						<ul ng-if="arbol.length" style="padding-left:0.6em">
+							<li ng-repeat="element in arbol |filter:texto| filter:filtrojerarquia" ng-class="{'list-group-item-warning':element.id==seleccionado.id}">
+								<p>
+								<strong>
+									[{{element.id}}] &nbsp;
+								</strong>
+								<span ng-click="setSeleccionado(element)" class="cursor"  title="Engloba {{element.numprocedimientos}} procedimientos" scroll-to-item scroll-to="#changeorcancel">
+									{{element.title}} 
+								</span>
+								
+								</p>
+								<ul class="list-group" ng-if="element.nodes" style="clear:both">
+									<li class="list-group-item" ng-repeat="elemen in element.nodes |filter:texto | filter:filtrojerarquia" ng-class="{'list-group-item-danger':elemen.id==seleccionado.id}">
+									<p>
+										<strong>
+											[{{elemen.id}}] &nbsp;
+										</strong>
+										<span ng-click="setSeleccionado(elemen)" class="cursor" title="Engloba {{elemen.numprocedimientos}} procedimientos" scroll-to-item scroll-to="#changeorcancel">
+											{{elemen.title}} 
+										</span>
+										
+										</p>
+										<ul ng-if="elemen.nodes" style="clear:both">
+											<li ng-repeat="eleme in elemen.nodes |filter:texto |filter:filtrojerarquia"  ng-class="{'list-group-item-danger':eleme.id==seleccionado.id}" >
+											<p>
+												<strong>
+													[{{eleme.id}}] &nbsp;
+												</strong>
+												<span ng-class="{'bg-danger':eleme.id==seleccionado.id }" ng-click="setSeleccionado(eleme)" class="cursor" title="Engloba {{eleme.numprocedimientos}} procedimientos" scroll-to-item scroll-to="#changeorcancel">
+													{{eleme.title}} 
+												</span>
+												
+												</p>
+												<ul ng-if="eleme.nodes" style="clear:both">
+													<li ng-repeat="elem in eleme.nodes |filter:texto |filter:filtrojerarquia">
+													<p>
+														<strong>
+															[{{elem.id}}] &nbsp;
+														</strong>
+														<span ng-class="{'bg-danger':elem.id==seleccionado.id }" ng-click="setSeleccionado(elem)" class="cursor"  title="Engloba {{elem.numprocedimientos}} procedimientos" scroll-to-item scroll-to="#changeorcancel">
+															{{elem.title}} 
+														</span>
+														
+														</p>
+													</li>
+												</ul>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+						<div id="changeorcancel">
+							<button type="button" class="btn btn-default" ng-click="changeOrganica()" ng-class="{'disabled': seleccionado==null}">
+		  						<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Asignar a la estructura
+							</button>&nbsp;&nbsp;
+							<button type="button" class="btn btn-default" ng-click="cancelChangeOrganica()">
+							  <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancelar
+							</button>			
+							<br/>
+							<small><span ng-bind="mensaje_moviendo" class=""></span></small>
+						</div>						
+					</div>
+				</div>
+
+			</div>
+		<!-- FIN ARBOL PARA CAMBIO DE JERARQUÍA -->
+
+
 			<nav>
 			  <ul class="pager" ng-if="procedimientoSeleccionado.periodos[anualidad]" >	
 				<li ng-if="!!procedimientoSeleccionado.periodos['a'+getPrev()]" class="previous" ><a ng-click="prevYear()" href="" ><span aria-hidden="true">&larr;</span> {{getPrev()}}</a></li>

@@ -123,107 +123,96 @@ exports.procedimiento = function (models) {
     };
 }
 
+exports.updateProcedimiento = function(Q, models, recalculate){
+	return function(req,res){
+		var Procedimiento= models.procedimiento();
+		var restriccion = {};
+		if (typeof req.params.codigo !== 'undefined')
+			restriccion.codigo = parseInt(req.params.codigo);
+		//comprobar si tiene permiso el usuario actual
+		restriccion.idjerarquia = { '$in': req.user.permisoscalculados.jerarquiaescritura };
+			
+		Procedimiento.findOne(restriccion,function(err,original){
+			if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }
 
-exports.updateProcedimiento = function (Q, models, recalculate) {
-    return function (req, res) {
-        var Procedimiento = models.procedimiento();
-        var restriccion = {};
-        if (typeof req.params.codigo !== 'undefined')
-            restriccion.codigo = parseInt(req.params.codigo);
-        //comprobar si tiene permiso el usuario actual
-        restriccion.idjerarquia = {'$in': req.user.permisoscalculados.jerarquiaescritura};
+	    	var procedimiento = req.body;
+			//TODO: comprobar qué puede cambiar y qué no
 
-        Procedimiento.findOne(restriccion, function (err, original) {
-            if (err) {
-                console.error(restriccion);
-                console.error(err);
-                res.status(500);
-                res.end();
-                return;
-            }
+			//suponemos que es un usuario normal, con permisos de escritura, en ese caso sólo podra modificar
+			//los atributos que estan dentro de periodo, que no son array, y aquellos que siendo array no
+			//son periodos cerrados ni corresponden a un periodo cerrado
 
-            var procedimiento = req.body;
-            //TODO: comprobar qué puede cambiar y qué no
+			var puedeEscribirSiempre = req.user.permisoscalculados.superuser;
 
-            //suponemos que es un usuario normal, con permisos de escritura, en ese caso sólo podra modificar
-            //los atributos que estan dentro de periodo, que no son array, y aquellos que siendo array no
-            //son periodos cerrados ni corresponden a un periodo cerrado
+			if (puedeEscribirSiempre && original.idjerarquia!=procedimiento.idjerarquia) {
+				original.idjerarquia = procedimiento.idjerarquia;
+			}
+			//TODO: IMPEDIR EDICION DE ANUALIDADES MUY PRETÉRITAS		
+			var schema = models.getSchema('procedimiento');
+			
+			for (var anualidad in schema.periodos) {
 
-            var puedeEscribirSiempre = req.user.permisoscalculados.superuser;
+							
+					var periodoscerrados = original.periodos[anualidad].periodoscerrados;
 
+					if (puedeEscribirSiempre){
+						/*
+						for(var attr in schema){
+							if (attr == 'codigo') continue;
+							if (attr == 'periodos') continue;
+							if (attr == 'idjerarquia') continue;
+							if (attr == 'cod_plaza') continue;
+							if (attr == 'fecha_creacion') continue;
+							if (attr == 'fecha_fin') continue;
+							if (attr == 'fecha_version') continue;
+							if (attr == 'etiquetas') continue;
+							if (attr == 'padre') continue;
+						}*/
 
-            //TODO: IMPEDIR EDICION DE ANUALIDADES MUY PRETÉRITAS		
-            var schema = models.getSchema('procedimiento');
-
-            for (var anualidad in schema.periodos) {
-
-
-                var periodoscerrados = original.periodos[anualidad].periodoscerrados;
-
-                if (puedeEscribirSiempre) {
-                    /*
-                     for(var attr in schema){
-                     if (attr == 'codigo') continue;
-                     if (attr == 'periodos') continue;
-                     if (attr == 'idjerarquia') continue;
-                     if (attr == 'cod_plaza') continue;
-                     if (attr == 'fecha_creacion') continue;
-                     if (attr == 'fecha_fin') continue;
-                     if (attr == 'fecha_version') continue;
-                     if (attr == 'etiquetas') continue;
-                     if (attr == 'padre') continue;
-                     }*/
-
-                    original.denominacion = procedimiento.denominacion;
-                }
+						original.denominacion = procedimiento.denominacion;
+					}
 
 
-                for (var attr in schema.periodos[anualidad]) {
-                    if (attr == 'periodoscerrados')
-                        continue;
-                    if (typeof original.periodos[anualidad][attr] === 'object' && Array.isArray(original.periodos[anualidad][attr]))
-                    {
-                        for (var mes = 0, meses = periodoscerrados.length; mes < meses; mes++)
-                        {
-                            var val = periodoscerrados[mes];
-                            if (!val || puedeEscribirSiempre) {//el periodo no está cerrado y se puede realizar la asignacion
-                                original.periodos[anualidad][attr][mes] =
-                                        procedimiento.periodos[anualidad][attr][mes] != null ?
-                                        parseInt(procedimiento.periodos[anualidad][attr][mes]) : null;
-                            }
-                        }
-                    } else {
-                        console.log(attr + '=>' + procedimiento.periodos[anualidad][attr]);
-                        original.periodos[anualidad][attr] =
-                                procedimiento.periodos[anualidad][attr] != null ?
-                                parseInt(procedimiento.periodos[anualidad][attr]) : null;
-                    }
-                }
+					for(var attr in schema.periodos[anualidad]){
+						if (attr == 'periodoscerrados') continue;
+						if (typeof original.periodos[anualidad][attr] === 'object' && Array.isArray(original.periodos[anualidad][attr]))
+						{
+							for(var mes =0, meses=periodoscerrados.length; mes< meses; mes++)
+							{
+								var val = periodoscerrados[mes];
+								if (!val || puedeEscribirSiempre){//el periodo no está cerrado y se puede realizar la asignacion
+									original.periodos[anualidad][attr][mes] =
+										procedimiento.periodos[anualidad][attr][mes]!=null ?
+										parseInt(procedimiento.periodos[anualidad][attr][mes]) : null;
+								}
+							}
+						}else{
+							console.log(attr+'=>'+procedimiento.periodos[anualidad][attr]);
+							original.periodos[anualidad][attr] =
+										procedimiento.periodos[anualidad][attr]!=null ?
+										parseInt(procedimiento.periodos[anualidad][attr]) : null;
+						}
+					}
+				
+			}
 
-            }
-
-            recalculate.softCalculateProcedimiento(Q, models, original).then(function (original) {
-                recalculate.softCalculateProcedimientoCache(Q, models, original).then(function (original) {
-                    exports.saveVersion(models, Q, original).then(function () {
-                        original.fecha_version = new Date();
-                        Procedimiento.update({codigo: original.codigo}, JSON.parse(JSON.stringify(original)), {multi: false, upsert: false}, function (err, coincidencias, elemento) {
-                            if (err) {
-                                console.error(err);
-                                res.status(500).send(JSON.stringify(err));
-                                res.end();
-                                return;
-                            }
-                            else {
-                                res.json(original);
-                                console.log(JSON.stringify(elemento));
-                                console.log(coincidencias);
-                            }
-                        });
-                    });
-                });
-            });
-        });
-    };
+			recalculate.softCalculateProcedimiento(Q, models, original).then(function(original){
+				recalculate.softCalculateProcedimientoCache(Q, models, original).then(function(original){
+					exports.saveVersion(models, Q, original).then(function(){
+						original.fecha_version = new Date();
+						Procedimiento.update({codigo:original.codigo}, JSON.parse(JSON.stringify(original)), {multi:false, upsert:false}, function(err,coincidencias, elemento){
+							if (err){  console.error(err); res.status(500).send(JSON.stringify(err)); res.end(); return ;  }
+							else{
+								res.json(original);	
+								console.log(JSON.stringify(elemento));
+								console.log(coincidencias);
+							}
+						});
+					});
+			    });
+			});
+		});
+	};
 };
 
 

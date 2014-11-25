@@ -47,7 +47,7 @@ angular.module('sici.directives', []).
         link: function(scope, $elm,attr) {                                                   
 
             $elm.on('click', function() {                                                    
-                $('html,body').animate({scrollTop: $(scope.scrollTo).offset().top }, "slow");
+                $('html,body').animate({scrollTop: $(scope.scrollTo).offset().top-80 }, "slow");
             });                                                                              
         }                                                                                    
     }})
