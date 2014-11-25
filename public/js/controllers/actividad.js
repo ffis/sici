@@ -221,13 +221,15 @@ function ActividadCtrl($q,$rootScope,$scope,$location,$window,$routeParams,$time
 	$scope.itemsPerPage = 20;
  	$scope.currentPage = 0;
  	$scope.range = function() {
-		var rangeSize = 4;
+		var rangeSize = 5;
 		var ps = [];
 		var start;
 		start = $scope.currentPage;
 		if ( start > $scope.pageCount()-rangeSize ) {
 			start = $scope.pageCount()-rangeSize+1;
 		}
+		if (start>1){ rangeSize--; ps.push(start-2);	}
+		if (start>0){ rangeSize--; ps.push(start-1);	}
 		for (var i=start; i<start+rangeSize; i++) {
 			if(i>=0) 
 				ps.push(i);
