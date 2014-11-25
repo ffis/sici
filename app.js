@@ -107,7 +107,9 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.post('/api/procedimiento/:codigo', procedimiento.createProcedimiento(Q, models, recalculate) );
   app.get('/api/procedimientoCount', procedimiento.totalProcedimientos(models));
   app.get('/api/procedimientoHasChildren/:codigo',procedimiento.hasChildred(models));
+  app.get('/api/procedimientosSinExpedientes', procedimiento.procedimientosSinExpedientes(models));
   app.get('/api/tramiteCount', procedimiento.totalTramites(Settings, models));
+  app.get('/api/ratioResueltos', procedimiento.ratioResueltos(models));
   app.get('/api/tramitesMediaMes', procedimiento.mediaMesTramites(models));
   
   

@@ -50,7 +50,7 @@ var schemasfields = {
 		'procedimiento': String,
 		'fechainicio' : Date,
 		'fechafin' : Date,
-		'periodossuspension': [Number],
+		'periodossuspension': [{'fechasuspension' : Date, 'fechareinicio' : Date}],
 		'responsable' : Number,
 		'metadatos': String,
 		'anualidad': Number,

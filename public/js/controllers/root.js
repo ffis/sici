@@ -53,7 +53,9 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados,
 	        blue  : Math.ceil(Math.sin(frequency*i+4+phase) * width + center)
 	    };
 	};
-	$rootScope.colorToHex = function(color){  var rgb = color.blue | (color.green << 8) | (color.red << 16); return '#' + rgb.toString(16); }
+	$rootScope.colorToHex = function(color){  var rgb = color.blue | (color.green << 8) | (color.red << 16); 
+	var s = rgb.toString(16);
+	return '#' + "000000".substring(0,6-s.length) + s; }
 
 	$rootScope.exportXLS = function(idx, nombre){
 	    var blob = new Blob(['<meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8"><table width="100%">'+document.getElementById(idx).innerHTML+'</table>'], {
