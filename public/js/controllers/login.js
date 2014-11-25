@@ -26,6 +26,7 @@ function LoginCtrl($scope, $rootScope, AUTH_EVENTS, AuthService, $window, $locat
                 //$spMenu.hide();
   console.log('LoginCtrl');
 	$window.document.title ='Inicio de sesión';
+	console.error('intentando destruir fdsa')
 
 	$scope.imagen = "background: transparent url('/imgs/flag.svg')";
 	$scope.back = function() { window.history.back(); };

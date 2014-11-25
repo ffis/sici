@@ -97,8 +97,7 @@ var schemasfields = {
 		'fecha_fin':Date,
 		'fecha_version':Date,
 		'etiquetas':[String],
-		'padre':String,
-
+		'padre':String,		
 		//recalculable: (se incluye como AnyType abajo)
 		//'ancestros' : [ jerarquia],
 		//responsables : [persona]

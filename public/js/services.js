@@ -15,6 +15,10 @@ angular.module('sici.services', ['ngResource'])
             function ($resource) {
                 return $resource('/api/procedimientoCount', {}, {});
             }])
+        .factory('ProcedimientoHasChildren', ['$resource',
+            function ($resource) {
+                return $resource('/api/procedimientoHasChildren/:codigo', {}, {query: {method: 'GET', isArray:false}});
+            }])        
         .factory('TramitesCount', ['$resource',
             function ($resource) {
                 return $resource('/api/tramiteCount', {}, {});

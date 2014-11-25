@@ -1,4 +1,16 @@
 
+exports.hasChildred = function(models) {
+	return function(req,res) {
+		var Procedimiento = models.procedimiento();
+		var codigo = req.params.codigo;
+		Procedimiento.count({"padre":codigo},function(err,count){
+			if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }
+			console.log('hasChildren :'+count);
+			res.json({'count':count});
+		});
+	};
+};
+
 exports.setPeriodosCerrados = function(models){
 	return function(req,res){
 		//espera recibir en el body el array de periodos cerrados

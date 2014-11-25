@@ -1,4 +1,4 @@
-function DetallesCtrl($q,$rootScope,$scope, $routeParams, $window, $location, $timeout,$http, Procedimiento,DetalleCarmProcedimiento,DetalleCarmProcedimiento2,Raw,Aggregate,Arbol) {
+function DetallesCtrl($q,$rootScope,$scope, $routeParams, $window, $location, $timeout,$http, Procedimiento,DetalleCarmProcedimiento,DetalleCarmProcedimiento2,Raw,Aggregate,Arbol,ProcedimientoHasChildren) {
 
 	$scope.detallesCarm = DetalleCarmProcedimiento.get({codigo:$routeParams.codigo});
 	$scope.detallesCarm2 = DetalleCarmProcedimiento2.get({codigo:$routeParams.codigo});		
@@ -36,10 +36,27 @@ function DetallesCtrl($q,$rootScope,$scope, $routeParams, $window, $location, $t
 		}
 	}
 	
+	$scope.tieneHijosDefer = $q.defer();
+	$scope.tiene_hijos = $scope.tieneHijosDefer.promise;
+
+
+	$scope.ocultarProcedimiento = function(procedimientoSeleccionado){
+		alert('no implementado');
+	};
+
+	$scope.eliminarProcedimiento = function(procedimientoSeleccionado){
+		alert('no implementado');
+	};	
+
 	$scope.procedimientoSeleccionado = Procedimiento.get({codigo: $routeParams.codigo } ,function(){
 		$window.document.title ='SICI: '+$scope.procedimientoSeleccionado.denominacion;
 		$rootScope.procedimiento = $scope.procedimientoSeleccionado.codigo;
 		$scope.anualidad = '000000';		
+
+		var haschildren = ProcedimientoHasChildren.query({'codigo':$scope.procedimientoSeleccionado.codigo},function(){
+			$scope.tiene_hijos = haschildren.count;
+		});
+
 		
 		for (var anualidad in $scope.procedimientoSeleccionado.periodos){
 		console.log(anualidad);
@@ -306,7 +323,7 @@ function DetallesCtrl($q,$rootScope,$scope, $routeParams, $window, $location, $t
 
 
 }
-DetallesCtrl.$inject = ['$q','$rootScope','$scope','$routeParams','$window','$location','$timeout','$http','Procedimiento','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','Raw','Aggregate','Arbol'];
+DetallesCtrl.$inject = ['$q','$rootScope','$scope','$routeParams','$window','$location','$timeout','$http','Procedimiento','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','Raw','Aggregate','Arbol','ProcedimientoHasChildren'];
 
 function parseStr2Int (str){
 	var valor = parseInt(str);
