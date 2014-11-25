@@ -8,17 +8,18 @@ exports.expediente = function (models) {
         if (typeof procedimiento !== 'undefined' && typeof id !== 'undefined') {
             Expediente.findOne({idexpediente: id, procedimiento: procedimiento}, 'idexpediente procedimiento fechainicio fechafin', function (err, data) {
                 if (err) {
-                    console.error('Error al buscar el expediente');
-                    res.status(500).end();
+                    res.status(500).end('Error al buscar el expediente');
                     return;
                 } else {
-                    console.log(data);
-                    res.json(data);
+                    if (!data) {
+                        res.json({'error': 'No existe el expediente con el identificador y procedimiento indicados'});
+                    } else {
+                        res.json(data);
+                    }
                 }
             });
         } else {
-            console.error('Invocación inválida en la búsqueda del expediente');
-            res.status(500).end();
+            res.status(500).end('Invocación inválida en la búsqueda del expediente');
             return;
         }
     };
@@ -32,17 +33,14 @@ exports.deleteExpediente = function (models) {
         if (typeof procedimiento !== 'undefined' && typeof id !== 'undefined') {
             Expediente.remove({idexpediente: id, procedimiento: procedimiento}, function (err, numBorrados) {
                 if (err) {
-                    console.error('Error al buscar el expediente');
-                    res.status(500).end();
+                    res.status(500).end('Error al buscar el expediente');
                     return;
                 } else {
-                    console.log('Eliminado '+numBorrados);
                     res.json(numBorrados);
                 }
             });
         } else {
-            console.error('Invocación inválida al borrar el expediente');
-            res.status(500).end();
+            res.status(500).end('Invocación inválida al borrar el expediente');
             return;
         }
     };
@@ -57,23 +55,31 @@ exports.initExpediente = function (models) {
         var fechaInicio = req.body.fecha_inicio;
         if (typeof procedimiento !== 'undefined' && typeof id !== 'undefined' && typeof fechaInicio !== 'undefined'
                 && typeof usr !== 'undefined' && !isNaN(parseInt(fechaInicio))) {
-            var expediente = new Expediente();
-            expediente.idexpediente = id;
-            expediente.procedimiento = procedimiento;
-            expediente.fechainicio = fechaInicio;
-            expediente.save(function (err) {
+            Expediente.findOne({idexpediente: id, procedimiento: procedimiento}, 'idexpediente procedimiento', function (err, data) {
                 if (err) {
-                    console.error(err);
-                    res.status(500).send('Error inicializando expediente ' + id);
-                    res.end();
+                    res.status(500).end('Error al buscar el expediente');
+                    return;
                 } else {
-                    res.json(expediente);
+                    if (!data) {
+                        var expediente = new Expediente();
+                        expediente.idexpediente = id;
+                        expediente.procedimiento = procedimiento;
+                        expediente.fechainicio = fechaInicio;
+                        expediente.save(function (err) {
+                            if (err) {
+                                res.status(500).e>nd('Error inicializando expediente ' + id);
+                            } else {
+                                res.json(expediente);
+                            }
+                        });
+                    } else {
+                        res.json({'error': 'Ya existe el expediente con el identificador y procedimiento indicados'});
+                    }
                 }
             });
+
         } else {
-            console.error('Invocación inválida para la inicialización de un expediente');
-            res.status(500);
-            res.end();
+            res.status(500).end('Invocación inválida para la inicialización de un expediente');
             return;
         }
     };
@@ -89,8 +95,7 @@ exports.updateExpediente = function (models) {
             if (typeof fechaFin !== 'undefined' && !isNaN(fechaFin)) {
                 Expediente.update({idexpediente: id, procedimiento: procedimiento}, {fechafin: fechaFin}, {upsert: false, multi: false}, function (err, filesAffected, expediente) {
                     if (err) {
-                        console.error('No se ha podido actualizar el expediente ' + id);
-                        res.status(500).end();
+                        res.status(500).end('No se ha podido actualizar el expediente ' + id);
                         return;
                     } else {
                         res.json(expediente);
@@ -99,15 +104,64 @@ exports.updateExpediente = function (models) {
             } else {
                 var fechaSuspension = req.body.fecha_suspension;
                 if (typeof fechaSuspension !== 'undefined' && !isNaN(parseInt(fechaSuspension))) {
-
+                    Expediente.findOne({idexpediente: id, procedimiento: procedimiento}, {}, function (err, expediente) {
+                        if (err) {
+                            res.status(500).end('No se ha podido suspender el expediente ' + id);
+                            return;
+                        } else {
+                            if (!expediente) {
+                                res.json({'error': 'El expediente indicado no existe'});
+                                return;
+                            }
+                            var pos = expediente.periodossuspension.length;
+                            if (pos > 0) {
+                                if (!expediente.periodossuspension[pos - 1].fechareinicio) {
+                                    res.json({'error': 'Este expediente ya se encuentra en suspensión'});
+                                    return;
+                                }
+                            }
+                            Expediente.update({idexpediente: id, procedimiento: procedimiento}, {$addToSet: {periodossuspension: {fechasuspension: fechaSuspension, fechareinicio: null}}}, function (err, filesAffected, data) {
+                                if (err) {
+                                    res.status(500).end('No se ha podido suspender el expediente ' + id);
+                                    return;
+                                } else {
+                                    console.log(data);
+                                    res.json(expediente);
+                                }
+                            });
+                        }
+                    });
                 } else {
                     var fechaFinSuspension = req.body.fecha_finsuspension;
                     if (typeof fechaFinSuspension !== 'undefined' && !isNaN(parseInt(fechaFinSuspension))) {
-
+                        Expediente.findOne({idexpediente: id, procedimiento: procedimiento}, {}, function (err, expediente) {
+                            if (err) {
+                                res.status(500).end('No se ha podido suspender el expediente ' + id);
+                                return;
+                            } else {
+                                var pos = expediente.periodossuspension.length;
+                                if (pos > 0) {
+                                    if (expediente.periodossuspension[pos - 1].fechareinicio) {
+                                        res.json({'error': 'Este expediente ya ha sido reiniciado'});
+                                        return;
+                                    }
+                                } else {
+                                    res.json({'error': 'Este expediente no ha sido previamente suspendido'});
+                                    return;
+                                }
+                                expediente.periodossuspension[pos - 1].fechareinicio = fechaFinSuspension;
+                                Expediente.update({idexpediente: id, procedimiento: procedimiento}, {periodossuspension : expediente.periodossuspension}, function (err, filesAffected, data) {
+                                    if (err) {
+                                        res.status(500).end('No se ha podido suspender el expediente ' + id);
+                                        return;
+                                    } else {
+                                        res.json(expediente);
+                                    }
+                                });
+                            }
+                        });
                     } else {
-                        console.error('Invocación inválida para el expediente');
-                        res.status(500);
-                        res.end();
+                        res.status(500).end('Invocación inválida para el reinicio expediente');
                         return;
                     }
                 }
