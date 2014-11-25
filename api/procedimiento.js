@@ -1,28 +1,34 @@
 
-exports.setPeriodosCerrados = function(models){
-	return function(req,res){
-		//espera recibir en el body el array de periodos cerrados
-		if (req.user.permisoscalculados && req.user.permisoscalculados.superuser){
+exports.setPeriodosCerrados = function (models) {
+    return function (req, res) {
+        //espera recibir en el body el array de periodos cerrados
+        if (req.user.permisoscalculados && req.user.permisoscalculados.superuser) {
 
-			var anualidad = req.params.anualidad ? req.params.anualidad : new Date().getFullYear();
+            var anualidad = req.params.anualidad ? req.params.anualidad : new Date().getFullYear();
 
-			var periodoscerrados = req.body,
-				field = 'periodos.a'+anualidad+'.periodoscerrados',
-				conditions = {  },
-				update = { $set : {} },
-				options = { multi: true },
-				Procedimiento = models.procedimiento() ;
+            var periodoscerrados = req.body,
+                    field = 'periodos.a' + anualidad + '.periodoscerrados',
+                    conditions = {},
+                    update = {$set: {}},
+            options = {multi: true},
+            Procedimiento = models.procedimiento();
 
-				update.$set[field ] = periodoscerrados;
+            update.$set[field ] = periodoscerrados;
 
-			var callback = function(err,doc){
-				if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }
-				res.json(periodoscerrados);
-			};
-			res.json(periodoscerrados);
-			//Procedimiento.update(conditions, update, options, callback);
-		}
-	}
+            var callback = function (err, doc) {
+                if (err) {
+                    console.error(restriccion);
+                    console.error(err);
+                    res.status(500);
+                    res.end();
+                    return;
+                }
+                res.json(periodoscerrados);
+            };
+            res.json(periodoscerrados);
+            //Procedimiento.update(conditions, update, options, callback);
+        }
+    }
 }
 
 exports.createProcedimiento = function (Q, models, recalculate) {
@@ -118,94 +124,106 @@ exports.procedimiento = function (models) {
 }
 
 
-exports.updateProcedimiento = function(Q, models, recalculate){
-	return function(req,res){
-		var Procedimiento= models.procedimiento();
-		var restriccion = {};
-		if (typeof req.params.codigo !== 'undefined')
-			restriccion.codigo = parseInt(req.params.codigo);
-		//comprobar si tiene permiso el usuario actual
-		restriccion.idjerarquia = { '$in': req.user.permisoscalculados.jerarquiaescritura };
-			
-		Procedimiento.findOne(restriccion,function(err,original){
-			if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }
+exports.updateProcedimiento = function (Q, models, recalculate) {
+    return function (req, res) {
+        var Procedimiento = models.procedimiento();
+        var restriccion = {};
+        if (typeof req.params.codigo !== 'undefined')
+            restriccion.codigo = parseInt(req.params.codigo);
+        //comprobar si tiene permiso el usuario actual
+        restriccion.idjerarquia = {'$in': req.user.permisoscalculados.jerarquiaescritura};
 
-	    	var procedimiento = req.body;
-			//TODO: comprobar qué puede cambiar y qué no
+        Procedimiento.findOne(restriccion, function (err, original) {
+            if (err) {
+                console.error(restriccion);
+                console.error(err);
+                res.status(500);
+                res.end();
+                return;
+            }
 
-			//suponemos que es un usuario normal, con permisos de escritura, en ese caso sólo podra modificar
-			//los atributos que estan dentro de periodo, que no son array, y aquellos que siendo array no
-			//son periodos cerrados ni corresponden a un periodo cerrado
+            var procedimiento = req.body;
+            //TODO: comprobar qué puede cambiar y qué no
 
-			var puedeEscribirSiempre = req.user.permisoscalculados.superuser;
+            //suponemos que es un usuario normal, con permisos de escritura, en ese caso sólo podra modificar
+            //los atributos que estan dentro de periodo, que no son array, y aquellos que siendo array no
+            //son periodos cerrados ni corresponden a un periodo cerrado
 
-			
-			//TODO: IMPEDIR EDICION DE ANUALIDADES MUY PRETÉRITAS		
-			var schema = models.getSchema('procedimiento');
-			
-			for (var anualidad in schema.periodos) {
-
-							
-					var periodoscerrados = original.periodos[anualidad].periodoscerrados;
-
-					if (puedeEscribirSiempre){
-						/*
-						for(var attr in schema){
-							if (attr == 'codigo') continue;
-							if (attr == 'periodos') continue;
-							if (attr == 'idjerarquia') continue;
-							if (attr == 'cod_plaza') continue;
-							if (attr == 'fecha_creacion') continue;
-							if (attr == 'fecha_fin') continue;
-							if (attr == 'fecha_version') continue;
-							if (attr == 'etiquetas') continue;
-							if (attr == 'padre') continue;
-						}*/
-
-						original.denominacion = procedimiento.denominacion;
-					}
+            var puedeEscribirSiempre = req.user.permisoscalculados.superuser;
 
 
-					for(var attr in schema.periodos[anualidad]){
-						if (attr == 'periodoscerrados') continue;
-						if (typeof original.periodos[anualidad][attr] === 'object' && Array.isArray(original.periodos[anualidad][attr]))
-						{
-							for(var mes =0, meses=periodoscerrados.length; mes< meses; mes++)
-							{
-								var val = periodoscerrados[mes];
-								if (!val || puedeEscribirSiempre){//el periodo no está cerrado y se puede realizar la asignacion
-									original.periodos[anualidad][attr][mes] =
-										procedimiento.periodos[anualidad][attr][mes]!=null ?
-										parseInt(procedimiento.periodos[anualidad][attr][mes]) : null;
-								}
-							}
-						}else{
-							console.log(attr+'=>'+procedimiento.periodos[anualidad][attr]);
-							original.periodos[anualidad][attr] =
-										procedimiento.periodos[anualidad][attr]!=null ?
-										parseInt(procedimiento.periodos[anualidad][attr]) : null;
-						}
-					}
-				
-			}
+            //TODO: IMPEDIR EDICION DE ANUALIDADES MUY PRETÉRITAS		
+            var schema = models.getSchema('procedimiento');
 
-			recalculate.softCalculateProcedimiento(Q, models, original).then(function(original){
-				recalculate.softCalculateProcedimientoCache(Q, models, original).then(function(original){
-					exports.saveVersion(models, Q, original).then(function(){
-						original.fecha_version = new Date();
-						Procedimiento.update({codigo:original.codigo}, JSON.parse(JSON.stringify(original)), {multi:false, upsert:false}, function(err,coincidencias, elemento){
-							if (err){  console.error(err); res.status(500).send(JSON.stringify(err)); res.end(); return ;  }
-							else{
-								res.json(original);	
-								console.log(JSON.stringify(elemento));
-								console.log(coincidencias);
-							}
-						});
-					});
-			    });
-			});
-		});
-	};
+            for (var anualidad in schema.periodos) {
+
+
+                var periodoscerrados = original.periodos[anualidad].periodoscerrados;
+
+                if (puedeEscribirSiempre) {
+                    /*
+                     for(var attr in schema){
+                     if (attr == 'codigo') continue;
+                     if (attr == 'periodos') continue;
+                     if (attr == 'idjerarquia') continue;
+                     if (attr == 'cod_plaza') continue;
+                     if (attr == 'fecha_creacion') continue;
+                     if (attr == 'fecha_fin') continue;
+                     if (attr == 'fecha_version') continue;
+                     if (attr == 'etiquetas') continue;
+                     if (attr == 'padre') continue;
+                     }*/
+
+                    original.denominacion = procedimiento.denominacion;
+                }
+
+
+                for (var attr in schema.periodos[anualidad]) {
+                    if (attr == 'periodoscerrados')
+                        continue;
+                    if (typeof original.periodos[anualidad][attr] === 'object' && Array.isArray(original.periodos[anualidad][attr]))
+                    {
+                        for (var mes = 0, meses = periodoscerrados.length; mes < meses; mes++)
+                        {
+                            var val = periodoscerrados[mes];
+                            if (!val || puedeEscribirSiempre) {//el periodo no está cerrado y se puede realizar la asignacion
+                                original.periodos[anualidad][attr][mes] =
+                                        procedimiento.periodos[anualidad][attr][mes] != null ?
+                                        parseInt(procedimiento.periodos[anualidad][attr][mes]) : null;
+                            }
+                        }
+                    } else {
+                        console.log(attr + '=>' + procedimiento.periodos[anualidad][attr]);
+                        original.periodos[anualidad][attr] =
+                                procedimiento.periodos[anualidad][attr] != null ?
+                                parseInt(procedimiento.periodos[anualidad][attr]) : null;
+                    }
+                }
+
+            }
+
+            recalculate.softCalculateProcedimiento(Q, models, original).then(function (original) {
+                recalculate.softCalculateProcedimientoCache(Q, models, original).then(function (original) {
+                    exports.saveVersion(models, Q, original).then(function () {
+                        original.fecha_version = new Date();
+                        Procedimiento.update({codigo: original.codigo}, JSON.parse(JSON.stringify(original)), {multi: false, upsert: false}, function (err, coincidencias, elemento) {
+                            if (err) {
+                                console.error(err);
+                                res.status(500).send(JSON.stringify(err));
+                                res.end();
+                                return;
+                            }
+                            else {
+                                res.json(original);
+                                console.log(JSON.stringify(elemento));
+                                console.log(coincidencias);
+                            }
+                        });
+                    });
+                });
+            });
+        });
+    };
 };
 
 
@@ -282,21 +300,77 @@ exports.totalProcedimientos = function (models) {
 exports.totalTramites = function (settings, models) {
     return function (req, res) {
         var Procedimiento = models.procedimiento();
-        console.log(req.user.permisoscalculados.jerarquialectura);
         Procedimiento.aggregate([
             {$unwind: "$periodos.a2014.solicitados"},
             {$match: {idjerarquia: {$in: req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}},
             {'$group': {_id: '',
                     suma: {$sum: '$periodos.a2014.solicitados'},
-                    count: {$sum: 1}}}
+                }}
         ], function (err, result) {
             if (err) {
                 console.error('Invocación inválida en el total de trámites');
                 res.status(500).end();
                 return;
             } else {
+                res.json(result[0]);
+            }
+        });
+    };
+};
+
+exports.ratioResueltos = function (models) {
+    return function (req, res) {
+        var Procedimiento = models.procedimiento();
+        Procedimiento.aggregate([
+            {$match: {idjerarquia: {$in: req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}},
+            {$unwind: "$periodos.a2014.solicitados"},
+            {'$group': {_id: '$_id',
+                    suma: {$sum: '$periodos.a2014.solicitados'},
+                    resueltos: {$first: '$periodos.a2014.total_resueltos'}}},
+            {$unwind: '$resueltos'},
+            {'$group': {_id: '$_id',
+                    suma: {$first: '$suma'},
+                    resueltos: {$sum: '$resueltos'}}},
+            {'$group': {_id: '',
+                    suma: {$sum: '$suma'},
+                    resueltos: {$sum: '$resueltos'}
+                }},
+            {'$project': {
+                    'ratio': {$divide: ['$resueltos', '$suma']}
+                }}
+        ], function (err, result) {
+            if (err) {
+                console.error('Invocación inválida en el ratio de expedientes resueltos');
+                res.status(500).end();
+                return;
+            } else {
                 console.log(result);
-                res.json(result);
+                result[0].ratio = result[0].ratio.toFixed(2);
+                res.json(result[0]);
+            }
+        });
+    };
+};
+
+exports.procedimientosSinExpedientes = function (models) {
+    return function (req, res) {
+        var Procedimiento = models.procedimiento();
+        Procedimiento.aggregate([
+            {$match: {idjerarquia: {$in: req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}},
+            {$unwind: "$periodos.a2014.solicitados"},
+            {$group: {_id: '$_id',
+                    suma: {$sum: '$periodos.a2014.solicitados'}}},
+            {$match: {'suma': {$eq: 0}}},
+            {$group: {_id: '',
+                    total: {$sum: 1}}}
+        ], function (err, result) {
+            if (err) {
+                console.error('Invocación inválida en procedimientos sin expediente');
+                res.status(500).end();
+                return;
+            } else {
+                console.log(result);
+                res.json(result[0]);
             }
         });
     };

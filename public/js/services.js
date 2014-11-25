@@ -11,6 +11,10 @@ angular.module('sici.services', ['ngResource'])
             function ($resource) {
                 return $resource('/api/procedimiento/:codigo', {codigo: '@codigo'}, {get: {method: 'GET', isArray: false}, update: {method: 'PUT'}, create: {method: 'POST'}});
             }])
+        .factory('ProcedimientoList', ['$resource',
+            function ($resource) {
+                return $resource('/api/procedimientoList/:idjerarquia/:recursivo', {}, {query: {method: 'GET', isArray: true}});
+            }])
         .factory('ProcedimientoCount', ['$resource',
             function ($resource) {
                 return $resource('/api/procedimientoCount', {}, {});
@@ -19,13 +23,17 @@ angular.module('sici.services', ['ngResource'])
             function ($resource) {
                 return $resource('/api/tramiteCount', {}, {});
             }])
+        .factory('PorcentajeTramitesResultos', ['$resource',
+            function ($resource) {
+                return $resource('/api/ratioResueltos', {}, {});
+            }])
+        .factory('ProcedimientosSinExpedientes', ['$resource',
+            function ($resource) {
+                return $resource('/api/procedimientosSinExpedientes', {}, {});
+            }])
         .factory('TramitesMes', ['$resource',
             function ($resource) {
                 return $resource('/api/tramitesMediaMes', {}, {});
-            }])
-        .factory('ProcedimientoList', ['$resource',
-            function ($resource) {
-                return $resource('/api/procedimientoList/:idjerarquia/:recursivo', {}, {query: {method: 'GET', isArray: true}});
             }])
         .factory('PermisosList', ['$resource',
             function ($resource) {
