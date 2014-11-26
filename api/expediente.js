@@ -36,7 +36,7 @@ exports.deleteExpediente = function (models) {
                     res.status(500).end('Error al buscar el expediente');
                     return;
                 } else {
-                    res.json(numBorrados);
+                    res.json({'Respuesta' : 'Expediente borrado'});
                 }
             });
         } else {
@@ -98,7 +98,7 @@ exports.updateExpediente = function (models) {
                         res.status(500).end('No se ha podido actualizar el expediente ' + id);
                         return;
                     } else {
-                        res.json(expediente);
+                        res.json({'Respuesta' : 'Expediente finalizado'});
                     }
                 });
             } else {
@@ -125,8 +125,7 @@ exports.updateExpediente = function (models) {
                                     res.status(500).end('No se ha podido suspender el expediente ' + id);
                                     return;
                                 } else {
-                                    console.log(data);
-                                    res.json(expediente);
+                                    res.json({'Respuesta' : 'Expediente suspendido'});
                                 }
                             });
                         }
@@ -155,7 +154,7 @@ exports.updateExpediente = function (models) {
                                         res.status(500).end('No se ha podido suspender el expediente ' + id);
                                         return;
                                     } else {
-                                        res.json(expediente);
+                                        res.json({'Respuesta' : 'Expediente reiniciado'});
                                     }
                                 });
                             }

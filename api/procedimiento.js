@@ -1,15 +1,21 @@
 
 
-exports.hasChildred = function(models) {
-	return function(req,res) {
-		var Procedimiento = models.procedimiento();
-		var codigo = req.params.codigo;
-		Procedimiento.count({"padre":codigo},function(err,count){
-			if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return ; }
-			console.log('hasChildren :'+count);
-			res.json({'count':count});
-		});
-	};
+exports.hasChildred = function (models) {
+    return function (req, res) {
+        var Procedimiento = models.procedimiento();
+        var codigo = req.params.codigo;
+        Procedimiento.count({"padre": codigo}, function (err, count) {
+            if (err) {
+                console.error(restriccion);
+                console.error(err);
+                res.status(500);
+                res.end();
+                return;
+            }
+            console.log('hasChildren :' + count);
+            res.json({'count': count});
+        });
+    };
 };
 
 exports.setPeriodosCerrados = function (models) {
@@ -164,9 +170,15 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
 
             var puedeEscribirSiempre = req.user.permisoscalculados.superuser;
 
-            if (puedeEscribirSiempre && original.idjerarquia != procedimiento.idjerarquia) {
-                original.idjerarquia = procedimiento.idjerarquia;
+            if (puedeEscribirSiempre) {
+                if (original.idjerarquia != procedimiento.idjerarquia) {
+                    original.idjerarquia = procedimiento.idjerarquia;
+                }
+                // Actualiza estado oculto o eliminado
+                original.oculto = procedimiento.oculto;
+                original.eliminado = procedimiento.eliminado;
             }
+
             //TODO: IMPEDIR EDICION DE ANUALIDADES MUY PRETÉRITAS		
             var schema = models.getSchema('procedimiento');
 
@@ -252,15 +264,65 @@ exports.procedimientoList = function (models, Q) {
                 (typeof req.params.recursivo === 'undefined' || req.params.recursivo > 0 ?
                         {'$and': [
                                 {'ancestros.id': {'$in': [parseInt(req.params.idjerarquia)]}},
-                                {'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}
+                                {'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}},
+                                {'$or': [
+                                        {'oculto': {$exists: false}},
+                                        {'$and': [
+                                                {'oculto': {$exists: true}},
+                                                {'oculto': false},
+                                            ]}
+                                    ]
+                                },
+                                {'$or': [
+                                        {'eliminado': {$exists: false}},
+                                        {'$and': [
+                                                {'eliminado': {$exists: true}},
+                                                {'eliminado': false},
+                                            ]}
+                                    ]
+                                }
                             ]} :
                         {'$and': [
                                 {'idjerarquia': parseInt(req.params.idjerarquia)},
-                                {'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}
+                                {'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}},
+                                {'$or': [
+                                        {'oculto': {$exists: false}},
+                                        {'$and': [
+                                                {'oculto': {$exists: true}},
+                                                {'oculto': false},
+                                            ]}
+                                    ]
+                                },
+                                {'$or': [
+                                        {'eliminado': {$exists: false}},
+                                        {'$and': [
+                                                {'eliminado': {$exists: true}},
+                                                {'eliminado': false},
+                                            ]}
+                                    ]
+                                }
                             ]}
                 )
                 :
-                {'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}};
+                {'$and': [
+                        {'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}},
+                        {'$or': [
+                                {'oculto': {$exists: false}},
+                                {'$and': [
+                                        {'oculto': {$exists: true}},
+                                        {'oculto': false},
+                                    ]}
+                            ]
+                        },
+                        {'$or': [
+                                {'eliminado': {$exists: false}},
+                                {'$and': [
+                                        {'eliminado': {$exists: true}},
+                                        {'eliminado': false},
+                                    ]}
+                            ]
+                        }
+                    ]};
 
         var cb = function (err, data) {
             if (err) {
@@ -337,8 +399,8 @@ exports.ratioResueltos = function (models) {
     return function (req, res) {
         var Procedimiento = models.procedimiento();
         Procedimiento.aggregate([
-            {$match: {idjerarquia: {$in: req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}},
-            {$unwind: "$periodos.a2014.solicitados"},
+            {'$match': {idjerarquia: {$in: req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}},
+            {'$unwind': "$periodos.a2014.solicitados"},
             {'$group': {_id: '$_id',
                     suma: {$sum: '$periodos.a2014.solicitados'},
                     resueltos: {$first: '$periodos.a2014.total_resueltos'}}},
@@ -361,7 +423,7 @@ exports.ratioResueltos = function (models) {
             } else {
                 console.log(result);
                 if (result.length == 0) {
-                    res.json({'ratio':0});
+                    res.json({'ratio': 0});
                 } else {
                     result[0].ratio = result[0].ratio.toFixed(2);
                     res.json(result[0]);
@@ -379,12 +441,12 @@ exports.procedimientosSinExpedientes = function (models) {
             {$unwind: "$periodos.a2014.solicitados"},
             {$group: {_id: '$_id',
                     suma: {$sum: '$periodos.a2014.solicitados'}}},
-            {$match: {'suma': {$eq: 0}}},
+            {$match: {'suma': 0}},
             {$group: {_id: '',
                     total: {$sum: 1}}}
         ], function (err, result) {
             if (err) {
-                console.error('Invocación inválida en procedimientos sin expediente');
+                console.error('Invocación inválida en procedimientos sin expediente ' + err);
                 res.status(500).end();
                 return;
             } else {
