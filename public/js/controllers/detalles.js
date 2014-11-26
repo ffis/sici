@@ -44,7 +44,7 @@ function DetallesCtrl($q,$rootScope,$scope, $routeParams, $window, $location, $t
 		alert('no implementado');
 	};
 
-	$scope.eliminarProcedimiento = function(procedimientoSeleccionado){
+	$scope.eliminarProcedimiento = function(procedimientoSeleccionado){ 
 		alert('no implementado');
 	};	
 
@@ -54,7 +54,8 @@ function DetallesCtrl($q,$rootScope,$scope, $routeParams, $window, $location, $t
 		$scope.anualidad = '000000';		
 
 		var haschildren = ProcedimientoHasChildren.query({'codigo':$scope.procedimientoSeleccionado.codigo},function(){
-			$scope.tiene_hijos = haschildren.count;
+			//$scope.tiene_hijos = haschildren.count;
+			$scope.tieneHijosDefer.promise.resolve(haschildren.count);
 		});
 
 		
