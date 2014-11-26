@@ -137,6 +137,11 @@ function transformExcel2Persona(objeto, models, Q){
 		'habilitado':false,
 	};
 
+	if (persona.codplaza=='JS00348' || persona.login=='asc17v')
+	{
+		console.log(persona);
+	}
+	
 	var dpersonaresultado = Q.defer();
 	var ppersonaresultado = dpersonaresultado.promise;
 
@@ -154,11 +159,12 @@ function transformExcel2Persona(objeto, models, Q){
 				personas[0].codplaza = persona.codplaza;
 				personas[0].nombre = persona.nombre;
 				personas[0].apellidos = persona.apellidos;
-				dpersonaresultado.resolve(personas[0]);								
+				informeresultado.persona = personas[0];
+				dpersonaresultado.resolve(informeresultado);								
 			} else {
 				informeresultado.actualizado=false;
 				var p = new Persona(persona);
-				dpersonaresultado.resolve(p);	
+				dpersonaresultado.resolve(informeresultado);	
 			}
 		}
 	});
@@ -255,8 +261,8 @@ function parseExcelGesper(path,worksheetName,maxrows,models,Q){
 
 exports.importarGesper = function(models,Q) {
 	return function(req, res) {
-		var path = 'e:\\temp\\basura\\universo.xlsx';
-		//var path = '../universo.xlsx';
+		//var path = 'e:\\temp\\basura\\universo.xlsx';
+		var path = '/tmp/universo.xlsx';
 		var hoja = 'salida1';
 		var maxrows = 10000;
 		
@@ -269,17 +275,21 @@ exports.importarGesper = function(models,Q) {
 			promesas.push(operacionesGesper[i].persona);
 		}
 		
-		for(var i=0;i<promesas.length;i++){
+		console.log('esperando promesas');
+		for(var i=0;i<promesas.length;i++){			
 			promesas[i].then(
-				function(persona) {		
-					
-					/*if (operacionesGesper[i].actualizada)
+				function(informeresultado) {	
+					var persona = informeresultado.persona;
+					if (persona.login=='asc17v') { console.log('Promesa '); console.log(persona); }
+					if (informeresultado.actualizada)
 						persona.update(function(err){
 							if (err) console.error("Error importando persona. Actualización fallida. " + err);
 							else console.error();
+							if (persona.login=='asc17v') { console.log('Actualziada '); console.log(persona); }
 						});
-					else*/ persona.save(function(err){
+					else persona.save(function(err){
 						if (err) console.error("Error importando persona. Creación fallida. " + err);
+						if (persona.login=='asc17v') { console.log('Nueva¡¡ '); console.log(persona); }
 					});
 					
 				},
