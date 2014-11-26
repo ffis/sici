@@ -67,7 +67,7 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
 
         var haschildren = ProcedimientoHasChildren.query({'codigo': $scope.procedimientoSeleccionado.codigo}, function () {
             //$scope.tiene_hijos = haschildren.count;
-            $scope.tieneHijosDefer.promise.resolve(haschildren.count);
+            $scope.tieneHijosDefer.resolve(haschildren.count);
         });
 
 
