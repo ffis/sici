@@ -1,4 +1,4 @@
-	
+
 
 
 
@@ -225,7 +225,7 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                         </tr>
                         <tr ng-repeat="attr in attrstablacalculados" ng-show="exists(attr)"> 
                             <th>{{attr| translate}}</th>							
-                            <td ng-repeat="val in procedimientoSeleccionado.periodos[anualidad][attr] track by $index" ng-class="{'text-danger': val & lt; 0 }" class="numberCell">
+                            <td ng-repeat="val in procedimientoSeleccionado.periodos[anualidad][attr] track by $index" ng-class="{'text-danger': val &lt; 0 }" class="numberCell">
                                 <span ng-if="anualidad != 'a2013' || (!W && !$root.permisoscalculados.superuser) || procedimientoSeleccionado.periodos[anualidad].periodoscerrados[$index]">
                                     {{val| numberFormat}} 
                                 </span>								
