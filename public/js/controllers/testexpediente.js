@@ -24,7 +24,7 @@ function TestExpedienteCtrl($rootScope, $scope, $window, $http, TestExpediente) 
     $scope.finalizar = function () {
         var postData = {'fecha_fin': 1387532580000};
         var expediente = new TestExpediente(postData);
-        expediente.$update({procedimiento: 1782, id: 5555}, function () {
+        expediente.$update({procedimiento: 1782, id: 2222}, function () {
             $scope.respuesta = {
                 clase: 'alert-success',
                 mensaje: 'Ha funcionado perfectamente.'
@@ -38,7 +38,7 @@ function TestExpedienteCtrl($rootScope, $scope, $window, $http, TestExpediente) 
     };
 
     $scope.buscar = function () {
-        TestExpediente.get({procedimiento: 1782, id: 5555}, function () {
+        TestExpediente.get({procedimiento: 1782, id: 2222}, function () {
             $scope.respuesta = {
                 clase: 'alert-success',
                 mensaje: 'Ha funcionado perfectamente.'
@@ -52,7 +52,7 @@ function TestExpedienteCtrl($rootScope, $scope, $window, $http, TestExpediente) 
     };
     
     $scope.borrar = function () {
-        TestExpediente.delete({procedimiento: 1782, id: 5555}, function () {
+        TestExpediente.delete({procedimiento: 1782, id: 2222}, function () {
             $scope.respuesta = {
                 clase: 'alert-success',
                 mensaje: 'Ha funcionado perfectamente.'

@@ -96,8 +96,10 @@ var schemasfields = {
 		'fecha_creacion':Date,
 		'fecha_fin':Date,
 		'fecha_version':Date,
+                'oculto' : Boolean,
+                'eliminado' : Boolean,
 		'etiquetas':[String],
-		'padre':String,		
+		'padre':String,
 		//recalculable: (se incluye como AnyType abajo)
 		//'ancestros' : [ jerarquia],
 		//responsables : [persona]
