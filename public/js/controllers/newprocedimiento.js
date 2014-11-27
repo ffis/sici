@@ -11,7 +11,6 @@ function NewProcedimientoCtrl($rootScope,$scope,$location,$window,$routeParams, 
 	$scope.seleccionado = false;
 	$scope.procedimiento = new Procedimiento();
 	$scope.responsable = "";
-	$scope.padre = "";
 	$scope.filtrosocultos = false;
 	
 	///$scope.oallprocedimientos = ProcedimientoList.query({'idjerarquia':seleccionado.id,'recursivo':false});
@@ -20,7 +19,7 @@ function NewProcedimientoCtrl($rootScope,$scope,$location,$window,$routeParams, 
 		$scope.oallprocedimientos = ProcedimientoList.query({'idjerarquia':_new.id,'recursivo':false});
 		if ($scope.procedimiento.padre) {			
 			delete $scope.procedimiento.padre;
-			alert('El procedimiento padre debe tener pertenecer al mismo nodo de la jerarquía. Se obvia campo padre.');
+			alert('El procedimiento padre debe pertenecer al mismo nodo de la jerarquía. Se obvia campo padre.');
 		}
 	});
 	
@@ -30,11 +29,13 @@ function NewProcedimientoCtrl($rootScope,$scope,$location,$window,$routeParams, 
 	});
 
 	$scope.$watch('padre', function( _new, old){
-		$scope.procedimiento.responsable = ( typeof _new.codplaza !== 'undefined' ? _new.codplaza : _new.login );		
+                var value = _new.substring(1, _new.indexOf(']'));
+                $scope.procedimiento.padre = value;
+//		$scope.procedimiento.responsable = ( typeof _new.codplaza !== 'undefined' ? _new.codplaza : _new.login );
 	});
 	
 	$scope.getPersonas = function(viewValue) {
-		var regex = ""+viewValue
+		var regex = ""+viewValue;
 		if (viewValue.length>2) {
 			var p = PersonasByRegexp.query({"regex":viewValue}).$promise;
 			return p;
@@ -44,7 +45,7 @@ function NewProcedimientoCtrl($rootScope,$scope,$location,$window,$routeParams, 
 	
 	$scope.guardar = function(){
 		console.log($scope.responsable);
-		if ($scope.seleccionado && $scope.procedimiento.denominacion && $scope.procedimiento.codigo&& $scope.responsable) {
+		if ($scope.seleccionado && $scope.procedimiento.denominacion && $scope.procedimiento.codigo && $scope.responsable) {
 			Procedimiento.save($scope.procedimiento, function(){
 				alert('Procedimiento registrado correctamente. Redirigiendo...');
 				$location.path ("/procedimiento/"+$scope.procedimiento.codigo);
@@ -58,13 +59,19 @@ function NewProcedimientoCtrl($rootScope,$scope,$location,$window,$routeParams, 
 		} else {
 			alert('Imposible crear/actualizar el procedimiento. Debe indicar denominación y código');
 		}
-	}
+	};
 	
 	$scope.showPersona = function (persona){
 		if (persona && persona.login && persona.codplaza && persona.nombre && persona.apellidos)
 			return persona.codplaza + "-" + persona.login + "-" + persona.nombre+ " " + persona.apellidos;
 		else return "";
-	}
+	};
+        
+        $scope.showProcedimiento = function (procedimiento){
+		if (procedimiento && procedimiento.denominacion && procedimiento.codigo)
+			return "["+procedimiento.codigo + "] " + procedimiento.denominacion;
+		else return "";
+	};
 	
 	$scope.arbol = Arbol.query(function(){
 		if ($scope.idjerarquia){
@@ -96,7 +103,7 @@ function NewProcedimientoCtrl($rootScope,$scope,$location,$window,$routeParams, 
 		
 	$scope.isFiltroSelected= function(filtro,key,fa){
 		return (typeof filtro[key] != 'undefined' && fa.name==filtro[key]);
-	}
+	};
 }
 
 NewProcedimientoCtrl.$inject = ['$rootScope','$scope','$location','$window','$routeParams','$timeout', 'Arbol','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','PersonasByPuesto','Session', 'Etiqueta','PersonasByRegexp','Procedimiento'];

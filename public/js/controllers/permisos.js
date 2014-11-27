@@ -121,7 +121,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 	}
 
 	$scope.getPersonas = function(viewValue) {
-		var regex = ""+viewValue
+		var regex = ""+viewValue;
 		if (viewValue.length>2) {
 			var p = PersonasByRegexp.query({"regex":viewValue}).$promise;
 			return p;
@@ -308,10 +308,10 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 							per.habilitado = true;
 							per.$update(function(){
 								console.log("Persona habilitada");
-							})
+							});
 						}
-					})
-				})
+					});
+				});
 			});
 			return;
 		}

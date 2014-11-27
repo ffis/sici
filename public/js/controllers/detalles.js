@@ -1,4 +1,4 @@
-function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, $timeout, $http, Procedimiento, DetalleCarmProcedimiento, DetalleCarmProcedimiento2, Raw, Aggregate, Arbol, ProcedimientoHasChildren) {
+function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, $timeout, $http, Procedimiento, DetalleCarmProcedimiento, DetalleCarmProcedimiento2, Raw, Aggregate, Arbol, ProcedimientoHasChildren, ProcedimientoList) {
 
     $scope.detallesCarm = DetalleCarmProcedimiento.get({codigo: $routeParams.codigo});
     $scope.detallesCarm2 = DetalleCarmProcedimiento2.get({codigo: $routeParams.codigo});
@@ -7,38 +7,56 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
     $scope.mesActual = (new Date()).getMonth();
     $scope.detallesCarmHTML = true;
     $scope.graphs = false;
+    $scope.padre = "";
+    $scope.mostrarAutocompletePadre = false;
+    $scope.nombrePadre = false;
 
 
     $scope.nextYear = function () {
         $scope.anualidad = 'a' + (parseInt($scope.anualidad.substring(1, 5)) + 1);
-    }
+    };
 
     $scope.prevYear = function () {
         $scope.anualidad = 'a' + (parseInt($scope.anualidad.substring(1, 5)) - 1);
-    }
+    };
 
     $scope.exists = function (attr) {
         if ($scope.anualidad) {
             return $scope.procedimientoSeleccionado.periodos[$scope.anualidad] &&
                     typeof $scope.procedimientoSeleccionado.periodos[$scope.anualidad][attr] != 'undefined';
         }
-    }
+    };
 
     $scope.getNext = function () {
         if ($scope.anualidad) {
             return "" + (parseInt("" + $scope.anualidad.substring(1, 5)) + 1);
         }
-    }
+    };
+
+    $scope.showProcedimiento = function (procedimiento) {
+        if (procedimiento && procedimiento.denominacion && procedimiento.codigo)
+            return "[" + procedimiento.codigo + "] " + procedimiento.denominacion;
+        else
+            return "";
+    };
+
+    $scope.updatePadre = function (value) {
+        $scope.procedimientoSeleccionado.padre = value.codigo;
+        $scope.nombrePadre = value.denominacion;
+        $scope.procedimientoSeleccionado.$update(function (response) {
+            
+        });
+        $scope.mostrarAutocompletePadre = false;
+    };
 
     $scope.getPrev = function () {
         if ($scope.anualidad) {
             return "" + (parseInt("" + $scope.anualidad.substring(1, 5)) - 1);
         }
-    }
+    };
 
     $scope.tieneHijosDefer = $q.defer();
     $scope.tiene_hijos = $scope.tieneHijosDefer.promise;
-
 
     $scope.ocultarProcedimiento = function (procedimientoSeleccionado) {
         procedimientoSeleccionado.oculto = !procedimientoSeleccionado.oculto;
@@ -46,6 +64,11 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
             $scope.respuesta = {
                 clase: 'alert-success',
                 mensaje: (procedimientoSeleccionado.oculto ? 'El procedimiento ha sido ocultado' : 'El procedimiento vuelve a ser visible')
+            };
+        }, function () {
+            $scope.respuesta = {
+                clase: 'alert-danger',
+                mensaje: 'Se ha producido un error'
             };
         });
     };
@@ -57,7 +80,25 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
                 clase: 'alert-success',
                 mensaje: (procedimientoSeleccionado.eliminado ? 'El procedimiento ha sido eliminado' : 'El procedimiento ha sido recuperado')
             };
+        }, function () {
+            procedimientoSeleccionado.eliminado = !procedimientoSeleccionado.eliminado;
+            $scope.respuesta = {
+                clase: 'alert-danger',
+                mensaje: 'Se ha producido un error'
+            };
         });
+    };
+
+    $scope.editarPadre = function () {
+        $scope.mostrarAutocompletePadre = true;
+    };
+
+    $scope.deletePadre = function () {
+        $scope.procedimientoSeleccionado.padre = null;
+        $scope.procedimientoSeleccionado.$update(function (response) {
+            console.error(response);
+        });
+        $scope.nombrePadre = 'Sin definir';
     };
 
     $scope.procedimientoSeleccionado = Procedimiento.get({codigo: $routeParams.codigo}, function () {
@@ -70,6 +111,17 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
             $scope.tieneHijosDefer.resolve(haschildren.count);
         });
 
+        $scope.procedimientosPadre = ProcedimientoList.query({'idjerarquia': $scope.procedimientoSeleccionado.idjerarquia, 'recursivo': false});
+
+
+        $scope.mostrarAutocompletePadre = false;
+        if ($scope.procedimientoSeleccionado.padre) {
+            var procPad = Procedimiento.get({codigo: $scope.procedimientoSeleccionado.padre}, function () {
+                $scope.nombrePadre = procPad.denominacion;
+            });
+        } else {
+            $scope.nombrePadre = 'Sin definir';
+        }
 
         for (var anualidad in $scope.procedimientoSeleccionado.periodos) {
             console.log(anualidad);
@@ -115,7 +167,7 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
             {caption: 'QUEJAS Y RECURSOS CONTRA EL PROCEDIMIENTO ' + $scope.anualidad.substring(1, 5), keys: [
                     {caption: 'Quejas presentadas en el mes', vals: 'periodos.' + $scope.anualidad + '.quejas', maxx: $scope.mesActual},
                     {caption: 'Recursos presentados en el mes', vals: 'periodos.' + $scope.anualidad + '.recursos', maxx: $scope.mesActual},
-                ]},
+                ]}
         ];
         $scope.graphskeys = graphskeys;
         $scope.graphs = [];
@@ -157,7 +209,7 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
                 $scope.graphs.push({data: data, forcey: forcey, caption: caption});
                 $scope.numgraphs = $scope.numgraphs + 1;
             }
-        })
+        });
 
         $scope.inconsistencias = Raw.query({model: 'reglasinconsistencias'}, function () {
             $scope.inconsistencias.forEach(function (i, idx) {
@@ -303,7 +355,7 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
 
     });
     $scope.attrspar = [
-        'codigo', 'denominacion', 'tipo', 'cod_plaza', 'fecha_creacion', 'fecha_version', /* 'fecha_fin', */
+        'codigo', 'denominacion', 'tipo', 'cod_plaza', 'fecha_creacion', 'fecha_version' /* 'fecha_fin', */
     ];
 
     $scope.attrsanualidad = ['pendientes_iniciales', /*'periodoscerrados',*/
@@ -365,7 +417,7 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
 
 
 }
-DetallesCtrl.$inject = ['$q', '$rootScope', '$scope', '$routeParams', '$window', '$location', '$timeout', '$http', 'Procedimiento', 'DetalleCarmProcedimiento', 'DetalleCarmProcedimiento2', 'Raw', 'Aggregate', 'Arbol', 'ProcedimientoHasChildren'];
+DetallesCtrl.$inject = ['$q', '$rootScope', '$scope', '$routeParams', '$window', '$location', '$timeout', '$http', 'Procedimiento', 'DetalleCarmProcedimiento', 'DetalleCarmProcedimiento2', 'Raw', 'Aggregate', 'Arbol', 'ProcedimientoHasChildren', 'ProcedimientoList'];
 
 function parseStr2Int(str) {
     var valor = parseInt(str);

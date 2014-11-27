@@ -32,13 +32,13 @@ exports.arbol = function(Q, models){
 			jerarquias.forEach(function(jerarquia){
 				mappingXid [ jerarquia.id ] = jerarquia;
 				if (jerarquia.ancestros.length ==0)
-					idsraiz.push(jerarquia.id)
+					idsraiz.push(jerarquia.id);
 				if (jerarquia.ancestrodirecto){
 					if (! hijos [ jerarquia.ancestrodirecto ])
 						hijos [ jerarquia.ancestrodirecto ] = [];
 					hijos [ jerarquia.ancestrodirecto ].push(jerarquia);
 				}
-			})
+			});
 
 			var getHijos = function ( idjerarquia ){
 				if (!hijos[ idjerarquia ]) return null;

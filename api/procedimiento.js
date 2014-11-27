@@ -137,11 +137,12 @@ exports.procedimiento = function (models) {
                 res.end();
                 return;
             }
+            console.log(data);
             res.json(data);
         });
 
     };
-}
+};
 
 exports.updateProcedimiento = function (Q, models, recalculate) {
     return function (req, res) {
@@ -177,7 +178,9 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
                 // Actualiza estado oculto o eliminado
                 original.oculto = procedimiento.oculto;
                 original.eliminado = procedimiento.eliminado;
+                original.padre = procedimiento.padre;
             }
+            
 
             //TODO: IMPEDIR EDICION DE ANUALIDADES MUY PRETÉRITAS		
             var schema = models.getSchema('procedimiento');
