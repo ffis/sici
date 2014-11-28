@@ -223,7 +223,25 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
                 }
             });
         });
+        
+        $scope.changeFocus = function(form, index, attr) {
+            form.$submit();
+            var formulario;
+            if (index>=11) {
+                formulario = $scope.forms[0][$scope.attrstabla[$scope.attrstabla.indexOf(attr)+1]];
+            }
+            else 
+                formulario = $scope.forms[index+1][attr];
+            if (typeof formulario !== 'undefined') 
+                formulario.$show();
+        };
 
+        $scope.forms = [];
+        $scope.addForm = function(attr, index, form) {
+            if(typeof $scope.forms[index] === 'undefined')
+                $scope.forms[index]={};
+            $scope.forms[index][attr]=form;
+        };
 
         /***** CAMBIO DE JERARQUIA ****/
 
@@ -329,11 +347,11 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
 
         $scope.gotoBreadCrumb = function () {
             //$location.hash('breadcrumb');	
-        }
+        };
 
         $scope.gotOkCancel = function () {
             //$location.hash('ok_cancel_changeOrganica');
-        }
+        };
 
         $scope.cancelChangeOrganica = function () {
             $scope.seleccinado = null;
