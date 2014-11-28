@@ -105,13 +105,13 @@ exports.createProcedimiento = function (Q, models, recalculate) {
                                 }
                             });
                         }
-                    })
+                    });
                 } else {
                     res.status(500).send('Error 67 guardando');
                     res.end();
                     return;
                 }
-            })
+            });
         } else {
             console.error(JSON.stringify(req.body));
             res.status(500).send('Error 71 guardando');
@@ -170,17 +170,20 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
             //son periodos cerrados ni corresponden a un periodo cerrado
 
             var puedeEscribirSiempre = req.user.permisoscalculados.superuser;
-
+            var hayCambiarOcultoHijos = false;
             if (puedeEscribirSiempre) {
                 if (original.idjerarquia != procedimiento.idjerarquia) {
                     original.idjerarquia = procedimiento.idjerarquia;
                 }
                 // Actualiza estado oculto o eliminado
+                if (original.oculto !== procedimiento.oculto) {
+                    hayCambiarOcultoHijos = true;
+                }
                 original.oculto = procedimiento.oculto;
                 original.eliminado = procedimiento.eliminado;
                 original.padre = procedimiento.padre;
             }
-            
+
 
             //TODO: IMPEDIR EDICION DE ANUALIDADES MUY PRETÉRITAS		
             var schema = models.getSchema('procedimiento');
@@ -244,9 +247,15 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
                                 return;
                             }
                             else {
-                                res.json(original);
-                                console.log(JSON.stringify(elemento));
-                                console.log(coincidencias);
+                                if (hayCambiarOcultoHijos) {
+                                    exports.ocultarHijos(original, models, Q).then(function () {
+                                        res.json(original);
+                                    });
+                                } else {
+                                    res.json(original);
+                                    console.log(JSON.stringify(elemento));
+                                    console.log(coincidencias);
+                                }
                             }
                         });
                     });
@@ -254,6 +263,36 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
             });
         });
     };
+};
+
+exports.ocultarHijos = function (procedimiento, models, Q) {
+    var defer = Q.defer();
+    var Procedimiento = models.procedimiento();
+    var promesas_procs = [];
+    Procedimiento.find({padre: procedimiento.codigo}, function (err, procs) {
+        procs.forEach(function (proc) {
+            exports.saveVersion(models, Q, proc).then(function () {
+                var deferProc = Q.defer();
+                promesas_procs.push(deferProc.promise);
+                procedimiento.fecha_version = new Date();
+                Procedimiento.update({codigo: proc.codigo}, {'oculto': procedimiento.oculto}, {multi: false, upsert: false}, function (err, coincidencias, elemento) {
+                    if (err) {
+                        deferProc.reject(err);
+                    } else {
+                        exports.ocultarHijos(proc, models, Q).then(function () {
+                            deferProc.resolve();
+                        });
+                    }
+                });
+            });
+        });
+        Q.all(promesas_procs).then(function (procs) {
+            defer.resolve(procs);
+        }, function (err) {
+            defer.reject(err);
+        });
+    });
+    return defer.promise;
 };
 
 
