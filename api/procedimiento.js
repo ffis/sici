@@ -118,8 +118,8 @@ exports.createProcedimiento = function (Q, models, recalculate) {
             res.end();
             return;
         }
-    }
-}
+    };
+};
 
 exports.procedimiento = function (models) {
     return function (req, res) {

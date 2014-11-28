@@ -113,10 +113,9 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
 
         $scope.procedimientosPadre = ProcedimientoList.query({'idjerarquia': $scope.procedimientoSeleccionado.idjerarquia, 'recursivo': false});
 
-
         $scope.mostrarAutocompletePadre = false;
         if ($scope.procedimientoSeleccionado.padre) {
-            var procPad = Procedimiento.get({codigo: $scope.procedimientoSeleccionado.padre, oculto: false}, function () {
+            var procPad = Procedimiento.get({codigo: $scope.procedimientoSeleccionado.padre}, function () {
                 $scope.nombrePadre = procPad.denominacion;
             });
         } else {
