@@ -55,9 +55,6 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
         }
     };
 
-    $scope.tieneHijosDefer = $q.defer();
-    $scope.tiene_hijos = $scope.tieneHijosDefer.promise;
-
     $scope.ocultarProcedimiento = function (procedimientoSeleccionado) {
         procedimientoSeleccionado.oculto = !procedimientoSeleccionado.oculto;
         $scope.procedimientoSeleccionado.$update(function (response) {
@@ -106,9 +103,8 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
         $rootScope.procedimiento = $scope.procedimientoSeleccionado.codigo;
         $scope.anualidad = '000000';
 
-        var haschildren = ProcedimientoHasChildren.query({'codigo': $scope.procedimientoSeleccionado.codigo}, function () {
-            //$scope.tiene_hijos = haschildren.count;
-            $scope.tieneHijosDefer.resolve(haschildren.count);
+        ProcedimientoHasChildren.query({'codigo': $scope.procedimientoSeleccionado.codigo}, function (data) {
+            $scope.tiene_hijos = data.count;
         });
 
         $scope.procedimientosPadre = ProcedimientoList.query({'idjerarquia': $scope.procedimientoSeleccionado.idjerarquia, 'recursivo': false});
