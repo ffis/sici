@@ -116,7 +116,7 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
 
         $scope.mostrarAutocompletePadre = false;
         if ($scope.procedimientoSeleccionado.padre) {
-            var procPad = Procedimiento.get({codigo: $scope.procedimientoSeleccionado.padre}, function () {
+            var procPad = Procedimiento.get({codigo: $scope.procedimientoSeleccionado.padre, oculto: false}, function () {
                 $scope.nombrePadre = procPad.denominacion;
             });
         } else {
