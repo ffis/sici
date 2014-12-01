@@ -24,7 +24,7 @@ function calcularPermisos(permisos) {
 		}
 		for(var i=0,j = permisos.length; i<j;i++ ){
 			for(var k=0,l=permisos[i].jerarquialectura.length;k<l;k++)
-				if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime()) && 
+				if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() > now.getTime()) && 
 					(permisoscalculados.jerarquiaescritura.indexOf(permisos[i].jerarquialectura[k])==-1 ) )
 				{
 					permisoscalculados.jerarquialectura.push( permisos[i].jerarquialectura[k]);								
@@ -32,7 +32,7 @@ function calcularPermisos(permisos) {
 		}
 		for(var i=0,j = permisos.length; i<j;i++ ){
 			for(var k=0,l=permisos[i].procedimientoslectura.length;k<l;k++)
-				if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime()) && 
+				if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() > now.getTime()) && 
 					(permisoscalculados.procedimientosescritura.indexOf(permisos[i].procedimientoslectura[k])==-1 ) )
 				{
 					permisoscalculados.procedimientoslectura.push( permisos[i].procedimientoslectura[k]);
