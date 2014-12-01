@@ -1,6 +1,11 @@
 // JavaScript Document
-/*var Crawler = require("crawler").Crawler;
-var Browser = require("zombie");*/
+var os = require('os');
+var Crawler = false;
+var Browser = false;
+if (os.platform() == 'linux'){
+	Crawler = require("crawler").Crawler;
+	Browser = require("zombie");
+}
 var encoding  = require("encoding");
 var util = require('util');
 var XLSX = require('xlsx');
@@ -137,40 +142,43 @@ exports.applyImportacionProcedimiento = function(models, Q, recalculate, P){
 
 exports.parseGS = function(){
 	return function (req, res)
-	{/*
-			var id = parseInt(req.params.id);
-			var url = "http://www.carm.es/web/pagina?IDTIPO=240&IDCONTENIDO="+id;
-			var browser = new Browser();
+	{
 
-			browser.visit(url).then(function() {
-				var datos = {};
-				var campos = browser.querySelectorAll('.campoProcedimiento');
-				var lista = turnObjToArray(campos);
-				lista.forEach(function(detalle){
-					var campo = detalle.childNodes && detalle.childNodes.length>0 ? detalle.childNodes.item(0).textContent : detalle.textContent;
-					var valorDiv = detalle.nextSibling;
-					console.log(typeof detalle.nextSibling);
-					
-					var parent = valorDiv.parentNode;
-					var valor = typeof parent.innerHTML == 'string' ? parent.innerHTML : typeof parent.innerHTML;
-					
-					datos[campo] = valor;
-				});
+			if (!Browser){
+				res.json({});
+			}else{
+				var id = parseInt(req.params.id);
+				var url = "http://www.carm.es/web/pagina?IDTIPO=240&IDCONTENIDO="+id;
+				var browser = new Browser();
 
-				res.json(datos);			
+				browser.visit(url).then(function() {
+					var datos = {};
+					var campos = browser.querySelectorAll('.campoProcedimiento');
+					var lista = turnObjToArray(campos);
+					lista.forEach(function(detalle){
+						var campo = detalle.childNodes && detalle.childNodes.length>0 ? detalle.childNodes.item(0).textContent : detalle.textContent;
+						var valorDiv = detalle.nextSibling;
+						console.log(typeof detalle.nextSibling);
+						
+						var parent = valorDiv.parentNode;
+						var valor = typeof parent.innerHTML == 'string' ? parent.innerHTML : typeof parent.innerHTML;
+						
+						datos[campo] = valor;
+					});
 
-			})
-			/*
-			.fail(function(e,b){
-				res.json(b);
-			});*/
+					res.json(datos);			
 
+				}, function(){
+					res.status(500).send('Error');
+				})
+			}
 	}
 }
 
 exports.parseCr = function(Q,models){
 	return function (req, res)
-	{/*
+	{
+
 		var id = parseInt(req.params.id);
 		var url = "http://www.carm.es/web/pagina?IDTIPO=240&IDCONTENIDO="+id;
 		var Crawled = models.crawled();		
@@ -219,15 +227,19 @@ exports.parseCr = function(Q,models){
 				}
 			};
 
-			var c = new Crawler({"maxConnections":10, "callback": cb(deferred) });
-			c.queue(url);
-			deferred.promise.then(function (v){
-				res.json(v);
-			});
+			if (!Crawler){
+				res.json({});
+			}else{
+				var c = new Crawler({"maxConnections":10, "callback": cb(deferred) });
+				c.queue(url);
+				deferred.promise.then(function (v){
+					res.json(v);
+				});
+			}
 		}else{
 			res.json(data);
 		}
-		});*/
+		});
 	}
 }
 
