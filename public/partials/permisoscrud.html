@@ -324,12 +324,15 @@
 									<input type="checkbox" ng-model="w_option" name="w_option" ng-disabled="  !usuarioseleccionado || propietario" value="1" /> Puede introducir datos
 								</label>
 								<br/>
-								<label for="p_superuser" ng-if="$root.permisoscalculados.superuser">
-									<input type="checkbox" ng-model="psuperuser" name="p_superuser" ng-disabled=" !usuarioseleccionado  || propietario" value="1" /> Superusuario
+								<label for="psuperuser">
+									<input type="checkbox" ng-model="psuperuser" name="psuperuser" ng-disabled=" !usuarioseleccionado  || propietario" value="1" /> Superusuario
 								</label>
 								<br class="clear"/>
+								<p>W: {{w_option}}</p>
+								<p>G: {{grantoption}}</p>
+								<p>S: {{psuperuser}}</p>
 
-								<button class="btn btn-default danger" ng-disabled="is_nuevousuario || !usuarioseleccionado" ng-click="crearpermiso(usuarioseleccionado)" ><span class="glyphicon glyphicon-ok"></span> <span>Crear</span></button>
+								<button class="btn btn-default danger" ng-disabled="is_nuevousuario || !usuarioseleccionado" ng-click="crearpermiso(usuarioseleccionado,w_option,grantoption,psuperuser)" ><span class="glyphicon glyphicon-ok"></span> <span>Crear</span></button>
 								 &nbsp;<button class="btn btn-default danger" ng-disabled="is_nuevousuario || !usuarioseleccionado" ng-click="delegar(usuarioseleccionado)" title="concede tus permisos, salvo la capacidad de dar permiso a otros" ><span class="glyphicon glyphicon-share"></span> <span>Delegar permisos</span></button>	
 							</div>
 							<div ng-if="!$root.permisoscalculados.superuser">

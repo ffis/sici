@@ -470,6 +470,7 @@ exports.update = function(models) {
 exports.create = function(models, Q, recalculate){
 	return function(req,res){
 	var Permiso = models.permiso();
+	var Persona = models.persona();
 	var arg_permiso = req.body;
 	var permiso = {
 	 login : arg_permiso.login,
@@ -482,15 +483,17 @@ exports.create = function(models, Q, recalculate){
 	 procedimientosescritura : (typeof arg_permiso.procedimientosescritura !== 'undefined' ? arg_permiso.procedimientosescritura : []),
 	 procedimientosdirectalectura : (typeof arg_permiso.procedimientosdirectalectura !== 'undefined' ? arg_permiso.procedimientosdirectalectura : []),
 	 procedimientosdirectaescritura : (typeof arg_permiso.procedimientosdirectaescritura !== 'undefined' ? arg_permiso.procedimientosdirectaescritura : []),
-	 caducidad : usuarioactual.caducidad,
-	 descripcion : '',
-	 grantoption  : arg_permiso.grantoption,
-	 superuser : arg_permiso.superuser
+	 caducidad : req.user.permisoscalculados.caducidad,
+	 descripcion : 'Permisos concedidos por '+req.user.login,
+	 grantoption  : !!arg_permiso.grantoption,
+	 superuser : arg_permiso.superuser?1:0,
+	 cod_plaza_grantt : req.user.login,
 	};	
 	
 	var dpersona = Q.defer();
 	var ppersona = dpersona.promise;
 		
+	console.log('Buscando persona');
 	if (permiso.codplaza) {
 		Persona.findOne({'codplaza': permiso.codplaza},function(err,usuario){
 			if (err) dpersona.reject(err);
@@ -503,13 +506,24 @@ exports.create = function(models, Q, recalculate){
 		});	
 	}
 	
-	ppersona.then(function(){
+	ppersona.then(function(persona){
+		console.log('Encontrada');
+		if (!persona.habilitado){
+			persona.habilitado = true;
+			Persona.update({_id:persona._id},persona,{'upsert':false,'multi':false},function(err){
+				if (err)
+					console.error(err); 
+				console.log('Actualizada la persona (habilitado true)');
+			});
+		}
 		opermiso = new Permiso(permiso);
-		opermiso.save(permiso,function(err){
+		console.log('Salvando permiso');
+		opermiso.save(function(err){
 			if (err) {
 				console.error(err); res.status(500); res.end(); return;
 			} else {
-					recalculate.recalculate.softCalculatePermiso(Q, models, permiso).then(
+					console.log('Ok');
+					recalculate.softCalculatePermiso(Q, models, permiso).then(
 						function(permiso){
 							res.json(permiso);
 						},
