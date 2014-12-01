@@ -213,7 +213,7 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
             </div>
             <div style="clear:both" class="table-responsive">
                 <nav>
-                    <ul class="pager" ng-if="procedimientoSeleccionado.periodos[anualidad]" >	
+                    <ul class="pager" ng-if="procedimientoSeleccionado.periodos[anualidad]">	
                         <li ng-if="!!procedimientoSeleccionado.periodos['a' + getPrev()]" class="previous" ><a ng-click="prevYear()" href="" ><span aria-hidden="true">&larr;</span> {{getPrev()}}</a></li>
                         <li ng-if="!!procedimientoSeleccionado.periodos['a' + getNext()]" class="next" ><a ng-click="nextYear()" href="" >{{getNext()}} <span aria-hidden="true">&rarr;</span></a></li>
                     </ul>
@@ -229,9 +229,8 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                         <tr ng-repeat="attr in attrstabla" ng-show="exists(attr)"> 
                             <th>{{attr| translate}}</th>
                             <td ng-repeat="val in procedimientoSeleccionado.periodos[anualidad][attr] track by $index" class="numberCell">
-
-                                <a ng-if="W && procedimientoSeleccionado.periodos[anualidad].periodoscerrados[$index] == 0" href="#" editable-text="procedimientoSeleccionado.periodos[anualidad][attr][$index]" onaftersave="recalculate()" onbeforesave="checkNumber($data)">
-                                    {{ procedimientoSeleccionado.periodos[anualidad][attr][$index] || 0  |numberFormat}}
+                                <a e-ng-blur="changeFocus($form, $index, attr)" ng-if="W && procedimientoSeleccionado.periodos[anualidad].periodoscerrados[$index] == 0" href="#" editable-text="procedimientoSeleccionado.periodos[anualidad][attr][$index]" onaftersave="recalculate()" onbeforesave="checkNumber($data)">
+                                    {{ procedimientoSeleccionado.periodos[anualidad][attr][$index] || 0  |numberFormat}} {{addForm(attr, $index, $form)}}
                                 </a>
                                 <span ng-if="!W || procedimientoSeleccionado.periodos[anualidad].periodoscerrados[$index] != 0">{{ procedimientoSeleccionado.periodos[anualidad][attr][$index] || 0  |numberFormat}}</span>
                             </td>
@@ -250,6 +249,7 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                         </tr>
                     </tbody>
                 </table>
+                <p>Para editar un valor de la tabla, pulse sobre la casilla correspondiente. Si desea editar en serie, pulse la tecla 'tabulador' para pasar a la siguiente casilla.</p>
                 <p>Hay campos que se calculan a partir de los datos introducidos en el resto. Las fórmulas usadas son:
                 </p>
                 <ul>
