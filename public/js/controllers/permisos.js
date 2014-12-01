@@ -445,18 +445,21 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 	};
 	
 	$scope.getObjetoPermiso = function(permiso) {
-		if ($scope.seleccionado_organica){ 
-			if ($scope.seleccionado && $scope.nodo_jerarquia) {				
+		console.log("GET OBJETO PERMISO");
+		if ($scope.seleccionado_organica){	// si lo que se encuentra selecccionado es un nodo de organica
+			console.log("GET OBJETO PERMISO 2");
+			if ($scope.seleccionado && $scope.nodo_jerarquia) { // si está seleccionado y se ha cargado nodo_jerarquia
 				var objeto = -1;
 				var distancia = 1000000;
-				var s_array_busqueda = "";
+				var s_array_busqueda = "ancestros";
 				
+				console.log("GET OBJETO PERMISO 3");
 				if ($scope.is_show_inherited_users)
 					s_array_busqueda = "ancestros";
 				else if ($scope.is_show_recursive_users)
 					s_array_busqueda = "descendientes";
 
-						
+				
 				if (!permiso.jerarquiadirectalectura) permiso.jerarquiadirectalectura = [];
 				if (!permiso.jerarquiadirectaescritura) permiso.jerarquiadirectaescritura = [];
 						
@@ -469,7 +472,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 				if (s_array_busqueda != "")
 					array_interseccion_permisos = $scope.nodo_jerarquia[s_array_busqueda];
 
-					
+				console.log("GET OBJETO PERMISO 4");	
 				var objs = [];
 				if (!Array.isArray(permiso.jerarquiadirectalectura))
 					console.log("permiso.jerarquiadirectalectura no es un array");
@@ -480,15 +483,26 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 				if (Array.isArray(permiso.jerarquiadirectalectura) && 
 					Array.isArray(permiso.jerarquiadirectaescritura) &&
 					Array.isArray(array_interseccion_permisos))
-						objs = intersect_safe(permiso.jerarquiadirectalectura.concat(permiso.jerarquiadirectaescritura),array_interseccion_permisos);
+						//objs = intersect_safe(permiso.jerarquiadirectalectura.concat(permiso.jerarquiadirectaescritura),array_interseccion_permisos);
+					{
+						objs = objs.concat(permiso.jerarquiadirectaescritura);
+						for(var i=0;i<permiso.jerarquiadirectalectura.length;i++) if (objs.indexOf(permiso.jerarquiadirectalectura[i])==-1)
+							objs.push(permiso.jerarquiadirectalectura[i]);
+
+					}
 				else  {
 					console.error("Error, alguno de los arrays no es tal");
 					return objs;
 				}
 				
+				console.log("GET OBJETO PERMISO 5");
+				console.log(array_interseccion_permisos);
+				console.log(permiso.jerarquiadirectalectura);
+				console.log(permiso.jerarquiadirectaescritura);
 				var resultado = [];
 				for(var i=0;i<objs.length;i++){
 					resultado[i] = Jerarquia.query({"idjerarquia":objs[i]}, function(){
+						console.log("Nodo devuelto...")
 						console.log(resultado[i]);
 					});
 				}				

@@ -151,7 +151,7 @@ exports.delegarpermisosProcedimiento = function(models,Q){
 	};
 };
 
-exports.delegarpermisos = function(models,Q)
+exports.delegarpermisos = function(models,Q, recalculate)
 {
 	return function(req, res) {
 		var Permiso = models.permiso();
@@ -160,6 +160,7 @@ exports.delegarpermisos = function(models,Q)
 			function(permisos){
 				console.log("nump "+permisos.length);
 				var promesas_permisos = [];
+				var promesas_recalculos = [];
 				for(var i=0;i<permisos.length;i++)
 				{	
 					var p = JSON.parse(JSON.stringify(permisos[i]));	
@@ -181,13 +182,20 @@ exports.delegarpermisos = function(models,Q)
 						if (err) {
 							console.error("Imposible salvar nuevo permiso"); console.error(err); res.status(500); res.end(); return;
 							defer.reject(err);
-						} else {		
-							defer.resolve(p);
+						} else {									
+							recalculate.softCalculatePermiso(Q, models, p).then(function(p){ 
+								defer.resolve(p);
+							},function(err){
+								defer.reject(err);
+							});							
 						}
 					});
 				}
 				Q.all(promesas_permisos).then(function(permisos){
 					//console.log(permisos);
+					
+						
+
 					res.json(permisos);
 				}, function(err){
 					console.error("Problemas modificando permisos...");
