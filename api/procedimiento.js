@@ -137,12 +137,11 @@ exports.procedimiento = function (models) {
                 res.end();
                 return;
             }
-            console.log(data);
             res.json(data);
         });
 
     };
-};
+}
 
 exports.deleteProcedimiento = function (Q, models, recalculate) {
     return function (req, res) {
@@ -207,7 +206,31 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
         if (typeof req.params.codigo !== 'undefined')
             restriccion.codigo = parseInt(req.params.codigo);
         //comprobar si tiene permiso el usuario actual
-        restriccion.idjerarquia = {'$in': req.user.permisoscalculados.jerarquiaescritura};
+        
+        var arrays = [
+        'jerarquiaescritura',
+        'jerarquialectura',
+        'jerarquiadirectalectura',
+        'jerarquiadirectaescritura',
+        'procedimientosdirectalectura',
+        'procedimientosdirectaescritura',
+        'procedimientoslectura',
+        'procedimientosdirectalectura'
+        ];
+
+        for(var i=0;i<arrays.length;i++)
+            if (!Array.isArray(req.user.permisoscalculados[arrays[i]]))
+                req.user.permisoscalculados[arrays[i]]=[];
+
+        restriccion['$or']=[
+            {
+                'idjerarquia': {'$in': req.user.permisoscalculados.jerarquiaescritura.concat(req.user.permisoscalculados.jerarquiadirectaescritura)}
+            },
+            {
+                'codigo':{'$in': req.user.permisoscalculados.procedimientosdirectaescritura.concat(req.user.permisoscalculados.procedimientosescritura)}
+            }
+        ];
+
 
         Procedimiento.findOne(restriccion, function (err, original) {
             if (err) {
@@ -218,6 +241,16 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
                 return;
             }
 
+			if (typeof original === 'undefined' || original==null) {
+				res.status(500);
+				res.end('ERROR. imposible actualizar procedimiento ');
+				console.error('ERROR. imposible actualizar procedimiento ');
+				console.error(req.params.filepath);
+				console.error(restriccion);	
+                return;			
+			}
+			
+			
             var procedimiento = req.body;
             //TODO: comprobar qué puede cambiar y qué no
 

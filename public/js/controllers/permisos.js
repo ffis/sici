@@ -39,7 +39,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 	$scope.usuarioencontrado = false;
 	$scope.nuevousuario = {};
 	$scope.is_nuevousuario = false;
-	$scope.psuperuser = false;
+	
 	$scope.usuariosbuscado = "";
 	$scope.ousuariobuscado = {};
 	$scope.normal_user_permisos;
@@ -284,7 +284,11 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 	}
 	
 
-	$scope.crearpermiso2 = function(spersona) {
+	$scope.crearpermiso2 = function(spersona,w_option,grantoption,psuperuser) {
+		$scope.w_option = w_option;
+		$scope.grantoption = grantoption;
+		$scope.psuperuser = psuperuser;
+
 		var partes = spersona.split("-");
 		if (partes.length<1)
 		{
@@ -323,39 +327,61 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		var persona ;
 		
 		if (loginpersona!='')
-			persona = PersonasByLogin.query({"login":partes[0]},function(){
+			persona = PersonasByLogin.query({"login":partes[0]},function(){	
+				console.log("buscada y encontrada");
+				console.log(persona);			
 				if (persona.length>0) deferred.resolve(persona[0]);
 				else deferred.reject();
 			});
 		else if (partes.length>1 && partes[1]!="")
 			persona = PersonasByPuesto.query({"cod_plaza":partes[1]},function(){
+				console.log("buscada y encontrada");
+				console.log(persona);			
 				if (persona.length>0) deferred.resolve(persona[0]);
 				else deferred.reject();				
 			});
 			
-		promise.then(function(persona){		
+		promise.then(function(persona){	
+			console.log("El servicio de consulta de personas por login o personas por codigo de plaza ha devuelto...");	
 			console.log(persona);
 			permiso = {};
-			permiso.codplaza = persona.codplaza;
-			permiso.login= persona.login;
+
+			if (!$scope.permisoallogin && persona.codplaza)
+				permiso.codplaza = persona.codplaza;
+			else
+				permiso.login = persona.login;					
+			
+			
 			if ($scope.grantoption) permiso.grantoption = true;
 			permiso.superuser = !!$scope.psuperuser;
 			
 			if ($scope.seleccionado_organica && $scope.seleccionado) {				
 				permiso.jerarquiadirectalectura = [ $scope.seleccionado.id ];
-				if ($scope.w_option) permiso.jerarquiadirectaescritura = [ $scope.seleccionado.id ];
+				permiso.jerarquialectura = [ $scope.seleccionado.id ];
+				if ($scope.w_option) {
+					permiso.jerarquiadirectaescritura = [ $scope.seleccionado.id ];
+					permiso.jerarquiaescritura = [ $scope.seleccionado.id ];
+				}else{
+					alert('No lleva w_option');
+				}
 				permiso.procedimientodirectalectura = [];
 				permiso.procedimientodirectaescritura = [];
 			} else if ($scope.procedimiento_seleccionado) {
 				permiso.jerarquiadirectaescritura = [ ];
 				permiso.jerarquiadirectalectura = [ ];
 				permiso.procedimientodirectalectura = [ $scope.procedimiento_seleccionado.codigo ];
-				if ($scope.w_option) permiso.procedimientodirectaescritura = [ $scope.procedimiento_seleccionado.codigo ];
+				permiso.procedimientolectura =  [ $scope.procedimiento_seleccionado.codigo ];
+				if ($scope.w_option) {
+					permiso.procedimientodirectaescritura = [ $scope.procedimiento_seleccionado.codigo ];
+					permiso.procedimientoescritura =  [ $scope.procedimiento_seleccionado.codigo ];
+				} else {
+					alert('No lleva w_option');
+				}
 			}
 			
 			console.log('Salvando permiso '+JSON.stringify(permiso));
 						
-			Permiso.save(permiso,function(){
+			Permiso.create(permiso,function(){
 				delete $scope.usuarioseleccionado ;
 				$scope.nuevousuario = {};
 				$scope.clearFormNuevoPermiso();
@@ -365,6 +391,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 				else if ($scope.procedimiento_seleccionado){
 					$scope.setProcSeleccionado($scope.procedimiento_seleccionado);
 				}
+				alert('Permiso creado.');
 			});	
 
 			
@@ -373,11 +400,11 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		});
 	}
 	
-	$scope.crearpermiso = function(usuarioseleccionado) {
+	$scope.crearpermiso = function(usuarioseleccionado,w_option,grantoption,psuperuser) {
 
 		if (usuarioseleccionado)
 		{		
-			$scope.crearpermiso2(usuarioseleccionado);
+			$scope.crearpermiso2(usuarioseleccionado,w_option,grantoption,psuperuser);
 		} else {
 			alert('No ha seleccionado ninguna persona');
 		}
@@ -445,18 +472,21 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 	};
 	
 	$scope.getObjetoPermiso = function(permiso) {
-		if ($scope.seleccionado_organica){ 
-			if ($scope.seleccionado && $scope.nodo_jerarquia) {				
+		console.log("GET OBJETO PERMISO");
+		if ($scope.seleccionado_organica){	// si lo que se encuentra selecccionado es un nodo de organica
+			console.log("GET OBJETO PERMISO 2");
+			if ($scope.seleccionado && $scope.nodo_jerarquia) { // si está seleccionado y se ha cargado nodo_jerarquia
 				var objeto = -1;
 				var distancia = 1000000;
-				var s_array_busqueda = "";
+				var s_array_busqueda = "ancestros";
 				
+				console.log("GET OBJETO PERMISO 3");
 				if ($scope.is_show_inherited_users)
 					s_array_busqueda = "ancestros";
 				else if ($scope.is_show_recursive_users)
 					s_array_busqueda = "descendientes";
 
-						
+				
 				if (!permiso.jerarquiadirectalectura) permiso.jerarquiadirectalectura = [];
 				if (!permiso.jerarquiadirectaescritura) permiso.jerarquiadirectaescritura = [];
 						
@@ -469,7 +499,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 				if (s_array_busqueda != "")
 					array_interseccion_permisos = $scope.nodo_jerarquia[s_array_busqueda];
 
-					
+				console.log("GET OBJETO PERMISO 4");	
 				var objs = [];
 				if (!Array.isArray(permiso.jerarquiadirectalectura))
 					console.log("permiso.jerarquiadirectalectura no es un array");
@@ -480,15 +510,26 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 				if (Array.isArray(permiso.jerarquiadirectalectura) && 
 					Array.isArray(permiso.jerarquiadirectaescritura) &&
 					Array.isArray(array_interseccion_permisos))
-						objs = intersect_safe(permiso.jerarquiadirectalectura.concat(permiso.jerarquiadirectaescritura),array_interseccion_permisos);
+						//objs = intersect_safe(permiso.jerarquiadirectalectura.concat(permiso.jerarquiadirectaescritura),array_interseccion_permisos);
+					{
+						objs = objs.concat(permiso.jerarquiadirectaescritura);
+						for(var i=0;i<permiso.jerarquiadirectalectura.length;i++) if (objs.indexOf(permiso.jerarquiadirectalectura[i])==-1)
+							objs.push(permiso.jerarquiadirectalectura[i]);
+
+					}
 				else  {
 					console.error("Error, alguno de los arrays no es tal");
 					return objs;
 				}
 				
+				console.log("GET OBJETO PERMISO 5");
+				console.log(array_interseccion_permisos);
+				console.log(permiso.jerarquiadirectalectura);
+				console.log(permiso.jerarquiadirectaescritura);
 				var resultado = [];
 				for(var i=0;i<objs.length;i++){
 					resultado[i] = Jerarquia.query({"idjerarquia":objs[i]}, function(){
+						console.log("Nodo devuelto...")
 						console.log(resultado[i]);
 					});
 				}				

@@ -13,7 +13,7 @@ function calcularPermisos(permisos) {
 
 		var now = new Date();
 		for(var i=0,j = permisos.length; i<j;i++ ){
-			if (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime())
+			if (!permisos[i].caducidad || permisos[i].caducidad.getTime() > now.getTime())
 			{
 				permisoscalculados.superuser = permisoscalculados.superuser || permisos[i].superuser;
 				permisoscalculados.jerarquiaescritura = permisoscalculados.jerarquiaescritura.concat( permisos[i].jerarquiaescritura);
@@ -24,7 +24,7 @@ function calcularPermisos(permisos) {
 		}
 		for(var i=0,j = permisos.length; i<j;i++ ){
 			for(var k=0,l=permisos[i].jerarquialectura.length;k<l;k++)
-				if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime()) && 
+				if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() > now.getTime()) && 
 					(permisoscalculados.jerarquiaescritura.indexOf(permisos[i].jerarquialectura[k])==-1 ) )
 				{
 					permisoscalculados.jerarquialectura.push( permisos[i].jerarquialectura[k]);								
@@ -32,7 +32,7 @@ function calcularPermisos(permisos) {
 		}
 		for(var i=0,j = permisos.length; i<j;i++ ){
 			for(var k=0,l=permisos[i].procedimientoslectura.length;k<l;k++)
-				if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime()) && 
+				if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() > now.getTime()) && 
 					(permisoscalculados.procedimientosescritura.indexOf(permisos[i].procedimientoslectura[k])==-1 ) )
 				{
 					permisoscalculados.procedimientoslectura.push( permisos[i].procedimientoslectura[k]);
