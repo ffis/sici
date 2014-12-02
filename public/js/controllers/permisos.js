@@ -94,7 +94,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		}
 		
 		
-	}
+	};
 	
 	
 	$scope.clearFormNuevoPermiso = function(){
