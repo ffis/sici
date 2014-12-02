@@ -30,6 +30,7 @@ function AppCtrl($window,$q, $scope, $rootScope, Session, $location, PermisosCal
 		{ id:'etiqueta', caption: 'Gestionar etiquetas'},
 		{ id:'periodos', caption: 'Gestionar períodos'},
 		{ id:'crearprocedimiento', caption: 'Crear procedimiento'},
+		{ id:'loginas', caption: 'Cambiar de usuario'},
 	];
 	
 	if ($rootScope.logeado) {

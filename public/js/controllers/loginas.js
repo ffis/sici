@@ -1,35 +1,34 @@
-function LoginAsCtrl ($rootScope, $scope, $http, $window) {
+function LoginAsCtrl ($rootScope, $scope, $http, $window, Session) {
 
 	$scope.datosusuario = false;
+	$scope.actualuser = JSON.parse($window.localStorage.client_session);
 	$scope.mensaje = false;
 	$scope.fake = function(login){
 
 		if (login!=''){
-			alert('Autenticando como:' +login)
 		  	$http.post('/api/pretend/'+login, {username:login}).
 		  		success(function(data, status, headers, config) {
 		  			$scope.datosusuario = data;
-			  		console.log(data);
-			  		console.log(status);
-//			  		profile: o, token: token
+		  			$scope.actualuser = JSON.parse($window.localStorage.client_session);
 			  		$scope.mensaje = false;
 				}).
 				error(function(data, status, headers, config) {
 					$scope.mensaje = 'Error descargando datos. Pruebe con otro usuario.'
 				});		
 		}else{
-			$scope.mensaje = 'Error descargando datos. Pruebe con otro usuario.'
+			$scope.mensaje = 'Error descargando datos. Seleccione un usuario.'
 		}
 	} 
 
 	$scope.confirm = function(){
 		if ($scope.datosusuario){
-			$window.localStorage.client_session = JSON.stringify($scope.datosusuario.profile);
 			$window.localStorage.token = $scope.datosusuario.token;
+			Session.create($scope.datosusuario.profile);
 			$rootScope.setLogeado(true);
+			$scope.actualuser = JSON.parse($window.localStorage.client_session);
 		}
 	} 
 
 }
 
-LoginAsCtrl.$inject = ['$rootScope','$scope', '$http','$window'];
+LoginAsCtrl.$inject = ['$rootScope','$scope', '$http','$window', 'Session'];

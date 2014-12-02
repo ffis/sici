@@ -13,7 +13,7 @@ function calcularPermisos(permisos) {
 
 		var now = new Date();
 		for(var i=0,j = permisos.length; i<j;i++ ){
-			if (!permisos[i].caducidad || permisos[i].caducidad.getTime() > now.getTime())
+			if (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime())
 			{
 				permisoscalculados.superuser = permisoscalculados.superuser || permisos[i].superuser;
 				permisoscalculados.jerarquiaescritura = permisoscalculados.jerarquiaescritura.concat( permisos[i].jerarquiaescritura);
@@ -24,7 +24,7 @@ function calcularPermisos(permisos) {
 		}
 		for(var i=0,j = permisos.length; i<j;i++ ){
 			for(var k=0,l=permisos[i].jerarquialectura.length;k<l;k++)
-				if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() > now.getTime()) && 
+				if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime()) && 
 					(permisoscalculados.jerarquiaescritura.indexOf(permisos[i].jerarquialectura[k])==-1 ) )
 				{
 					permisoscalculados.jerarquialectura.push( permisos[i].jerarquialectura[k]);								
@@ -32,7 +32,7 @@ function calcularPermisos(permisos) {
 		}
 		for(var i=0,j = permisos.length; i<j;i++ ){
 			for(var k=0,l=permisos[i].procedimientoslectura.length;k<l;k++)
-				if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() > now.getTime()) && 
+				if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime()) && 
 					(permisoscalculados.procedimientosescritura.indexOf(permisos[i].procedimientoslectura[k])==-1 ) )
 				{
 					permisoscalculados.procedimientoslectura.push( permisos[i].procedimientoslectura[k]);
@@ -119,3 +119,57 @@ exports.authenticate = function(config){
 		);
   }
 }
+
+exports.pretend = function(config){
+
+	var jwt = config.jwt,
+		secret = config.secret,
+		Persona = config.models.persona(),
+		Permisos = config.models.permiso();
+
+	if (!jwt || !secret || !Persona || ! Permisos)
+		throw new Error('bad config for pretend method');
+
+	return function(req, res){
+
+		if (!req.user.permisoscalculados.superuser) {
+			console.error(req.user);
+		  res.status(401).send('Not allowed'); //provoca perdida de sesion
+		  return;
+		}
+		if (typeof req.body.username === 'undefined'){
+		  res.status(404).send('Fallo de petición');
+		  return;
+		}else{
+
+			Persona.find( { login: req.body.username, habilitado:true },
+				function(err,personas){			
+					if (err ||personas.length===0)
+					{
+						res.status(404).send('Wrong user');	
+						return;
+					}
+					personas[0].ultimologin = new Date();
+					personas[0].save();
+					
+					//Permisos are bound using login or codplaza
+					Permisos.find(
+	 					{ $or:[ {login: personas[0].login},{codplaza: personas[0].codplaza} ] },
+	 					function(err, permisos){
+	 						var o = JSON.parse(JSON.stringify(personas[0]));
+							
+							o.idspermisos = [];
+							for(var i=0,j = permisos.length; i<j;i++ ){
+								o.idspermisos.push(permisos[i]._id);
+							}
+							
+							var token = jwt.sign(o, secret, { expiresInMinutes: 60*5 });
+							res.json({ profile: o, token: token });
+						}
+					)
+				}
+			);
+		}
+  }
+}
+
