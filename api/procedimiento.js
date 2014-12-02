@@ -47,7 +47,7 @@ exports.setPeriodosCerrados = function (models) {
             res.json(periodoscerrados);
             //Procedimiento.update(conditions, update, options, callback);
         }
-    }
+    };
 
 }
 
@@ -137,14 +137,13 @@ exports.procedimiento = function (models) {
                 res.end();
                 return;
             }
-            console.log(data);
             res.json(data);
         });
 
     };
-};
+}
 
-exports.updateProcedimiento = function (Q, models, recalculate) {
+exports.deleteProcedimiento = function (Q, models, recalculate) {
     return function (req, res) {
         var Procedimiento = models.procedimiento();
         var restriccion = {};
@@ -161,7 +160,97 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
                 res.end();
                 return;
             }
+            var procedimiento = req.body;
+            var puedeEscribirSiempre = req.user.permisoscalculados.superuser;
+            if (puedeEscribirSiempre) {
+                original.eliminado = true;
+            }
+            Procedimiento.count({"padre": original.codigo}, function (err, count) {
+                if (err) {
+                    res.status(500).end();
+                    return;
+                } else if (count > 0) {
+                    res.status(500).end('No puede eliminar un procedimiento con hijos');
+                    return;
+                } else {
+                    recalculate.softCalculateProcedimiento(Q, models, original).then(function (original) {
+                        recalculate.softCalculateProcedimientoCache(Q, models, original).then(function (original) {
+                            exports.saveVersion(models, Q, original).then(function () {
+                                original.fecha_version = new Date();
+                                Procedimiento.update({codigo: original.codigo}, JSON.parse(JSON.stringify(original)), {multi: false, upsert: false}, function (err, coincidencias, elemento) {
+                                    if (err) {
+                                        console.error(err);
+                                        res.status(500).send(JSON.stringify(err));
+                                        res.end();
+                                        return;
+                                    }
+                                    else {
+                                        res.json(original);
+                                        console.log(JSON.stringify(elemento));
+                                        console.log(coincidencias);
+                                    }
+                                });
+                            });
+                        });
+                    });
+                }
+            });
+        });
+    };
+};
 
+exports.updateProcedimiento = function (Q, models, recalculate) {
+    return function (req, res) {
+        var Procedimiento = models.procedimiento();
+        var restriccion = {};
+        if (typeof req.params.codigo !== 'undefined')
+            restriccion.codigo = parseInt(req.params.codigo);
+        //comprobar si tiene permiso el usuario actual
+        
+        var arrays = [
+        'jerarquiaescritura',
+        'jerarquialectura',
+        'jerarquiadirectalectura',
+        'jerarquiadirectaescritura',
+        'procedimientosdirectalectura',
+        'procedimientosdirectaescritura',
+        'procedimientoslectura',
+        'procedimientosdirectalectura'
+        ];
+
+        for(var i=0;i<arrays.length;i++)
+            if (!Array.isArray(req.user.permisoscalculados[arrays[i]]))
+                req.user.permisoscalculados[arrays[i]]=[];
+
+        restriccion['$or']=[
+            {
+                'idjerarquia': {'$in': req.user.permisoscalculados.jerarquiaescritura.concat(req.user.permisoscalculados.jerarquiadirectaescritura)}
+            },
+            {
+                'codigo':{'$in': req.user.permisoscalculados.procedimientosdirectaescritura.concat(req.user.permisoscalculados.procedimientosescritura)}
+            }
+        ];
+
+
+        Procedimiento.findOne(restriccion, function (err, original) {
+            if (err) {
+                console.error(restriccion);
+                console.error(err);
+                res.status(500);
+                res.end();
+                return;
+            }
+
+			if (typeof original === 'undefined' || original==null) {
+				res.status(500);
+				res.end('ERROR. imposible actualizar procedimiento ');
+				console.error('ERROR. imposible actualizar procedimiento ');
+				console.error(req.params.filepath);
+				console.error(restriccion);	
+                return;			
+			}
+			
+			
             var procedimiento = req.body;
             //TODO: comprobar qué puede cambiar y qué no
 
@@ -175,13 +264,12 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
                 if (original.idjerarquia != procedimiento.idjerarquia) {
                     original.idjerarquia = procedimiento.idjerarquia;
                 }
+                original.padre = procedimiento.padre;
                 // Actualiza estado oculto o eliminado
                 if (original.oculto !== procedimiento.oculto) {
                     hayCambiarOcultoHijos = true;
                 }
                 original.oculto = procedimiento.oculto;
-                original.eliminado = procedimiento.eliminado;
-                original.padre = procedimiento.padre;
             }
 
 

@@ -23,6 +23,10 @@ angular.module('sici.services', ['ngResource'])
             function ($resource) {
                 return $resource('/api/procedimientoHasChildren/:codigo', {}, {query: {method: 'GET', isArray:false}});
             }])        
+        .factory('Anualidad', ['$resource',
+            function ($resource) {
+                return $resource('/api/createAnualidad/:anualidad', {}, {query: {method: 'GET', isArray:false}});
+            }])                
         .factory('TramitesCount', ['$resource',
             function ($resource) {
                 return $resource('/api/tramiteCount', {}, {});
@@ -69,7 +73,7 @@ angular.module('sici.services', ['ngResource'])
             }])
         .factory('PermisosDelegar', ['$resource',
             function ($resource) {
-                return $resource('/api/permisosdelegar/:login/:cod_plaza', {}, {query: {method: 'GET', isArray: false}});
+                return $resource('/api/permisosdelegar/:login/:cod_plaza', {}, {query: {method: 'GET', isArray: true}});
             }])
         .factory('PermisosDelegarSeleccionado', ['$resource',
             function ($resource) {
@@ -138,7 +142,7 @@ angular.module('sici.services', ['ngResource'])
         .factory('TipoLogin', ['$resource',
             function ($resource) {
                 return $resource('/tipologin');
-            }])
+            }])        
         .factory('TestExpediente', ['$resource',
             function ($resource) {
                 return $resource('api/v1/expediente/:procedimiento/:id', {procedimiento: '@procedimiento'}, {

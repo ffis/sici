@@ -6,7 +6,9 @@ function parseStr2Int (str){
 	return valor;
 }
 
-
+/*
+	
+*/
 exports.softCalculatePermiso = function(Q, models, permiso){
 	var Jerarquia = models.jerarquia();
 	var Procedimiento = models.procedimiento();
@@ -145,7 +147,7 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 
 			Q.all(defs2).then(function(){
 				deferred.resolve( permiso );
-			}).fail(function(err){
+			},function(err){
 				console.error(110);
 				deferred.reject( err  );
 			});

@@ -71,8 +71,8 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
     };
 
     $scope.eliminarProcedimiento = function (procedimientoSeleccionado) {
-        procedimientoSeleccionado.eliminado = !procedimientoSeleccionado.eliminado;
-        $scope.procedimientoSeleccionado.$update(function (response) {
+        procedimientoSeleccionado.eliminado = true;
+        $scope.procedimientoSeleccionado.$delete(function (response) {
             $scope.respuesta = {
                 clase: 'alert-success',
                 mensaje: (procedimientoSeleccionado.eliminado ? 'El procedimiento ha sido eliminado' : 'El procedimiento ha sido recuperado')
@@ -198,7 +198,7 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
                 } else {
                     console.log('Index malo:' + indexes);
                 }
-            })
+            });
             var forcey = [0, Math.ceil(maxvalue * 1.3)];
             if (maxvalue > 0) {
                 $scope.graphs.push({data: data, forcey: forcey, caption: caption});
