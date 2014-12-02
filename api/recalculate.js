@@ -52,7 +52,6 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 	// si el permiso es otorgado a un codigo de plaza...
 	if (permiso.codplaza && permiso.codplaza!='')
 	{
-
 		//buscamos los procedimientos cuyo responsable sea el del permiso
 		Procedimiento.find({cod_plaza: permiso.codplaza}, function(err,procedimientos){
 			if (err){ console.error(err);console.error(32); deferredProcedimiento.reject( err ); return; }
@@ -75,7 +74,7 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 
 	deferredProcedimiento.promise.then(function(){
 
-		var attrsOrigenjerarquia = ['jerarquiadirectalectura', 'jerarquiadirectalectura'];
+		var attrsOrigenjerarquia = ['jerarquiadirectalectura', 'jerarquiadirectaescritura'];
 		var attrsjerarquia = ['jerarquialectura', 'jerarquiaescritura'];
 		
 		var defs = [];
@@ -120,7 +119,9 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 				if (!permiso [ attrprocedimientosDirecto[idx] ])
 					permiso [ attrprocedimientosDirecto[idx] ] = [];
 
-				permiso[ attr ] = permiso [ attrprocedimientosDirecto[idx] ];
+				permiso[ attr ] = permiso[ attr ].concat(permiso [ attrprocedimientosDirecto[idx] ]);
+
+				permiso[ attr ] = permiso[ attr ].filter(function(value, index, self) { return self.indexOf(value) === index; })
 
 				var idsjerarquia = permiso[ attrsOrigenjerarquia[idx] ];
 				if (idsjerarquia && idsjerarquia.length==0) return;
@@ -146,6 +147,8 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 
 
 			Q.all(defs2).then(function(){
+
+
 				deferred.resolve( permiso );
 			},function(err){
 				console.error(110);
