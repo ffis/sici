@@ -1,6 +1,6 @@
 'use strict';
 
-function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados, AuthService) {
+function AppCtrl($window,$q, $scope, $rootScope, Session, $location, PermisosCalculados, AuthService) {
 
 	$rootScope.setTitle   = function (title){ $scope.name = title; };
 	$rootScope.setLogeado = function(t){
@@ -13,13 +13,15 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados,
 	$rootScope.nav = '';
 	$rootScope.logeado = false;
 	$rootScope.meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+	var IEChecker = /MSIE [6789]+/i;	
+	var browser = $window.navigator.userAgent;
 	$rootScope.navegabilidad  = [
 		{ id:'inicio', caption:'Inicio' },
 		{ id:'actividad', caption:'Actividad' },
 		{ id:'stats', caption:'Estadísticas' },
 		{ id:'errors', caption:'Incoherencias' },
 		{ id:'inconsistencias', caption:'Inconsistencias' },
-		{ id:'update', caption:'Actualizar mediante fichero' },
+		{ id:(IEChecker.test(browser)?'updateIE':'update'), caption:'Actualizar mediante fichero' },
 		{ id:'logout', caption:'Salir' },
 	];
 	$rootScope.navegabilidadSuper = [
@@ -148,4 +150,4 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados,
 
 }
 
-AppCtrl.$inject = ['$q','$scope','$rootScope','Session', '$location','PermisosCalculados','AuthService'];
+AppCtrl.$inject = ['$window','$q','$scope','$rootScope','Session', '$location','PermisosCalculados','AuthService'];
