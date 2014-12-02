@@ -73,7 +73,7 @@ angular.module('sici.services', ['ngResource'])
             }])
         .factory('PermisosDelegar', ['$resource',
             function ($resource) {
-                return $resource('/api/permisosdelegar/:login/:cod_plaza', {}, {query: {method: 'GET', isArray: false}});
+                return $resource('/api/permisosdelegar/:login/:cod_plaza', {}, {query: {method: 'GET', isArray: true}});
             }])
         .factory('PermisosDelegarSeleccionado', ['$resource',
             function ($resource) {

@@ -3,15 +3,14 @@
 <div ng-controller="PermisoCtrl" class="row">
 <div id="superuser" ng-if="$root.permisoscalculados.grantoption || $root.permisoscalculados.superuser">
 	<div ng-class="{'col-lg-5': !oculto, 'hidden': oculto}" class="left animated">
-		<div class="panel panel-danger" ng-if="$root.permisoscalculados.superuser">
+		<!-- <div class="panel panel-danger" ng-if="$root.permisoscalculados.superuser">
 			<div class="panel-heading">
 				<div class="input-group">
 				  <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
-				 <!-- <autocomplete class="form-control" ng-class="form-control" ng-model="persona_o_plaza" attr-placeholder="Buscar usuario por login o plaza..." click-activation="true" data="personas_plazas" on-select="showDetailsPermiso" ></autocomplete> 						-->
 					<input  class="form-control" ng-model="usuariosbuscado" typeahead-on-select="on_usuariobuscado_selected($item,$model,$label)" placeholder="Buscar por plaza, login carm o nombre"  type="text" typeahead-min-lengt="3" typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)"  /> 				 
 				</div>				
 			</div>
-		</div>
+		</div>-->
 		<br/>
 		<div class="panel panel-danger">
 			<div class="panel-heading">
@@ -325,12 +324,15 @@
 									<input type="checkbox" ng-model="w_option" name="w_option" ng-disabled="  !usuarioseleccionado || propietario" value="1" /> Puede introducir datos
 								</label>
 								<br/>
-								<label for="p_superuser" ng-if="$root.permisoscalculados.superuser">
-									<input type="checkbox" ng-model="psuperuser" name="p_superuser" ng-disabled=" !usuarioseleccionado  || propietario" value="1" /> Superusuario
+								<label for="psuperuser">
+									<input type="checkbox" ng-model="psuperuser" name="psuperuser" ng-disabled=" !usuarioseleccionado  || propietario" value="1" /> Superusuario
 								</label>
 								<br class="clear"/>
+								<p>W: {{w_option}}</p>
+								<p>G: {{grantoption}}</p>
+								<p>S: {{psuperuser}}</p>
 
-								<button class="btn btn-default danger" ng-disabled="is_nuevousuario || !usuarioseleccionado" ng-click="crearpermiso(usuarioseleccionado)" ><span class="glyphicon glyphicon-ok"></span> <span>Crear</span></button>
+								<button class="btn btn-default danger" ng-disabled="is_nuevousuario || !usuarioseleccionado" ng-click="crearpermiso(usuarioseleccionado,w_option,grantoption,psuperuser)" ><span class="glyphicon glyphicon-ok"></span> <span>Crear</span></button>
 								 &nbsp;<button class="btn btn-default danger" ng-disabled="is_nuevousuario || !usuarioseleccionado" ng-click="delegar(usuarioseleccionado)" title="concede tus permisos, salvo la capacidad de dar permiso a otros" ><span class="glyphicon glyphicon-share"></span> <span>Delegar permisos</span></button>	
 							</div>
 							<div ng-if="!$root.permisoscalculados.superuser">

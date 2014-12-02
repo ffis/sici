@@ -55,9 +55,6 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
         }
     };
 
-    $scope.tieneHijosDefer = $q.defer();
-    $scope.tiene_hijos = $scope.tieneHijosDefer.promise;
-
     $scope.ocultarProcedimiento = function (procedimientoSeleccionado) {
         procedimientoSeleccionado.oculto = !procedimientoSeleccionado.oculto;
         $scope.procedimientoSeleccionado.$update(function (response) {
@@ -74,8 +71,8 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
     };
 
     $scope.eliminarProcedimiento = function (procedimientoSeleccionado) {
-        procedimientoSeleccionado.eliminado = !procedimientoSeleccionado.eliminado;
-        $scope.procedimientoSeleccionado.$update(function (response) {
+        procedimientoSeleccionado.eliminado = true;
+        $scope.procedimientoSeleccionado.$delete(function (response) {
             $scope.respuesta = {
                 clase: 'alert-success',
                 mensaje: (procedimientoSeleccionado.eliminado ? 'El procedimiento ha sido eliminado' : 'El procedimiento ha sido recuperado')
@@ -106,13 +103,11 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
         $rootScope.procedimiento = $scope.procedimientoSeleccionado.codigo;
         $scope.anualidad = '000000';
 
-        var haschildren = ProcedimientoHasChildren.query({'codigo': $scope.procedimientoSeleccionado.codigo}, function () {
-            //$scope.tiene_hijos = haschildren.count;
-            $scope.tieneHijosDefer.resolve(haschildren.count);
+        ProcedimientoHasChildren.query({'codigo': $scope.procedimientoSeleccionado.codigo}, function (data) {
+            $scope.tiene_hijos = data.count;
         });
 
         $scope.procedimientosPadre = ProcedimientoList.query({'idjerarquia': $scope.procedimientoSeleccionado.idjerarquia, 'recursivo': false});
-
 
         $scope.mostrarAutocompletePadre = false;
         if ($scope.procedimientoSeleccionado.padre) {
@@ -203,7 +198,7 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
                 } else {
                     console.log('Index malo:' + indexes);
                 }
-            })
+            });
             var forcey = [0, Math.ceil(maxvalue * 1.3)];
             if (maxvalue > 0) {
                 $scope.graphs.push({data: data, forcey: forcey, caption: caption});
@@ -223,7 +218,25 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
                 }
             });
         });
+        
+        $scope.changeFocus = function(form, index, attr) {
+            form.$submit();
+            var formulario;
+            if (index>=11) {
+                formulario = $scope.forms[0][$scope.attrstabla[$scope.attrstabla.indexOf(attr)+1]];
+            }
+            else 
+                formulario = $scope.forms[index+1][attr];
+            if (typeof formulario !== 'undefined') 
+                formulario.$show();
+        };
 
+        $scope.forms = [];
+        $scope.addForm = function(attr, index, form) {
+            if(typeof $scope.forms[index] === 'undefined')
+                $scope.forms[index]={};
+            $scope.forms[index][attr]=form;
+        };
 
         /***** CAMBIO DE JERARQUIA ****/
 
@@ -329,11 +342,11 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
 
         $scope.gotoBreadCrumb = function () {
             //$location.hash('breadcrumb');	
-        }
+        };
 
         $scope.gotOkCancel = function () {
             //$location.hash('ok_cancel_changeOrganica');
-        }
+        };
 
         $scope.cancelChangeOrganica = function () {
             $scope.seleccinado = null;

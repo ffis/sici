@@ -81,7 +81,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
 
 
   app.get('/api/personasByPuesto/:cod_plaza',persona.personasByPuesto(models));
-  app.get('/api/personasByLogin/:cod_plaza',persona.personasByLogin(models));
+  app.get('/api/personasByLogin/:login',persona.personasByLogin(models));
   app.get('/api/PersonasByRegexp/:regex',persona.personasByRegex(models));
   app.get('/api/searchpersonas',persona.personassearchlist(models,Q));
   app.post('/api/persona', persona.newPersona(models));
@@ -103,6 +103,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.get('/api/procedimientoList/:idjerarquia', procedimiento.procedimientoList(models, Q) );
   
   app.get('/api/procedimiento/:codigo', procedimiento.procedimiento(models) );
+  app.delete('/api/procedimiento/:codigo', procedimiento.deleteProcedimiento(Q, models, recalculate) );
   app.put('/api/procedimiento/:codigo', procedimiento.updateProcedimiento(Q, models, recalculate) );  
   //app.post('/api/procedimiento', procedimiento.createProcedimiento(Q, models, recalculate) );
   app.post('/api/procedimiento/:codigo', procedimiento.createProcedimiento(Q, models, recalculate) );
@@ -145,9 +146,9 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.delete('/api/permisos/delete-jerarquia/:permiso/:jerarquia', permiso.removePermisoJerarquia(models,Q));
   app.delete('/api/permisos/delete-procedimiento/:permiso/:procedimiento', permiso.removePermisoJerarquia(models,Q));
   app.put('/api/permisos/:id', permiso.update(models));
-  app.post('/api/permisos/', permiso.create(models,Q,recalculate));
+  app.post('/api/permisos', permiso.create(models,Q,recalculate));
   app.get('/api/permisoscalculados', login.getpermisoscalculados(models));
-  app.get('/api/permisosdelegar/:login/:cod_plaza', permiso.delegarpermisos(models,Q));
+  app.get('/api/permisosdelegar/:login/:cod_plaza', permiso.delegarpermisos(models,Q, recalculate));
   app.get('/api/permisosdelegar/:login/:cod_plaza/:procedimiento', permiso.delegarpermisosProcedimiento(models,Q));
 
   app.get('/api/excelgesper', persona.importarGesper(models,Q));
