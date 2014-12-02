@@ -96,6 +96,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.put('/api/periodos/:id', periodos.updatePeriodo(models));
   app.post('/api/periodos/:id', periodos.newPeriodo(models));
   app.delete('/api/periodos/:id', periodos.removePeriodo(models));
+  app.get('/api/createanualidad/:anyo', periodos.nuevaAnualidad(models));
 
   app.get('/api/procedimiento', procedimiento.procedimiento(models) );
   app.get('/api/procedimientoList/:idjerarquia/:recursivo', procedimiento.procedimientoList(models, Q) );
@@ -158,6 +159,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   
 
   app.post('/api/updateByFile',upload.update(),csvsici.parse(models));
+  app.post('/api/updateByFileIE',upload.update(),csvsici.parse(models));
 
 
   app.get('/tipologin.js', function(req,res){

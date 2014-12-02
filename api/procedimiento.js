@@ -137,12 +137,11 @@ exports.procedimiento = function (models) {
                 res.end();
                 return;
             }
-            console.log(data);
             res.json(data);
         });
 
     };
-};
+}
 
 exports.updateProcedimiento = function (Q, models, recalculate) {
     return function (req, res) {
@@ -151,7 +150,16 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
         if (typeof req.params.codigo !== 'undefined')
             restriccion.codigo = parseInt(req.params.codigo);
         //comprobar si tiene permiso el usuario actual
-        restriccion.idjerarquia = {'$in': req.user.permisoscalculados.jerarquiaescritura};
+		if (!Array.isArray(req.user.permisoscalculados.procedimientosdirectaescritura))
+			req.user.permisoscalculados.procedimientosdirectaescritura=[];
+		if (!Array.isArray(req.user.permisoscalculados.procedimientosescritura))
+			req.user.permisoscalculados.procedimientosescritura=[];
+			
+			
+        restriccion['$or'] = [
+				{'idjerarquia' : {'$in': req.user.permisoscalculados.jerarquiaescritura}},
+				{'codigo' : {'$in': req.user.permisoscalculados.procedimientosescritura.concat( req.user.permisoscalculados.procedimientosdirectaescritura ) } }
+				];
 
         Procedimiento.findOne(restriccion, function (err, original) {
             if (err) {
@@ -162,6 +170,16 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
                 return;
             }
 
+			if (typeof original === 'undefined' || original==null) {
+				res.status(500);
+				res.end('ERROR. imposible actualizar procedimiento ');
+				console.error('ERROR. imposible actualizar procedimiento ');
+				console.error(req.params.filepath);
+				console.error(JSON.stringify(restriccion));		
+				return;
+			}
+			
+			
             var procedimiento = req.body;
             //TODO: comprobar qué puede cambiar y qué no
 
@@ -178,9 +196,7 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
                 // Actualiza estado oculto o eliminado
                 original.oculto = procedimiento.oculto;
                 original.eliminado = procedimiento.eliminado;
-                original.padre = procedimiento.padre;
             }
-            
 
             //TODO: IMPEDIR EDICION DE ANUALIDADES MUY PRETÉRITAS		
             var schema = models.getSchema('procedimiento');

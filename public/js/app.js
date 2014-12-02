@@ -26,6 +26,7 @@ var app = angular.module('sici', dependencies).
     $routeProvider.when('/welcome',   {templateUrl: 'partials/welcome.html',   controller: 'WelcomeCtrl'  });
     $routeProvider.when('/login',     {templateUrl: 'partials/login.html',     controller: 'LoginCtrl'    });	
     $routeProvider.when('/update',    {templateUrl: 'partials/upload.html',    controller: 'UpdateCtrl'   });
+    $routeProvider.when('/updateIE',    {templateUrl: 'partials/uploadIE.html',    controller: 'UpdateIECtrl'   });
     $routeProvider.when('/actividad', {templateUrl: 'partials/actividad.html', controller: 'ActividadCtrl'});
     $routeProvider.when('/recalculate', {templateUrl: 'partials/recalculate.html', controller: 'RecalculateCtrl'});
     $routeProvider.when('/actividad/:idjerarquia', {templateUrl: 'partials/actividad.html', controller: 'ActividadCtrl'});
