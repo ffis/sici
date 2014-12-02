@@ -151,10 +151,10 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                         <button type="button" ng-if="procedimientoSeleccionado.oculto" class="btn btn-default" aria-label="Left Align" ng-click="ocultarProcedimiento(procedimientoSeleccionado)">
                             <span class="glyphicon glyphicon-align-eye-close" aria-hidden="true"></span> &nbsp;Anular Oculto
                         </button>
-                        <button type="button" ng-if="!procedimientoSeleccionado.eliminado" class="btn btn-default" aria-label="Left Align" ng-disabled="tiene_hijos > 0"  ng-click="eliminarProcedimiento(procedimientoSeleccionado)">
+                        <button type="button" ng-if="!procedimientoSeleccionado.eliminado" class="btn btn-default" aria-label="Left Align" ng-disabled="tiene_hijos > 0 || procedimientoSeleccionado.oculto"  ng-click="eliminarProcedimiento(procedimientoSeleccionado)">
                             <span class="glyphicon glyphicon-align-trash" aria-hidden="true"></span> &nbsp;Eliminar procedimiento
                         </button>
-                        <span ng-if="tiene_hijos > 0"><br/>
+                        <span ng-if="tiene_hijos > 0 && !procedimientoSeleccionado.oculto"><br/>
                             No puede eliminar el procedimiento porque tiene hijos. Elimine los hijos antes de eliminar este procedimiento.
                         </span>
                         <div ng-if="respuesta" class="alert {{respuesta.clase}}" role="alert">{{respuesta.mensaje}}</div>
