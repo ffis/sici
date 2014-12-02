@@ -83,3 +83,50 @@ exports.removePeriodo = function(models){
 		});
 	}
 }
+
+
+
+exports.nuevaAnualidad = function(models) {
+	return function(req, res) {
+		var Plantillaanualidad = models.plantillaanualidad();
+		var plantilla = Plantillaanualidad.query({});
+		var anualidad = req.params.anyo;
+		if (anualidad > 2014) {
+			var query = Procedimiento.findOne({'periodos.a2014':{'$exists':true}},function(err,procedimiento){
+				if (err){
+				 res.send({'error':'An error has occurred'});
+				} else {
+					var anualidades = Object.keys(procedimiento.periodos);
+					var speriodonuevo = '';
+					for (var i=0;i<anualidades.length;i++) {
+						if (!isNaN(parseInt(anualidades[i].replace('a',''))))
+						{
+							var periodo = parseInt(anualidades[i].replace('a',''));
+							periodo++;
+							var speriodonuevo = 'a' + periodo;
+						}
+					}
+					
+					if (speriodonuevo!='') {						
+						var nuevoperiodo = JSON.parse(JSON.stringify(plantilla));
+						delete nuevoperiodo._id;
+						var restriccion = {};						
+						var periodos_periodo = 'periodos.'+speriodonuevo;
+						restriccion[periodos_periodo] = {'$exists':false};
+						var set = {};
+						set['$set'] = {speriodonuevo : nuevoperiodo };
+						Procedimiento.update(restriccion,set,{upsert:false,multi:true},function(err){
+							if (err) {
+								if (err) { console.error('nuevaAnualidad...'); console.error(err);  res.status(500); res.end(); return ; }
+							} else {
+								res.json('OK');
+							}
+						});
+					}
+				}
+			});
+		}
+		
+	}
+}
+

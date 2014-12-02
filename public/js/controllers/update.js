@@ -24,6 +24,8 @@ function UpdateCtrl($rootScope,$scope,$window,$upload,Importacion){
 	    for (var i = 0; i < $files.length; i++) {
 	      var file = $files[i];
 	      $scope.actualizando++;
+	      console.log($upload);
+	  
 	      $scope.upload = $upload.upload({
 	        url: '/api/updateByFile', 
 	        //method: 'POST' or 'PUT',
@@ -43,7 +45,7 @@ function UpdateCtrl($rootScope,$scope,$window,$upload,Importacion){
 	        // file is uploaded successfully
 	        console.log('Del servidor al cliente:'+data);
 	        $scope.actualizando--;
-	        $scope.respuestas.push(data)
+	        $scope.respuestas= Importacion.query();
 	      })/*.fail(function(){
 	      	console.error('fallo');
 	      	$scope.actualizando--;

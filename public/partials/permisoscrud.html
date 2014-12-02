@@ -88,19 +88,19 @@
 										<span class="badge pull-right">{{eleme.numprocedimientos}}</span>
 										</p>
 											<ul ng-if="eleme.id == seleccionado.id" class="bg-warning organica_proc">
-													<li ng-repeat="proc in eleme.procedimientos | filter:texto " ng-show="eleme.id == seleccionado.id" class="organica_proc list-group-item-warning">
-														<p>
-															<strong>
-																[{{proc.codigo}}] &nbsp;
-															</strong>
-															<span ng-class="{'bg-warning':eleme.id==seleccionado.id }" ng-click="setProcSeleccionado(proc)" class="cursor">
-																{{proc.denominacion}} 
-															</span>
-														</p>
-													</li>											
-													
-													<li ng-if="!eleme.procedimientos"><i>Cargando...</i></li>
-												</ul>										
+												<li ng-repeat="proc in eleme.procedimientos | filter:texto " ng-show="eleme.id == seleccionado.id" class="organica_proc list-group-item-warning">
+													<p>
+														<strong>
+															[{{proc.codigo}}] &nbsp;
+														</strong>
+														<span ng-class="{'bg-warning':eleme.id==seleccionado.id }" ng-click="setProcSeleccionado(proc)" class="cursor">
+															{{proc.denominacion}} 
+														</span>
+													</p>
+												</li>											
+												
+												<li ng-if="!eleme.procedimientos"><i>Cargando...</i></li>
+											</ul>										
 										<ul ng-if="eleme.nodes" style="clear:both">
 											<li ng-repeat="elem in eleme.nodes |filter:texto |filter:filtrojerarquia" ng-class="{'list-group-item-danger':elem.id==seleccionado.id}">
 											<p>
@@ -139,7 +139,7 @@
 		</div>
 	</div>
 	<div ng-if="show_details_permiso" ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated" >
-		<h2 class="center">Permisos</h2>
+		<h2 class="center">Permisos / Org&aacute;nica</h2>
 		<table class="table table-striped table-bordered table-condensed table-hover">
 			<thead>
 				<tr>
