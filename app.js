@@ -67,7 +67,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
 
   app.get('/', routes.index);
 
-
+  app.post('/api/pretend/:username', login.pretend({secret: cfg.secret, jwt:jwt, models:models }));
 
   app.get('/api/arbol', api.arbol(Q, models) );
   
