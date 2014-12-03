@@ -146,13 +146,13 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                 <div ng-if="$root.permisoscalculados.superuser">
                     <div>
                         <button type="button" ng-if="!procedimientoSeleccionado.oculto" class="btn btn-default" aria-label="Left Align" ng-click="ocultarProcedimiento(procedimientoSeleccionado)">
-                            <span class="glyphicon glyphicon-align-eye-close" aria-hidden="true"></span> &nbsp;Ocultar
+                            <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span> &nbsp;Ocultar
                         </button>
                         <button type="button" ng-if="procedimientoSeleccionado.oculto" class="btn btn-default" aria-label="Left Align" ng-click="ocultarProcedimiento(procedimientoSeleccionado)">
-                            <span class="glyphicon glyphicon-align-eye-close" aria-hidden="true"></span> &nbsp;Anular Oculto
+                            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> &nbsp;Anular Oculto
                         </button>
                         <button type="button" ng-if="!procedimientoSeleccionado.eliminado" class="btn btn-default" aria-label="Left Align" ng-disabled="tiene_hijos > 0 || procedimientoSeleccionado.oculto"  ng-click="eliminarProcedimiento(procedimientoSeleccionado)">
-                            <span class="glyphicon glyphicon-align-trash" aria-hidden="true"></span> &nbsp;Eliminar procedimiento
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> &nbsp;Eliminar procedimiento
                         </button>
                         <span ng-if="tiene_hijos > 0 && !procedimientoSeleccionado.oculto"><br/>
                             No puede eliminar el procedimiento porque tiene hijos. Elimine los hijos antes de eliminar este procedimiento.
