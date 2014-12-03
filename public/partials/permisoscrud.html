@@ -258,7 +258,7 @@
 				</tr>				
 				<tr ng-if="show_form_add_permiso">
 					
-					<th colspan="{{ !is_show_recursive_users && !procedimientos.length? 7 : 8 }}" class="form-container">						
+					<td colspan="{{ !is_show_recursive_users && !procedimientos.length? 7 : 8 }}" class="form-container">						
 						<form name="nuevousuario-form" id="nuevousuario-form" ng-init="usuarioseleccionado=''">
 								<input  class="form-control" ng-model="usuarioseleccionado" placeholder="Buscar por plaza, login carm o nombre"  type="text" typeahead-min-lengt="3" typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)"  /> 							
 							<!--<br/>
@@ -307,7 +307,8 @@
 							<input type="hidden" name="procedimiento" value="{{procedimiento_seleccionado.codigo || 0}}" />
 							<input type="hidden" name="nodojerarquia" value="{{seleccionado.id || 0}}" />
 							<input type="hidden" name="tiposeleccion" value="{{seleccionado_organica?'jerarquia':'procedimiento'}}" />		
-							<br/>							
+							<br/>
+                                                        <p>Si no encuentra la persona, debe realizar la búsqueda exacta por login carm o plaza.</p>
 							<label for="permisoallogin" >
 								<input type="checkbox" ng-model="permisoallogin" name="permisoallogin" ng-disabled="!usuarioseleccionado" value="1"/> Asignar permiso al login y no a la plaza
 							</label>														
@@ -337,7 +338,7 @@
 								</button>
 							</div>
 						</form>
-					</th>
+					</td>
 				</tr>
 				
 				<tr>

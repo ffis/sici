@@ -273,15 +273,15 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 				}
 
 			}
-			$scope.permisostotales.procedimientos =  $scope.procedimientos;
+			$scope.permisostotales.procedimientos = $scope.procedimientos;
 		});
-	}
+	};
 
 
 	$scope.getJerarquia = function(idjerarquia){
 			console.log("ng-init mola¡");
 		return Jerarquia.query({'idjerarquia':idjerarquia}, function(){ console.log("obtenida jerarquia "+idjerarquia); });
-	}
+	};
 	
 
 	$scope.crearpermiso2 = function(spersona,w_option,grantoption,psuperuser) {
@@ -692,14 +692,14 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		}
 	});
 	
-	$scope.getPersonas = function(viewValue) {
-		var regex = ""+viewValue
-		if (viewValue.length>2) {
-			var p = PersonasByRegexp.query({"regex":viewValue}).$promise;
-			return p;
-		}
-		else return [];
-	};
+//	$scope.getPersonas = function(viewValue) {
+//		var regex = ""+viewValue
+//		if (viewValue.length>2) {
+//			var p = PersonasByRegexp.query({"regex":viewValue}).$promise;
+//			return p;
+//		}
+//		else return [];
+//	};
 
 	
 	$scope.showPersona = function (persona){
