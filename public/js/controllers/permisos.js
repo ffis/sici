@@ -19,7 +19,7 @@ function intersect_safe(a, b)
   return result;
 }
 
-function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosList,PersonasSearchList,ProcedimientoList,PermisosProcedimientoList,PermisosDirectosProcedimientoList, Jerarquia, Permiso, PersonasByPuesto, PersonasByLogin, PersonasByRegexp, Persona, $q, Procedimiento,PersonasByLoginPlaza,PermisosDelegar, PermisosByLoginPlaza,PermisosDelegarSeleccionado) {
+function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosList,PersonasSearchList,ProcedimientoList,PermisosProcedimientoList,PermisosDirectosProcedimientoList,Jerarquia, Permiso, PersonasByPuesto, PersonasByLogin, PersonasByRegexp, Persona, $q, Procedimiento,PersonasByLoginPlaza,PermisosDelegar, PermisosByLoginPlaza, PermisosDelegarSeleccionado, PermisoToDelete, PermisoProcedimientoToDelete) {
 	$rootScope.nav = 'permisos';
 	$window.document.title ='SICI: Permisos';
 
@@ -410,10 +410,35 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		}
 	};
 	
-	$scope.eliminarPermiso = function() {
-		alert('No implementado');
+	$scope.eliminarPermiso = function(permiso) {
+		if (confirm('Si continúa se eliminará el permiso sobre el nodo ' + $scope.seleccionado.title))
+		{
+			if ($scope.seleccionado_organica) {
+				PermisoToDelete.delete_permiso({'idpermiso':permiso._id,'idjerarquia':$scope.seleccionado.id},function(){
+					$scope.setSeleccionado($scope.seleccionado);
+				});
+			} else {
+				PermisoProcedimientoToDelete.delete_permiso({'idpermiso':permiso._id,'idprocedimiento':$scope.procedimiento_seleccionado.codigo}, function(){
+					$scope.setProcSeleccionado($scope.procedimiento_seleccionado);
+				});
+			}
+		}
 	};
 	
+	$scope.eliminarDefinitivamentePermiso = function(permiso){
+		if (confirm('Si continúa se eliminará el permiso completa y definitivamente'))
+		{
+			console.log(permiso);
+/*			var p = Permiso.get(permiso._id, function(){
+				console.log(p);
+				p.$delete(function(){
+					if ($scope.seleccionado_organica) $scope.setSeleccionado($scope.seleccionado);		
+					else $scope.setProcSeleccionado($scope.procedimiento_seleccionado);
+				});				
+			})*/
+		}
+	}
+
 	$scope.searchUser = function(){
 		alert('No implementado');
 	}
@@ -711,4 +736,4 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
     
 	
 }
-PermisoCtrl.$inject = ['$rootScope','$scope','$location','$window','Arbol','Session','PermisosList','PersonasSearchList','ProcedimientoList','PermisosProcedimientoList','PermisosDirectosProcedimientoList','Jerarquia','Permiso', 'PersonasByPuesto', 'PersonasByLogin', 'PersonasByRegexp','Persona','$q','Procedimiento','PersonasByLoginPlaza','PermisosDelegar','PermisosByLoginPlaza','PermisosDelegarSeleccionado'];
+PermisoCtrl.$inject = ['$rootScope','$scope','$location','$window','Arbol','Session','PermisosList','PersonasSearchList','ProcedimientoList','PermisosProcedimientoList', 'PermisosDirectosProcedimientoList','Jerarquia','Permiso', 'PersonasByPuesto', 'PersonasByLogin', 'PersonasByRegexp','Persona','$q','Procedimiento','PersonasByLoginPlaza','PermisosDelegar','PermisosByLoginPlaza','PermisosDelegarSeleccionado', 'PermisoToDelete', 'PermisoProcedimientoToDelete'];

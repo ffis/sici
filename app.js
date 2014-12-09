@@ -143,9 +143,11 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.get('/api/permisosDirectosProcedimientoList/:codigoprocedimiento', permiso.permisosDirectosProcedimientoList(models, Q));
   app.get('/api/permisosProcedimientoList/:codigoprocedimiento', permiso.permisosProcedimientoList(models, Q));
   //app.get('/api/permisosCalculados', login.permisoscalculados(models)); 
-  app.delete('/api/permisos/delete-jerarquia/:permiso/:jerarquia', permiso.removePermisoJerarquia(models,Q));
-  app.delete('/api/permisos/delete-procedimiento/:permiso/:procedimiento', permiso.removePermisoJerarquia(models,Q));
+  app.get('/api/permisos/delete-jerarquia/:idpermiso/:idjerarquia', permiso.removePermisoJerarquia(models,Q, recalculate));
+  app.get('/api/permisos/delete-procedimiento/:idpermiso/:idprocedimiento', permiso.removePermisoJerarquia(models,Q, recalculate));
   app.put('/api/permisos/:id', permiso.update(models));
+  app.get('/api/permisos/:id', permiso.get(models));
+  app.delete('/api/permisos/:id', permiso.removePermiso(models,Q,recalculate));
   app.post('/api/permisos', permiso.create(models,Q,recalculate));
   app.get('/api/permisoscalculados', login.getpermisoscalculados(models));
   app.get('/api/permisosdelegar/:login/:cod_plaza', permiso.delegarpermisos(models,Q, recalculate));
