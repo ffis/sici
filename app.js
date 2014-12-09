@@ -82,11 +82,11 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
 
   app.get('/api/personasByPuesto/:cod_plaza',persona.personasByPuesto(models));
   app.get('/api/personasByLogin/:login',persona.personasByLogin(models));
-  app.get('/api/PersonasByRegexp/:regex',persona.personasByRegex(models));
+  app.get('/api/PersonasByRegexp/:regex',persona.personasByRegex(models, Q));
   app.get('/api/searchpersonas',persona.personassearchlist(models,Q));
   app.post('/api/persona', persona.newPersona(models));
   app.put('/api/persona/:id', persona.updatePersona(models));
-  app.get('/api/persona/infoByLogin/:login', persona.infoByLogin(models, Q));
+//  app.get('/api/persona/infoByLogin/:login', persona.infoByLogin(models, Q));
   
 
 //  app.get('/api/periodos', procedimiento.setPeriodosCerrados(models));

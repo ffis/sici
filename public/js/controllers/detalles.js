@@ -128,18 +128,17 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
             $scope.procedimientoSeleccionado.ancestros.reverse();//TODO: revisar este parche
         }
 
-        var dW = $q.defer();
+        
         $rootScope.W($scope.procedimientoSeleccionado).then(function (val) {
             $rootScope.superuser().then(function (val2) {
-                dW.resolve(val || val2);
+                $scope.W = val || val2;
             }, function (err) {
-                dW.reject(err);
+                $scope.W = false;
             });
         }, function (err) {
-            dW.reject(err);
+            $scope.W = false;
         });
 
-        $scope.W = dW.promise;//$rootScope.W($scope.procedimientoSeleccionado) || $rootScope.superuser();
         $scope.superuser = $rootScope.superuser();
 
         var cod_plaza = $scope.procedimientoSeleccionado.cod_plaza;
