@@ -1,56 +1,6 @@
 
 
-exports.removePermisoProcedimiento = function(models, Q) {
-	return function(req, res) {
-		if (typeof req.params.idprocedimiento !== 'undefined' && !isNaN(parseInt(req.params.idprocedimiento)) &&
-			typeof req.params.idpermiso !== 'undefined' && !isNaN(parseInt(req.params.idpermiso)))
-		{
-			var Permiso = models.permiso();
-			var content = req.body;
-			var idpermiso = req.params.permiso;
-			var idprocedimiento = req.params.procedimiento;
 
-			Permiso.findOne({'id':idpermiso},function(err,data){
-				var index_r = permiso.procedimientosdirectalectura.indexOf(idprocedimiento);
-				var index_w = permiso.procedimientosdirectaescritura.indexOf(idprocedimiento);
-				var index_rc = permiso.procedimientoslectura.indexOf(idprocedimiento);
-				var index_wc = permiso.jerarquiadirectaescritura.indexOf(idprocedimiento);
-				
-				if (index_r!==-1) 
-					permiso.procedimientosdirectalectura.splice(index_r,1);
-				if (index_w!==-1)
-					permiso.procedimientosdirectaescritura.splice(index_w,1);
-				if (index_rc!==-1)
-					permiso.procedimientoslectura.splice(index_rc,1);
-				if (index_wc!==-1)
-					permiso.jerarquiadirectaescritura.splice(index_wc,1);
-					
-				/////////// CORTOCIRCUITO PARA NO ELIMINAR DATOS EN DESESARROLLO.	
-					
-				return;	
-					
-				if (permiso.procedimientosdirectalectura.length == 0 &&
-						(typeof permiso.jerarquiadirectalectura === 'undefined' 
-						||
-						permiso.jerarquiadirectalectura.length == 0
-				)) 
-				{
-					Permiso.remove({'id':idpermiso},function(err){
-						if (err)  res.send({'error':'An error has occurred'});
-						else res.send(content);
-					});
-				} else {
-					Permiso.update({'id':idpermiso},permiso,{upsert:false}, function(e) {
-						if (err) res.send({'error':'An error has occurred'});
-						else res.send(permiso);
-					});
-				}
-				
-			});
-		}
-		console.error('Invocación inválida para la eliminación de un permiso'); res.status(500); res.end(); return;
-	}
-}
 
 
 function getPermisosByLoginPlaza(req, res, models ,Q ,login, cod_plaza)
@@ -184,7 +134,10 @@ exports.delegarpermisos = function(models,Q, recalculate)
 							defer.reject(err);
 						} else {									
 							recalculate.softCalculatePermiso(Q, models, p).then(function(p){ 
-								defer.resolve(p);
+								p.save(function(error){
+									if (error) { console.error("Imposible salvar nuevo permiso"); console.error(err); res.status(500); res.end(); defer.reject(p); }
+									else defer.resolve(p);
+								});								
 							},function(err){
 								defer.reject(err);
 							});							
@@ -193,9 +146,6 @@ exports.delegarpermisos = function(models,Q, recalculate)
 				}
 				Q.all(promesas_permisos).then(function(permisos){
 					//console.log(permisos);
-					
-						
-
 					res.json(permisos);
 				}, function(err){
 					console.error("Problemas modificando permisos...");
@@ -224,17 +174,92 @@ exports.permisosByLoginPlaza = function(models,Q) {
 	}
 };
 
-exports.removePermisoJerarquia = function(models, Q) {
+exports.removePermisoProcedimiento = function(models, Q, recalculate) {
 	return function(req, res) {
-		if (typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia)) &&
-			typeof req.params.idpermiso !== 'undefined' && !isNaN(parseInt(req.params.idpermiso)))
+		if (typeof req.params.idprocedimiento !== 'undefined' && !isNaN(parseInt(req.params.idprocedimiento)) &&
+			typeof req.params.idpermiso !== 'undefined' )
 		{
 			var Permiso = models.permiso();
 			var content = req.body;
-			var idpermiso = req.params.permiso;
-			var idjerarquia = req.params.jerarquia;
+			var idpermiso = req.params.idpermiso;
+			var idprocedimiento = req.params.idprocedimiento;
 
-			Permiso.findOne({'id':idpermiso},function(err,data){
+			Permiso.findById(idpermiso,function(err,permiso){
+				console.log(permiso);
+				if (err) {
+					console.error("Eliminando permiso sobre procedimiento"); console.error(err); res.status(500); res.end(); return;
+				}
+				if (permiso==null){
+					console.error("Eliminando permiso sobre procedimiento"); console.error('No se encuentra el permiso '+idpermiso); res.status(500); res.end(); return;
+				}
+				
+				var index_r = permiso.procedimientosdirectalectura.indexOf(idprocedimiento);
+				var index_w = permiso.procedimientosdirectaescritura.indexOf(idprocedimiento);
+				var index_rc = permiso.procedimientoslectura.indexOf(idprocedimiento);
+				var index_wc = permiso.jerarquiadirectaescritura.indexOf(idprocedimiento);
+				
+				if (index_r!==-1) 
+					permiso.procedimientosdirectalectura.splice(index_r,1);
+				if (index_w!==-1)
+					permiso.procedimientosdirectaescritura.splice(index_w,1);
+					
+
+				recalculate.softCalculatePermiso(Q, models, permiso).then(function(permiso){
+				
+					if (permiso.procedimientosdirectalectura.length == 0 &&
+							(typeof permiso.jerarquiadirectalectura === 'undefined' 
+							||
+							permiso.jerarquiadirectalectura.length == 0
+					)) 
+					{
+						Permiso.remove({'_id':idpermiso},function(err){
+							if (err)  {console.error("Eliminando permiso sobre procedimiento"); console.error(err); res.status(500); res.end(); return;}
+							else res.json({});
+						});
+					} else {
+						Permiso.update({'_id':idpermiso},permiso,{upsert:false}, function(err) {
+							if (err) {console.error("Eliminando permiso sobre procedimiento"); console.error(err); res.status(500); res.end(); return;}
+							else res.json(permiso);
+						});
+					}
+				},function(err){
+					console.error(err); res.status(500); res.end(); return;
+				});
+			});
+		} else {
+			console.error('Invocación inválida para la eliminación de un permiso'); res.status(500); res.end(); return;
+		}
+	}
+}
+
+exports.removePermisoJerarquia = function(models, Q, recalculate) {
+	return function(req, res) {
+	
+		console.log("Eliminando jerarquia de permiso. Idjerarquia y permiso:");
+		console.log(req.params.idjerarquia);
+		console.log(req.params.idpermiso);
+		if (typeof req.params.idjerarquia !== 'undefined' && 
+			!isNaN(parseInt(req.params.idjerarquia)) &&
+			typeof req.params.idpermiso !== 'undefined' )
+		{
+			var Permiso = models.permiso();
+			var content = req.body;
+			var idpermiso = req.params.idpermiso;
+			var idjerarquia = parseInt(req.params.idjerarquia);
+			
+			
+		
+			Permiso.findById(idpermiso,function(err,permiso){
+	
+			
+				if (err) {
+					console.error(err); res.status(500); res.end(); return;
+				}
+				if (permiso==null) {
+					console.error("Eliminando permiso sobre jerarquia"); console.error('No se encuentra el permiso '+idpermiso); res.status(500); res.end(); return;
+				}
+				console.log(permiso._id + " findById ");
+				
 				var index_r = permiso.jerarquiadirectalectura.indexOf(idjerarquia);
 				var index_w = permiso.jerarquiadirectaescritura.indexOf(idjerarquia);
 				var index_rc = permiso.jerarquialectura.indexOf(idjerarquia);
@@ -244,35 +269,38 @@ exports.removePermisoJerarquia = function(models, Q) {
 					permiso.jerarquiadirectalectura.splice(index_r,1);
 				if (index_w!==-1)
 					permiso.jerarquiadirectaescritura.splice(index_w,1);
-				if (index_rc!==-1)
-					permiso.jerarquialectura.splice(index_rc,1);
-				if (index_wc!==-1)
-					permiso.jerarquialectura.splice(index_wc,1);
+
+				recalculate.softCalculatePermiso(Q, models, permiso).then(function(permiso){
+					console.log(permiso._id + " tras soft ");
 					
-				/////////// CORTOCIRCUITO PARA NO ELIMINAR DATOS EN DESESARROLLO.	
-					
-				return;	
-					
-				if (permiso.jerarquiadirectalectura.length == 0 &&
-						(typeof permiso.procedimientosdirectalectura === 'undefined' 
-						||
-						permiso.procedimientosdirectalectura.length == 0
-				)) 
-				{
-					Permiso.remove({'id':idpermiso},function(err){
-						if (err)  res.send({'error':'An error has occurred'});
-						else res.send(content);
-					});
-				} else {
-					Permiso.update({'id':idpermiso},permiso,{upsert:false}, function(e) {
-						if (err) res.send({'error':'An error has occurred'});
-						else res.send(permiso);
-					});
-				}
+					if (permiso.jerarquiadirectalectura.length == 0 &&
+							(typeof permiso.procedimientosdirectalectura === 'undefined' 
+							||
+							permiso.procedimientosdirectalectura.length == 0
+					)) 
+					{
+						console.log(permiso._id + " eliminando ");
+						Permiso.remove({'_id':idpermiso},function(err){
+							if (err)  {console.error("Eliminando permiso sobre jerarquia"); console.error(err); res.status(500); res.end(); return;}
+							else res.json({});
+							
+						});
+					} else {
+						console.log(permiso._id + " actualizando");						
+						permiso.save(function(e) {
+							console.log(permiso._id + " actualizado "+e);
+							if (e){console.error("Eliminando permiso sobre jerarquia"); console.error(e); res.status(500); res.end(); return;}
+							else res.json(permiso); 
+						});
+					}
+				},function(err){
+					console.error(err); res.status(500); res.end(); return;
+				});
 				
 			});
+		} else {
+			console.error('Invocación inválida para la eliminación de un permiso'); res.status(500); res.end(); return;
 		}
-		console.error('Invocación inválida para la eliminación de un permiso'); res.status(500); res.end(); return;
 	}
 }
 
@@ -318,7 +346,7 @@ exports.permisosList = function(models, Q){
 					
 					if (!Array.isArray(jerarquias_buscadas))
 						jerarquias_buscadas = [];											
-					jerarquias_buscadas.push(jerarquia.id);
+					jerarquias_buscadas.push(idj);
 
 					var Procedimiento = models.procedimiento();					
 					var dprocedimiento = Q.defer();
@@ -352,9 +380,11 @@ exports.permisosList = function(models, Q){
 							'procedimientos':procedimientos
 						};
 						
+						//console.log(JSON.stringify(restriccion));
 						Permiso.find(restriccion, function(err, permisos){
 							if (err) { dpermisos.reject(err); }
-							else {							
+							else {
+								//for(var i=0;i<permisos.length;i++) console.log(permisos[i].login+" "+permisos[i].codplaza);
 								respuesta.permisos = permisos;
 								respuesta.totallength = procedimientos.length + permisos.length;								
 								dpermisos.resolve(respuesta);				
@@ -523,9 +553,14 @@ exports.create = function(models, Q, recalculate){
 				console.error(err); res.status(500); res.end(); return;
 			} else {
 					console.log('Ok');
-					recalculate.softCalculatePermiso(Q, models, permiso).then(
+					recalculate.softCalculatePermiso(Q, models, permiso).then(						
 						function(permiso){
-							res.json(permiso);
+							console.log("Ok (in)"); console.log(permiso);
+							opermiso = new Permiso(permiso);
+							opermiso.save(function(err){
+								if (err) { console.error(err); res.status(500); res.end(); return; }
+								else { console.log("Escribiendo salida"); res.json(permiso); }
+							});
 						},
 						function(err){
 							console.error(err); res.status(500); res.end(); return;
@@ -539,6 +574,39 @@ exports.create = function(models, Q, recalculate){
 	});	
 	}
 }
+
+exports.get = function(models){
+	return function(req, res) {
+		var id = req.params.id;
+		var Permiso = models.permiso();
+		Permiso.findById(id, function(err, permiso){
+			if (err) {console.error("Eliminando permiso sobre procedimiento"); console.error(err); res.status(500); res.end(); return;}
+			else {
+				if (Array.isArray(permiso))
+					res.json(permiso[0]);
+				else res.json(permiso);
+			}
+		});
+	};
+};
+
+
+exports.removePermiso = function(models, Q, recalculate, ObjectId)
+{
+	return function(req, res)
+	{
+		var Permiso = models.permiso();
+		console.log('Eliminando....');
+		var id = new ObjectId(req.params.id);	
+		Permiso.remove({"_id":id}, function(err){
+			if (err)  {console.error("Eliminando permiso sobre permiso..."); console.error(err); res.status(500); res.end(); return;}
+			else { console.log('Eliminado permiso '+id); res.end(); }
+		});
+	};
+};
+
+
+
 /*
 exports.create = function(models) {
 	return function(req,res) {				

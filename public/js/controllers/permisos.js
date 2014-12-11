@@ -414,6 +414,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		if (confirm('Si continúa se eliminará el permiso sobre el nodo ' + $scope.seleccionado.title))
 		{
 			if ($scope.seleccionado_organica) {
+				console.log('Eliminando permiso');
 				PermisoToDelete.delete_permiso({'idpermiso':permiso._id,'idjerarquia':$scope.seleccionado.id},function(){
 					$scope.setSeleccionado($scope.seleccionado);
 				});
@@ -429,13 +430,15 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		if (confirm('Si continúa se eliminará el permiso completa y definitivamente'))
 		{
 			console.log(permiso);
-/*			var p = Permiso.get(permiso._id, function(){
+			var p = Permiso.get({id:permiso._id}, function(){
 				console.log(p);
-				p.$delete(function(){
+				p.$delete({id:p._id},function(err){
+					console.log(err);
+					console.log('Volviendo de la eliminación');
 					if ($scope.seleccionado_organica) $scope.setSeleccionado($scope.seleccionado);		
 					else $scope.setProcSeleccionado($scope.procedimiento_seleccionado);
 				});				
-			})*/
+			})
 		}
 	}
 
@@ -572,13 +575,18 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 			$scope.seleccionado = seleccionad;
 			$scope.seleccionado_organica = true;
 			$rootScope.setTitle(seleccionad.title); 
+			
 			//$scope.procedimientos = ProcedimientoList.query({idjerarquia:seleccionad.id}); 
 			console.log("recursivo: "+$scope.is_show_recursive_users+" ; heredado: "+$scope.is_show_inherited_users);
-			$scope.permisostotales = PermisosList.query({"idjerarquia":seleccionad.id, 'recursivo':($scope.is_show_recursive_users?1:($scope.is_show_inherited_users?2:0))}, function() {
+			var filtropermisos = {"idjerarquia":seleccionad.id, 'recursivo':($scope.is_show_recursive_users?1:($scope.is_show_inherited_users?2:0))};
+			console.log(JSON.stringify(filtropermisos));
+			$scope.permisostotales = PermisosList.query(filtropermisos, function() {
 				$scope.permisos = $scope.permisostotales.permisos;
 				$scope.procedimientos = $scope.permisostotales.procedimientos;
 			});		
-			$scope.nodo_jerarquia = Jerarquia.query({"idjerarquia":$scope.seleccionado.id});
+			var filtroRequest = {"idjerarquia":$scope.seleccionado.id};			
+			console.log(JSON.stringify(filtroRequest));
+			$scope.nodo_jerarquia = Jerarquia.query(filtroRequest);
 			// si no están cargados los procedimientos del nodo actual, los cargamos
 			if (!$scope.seleccionado.procedimientos) for(var i=0;i<$scope.arbol.length;i++) {
 				$scope.loadProcedimientos($scope.seleccionado, $scope.arbol[i]);

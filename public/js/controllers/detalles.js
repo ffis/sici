@@ -421,7 +421,7 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
 		}
     }
     $scope.checkNumber = function (data, anualidad, attr, index) {
-		if (procedimientoSeleccionado.periodos[anualidad][attr][index]!=data)
+		if ($scope.procedimientoSeleccionado.periodos[anualidad][attr][index]!=data)
 			$scope.cellChanged = true;
 		else
 			$scope.cellChanged = false;

@@ -35,6 +35,8 @@ app.set('mongosrv', process.env.MONGOSVR || 'mongodb://mongosvr/sici');
 //Inicialización mongoose
 mongoose.connect(app.get('mongosrv'));
 models.init(mongoose);
+var ObjectId = mongoose.Types.ObjectId;
+
 
 var Settings = models.settings();
 Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
@@ -132,7 +134,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.put('/api/etiqueta/:id', etiqueta.updateEtiqueta(models));
   app.post('/api/etiqueta/:id', etiqueta.newEtiqueta(models));
   app.delete('/api/etiqueta/:id', etiqueta.removeEtiqueta(models));
-  
+   
   app.get('/api/fprocedimiento', recalculate.fprocedimiento( Q, models, procedimiento));
   app.get('/api/fjerarquia', recalculate.fjerarquia( Q, models));
   app.get('/api/fpermiso', recalculate.fpermiso( Q, models));
@@ -147,7 +149,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function(err,cfgs){
   app.get('/api/permisos/delete-procedimiento/:idpermiso/:idprocedimiento', permiso.removePermisoJerarquia(models,Q, recalculate));
   app.put('/api/permisos/:id', permiso.update(models));
   app.get('/api/permisos/:id', permiso.get(models));
-  app.delete('/api/permisos/:id', permiso.removePermiso(models,Q,recalculate));
+  app.delete('/api/permisos/:id', permiso.removePermiso(models,Q,recalculate,ObjectId));
   app.post('/api/permisos', permiso.create(models,Q,recalculate));
   app.get('/api/permisoscalculados', login.getpermisoscalculados(models));
   app.get('/api/permisosdelegar/:login/:cod_plaza', permiso.delegarpermisos(models,Q, recalculate));

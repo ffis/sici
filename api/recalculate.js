@@ -49,11 +49,31 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 	});
 	/**** FIN PARCHE ***/
 	
+	// comprobamos que cualquier permiso sobre procedimiento permite leer la jerarquia a que pertenece.
+	var dprocs = [];	
+	var superarray = (Array.isArray(permiso.procedimientosdirectalectura)?permiso.procedimientosdirectalectura:[]);
+	superarray = superarray.concat(Array.isArray(permiso.procedimientosdirectaescritura)?permiso.procedimientosdirectaescritura:[]);
+	var restriccion_proc = null;
+	if (superarray.length>0)
+		restriccion_proc = {
+		'$or': [
+			{ 'codigo' : { '$in' : superarray } }
+			]
+		};	
+		
 	// si el permiso es otorgado a un codigo de plaza...
-	if (permiso.codplaza && permiso.codplaza!='')
+	if (permiso.codplaza && permiso.codplaza != '') {
+		if (restriccion_proc != null)
+			restriccion_proc['$or'].push({cod_plaza: permiso.codplaza});
+		else 
+			restriccion_proc = {cod_plaza: permiso.codplaza};
+	}
+	
+	
+	if (restriccion_proc != null)
 	{
 		//buscamos los procedimientos cuyo responsable sea el del permiso
-		Procedimiento.find({cod_plaza: permiso.codplaza}, function(err,procedimientos){
+		Procedimiento.find(restriccion_proc).select('idjerarquia cod_plaza codigo').exec(function(err,procedimientos){
 			if (err){ console.error(err);console.error(32); deferredProcedimiento.reject( err ); return; }
 			// para cada procedimiento cuyo responsable sea el del permiso dado, comprobamos que el permiso especifica tal relación, es decir, que 
 			// existe permisos explícito, y de no ser así se incluye. Esto significa establecer como permiso calculado de lecutra y escritura.
@@ -62,12 +82,14 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 			procedimientos.forEach(function(procedimiento){
 				if (permiso.jerarquialectura.indexOf(procedimiento.idjerarquia) < 0)
 					permiso.jerarquialectura.push(procedimiento.idjerarquia);
-
-				permiso.procedimientoslectura.push(procedimiento.codigo);
-				permiso.procedimientosescritura.push(procedimiento.codigo);
+				
+				if (procedimiento.cod_plaza==permiso.codplaza) {
+					if (permiso.procedimientoslectura.indexOf(procedimiento.codigo)===-1) permiso.procedimientoslectura.push(procedimiento.codigo);
+					if (permiso.procedimientosescritura.indexOf(procedimiento.codigo)===-1) permiso.procedimientosescritura.push(procedimiento.codigo);
+				}
 			});
 			deferredProcedimiento.resolve();
-		})
+		});
 	}else{
 		deferredProcedimiento.resolve();
 	}
@@ -147,8 +169,6 @@ exports.softCalculatePermiso = function(Q, models, permiso){
 
 
 			Q.all(defs2).then(function(){
-
-
 				deferred.resolve( permiso );
 			},function(err){
 				console.error(110);
@@ -371,10 +391,14 @@ exports.fullSyncpermiso = function(Q, models){
 		if (err){ deferred.reject(err); return; }
 
 		var defs = [];
+		var pindex = 0;
+		var plength = permisos.length;
 		permisos.forEach(function(permiso,i){
-			var promise = Q.defer();
+			var promise = Q.defer();			
 			var f = function(promise,permiso) {
 				exports.softCalculatePermiso(Q, models, permiso).then(function(permiso){
+					pindex++;					
+					console.log('softcalculate permiso concluido '+permiso._id+" ; "+permiso.login+";"+permiso.codplaza+" ("+pindex+" de "+plength+")");
 					permiso.save(function(error){
 						if (error){
 							console.error(error);
@@ -395,6 +419,7 @@ exports.fullSyncpermiso = function(Q, models){
 		});
 
 		Q.all(defs).then(function(){
+			console.log('Terminado... saliendo');
 			deferred.resolve(informes);
 		},function(err){
 			deferred.reject(err);
@@ -520,8 +545,11 @@ exports.fullSyncjerarquia = function( Q, models){
 
 exports.fprocedimiento = function(Q,models, fnprocedimiento){
 	return function(req,res){
+	
+	
 		if (req.user.permisoscalculados.superuser){
 			exports.fullSyncprocedimiento( Q, models , fnprocedimiento).then(function(o){
+				
 				res.json(o);
 			}, function(e){
 				console.error(e);
@@ -535,6 +563,7 @@ exports.fprocedimiento = function(Q,models, fnprocedimiento){
 
 exports.fjerarquia = function(Q,models){
 	return function(req,res){
+	
 		if (req.user.permisoscalculados.superuser){
 			exports.fullSyncjerarquia( Q, models).then(function(o){
 				res.json(o);
@@ -550,9 +579,12 @@ exports.fjerarquia = function(Q,models){
 
 exports.fpermiso = function(Q,models){
 	return function(req,res){
+	
+	
 		if (req.user.permisoscalculados.superuser){
 			exports.fullSyncpermiso( Q, models).then(function(o){
-				res.json(o);
+				console.log('Terminado... escribiendo informe');
+				res.json({});
 			}, function(e){
 				console.error(e);
 				res.send(500, JSON.stringify(e));
