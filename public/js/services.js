@@ -61,11 +61,15 @@ angular.module('sici.services', ['ngResource'])
             }])
         .factory('PermisoToDelete', ['$resource',
             function ($resource) {
-                return $resource('/api/permisos/delete-jerarquia/:idpermiso/:idjerarquia', {idpermiso: '@idpermiso', idjerarquia: '@idjerarquia'}, {delete_permiso: {method: 'DELETE'}});
+                return $resource('/api/permisos/delete-jerarquia/:idpermiso/:idjerarquia', {}, {delete_permiso: {method: 'GET'}});
             }])
+        .factory('PermisoProcedimientoToDelete', ['$resource',
+            function ($resource) {
+                return $resource('/api/permisos/delete-procedimiento/:idpermiso/:idprocedimiento', {}, {delete_permiso: {method: 'GET'}});
+            }])        
         .factory('Permiso', ['$resource',
             function ($resource) {
-                return $resource('/api/permisos/:id', {id: '@id'}, {update: {method: 'PUT'}, create: {method: 'POST'}});
+                return $resource('/api/permisos/:id', {id: '@id'}, {get:{method:'GET',isArray:false}, update: {method: 'PUT'}, create: {method: 'POST'}, 'delete': {method:'DELETE'}});
             }])
         .factory('PermisosCalculados', ['$resource',
             function ($resource) {
