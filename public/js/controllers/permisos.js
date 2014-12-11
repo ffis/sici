@@ -741,6 +741,18 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		else return "";
 	}	
 	
+	$scope.getPersona = function(permiso){
+		var busqueda = "";
+		if (permiso.login!=null && permiso.login!='' && typeof permiso.login !== 'undefined')
+			busqueda = permiso.login;
+		else if (permiso.codplaza!=null && permiso.codplaza!='' && typeof permiso.codplaza !== 'undefined')
+			busqueda = permiso.codplaza;
+		else return '';
+
+		var p = PersonasByRegexp.query({"regex":busqueda});
+		return p[0];
+
+	}
     
 	
 }

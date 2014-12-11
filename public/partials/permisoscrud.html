@@ -357,8 +357,9 @@
 						<span class="hidden-sm hidden-xs">Codigo plaza</span>
 						<span class="hidden-lg hidden-md">Plaza</span>
 					</th>
+					<th><span class="hidden-sm hidden-xs hidden-md">Nombre</span></th>
 					<th ng-if="is_show_recursive_users || is_show_inherited_users || procedimientos.length">
-						Procedimiento <!-- Objeto -->
+						Procedimiento / Org&aacute;nica
 					</th>
 					<th>
 						<span class="visible-lg visible-md hidden-sm hidden-xs">Responsable</span>
@@ -390,6 +391,7 @@
 				<tr ng-repeat="permiso in permisos" ng-if="permisos.length" ng-init="objetopermiso=getObjetoPermiso(permiso)">
 					<td>{{permiso.login}}</td>
 					<td>{{permiso.codplaza}}</td>
+					<td ><span class="hidden-sm hidden-xs hidden-md" ng-init="persona=getPersona(permiso)">{{persona[0].nombre}} {{ persona[0].apellidos}}</span></td>
 					<td ng-if="is_show_recursive_users || is_show_inherited_users || procedimientos.length">
 						<ul ng-if="objetopermiso && objetopermiso.length">
 							<li ng-repeat="obj in objetopermiso">{{obj.nombre}}</li>
