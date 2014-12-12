@@ -1,6 +1,8 @@
 var csvparse = require('csv-parse');
 var fs = require('fs');
 
+
+
 exports.parse = function(models){
 	return function(req,res,next){
 
@@ -23,7 +25,8 @@ exports.parse = function(models){
 				row[4]=='C05_FECHA_CARGA'&& row[5]=='C06_USUARIO';
 		}
 		function esIndicadorValido(indicador){
-			var idx = [5,6,7,8,9,10,11,12,13,14,15,16,17,19,23,24].indexOf(indicador);
+			var idx = [7,8,9,10,11,12,13,14,15,16,17,18,19,21,24,25].indexOf(indicador);
+			//var idx = [5,6,7,8,9,10,11,12,13,14,15,16,17,19,23,24].indexOf(indicador);
 			if (idx<0){
 				 errores.push(getStatus()+'No se ha especificado un indicador válido.');
 			}
@@ -83,9 +86,33 @@ exports.parse = function(models){
 
 		parser.on('finish', function(){
 
-			var equivalencias = ['','','','','','solicitados','iniciados','resueltos_1','resueltos_5','resueltos_10','resueltos_15','resueltos_30',
-			'resueltos_45','resueltos_mas_45','resueltos_desistimiento_renuncia_caducidad', 'resueltos_prescripcion', 't_medio_naturales',
-			't_medio_habiles','', 'en_plazo','','','', 'quejas','recursos']
+			var equivalencias = [
+			'', //0 
+			'', //1 RESUELTOS MISMO AÑO - CALCULADO??
+			'', //2 PLAZO MÁXIMO LEGAL PARA RESOLVER (naturales)
+			'', //3 PLAZO MAXIMO LEGAR PARA RESOLVER (habiles)
+			'', //4 CARTA SERVICIO / ANS (naturales)
+			'', //5 CARTA SERVICIO / ANS (habiles)
+			'', //6 PENDIENTES MES ANTERIOR - CALCULADO
+			'solicitados', //7					
+			'iniciados', //8
+			'resueltos_1', //9
+			'resueltos_5', //10
+			'resueltos_10', //11
+			'resueltos_15', //12
+			'resueltos_30', //13
+			'resueltos_45', //14
+			'resueltos_mas_45', //15
+			'resueltos_desistimiento_renuncia_caducidad',  //16
+			'resueltos_prescripcion', //17
+			't_medio_naturales', //18
+			't_medio_habiles', //19
+			'',  //20 RESUELTOS  - CALCULADO
+			'en_plazo', //21
+			'', //22 FUERZA DE PLAZO - CALCULADO
+			'', //23 PENDIENTES - CALCULADO
+			'quejas', //24
+			'recursos' ];  //25
 			var output = [];
 			if (inputs.length>0){
 				for(var i=0,j=inputs.length;i<j;i++){
