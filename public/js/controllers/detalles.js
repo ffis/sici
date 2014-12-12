@@ -413,13 +413,20 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
         };
     };
 
-    $scope.recalculate = function () {
-        $scope.procedimientoSeleccionado.$update(function (response) {
-            console.error(response);
-        });
+
+    $scope.recalculate = function (force) {
+		if (force || $scope.cellChanged) {
+			$scope.procedimientoSeleccionado.$update(function (response) {
+				console.error(response);
+			});
+		}
     };
     
-    $scope.checkNumber = function (data) {
+    $scope.checkNumber = function (data, anualidad, attr, index) {
+		if ($scope.procedimientoSeleccionado.periodos[anualidad][attr][index]!==data)
+			$scope.cellChanged = true;
+		else
+			$scope.cellChanged = false;
         var valor = parseInt(data);
         if (isNaN(valor) || !/^\d+$/.test(data)) {
             return "Esto no es un número";

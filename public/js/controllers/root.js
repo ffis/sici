@@ -1,70 +1,67 @@
 'use strict';
 
-function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados, AuthService) {
+function AppCtrl($window,$q, $scope, $rootScope, Session, $location, PermisosCalculados, AuthService) {
+	$rootScope.setTitle   = function (title){ $scope.name = title; };
+	$rootScope.setLogeado = function(t){
+		$rootScope.logeado = t;
+		if (t) {
+			$rootScope.permisoscalculados = PermisosCalculados.query({});
+		}
+	};
+	$rootScope.session = Session;
+	$rootScope.nav = '';
+	$rootScope.logeado = false;
+	$rootScope.meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+	var IEChecker = /MSIE [6789]+/i;	
+	var browser = $window.navigator.userAgent;
+	$rootScope.navegabilidad  = [
+		{ id:'inicio', caption:'Inicio' },
+		{ id:'actividad', caption:'Actividad' },
+		{ id:'stats', caption:'Estadísticas' },
+		{ id:'errors', caption:'Incoherencias' },
+		{ id:'inconsistencias', caption:'Inconsistencias' },
+		{ id:(IEChecker.test(browser)?'updateIE':'update'), caption:'Actualizar mediante fichero' },
+		{ id:'logout', caption:'Salir' },
+	];
+	$rootScope.navegabilidadSuper = [
+		{ id:'recalculate', caption:'Recalcular datos' },
+		{ id:'permisos', caption:'Gestionar permisos' },
+		{ id:'etiqueta', caption: 'Gestionar etiquetas'},
+		{ id:'periodos', caption: 'Gestionar períodos'},
+		{ id:'crearprocedimiento', caption: 'Crear procedimiento'},
+		{ id:'loginas', caption: 'Cambiar de usuario'},
+	];
+	
+	if ($rootScope.logeado) {
+		$rootScope.permisoscalculados = permisoscalculados.query({});
+	}
+	$rootScope.loginCarm = AuthService.carmlogin;
 
-    $rootScope.setTitle = function (title) {
-        $scope.name = title;
-    };
-    $rootScope.setLogeado = function (t) {
-        $rootScope.logeado = t;
-        if (t) {
-            $rootScope.permisoscalculados = PermisosCalculados.query({});
-        }
-    };
-    $rootScope.session = Session;
-    $rootScope.nav = '';
-    $rootScope.logeado = false;
-    $rootScope.meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-    $rootScope.navegabilidad = [
-        {id: 'inicio', caption: 'Inicio'},
-        {id: 'actividad', caption: 'Actividad'},
-        {id: 'stats', caption: 'Estadísticas'},
-        {id: 'errors', caption: 'Incoherencias'},
-        {id: 'inconsistencias', caption: 'Inconsistencias'},
-        {id: 'update', caption: 'Actualizar mediante fichero'},
-        {id: 'logout', caption: 'Salir'},
-    ];
-    $rootScope.navegabilidadSuper = [
-        {id: 'recalculate', caption: 'Recalcular datos'},
-        {id: 'permisos', caption: 'Gestionar permisos'},
-        {id: 'etiqueta', caption: 'Gestionar etiquetas'},
-        {id: 'periodos', caption: 'Gestionar períodos'},
-        {id: 'crearprocedimiento', caption: 'Crear procedimiento'},
-        {id: 'loginas', caption: 'Cambiar de usuario'},
-    ];
+	$rootScope.irProcedimiento = function(){
+		var id = parseInt($rootScope.procedimiento);
+		if (id>0){
+			$location.path('/procedimiento/'+id);
+		}
+	}
 
-    if ($rootScope.logeado) {
-        $rootScope.permisoscalculados = permisoscalculados.query({});
-    }
-    $rootScope.loginCarm = AuthService.carmlogin;
+	$rootScope.colorText = function(i, numcolors, phase)
+	{
+	    if (phase == undefined) phase = 0;
+	    var center = 128, width = 127, frequency = Math.PI*2/numcolors;
+	    
+	    return {
+	        red   : Math.ceil(Math.sin(frequency*i+2+phase) * width + center),
+	        green : Math.ceil(Math.sin(frequency*i+0+phase) * width + center),
+	        blue  : Math.ceil(Math.sin(frequency*i+4+phase) * width + center)
+	    };
+	};
+	$rootScope.colorToHex = function(color){  var rgb = color.blue | (color.green << 8) | (color.red << 16); 
+	var s = rgb.toString(16);
+	return '#' + "000000".substring(0,6-s.length) + s; }
 
-    $rootScope.irProcedimiento = function () {
-        var id = parseInt($rootScope.procedimiento);
-        if (id > 0) {
-            $location.path('/procedimiento/' + id);
-        }
-    }
+	$rootScope.exportXLS = function(idx, nombre){
+	    var blob = new Blob(['<meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8"><table width="100%">'+document.getElementById(idx).innerHTML+'</table>'], {
 
-    $rootScope.colorText = function (i, numcolors, phase)
-    {
-        if (phase == undefined)
-            phase = 0;
-        var center = 128, width = 127, frequency = Math.PI * 2 / numcolors;
-
-        return {
-            red: Math.ceil(Math.sin(frequency * i + 2 + phase) * width + center),
-            green: Math.ceil(Math.sin(frequency * i + 0 + phase) * width + center),
-            blue: Math.ceil(Math.sin(frequency * i + 4 + phase) * width + center)
-        };
-    };
-    $rootScope.colorToHex = function (color) {
-        var rgb = color.blue | (color.green << 8) | (color.red << 16);
-        var s = rgb.toString(16);
-        return '#' + "000000".substring(0, 6 - s.length) + s;
-    }
-
-    $rootScope.exportXLS = function (idx, nombre) {
-        var blob = new Blob(['<meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8"><table width="100%">' + document.getElementById(idx).innerHTML + '</table>'], {
             type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"
         });
         saveAs(blob, nombre + ".xls");
@@ -174,4 +171,4 @@ function AppCtrl($q, $scope, $rootScope, Session, $location, PermisosCalculados,
 
 }
 
-AppCtrl.$inject = ['$q', '$scope', '$rootScope', 'Session', '$location', 'PermisosCalculados', 'AuthService'];
+AppCtrl.$inject = ['$window','$q','$scope','$rootScope','Session', '$location','PermisosCalculados','AuthService'];

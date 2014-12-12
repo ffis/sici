@@ -193,15 +193,18 @@
 					<td><a ng-click="changeP(permiso)" href="" ><span class="glyphicon" ng-class="{'glyphicon-ok green':isP(permiso),'glyphicon-remove burdeos':!isP(permiso)}"></span></a></td>					
 					<td>
 						<div class="btn-group pull-right">
-							<div class="btn btn-xs btn-default" title="Eliminar permiso">
-								<span class="glyphicon glyphicon glyphicon-remove" title="Eliminar del todo el permiso" ng-click="eliminarPermiso(permiso)"></span>
-							</div>	
-						</div>
-						<!--<div class="btn-group pull-right">
-							<div class="btn btn-xs btn-default" title="Editar permiso">
-								<span class="glyphicon glyphicon-edit" title="Editar el permiso"></span>
-							</div>	
-						<div>-->						
+						  <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+						    <span class="glyphicon glyphicon glyphicon-remove"></span>&nbsp;<span class="caret"></span>
+						  </button>
+						  <ul class="dropdown-menu" role="menu">
+						    <li><a href="" ng-click="eliminarPermiso(permiso)">Eliminar permiso sobre el nodo.</a></li>
+						    <li><a href="" ng-click="eliminarDefinitivamentePermiso(permiso)">Eliminar permiso completo.</a></li>
+						  </ul>
+						</div>			
+					  <button type="button" class="btn btn-xs btn-default dropdown-toggle" ng-click="eliminarPermiso(permiso)" ng-if="!$root.permisoscalculados.superuser">
+					    <span class="glyphicon glyphicon glyphicon-remove"></span>
+					  </button>
+
 					</td>
 				</tr>
 				<tr ng-repeat="procedimiento in procedimientos" class="responsable">
@@ -218,11 +221,18 @@
 					<td><span class="glyphicon glyphicon-ok gray"></span></td>					
 					<td><span class="glyphicon glyphicon-ok gray"></span></td>					
 					<td>
-						<div class="btn-group pull-right">
-							<div class="danger btn btn-xs btn-default" title="Eliminar permiso">
-								<span class="glyphicon glyphicon glyphicon-remove" title="Eliminar el permiso sobre el elemento de la estructura orgánica seleccionada" ng-click="eliminarResponable(procedimiento,r)"></span>
-							</div>	
-						<div>
+						<div class="btn-group pull-right" ng-if="$root.permisoscalculados.superuser">
+						  <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+						    <span class="glyphicon glyphicon glyphicon-remove"></span>&nbsp;<span class="caret"></span>
+						  </button>
+						  <ul class="dropdown-menu" role="menu">
+						    <li><a href="" ng-click="eliminarPermiso(permiso)">Eliminar permiso sobre el nodo.</a></li>
+						    <li><a href="" ng-click="eliminarDefinitivamentePermiso(permiso)">Eliminar permiso completo.</a></li>
+						  </ul>
+						</div>					
+						  <button type="button" class="btn btn-xs btn-default dropdown-toggle" ng-click="eliminarPermiso(permiso)" ng-if="!$root.permisoscalculados.superuser">
+						    <span class="glyphicon glyphicon glyphicon-remove"></span>
+						  </button>
 					</td>				
 				</tr>				
 			</tbody>			
@@ -236,7 +246,7 @@
 			<!--<caption>Permisos</caption>-->
 			<thead>
 				<tr>
-					<th colspan="{{ !is_show_recursive_users && !procedimientos.length ? 7 : 8 }}">
+					<th colspan="{{ !is_show_recursive_users && !procedimientos.length ? 8 : 9 }}">
 						<div class="btn-group pull-right">
 							<!--<button ng-class="{}" class="btn btn-default" ng-click="searchUser()" title="Buscar los permisos de un usuario o plaza">
 								<span class="glyphicon glyphicon-search"></span>
@@ -258,7 +268,7 @@
 				</tr>				
 				<tr ng-if="show_form_add_permiso">
 					
-					<td colspan="{{ !is_show_recursive_users && !procedimientos.length? 7 : 8 }}" class="form-container">						
+					<td colspan="{{ !is_show_recursive_users && !procedimientos.length? 8 : 9 }}" class="form-container">						
 						<form name="nuevousuario-form" id="nuevousuario-form" ng-init="usuarioseleccionado=''">
 								<input  class="form-control" ng-model="usuarioseleccionado" placeholder="Buscar por plaza, login carm o nombre"  type="text" typeahead-min-lengt="3" typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)"  /> 							
 							<!--<br/>
@@ -347,8 +357,9 @@
 						<span class="hidden-sm hidden-xs">Codigo plaza</span>
 						<span class="hidden-lg hidden-md">Plaza</span>
 					</th>
+					<th><span class="hidden-sm hidden-xs hidden-md">Nombre</span></th>
 					<th ng-if="is_show_recursive_users || is_show_inherited_users || procedimientos.length">
-						Procedimiento <!-- Objeto -->
+						Procedimiento / Org&aacute;nica
 					</th>
 					<th>
 						<span class="visible-lg visible-md hidden-sm hidden-xs">Responsable</span>
@@ -373,13 +384,14 @@
 			</thead>			
 			<tbody ng-if="permisos.length || procedimientos.length " >				
 				<tr ng-if="show_details_permiso">
-					<th colspan="{{ !is_show_inherited_users && !is_show_recursive_users && !procedimientos.length? 7 : 8 }}">
+					<th colspan="{{ !is_show_inherited_users && !is_show_recursive_users && !procedimientos.length? 8 : 9 }}">
 						
 					</th>
 				</tr>			
 				<tr ng-repeat="permiso in permisos" ng-if="permisos.length" ng-init="objetopermiso=getObjetoPermiso(permiso)">
 					<td>{{permiso.login}}</td>
 					<td>{{permiso.codplaza}}</td>
+					<td ><span class="hidden-sm hidden-xs hidden-md" ng-init="persona=getPersona(permiso)">{{persona[0].nombre}} {{ persona[0].apellidos}}</span></td>
 					<td ng-if="is_show_recursive_users || is_show_inherited_users || procedimientos.length">
 						<ul ng-if="objetopermiso && objetopermiso.length">
 							<li ng-repeat="obj in objetopermiso">{{obj.nombre}}</li>
@@ -392,10 +404,17 @@
 					<td><a ng-click="changeP(permiso)" href="" ><span class="glyphicon" ng-class="{'glyphicon-ok green':isP(permiso),'glyphicon-remove burdeos':!isP(permiso)}"></span></a></td>					
 					<td>
 						<div class="btn-group pull-right">
-							<div class="btn btn-xs btn-default" title="Eliminar permiso">
-								<span class="glyphicon glyphicon glyphicon-remove" title="Eliminar del todo el permiso" ng-click="eliminarPermiso(permiso)"></span>
-							</div>	
+						  <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+						    <span class="glyphicon glyphicon glyphicon-remove"></span>&nbsp;<span class="caret"></span>
+						  </button>
+						  <ul class="dropdown-menu" role="menu">
+						    <li><a href="" ng-click="eliminarPermiso(permiso)">Eliminar permiso sobre el nodo.</a></li>
+						    <li><a href="" ng-click="eliminarDefinitivamentePermiso(permiso)">Eliminar permiso completo.</a></li>
+						  </ul>
 						</div>
+					  <button type="button" class="btn btn-xs btn-default dropdown-toggle" ng-click="eliminarPermiso(permiso)" ng-if="!$root.permisoscalculados.superuser">
+					    <span class="glyphicon glyphicon glyphicon-remove"></span>
+					  </button>							
 						<!--<div class="btn-group pull-right">
 							<div class="btn btn-xs btn-default" title="Editar permiso">
 								<span class="glyphicon glyphicon-edit" title="Editar el permiso"></span>
@@ -418,10 +437,17 @@
 					<td><span class="glyphicon glyphicon-ok gray"></span></td>					
 					<td>
 						<div class="btn-group pull-right">
-							<div class="danger btn btn-xs btn-default" title="Eliminar permiso">
-								<span class="glyphicon glyphicon glyphicon-remove" title="Eliminar el permiso sobre el elemento de la estructura orgánica seleccionada" ng-click="eliminarResponable(procedimiento,r)"></span>
-							</div>	
-						<div>
+						  <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+						    <span class="glyphicon glyphicon glyphicon-remove"></span>&nbsp;<span class="caret"></span>
+						  </button>
+						  <ul class="dropdown-menu" role="menu">
+						    <li><a href="" ng-click="eliminarPermiso(permiso)">Eliminar permiso sobre el nodo.</a></li>
+						    <li><a href="" ng-click="eliminarDefinitivamentePermiso(permiso)">Eliminar permiso completo.</a></li>
+						  </ul>
+						</div>	
+						<button type="button" class="btn btn-xs btn-default dropdown-toggle" ng-click="eliminarPermiso(permiso)" ng-if="!$root.permisoscalculados.superuser">
+						  <span class="glyphicon glyphicon glyphicon-remove"></span>
+						</button>						
 					</td>				
 				</tr>				
 			</tbody>
