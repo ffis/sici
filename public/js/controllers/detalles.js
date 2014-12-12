@@ -44,7 +44,7 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
         $scope.procedimientoSeleccionado.padre = value.codigo;
         $scope.nombrePadre = value.denominacion;
         $scope.procedimientoSeleccionado.$update(function (response) {
-            
+
         });
         $scope.mostrarAutocompletePadre = false;
     };
@@ -128,7 +128,7 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
             $scope.procedimientoSeleccionado.ancestros.reverse();//TODO: revisar este parche
         }
 
-        
+
         $rootScope.W($scope.procedimientoSeleccionado).then(function (val) {
             $rootScope.superuser().then(function (val2) {
                 $scope.W = val || val2;
@@ -217,24 +217,24 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
                 }
             });
         });
-        
-        $scope.changeFocus = function(form, index, attr) {
+
+        $scope.changeFocus = function (form, index, attr) {
             form.$submit();
             var formulario;
-            if (index>=11) {
-                formulario = $scope.forms[0][$scope.attrstabla[$scope.attrstabla.indexOf(attr)+1]];
+            if (index >= 11) {
+                formulario = $scope.forms[0][$scope.attrstabla[$scope.attrstabla.indexOf(attr) + 1]];
             }
-            else 
-                formulario = $scope.forms[index+1][attr];
-            if (typeof formulario !== 'undefined') 
+            else
+                formulario = $scope.forms[index + 1][attr];
+            if (typeof formulario !== 'undefined')
                 formulario.$show();
         };
 
         $scope.forms = [];
-        $scope.addForm = function(attr, index, form) {
-            if(typeof $scope.forms[index] === 'undefined')
-                $scope.forms[index]={};
-            $scope.forms[index][attr]=form;
+        $scope.addForm = function (attr, index, form) {
+            if (typeof $scope.forms[index] === 'undefined')
+                $scope.forms[index] = {};
+            $scope.forms[index][attr] = form;
         };
 
         /***** CAMBIO DE JERARQUIA ****/
@@ -356,11 +356,11 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
 
         $scope.setShowArbol = function () {
             $scope.showArbol = true;
-        }
+        };
 
         $scope.isShowArbol = function () {
             return $scope.showArbol;
-        }
+        };
         /******************************/
 
 
@@ -417,7 +417,8 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
         $scope.procedimientoSeleccionado.$update(function (response) {
             console.error(response);
         });
-    }
+    };
+    
     $scope.checkNumber = function (data) {
         var valor = parseInt(data);
         if (isNaN(valor) || !/^\d+$/.test(data)) {
@@ -425,6 +426,16 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
         } else if (valor < 0) {
             return "No se admiten valores menores de 0";
         }
+    };
+
+    $scope.downloadGraphic = function (id) {
+        console.log(id);
+        var canvas = document.getElementById(id);
+        var ctx = canvas.getContext("2d");
+        // draw to canvas...
+        canvas.toBlob(function (blob) {
+            saveAs(blob, "image.png");
+        });
     };
 
 
@@ -437,3 +448,4 @@ function parseStr2Int(str) {
         valor = 0;
     return valor;
 }
+
