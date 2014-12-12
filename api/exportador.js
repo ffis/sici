@@ -203,9 +203,6 @@ exports.exportarPersonas = function (models, app, md5, Q) {
                     }
                     for (var j = 0; j < permiso.jerarquiadirectalectura.length; j++) {
                         var jerarquiaLectura = permiso.jerarquiadirectalectura[j];
-                        console.log(permiso.jerarquiadirectaescritura);
-                        console.log(permiso.login + ' ' +  jerarquiaLectura);
-                        console.log(permiso.jerarquiadirectaescritura.indexOf(jerarquiaLectura));
                         if (permiso.jerarquiadirectaescritura.indexOf(jerarquiaLectura) === -1) {
                             var cellLoginRef = XLSX.utils.encode_cell({c: 0, r: pos});
                             ws[cellLoginRef] = cellLogin;
