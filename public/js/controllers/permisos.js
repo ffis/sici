@@ -750,7 +750,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		else return '';
 
 		var p = PersonasByRegexp.query({"regex":busqueda});
-		return p[0];
+		return p;
 
 	}
     

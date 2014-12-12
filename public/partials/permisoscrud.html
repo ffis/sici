@@ -246,7 +246,7 @@
 			<!--<caption>Permisos</caption>-->
 			<thead>
 				<tr>
-					<th colspan="{{ !is_show_recursive_users && !procedimientos.length ? 7 : 8 }}">
+					<th colspan="{{ !is_show_recursive_users && !procedimientos.length ? 8 : 9 }}">
 						<div class="btn-group pull-right">
 							<!--<button ng-class="{}" class="btn btn-default" ng-click="searchUser()" title="Buscar los permisos de un usuario o plaza">
 								<span class="glyphicon glyphicon-search"></span>
@@ -268,7 +268,7 @@
 				</tr>				
 				<tr ng-if="show_form_add_permiso">
 					
-					<td colspan="{{ !is_show_recursive_users && !procedimientos.length? 7 : 8 }}" class="form-container">						
+					<td colspan="{{ !is_show_recursive_users && !procedimientos.length? 8 : 9 }}" class="form-container">						
 						<form name="nuevousuario-form" id="nuevousuario-form" ng-init="usuarioseleccionado=''">
 								<input  class="form-control" ng-model="usuarioseleccionado" placeholder="Buscar por plaza, login carm o nombre"  type="text" typeahead-min-lengt="3" typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)"  /> 							
 							<!--<br/>
@@ -384,7 +384,7 @@
 			</thead>			
 			<tbody ng-if="permisos.length || procedimientos.length " >				
 				<tr ng-if="show_details_permiso">
-					<th colspan="{{ !is_show_inherited_users && !is_show_recursive_users && !procedimientos.length? 7 : 8 }}">
+					<th colspan="{{ !is_show_inherited_users && !is_show_recursive_users && !procedimientos.length? 8 : 9 }}">
 						
 					</th>
 				</tr>			
