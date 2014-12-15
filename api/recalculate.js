@@ -352,7 +352,7 @@ exports.fullSyncprocedimiento = function( Q, models, fnprocedimiento){
 									if (error){
 										console.error(error);
 										informes.push({codigo: procedimiento.codigo, status:500});
-						    			promise.reject(err);
+						    			promise.reject(error);
 									}else{
 										informes.push({codigo: procedimiento.codigo, status:200, procedimiento: procedimiento });
 										promise.resolve();
@@ -409,7 +409,7 @@ exports.fullSyncpermiso = function(Q, models){
 							promise.resolve();
 						}
 					});
-			    },function(err){
+			    },function(err){					
 			    	informes.push({codigo: permiso._id, status:500});
 			    	promise.reject(err);
 			    })
