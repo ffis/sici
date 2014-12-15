@@ -218,7 +218,13 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
             });
         });
         
-        $scope.changeFocus = function(form, index, attr) {
+        $scope.changeFocus = function(form, index, attr, data) {
+			
+			if (isNaN(parseInt(data)) || !/^\d+$/.test(data) || parseInt(data)<0) {
+				form.$setError('Error','Formato no v&aacute;lido.');
+				return;
+			}
+			
             form.$submit();
             var formulario;
             if (index>=11) {
