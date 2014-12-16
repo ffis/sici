@@ -320,8 +320,10 @@
 							<br/>
                                                         <p>Si no encuentra la persona, debe realizar la búsqueda exacta por login carm o plaza.</p>
 							<label for="permisoallogin" >
-								<input type="checkbox" ng-model="permisoallogin" name="permisoallogin" ng-disabled="!usuarioseleccionado" value="1"/> Asignar permiso al login y no a la plaza
+								<input type="checkbox" ng-model="permisoallogin" name="permisoallogin" ng-disabled="!usuarioseleccionado"/> Asignar permiso al login y no a la plaza
 							</label>														
+							<p ng-bind="permisoallogin">
+							</p>
 							<div ng-if="$root.permisoscalculados.superuser">
 								<label for="propietario" ng-if="!seleccionado_organica && procedimiento_seleccionado">
 									<input type="checkbox" ng-model="propietario" name="propietario" ng-disabled="  !usuarioseleccionado " value="1"/> Es propietario del procedimiento
@@ -339,7 +341,7 @@
 									<input type="checkbox" ng-model="psuperuser" name="psuperuser" ng-disabled=" !usuarioseleccionado  || propietario" value="1" /> Superusuario
 								</label>
 								<br class="clear"/>
-								<button class="btn btn-default danger" ng-disabled="is_nuevousuario || !usuarioseleccionado" ng-click="crearpermiso(usuarioseleccionado,w_option,cb_grantoption,psuperuser)" ><span class="glyphicon glyphicon-ok"></span> <span>Crear</span></button>
+								<button class="btn btn-default danger" ng-disabled="is_nuevousuario || !usuarioseleccionado" ng-click="crearpermiso(usuarioseleccionado,w_option,cb_grantoption,psuperuser,permisoallogin)" ><span class="glyphicon glyphicon-ok"></span> <span>Crear</span></button>
 								 &nbsp;<button class="btn btn-default danger" ng-disabled="is_nuevousuario || !usuarioseleccionado" ng-click="delegar(usuarioseleccionado)" title="concede tus permisos, salvo la capacidad de dar permiso a otros" ><span class="glyphicon glyphicon-share"></span> <span>Delegar permisos</span></button>	
 							</div>
 							<div ng-if="!$root.permisoscalculados.superuser">
