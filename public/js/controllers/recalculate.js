@@ -1,4 +1,4 @@
-function RecalculateCtrl($rootScope, $scope, $window, $http, ExportarPersonas) {
+function RecalculateCtrl($rootScope, $scope, $window, $http, ExportarPersonas, PersonasActualizacionGesper) {
     $rootScope.nav = 'recalculate';
     $scope.actualizando = 0;
     $window.document.title = 'SICI';
@@ -40,7 +40,14 @@ function RecalculateCtrl($rootScope, $scope, $window, $http, ExportarPersonas) {
             $window.location = url;
         });
     };
+    
+    $scope.actualizarPersonas = function() {
+        console.log('Entro');
+        PersonasActualizacionGesper.query(function(data) {
+            console.log(data);
+        });
+    };
 
 }
 
-RecalculateCtrl.$inject = ['$rootScope', '$scope', '$window', '$http', 'ExportarPersonas'];
+RecalculateCtrl.$inject = ['$rootScope', '$scope', '$window', '$http', 'ExportarPersonas', 'PersonasActualizacionGesper'];

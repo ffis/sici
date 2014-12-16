@@ -334,20 +334,20 @@ exports.postParseExcel = function(Q, models, procedimientos, recalculate){
 			recalculate.softCalculateProcedimientoCache(Q, models, procedimiento).then(function(procedimiento){
 				procs.push(procedimiento);
 				q.resolve(procedimiento);
-			}).fail(function(err){
+			}, function(err){
 				q.fail(err);
-			})
-		})
+			});
+		});
 		defs.push(q.promise);
-	})
+	});
 
 	Q.all(defs).then(function(){
 		response.resolve(procs);
-	}).fail(function(err){
+	}, function(err){
 		response.fail(err);
 	});
 	return response.promise;
-}
+};
 
 
 function parseStr2Int (str){

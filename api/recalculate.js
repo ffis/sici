@@ -313,7 +313,7 @@ exports.softCalculateProcedimiento = function(Q, models, procedimiento){
 			procedimiento.periodos[ periodo ].fuera_plazo.push(fueradeplazo);
 			procedimiento.periodos[ periodo ].pendientes.push(pendientes);
 
-			procedimiento.periodos[ periodo ].Incidencias['Se han resuelto expedientes fuera de Plazo'].push(totalresueltos);
+			procedimiento.periodos[ periodo ].Incidencias['Se han resuelto expedientes fuera de Plazo'].push(fueradeplazo);
 			procedimiento.periodos[ periodo ].Incidencias['Aumenta el N de expedientes pendientes'].push( pendientes > pendientesprevios ? pendientes - pendientesprevios : 0 );
 			procedimiento.periodos[ periodo ].Incidencias['Hay quejas presentadas'].push( procedimiento.periodos[ periodo ].quejas[mes] );
 			procedimiento.periodos[ periodo ].Incidencias['Hay expedientes prescritos/caducados'].push( procedimiento.periodos[ periodo ].resueltos_prescripcion[mes] );
