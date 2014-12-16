@@ -38,7 +38,7 @@ function AppCtrl($window,$q, $scope, $rootScope, Session, $location, PermisosCal
 	$rootScope.loginCarm = AuthService.carmlogin;
 
 	$rootScope.irProcedimiento = function(){
-		var id = parseInt($rootScope.procedimiento);
+		var id = $rootScope.procedimiento;//parseInt($rootScope.procedimiento);
 		if (id>0){
 			$location.path('/procedimiento/'+id);
 		}
