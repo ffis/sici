@@ -7,6 +7,10 @@ angular.module('sici.services', ['ngResource'])
             function ($resource) {
                 return $resource('/api/arbol', {}, {query: {method: 'GET', isArray: true}});
             }])
+        .factory('ArbolWithEmptyNodes', ['$resource',
+            function ($resource) {
+                return $resource('/api/arbol/1', {}, {query: {method: 'GET', isArray: true}});
+            }])			
         .factory('Procedimiento', ['$resource',
             function ($resource) {
                 return $resource('/api/procedimiento/:codigo', {codigo: '@codigo'}, {get: {method: 'GET', isArray: false}, update: {method: 'PUT'}, create: {method: 'POST'}});

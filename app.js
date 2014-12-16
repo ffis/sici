@@ -73,6 +73,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
     app.post('/api/pretend/:username', login.pretend({secret: cfg.secret, jwt: jwt, models: models}));
 
     app.get('/api/arbol', api.arbol(Q, models));
+	app.get('/api/arbol/:withemptynodes', api.arbol(Q, models));
 
     app.get('/api/raw/:modelname', api.raw(models));
     app.get('/api/aggregate/:campo', api.aggregate(models));

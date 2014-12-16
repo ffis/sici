@@ -1,4 +1,4 @@
-function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, $timeout, $http, Procedimiento, DetalleCarmProcedimiento, DetalleCarmProcedimiento2, Raw, Aggregate, Arbol, ProcedimientoHasChildren, ProcedimientoList) {
+function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, $timeout, $http, Procedimiento, DetalleCarmProcedimiento, DetalleCarmProcedimiento2, Raw, Aggregate, ProcedimientoHasChildren, ProcedimientoList, ArbolWithEmptyNodes) {
 
     $scope.detallesCarm = DetalleCarmProcedimiento.get({codigo: $routeParams.codigo});
     $scope.detallesCarm2 = DetalleCarmProcedimiento2.get({codigo: $routeParams.codigo});
@@ -291,7 +291,7 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
 
         $rootScope.superuser().then(function () {
             console.log('Obteniendo arbol para funcionalidad cambio de jerarquia');
-            $scope.arbol = Arbol.query();
+            $scope.arbol = ArbolWithEmptyNodes.query();
         });
 
         $scope.execCmd = function (cmds, i) {
@@ -456,9 +456,8 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
         });
     };
 
-
 }
-DetallesCtrl.$inject = ['$q', '$rootScope', '$scope', '$routeParams', '$window', '$location', '$timeout', '$http', 'Procedimiento', 'DetalleCarmProcedimiento', 'DetalleCarmProcedimiento2', 'Raw', 'Aggregate', 'Arbol', 'ProcedimientoHasChildren', 'ProcedimientoList'];
+DetallesCtrl.$inject = ['$q', '$rootScope', '$scope', '$routeParams', '$window', '$location', '$timeout', '$http', 'Procedimiento', 'DetalleCarmProcedimiento', 'DetalleCarmProcedimiento2', 'Raw', 'Aggregate', 'ProcedimientoHasChildren', 'ProcedimientoList','ArbolWithEmptyNodes'];
 
 function parseStr2Int(str) {
     var valor = parseInt(str);
