@@ -29,7 +29,7 @@ angular.module('sici.translate', ['pascalprecht.translate'], ['$translateProvide
 		'resueltos_desistimiento_renuncia_caducidad' : 'Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)',
 		'resueltos_prescripcion': 'Resueltos por Prescripción/Caducidad (Resp. Admón.)',
 		'solicitados': 'Solicitados',
-		't_medio_habiles': 'Tiempo medio en días hábiles',
+		't_medio_habiles': 'Tiempo medio en días hábiles descontando Tiempo de suspensiones',
 		't_medio_naturales' : 'Tiempo medio en días naturales',
 		'total_resueltos' : 'Resueltos totales ',
 		'totalsolicitudes' : 'Solicitudes totales ',

@@ -37,6 +37,7 @@ var app = angular.module('sici', dependencies).
     $routeProvider.when('/periodos',    {templateUrl: 'partials/periodos.html', controller: 'PeriodosCtrl'});
     $routeProvider.when('/testexpediente',    {templateUrl: 'partials/testexpediente.html', controller: 'TestExpedienteCtrl'});
     $routeProvider.when('/loginas',    {templateUrl: 'partials/loginas.html', controller: 'LoginAsCtrl'});
+    $routeProvider.when('/informes',    {templateUrl: 'partials/informes.html', controller: 'InformesCtrl'});
 
     $routeProvider.otherwise({redirectTo: '/welcome'});
     $locationProvider.html5Mode(true);
