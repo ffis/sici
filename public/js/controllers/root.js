@@ -1,7 +1,6 @@
 'use strict';
 
 function AppCtrl($window,$q, $scope, $rootScope, Session, $location, PermisosCalculados, AuthService) {
-
 	$rootScope.setTitle   = function (title){ $scope.name = title; };
 	$rootScope.setLogeado = function(t){
 		$rootScope.logeado = t;
@@ -62,92 +61,113 @@ function AppCtrl($window,$q, $scope, $rootScope, Session, $location, PermisosCal
 
 	$rootScope.exportXLS = function(idx, nombre){
 	    var blob = new Blob(['<meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8"><table width="100%">'+document.getElementById(idx).innerHTML+'</table>'], {
+
             type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"
         });
-        saveAs(blob, nombre+".xls");
-	};
+        saveAs(blob, nombre + ".xls");
+    };
 
-	$rootScope.exportDOC = function(idx, nombre){
-		$("#"+idx).wordExport(nombre);
-	};
+    $rootScope.exportDOC = function (idx, nombre) {
+//		$("#"+idx).wordExport(nombre);
+        var doc = new jsPDF('p', 'pt', 'letter');
+//    var source = $scope.HtmlData;
 
-	$rootScope.R = function(procedimiento) {
-		var def = $q.defer();
-		$rootScope.permisoscalculados.$promise.then(function(){
-			def.resolve(
-				$rootScope.permisoscalculados.procedimientoslectura.indexOf(procedimiento.codigo)!==-1 ||
-				$rootScope.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo)!==-1
-			);
-		}, function(){
-			def.reject();
-		});
-		return def.promise;
-	};
-	
-	$rootScope.W = function(procedimiento) {
-		var def = $q.defer();
-		$rootScope.permisoscalculados.$promise.then(function(){
-			def.resolve(
-				$rootScope.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo)!==-1
-			);
-		}, function(){
-			def.reject();
-		});
-		return def.promise;
-	};
-	
-	var defsuperuser = $q.defer();
-	
-	$rootScope.superuser = function() {
-		
-		$rootScope.permisoscalculados.$promise.then(function(){
-			defsuperuser.resolve(
-				!!$rootScope.permisoscalculados.superuser
-			);
-		}, function(){
-			defsuperuser.reject();
-		});
-		return defsuperuser.promise;
-	}
-	
-	$rootScope.jerarquialectura = function(){
-		var def = $q.defer();
+        var specialElementHandlers = {
+            // element with id of "bypass" - jQuery style selector
+            '#arbol': function (element, renderer) {
+                // true = "handled elsewhere, bypass text extraction"
+                return true;
+            }
+        };
+//        var doc = new jsPDF();
+        doc.fromHTML($('#detalles').get(0), 0.5, 0.5, {
+            'elementsHandlers': specialElementHandlers
+        });
+//        var svg = $('#svg0').get(0);
+//        svgElementToPdf(svg, doc, {
+//            scale: 72 / 96, // this is the ratio of px to pt units
+//            removeInvalid: true // this removes elements that could not be translated to pdf from the source svg
+//        });
+        doc.save('prueba.pdf');
+    };
 
-		$rootScope.permisoscalculados.$promise.then(function(){
-			def.resolve(
-				$rootScope.permisoscalculados.jerarquialectura
-			);
-		}, function(){
-			def.reject();
-		});
-		return def.promise;
-	}
-	
-	$rootScope.jerarquiaescritura = function(){
-		var def = $q.defer();
+    $rootScope.R = function (procedimiento) {
+        var def = $q.defer();
+        $rootScope.permisoscalculados.$promise.then(function () {
+            def.resolve(
+                    $rootScope.permisoscalculados.procedimientoslectura.indexOf(procedimiento.codigo) !== -1 ||
+                    $rootScope.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo) !== -1
+                    );
+        }, function () {
+            def.reject();
+        });
+        return def.promise;
+    };
 
-		$rootScope.permisoscalculados.$promise.then(function(){
-			def.resolve(
-				$rootScope.permisoscalculados.jerarquiaescritura
-			);
-		}, function(){
-			def.reject();
-		});
-		return def.promise;
-	}
+    $rootScope.W = function (procedimiento) {
+        var def = $q.defer();
+        $rootScope.permisoscalculados.$promise.then(function () {
+            def.resolve(
+                    $rootScope.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo) !== -1
+                    );
+        }, function () {
+            def.reject();
+        });
+        return def.promise;
+    };
 
-	$rootScope.grantoption = function(){
-		var def = $q.defer();
+    var defsuperuser = $q.defer();
 
-		$rootScope.permisoscalculados.$promise.then(function(){
-			def.resolve(
-				$rootScope.permisoscalculados.grantoption
-			);
-		}, function(){
-			def.reject();
-		});
-		return def.promise;	
-	}
+    $rootScope.superuser = function () {
+
+        $rootScope.permisoscalculados.$promise.then(function () {
+            defsuperuser.resolve(
+                    !!$rootScope.permisoscalculados.superuser
+                    );
+        }, function () {
+            defsuperuser.reject();
+        });
+        return defsuperuser.promise;
+    }
+
+    $rootScope.jerarquialectura = function () {
+        var def = $q.defer();
+
+        $rootScope.permisoscalculados.$promise.then(function () {
+            def.resolve(
+                    $rootScope.permisoscalculados.jerarquialectura
+                    );
+        }, function () {
+            def.reject();
+        });
+        return def.promise;
+    }
+
+    $rootScope.jerarquiaescritura = function () {
+        var def = $q.defer();
+
+        $rootScope.permisoscalculados.$promise.then(function () {
+            def.resolve(
+                    $rootScope.permisoscalculados.jerarquiaescritura
+                    );
+        }, function () {
+            def.reject();
+        });
+        return def.promise;
+    }
+
+    $rootScope.grantoption = function () {
+        var def = $q.defer();
+
+        $rootScope.permisoscalculados.$promise.then(function () {
+            def.resolve(
+                    $rootScope.permisoscalculados.grantoption
+                    );
+        }, function () {
+            def.reject();
+        });
+        return def.promise;
+    }
 
 }
 

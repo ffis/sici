@@ -204,34 +204,34 @@ exports.deleteProcedimiento = function (Q, models, recalculate) {
 exports.updateProcedimiento = function (Q, models, recalculate) {
     return function (req, res) {
         var Procedimiento = models.procedimiento();
-		var Permiso = models.permiso();
+        var Permiso = models.permiso();
         var restriccion = {};
         if (typeof req.params.codigo !== 'undefined')
             restriccion.codigo = parseInt(req.params.codigo);
         //comprobar si tiene permiso el usuario actual
 
-        
+
         var arrays = [
-        'jerarquiaescritura',
-        'jerarquialectura',
-        'jerarquiadirectalectura',
-        'jerarquiadirectaescritura',
-        'procedimientosdirectalectura',
-        'procedimientosdirectaescritura',
-        'procedimientoslectura',
-        'procedimientosdirectalectura'
+            'jerarquiaescritura',
+            'jerarquialectura',
+            'jerarquiadirectalectura',
+            'jerarquiadirectaescritura',
+            'procedimientosdirectalectura',
+            'procedimientosdirectaescritura',
+            'procedimientoslectura',
+            'procedimientosdirectalectura'
         ];
 
-        for(var i=0;i<arrays.length;i++)
+        for (var i = 0; i < arrays.length; i++)
             if (!Array.isArray(req.user.permisoscalculados[arrays[i]]))
-                req.user.permisoscalculados[arrays[i]]=[];
+                req.user.permisoscalculados[arrays[i]] = [];
 
-        restriccion['$or']=[
+        restriccion['$or'] = [
             {
                 'idjerarquia': {'$in': req.user.permisoscalculados.jerarquiaescritura.concat(req.user.permisoscalculados.jerarquiadirectaescritura)}
             },
             {
-                'codigo':{'$in': req.user.permisoscalculados.procedimientosdirectaescritura.concat(req.user.permisoscalculados.procedimientosescritura)}
+                'codigo': {'$in': req.user.permisoscalculados.procedimientosdirectaescritura.concat(req.user.permisoscalculados.procedimientosescritura)}
             }
         ];
 
@@ -246,17 +246,17 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
                 return;
             }
 
-			if (typeof original === 'undefined' || original==null) {
-				res.status(500);
-				res.end('ERROR. imposible actualizar procedimiento ');
-				console.error('ERROR. imposible actualizar procedimiento ');
-				console.error(req.params.filepath);
+            if (typeof original === 'undefined' || original == null) {
+                res.status(500);
+                res.end('ERROR. imposible actualizar procedimiento ');
+                console.error('ERROR. imposible actualizar procedimiento ');
+                console.error(req.params.filepath);
 
-				console.error(restriccion);	
-                return;			
-			}
-			
-			
+                console.error(restriccion);
+                return;
+            }
+
+
             var procedimiento = req.body;
             //TODO: comprobar qué puede cambiar y qué no
 
@@ -281,7 +281,7 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
 
             //TODO: IMPEDIR EDICION DE ANUALIDADES MUY PRETÉRITAS		
             var schema = models.getSchema('procedimiento');
-			var codplaza_changed = false;
+            var codplaza_changed = false;
             for (var anualidad in schema.periodos) {
 
 
@@ -300,10 +300,10 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
                      if (attr == 'etiquetas') continue;
                      if (attr == 'padre') continue;
                      }*/
-					if (original.cod_plaza != procedimiento.cod_plaza) {
-						original.cod_plaza = procedimiento.cod_plaza;
-						codplaza_changed = true;
-					}
+                    if (original.cod_plaza != procedimiento.cod_plaza) {
+                        original.cod_plaza = procedimiento.cod_plaza;
+                        codplaza_changed = true;
+                    }
                     original.denominacion = procedimiento.denominacion;
                 }
 
@@ -332,7 +332,7 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
 
             }
 
-			
+
             recalculate.softCalculateProcedimiento(Q, models, original).then(function (original) {
                 recalculate.softCalculateProcedimientoCache(Q, models, original).then(function (original) {
                     exports.saveVersion(models, Q, original).then(function () {
@@ -345,73 +345,79 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
                                 return;
                             }
                             else {
-								var promesa_proc = Q.defer();
-								var promesa_per = Q.defer();
-								
-								if (codplaza_changed) {
-									Permiso.findOne(
-										{codplaza: original.cod_plaza}, 
-										function(err, permiso){
-											if (err) { console.error(err);  promesa_per.reject(err); }
-											else if (permiso == null) {
-												// si no existe permiso asociado creamos uno para el camoto este.
-												var nuevopermiso = {
-													'codplaza' : original.cod_plaza,
-													'login' : null,
-													'jerarquialectura': [],
-													'jerarquiadirectalectura': [],
-													'jerarquiaescritura': [],
-													'jerarquiadirectaescritura': [],
-													'procedimientoslectura': [],
-													'procedimientosdirectalectura': [],
-													'procedimientosescritura': [],
-													'procedimientosdirectaescritura': [],
-													'superuser' : 0,
-													'grantoption' : 0,
-													'descripcion' : 'Permiso otorgado por ' + req.user.login,
-													'caducidad' : req.user.permisoscalculados.caducidad,
-													'cod_plaza_grantt' : req.user.login
-												};
-												var p = new Permiso(nuevopermiso);
-												p.save(function(err){
-													if (err) promesa_per.reject(err);
-													else promesa_proc.resolve();
-												});
-											} else promesa_per.resolve();
-										}
-									);
-									
-									promesa_per.promise.then(
-										function(){
-											recalculate.fullSyncpermiso(Q, models).then(function(data){												
-												promesa_proc.resolve();
-											});
-										},
-										function(err){ 
-											promesa_proc.reject(err); 
-									});
-								} else {
-									promesa_proc.resolve();
-								}								
-								
-								promesa_proc.promise.then(function() {
-									if (hayCambiarOcultoHijos) {
-										exports.ocultarHijos(original, models, Q).then(function () {
-											res.json(original);
-										});
-									} else {
-										res.json(original);
-										console.log(JSON.stringify(elemento));
-										console.log(coincidencias);
-									}								
-								},function(err) {
-									
-									console.error(err);
-									console.log("Esto es una basura¡¡¡¡");
+                                var promesa_proc = Q.defer();
+                                var promesa_per = Q.defer();
+
+                                if (codplaza_changed) {
+                                    Permiso.findOne(
+                                            {codplaza: original.cod_plaza},
+                                    function (err, permiso) {
+                                        if (err) {
+                                            console.error(err);
+                                            promesa_per.reject(err);
+                                        }
+                                        else if (permiso == null) {
+                                            // si no existe permiso asociado creamos uno para el camoto este.
+                                            var nuevopermiso = {
+                                                'codplaza': original.cod_plaza,
+                                                'login': null,
+                                                'jerarquialectura': [],
+                                                'jerarquiadirectalectura': [],
+                                                'jerarquiaescritura': [],
+                                                'jerarquiadirectaescritura': [],
+                                                'procedimientoslectura': [],
+                                                'procedimientosdirectalectura': [],
+                                                'procedimientosescritura': [],
+                                                'procedimientosdirectaescritura': [],
+                                                'superuser': 0,
+                                                'grantoption': 0,
+                                                'descripcion': 'Permiso otorgado por ' + req.user.login,
+                                                'caducidad': req.user.permisoscalculados.caducidad,
+                                                'cod_plaza_grantt': req.user.login
+                                            };
+                                            var p = new Permiso(nuevopermiso);
+                                            p.save(function (err) {
+                                                if (err)
+                                                    promesa_per.reject(err);
+                                                else
+                                                    promesa_proc.resolve();
+                                            });
+                                        } else
+                                            promesa_per.resolve();
+                                    }
+                                    );
+
+                                    promesa_per.promise.then(
+                                            function () {
+                                                recalculate.fullSyncpermiso(Q, models).then(function (data) {
+                                                    promesa_proc.resolve();
+                                                });
+                                            },
+                                            function (err) {
+                                                promesa_proc.reject(err);
+                                            });
+                                } else {
+                                    promesa_proc.resolve();
+                                }
+
+                                promesa_proc.promise.then(function () {
+                                    if (hayCambiarOcultoHijos) {
+                                        exports.ocultarHijos(original, models, Q).then(function () {
+                                            res.json(original);
+                                        });
+                                    } else {
+                                        res.json(original);
+                                        console.log(JSON.stringify(elemento));
+                                        console.log(coincidencias);
+                                    }
+                                }, function (err) {
+
+                                    console.error(err);
+                                    console.log("Esto es una basura¡¡¡¡");
                                     res.status(500).send(JSON.stringify(err));
                                     res.end();
                                     return;
-								});								
+                                });
                             }
                         });
                     });

@@ -51,8 +51,8 @@ exports.updatePersona = function (models) {
                 res.send(content);
             }
         });
-    }
-}
+    };
+};
 
 exports.newPersona = function (models) {
     return function (req, res) {
@@ -220,6 +220,7 @@ exports.infoByLogin = function (login, Q) {
                     console.error('Error buscando login en WS');
                     def.resolve(null);
                 } else {
+                    console.error('Consulto el login ' + login);
                     def.resolve(result);
                 }
             });
@@ -253,6 +254,69 @@ exports.infoByPlaza = function (codplaza, Q) {
         }
     });
     return def.promise;
+};
+
+
+exports.updateCodPlazaByLogin = function (models, Q) {
+    return function (req, res) {
+        var Persona = models.persona();
+        var filas = [];
+        var promesasActualizacion = [];
+        Persona.find({habilitado: true}, {login: true, codplaza: true}, function (err, personas) {
+            console.log(personas);
+            personas.forEach(function (persona) {
+                var promesaUpdate = Q.defer();
+                promesasActualizacion.push(promesaUpdate.promise);
+                exports.infoByLogin(persona.login, Q).then(function (result) {
+                    if ((result !== null) && (typeof result.return !== 'undefined') && (result.return.length > 0)) {
+                        var msg = result.return[2].value;
+                        var valores = /(\d{2})\.-(.*)/g.exec(msg);
+                        if (valores !== null) {
+                            if (valores[1] === '00') {
+                                var codplaza = result.return[1].value;
+                                if (codplaza !== persona.codplaza) {
+                                    var fila = {'login': persona.login, 'codplaza prev': persona.codplaza, 'codplaza desp': codplaza};
+                                    filas.push(fila);
+                                    promesaUpdate.resolve();
+                                    console.log(fila);
+//                                persona.update(function(err) {
+//                                    if (err) {
+//                                        console.err('NO se ha podido actualizar el usuario '+persona.login+': '+persona.codplaza+' ==> '+codplaza);
+//                                        promesaUpdate.reject(err);
+//                                    } else {
+//                                        console.log('Se ha actualizado el usuario '+persona.login+': '+persona.codplaza+' ==> '+codplaza);
+//                                        promesaUpdate.resolve(fila);
+//                                    }
+//                                });
+                                } else {
+                                    console.log('No se modifica el usuario : '+persona.login+' al no cambiar su codplaza');
+                                    promesaUpdate.resolve();
+                                }
+                            } else {
+                                console.error('Error al consultar Gesper: ' + persona.login+'. '+valores[2]);
+                                promesaUpdate.resolve();
+                            }
+                        } else {
+                            console.error('Error al consultar Gesper: ' + persona.login);
+                            promesaUpdate.resolve();
+                        }
+                    } else {
+                        console.error('Error al consultar Gesper: ' + persona.login);
+                        promesaUpdate.reject(err);
+                    }
+                }, function (err) {
+                    console.error(err);
+                    res.status(500).end();
+                });
+            });
+            Q.all(promesasActualizacion).then(function () {
+                res.json(filas);
+            }, function (err) {
+                res.status(500).end();
+            });
+        });
+
+    };
 };
 
 function transformExcel2Persona(objeto, models, Q) {
@@ -557,7 +621,7 @@ exports.personassearchlist = function (models, Q)
 
             res.json(response);
         });
-    }
+    };
 };
 
 

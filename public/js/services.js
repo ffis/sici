@@ -91,6 +91,10 @@ angular.module('sici.services', ['ngResource'])
             function ($resource) {
                 return $resource('/api/permisosByLoginPlaza/:login/:cod_plaza', {}, {query: {method: 'GET', isArray: true}});
             }])
+        .factory('PersonasActualizacionGesper', ['$resource',
+            function ($resource) {
+                return $resource('/api/personas/actualizarGesper', {}, {query: {method: 'POST', isArray: false}});
+            }])
         .factory('PersonasByPuesto', ['$resource',
             function ($resource) {
                 return $resource('/api/personasByPuesto/:cod_plaza', {}, {query: {method: 'GET', isArray: true}});
@@ -110,6 +114,10 @@ angular.module('sici.services', ['ngResource'])
         .factory('Persona', ['$resource',
             function ($resource) {
                 return $resource('/api/persona/:id', {id: '@id'}, {create: {method: 'POST'}, update: {method: 'PUT'}});
+            }])
+        .factory('ExportarPersonas', ['$resource',
+            function ($resource) {
+                return $resource('/api/exportador/persona', {}, {});
             }])
         .factory('DetalleCarmProcedimiento', ['$resource',
             function ($resource) {
@@ -146,7 +154,7 @@ angular.module('sici.services', ['ngResource'])
         .factory('TipoLogin', ['$resource',
             function ($resource) {
                 return $resource('/tipologin');
-            }])        
+            }])
         .factory('TestExpediente', ['$resource',
             function ($resource) {
                 return $resource('api/v1/expediente/:procedimiento/:id', {procedimiento: '@procedimiento'}, {
