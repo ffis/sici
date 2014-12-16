@@ -40,9 +40,9 @@ function AppCtrl($window,$q, $scope, $rootScope, Session, $location, PermisosCal
 
 	$rootScope.irProcedimiento = function(){
 		var id = $rootScope.procedimiento;//parseInt($rootScope.procedimiento);
-		if (id>0){
-			$location.path('/procedimiento/'+id);
-		}
+		//if (id>0){
+		$location.path('/procedimiento/'+id);
+		//}
 	}
 
 	$rootScope.colorText = function(i, numcolors, phase)
