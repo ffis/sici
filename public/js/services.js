@@ -91,6 +91,10 @@ angular.module('sici.services', ['ngResource'])
             function ($resource) {
                 return $resource('/api/permisosByLoginPlaza/:login/:cod_plaza', {}, {query: {method: 'GET', isArray: true}});
             }])
+        .factory('PersonasActualizacionGesper', ['$resource',
+            function ($resource) {
+                return $resource('/api/personas/actualizarGesper', {}, {query: {method: 'POST', isArray: false}});
+            }])
         .factory('PersonasByPuesto', ['$resource',
             function ($resource) {
                 return $resource('/api/personasByPuesto/:cod_plaza', {}, {query: {method: 'GET', isArray: true}});
