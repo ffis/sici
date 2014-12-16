@@ -217,8 +217,13 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
                 }
             });
         });
-
-        $scope.changeFocus = function (form, index, attr) {
+        
+        $scope.changeFocus = function(form, index, attr, data) {
+			
+            if (isNaN(parseInt(data)) || !/^\d+$/.test(data) || parseInt(data) < 0) {
+                form.$setError('Error', 'Formato no v&aacute;lido.');
+                return;
+            }
             form.$submit();
             var formulario;
             if (index >= 11) {
@@ -309,7 +314,11 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
             $scope.procedimientoSeleccionado.idjerarquia = $scope.seleccionado.id;
             console.log('Salvando ');
             console.log($scope.procedimientoSeleccionado);
+
             $scope.procedimientoSeleccionado.$update(function (response) {
+                $scope.mensaje_moviendo = 'PARA QUE EL CAMBIO TENGA EFECTO, EJECUTE MANUALMENTE EL RECÁLCULO DE PROCEDIMIENTO CACHE, JERARQUÍA Y PERMISOS AL TÉRMINO DE TODAS LAS OPERACIONES DE CAMBIO DE ORGÁNICA.';
+                return;
+                
                 console.log(response);
                 // salvamos y ordenamos el recalculo.
                 var cmds = [
@@ -320,7 +329,7 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
                 ];
                 cmds[0].defer.resolve();
                 $scope.mensaje_moviendo = $scope.msj_base;
-                for (var i = 1; i < cmds.length; i++) {
+                for (var i = 1; i < cmds.length; i++) {                    
                     $scope.execCmd(cmds, i).then(function (data) {
                         console.log(data.msj);
                         if (data.index == cmds.length - 1) {
