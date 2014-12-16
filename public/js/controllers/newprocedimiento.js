@@ -1,4 +1,4 @@
-function NewProcedimientoCtrl($rootScope,$scope,$location,$window,$routeParams, $timeout, Arbol, ProcedimientoList,DetalleCarmProcedimiento,DetalleCarmProcedimiento2, PersonasByPuesto, Session, Etiqueta,PersonasByRegexp, Procedimiento) {
+function NewProcedimientoCtrl($rootScope,$scope,$location,$window,$routeParams, $timeout, ArbolWithEmptyNodes, ProcedimientoList,DetalleCarmProcedimiento,DetalleCarmProcedimiento2, PersonasByPuesto, Session, Etiqueta,PersonasByRegexp, Procedimiento) {
 	$rootScope.nav = 'procedimiento';
 	$window.document.title ='SICI: Registrar nuevo procedimiento';
 
@@ -73,7 +73,7 @@ function NewProcedimientoCtrl($rootScope,$scope,$location,$window,$routeParams, 
 		else return "";
 	};
 	
-	$scope.arbol = Arbol.query(function(){
+	$scope.arbol = ArbolWithEmptyNodes.query(function(){
 		if ($scope.idjerarquia){
 			$scope.setJerarquiaById($scope.idjerarquia);
 		}
@@ -106,4 +106,4 @@ function NewProcedimientoCtrl($rootScope,$scope,$location,$window,$routeParams, 
 	};
 }
 
-NewProcedimientoCtrl.$inject = ['$rootScope','$scope','$location','$window','$routeParams','$timeout', 'Arbol','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','PersonasByPuesto','Session', 'Etiqueta','PersonasByRegexp','Procedimiento'];
+NewProcedimientoCtrl.$inject = ['$rootScope','$scope','$location','$window','$routeParams','$timeout', 'ArbolWithEmptyNodes','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','PersonasByPuesto','Session', 'Etiqueta','PersonasByRegexp','Procedimiento'];
