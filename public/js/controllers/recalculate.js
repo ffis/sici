@@ -1,4 +1,4 @@
-function RecalculateCtrl($rootScope, $scope, $window, $http, ExportarPersonas, PersonasActualizacionGesper) {
+function RecalculateCtrl($rootScope, $scope, $window, $http, PersonasActualizacionGesper) {
     $rootScope.nav = 'recalculate';
     $scope.actualizando = 0;
     $window.document.title = 'SICI';
@@ -34,13 +34,6 @@ function RecalculateCtrl($rootScope, $scope, $window, $http, ExportarPersonas, P
         });
     };
     
-    $scope.exportExcel = function () {
-        ExportarPersonas.get(function (token) {
-            var url = '/download/' + token.time+'/'+token.hash;
-            $window.location = url;
-        });
-    };
-    
     $scope.actualizarPersonas = function() {
         console.log('Entro');
         PersonasActualizacionGesper.query(function(data) {
@@ -50,4 +43,4 @@ function RecalculateCtrl($rootScope, $scope, $window, $http, ExportarPersonas, P
 
 }
 
-RecalculateCtrl.$inject = ['$rootScope', '$scope', '$window', '$http', 'ExportarPersonas', 'PersonasActualizacionGesper'];
+RecalculateCtrl.$inject = ['$rootScope', '$scope', '$window', '$http', 'PersonasActualizacionGesper'];

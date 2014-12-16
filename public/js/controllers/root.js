@@ -21,7 +21,7 @@ function AppCtrl($window,$q, $scope, $rootScope, Session, $location, PermisosCal
 		{ id:'errors', caption:'Incoherencias' },
 		{ id:'inconsistencias', caption:'Inconsistencias' },
 		{ id:(IEChecker.test(browser)?'updateIE':'update'), caption:'Actualizar mediante fichero' },
-		{ id:'logout', caption:'Salir' },
+		{ id:'logout', caption:'Salir' }
 	];
 	$rootScope.navegabilidadSuper = [
 		{ id:'recalculate', caption:'Recalcular datos' },
@@ -30,6 +30,7 @@ function AppCtrl($window,$q, $scope, $rootScope, Session, $location, PermisosCal
 		{ id:'periodos', caption: 'Gestionar períodos'},
 		{ id:'crearprocedimiento', caption: 'Crear procedimiento'},
 		{ id:'loginas', caption: 'Cambiar de usuario'},
+                { id:'informes', caption: 'Informes'}
 	];
 	
 	if ($rootScope.logeado) {
@@ -154,7 +155,7 @@ function AppCtrl($window,$q, $scope, $rootScope, Session, $location, PermisosCal
             def.reject();
         });
         return def.promise;
-    }
+    };
 
     $rootScope.grantoption = function () {
         var def = $q.defer();
@@ -167,7 +168,7 @@ function AppCtrl($window,$q, $scope, $rootScope, Session, $location, PermisosCal
             def.reject();
         });
         return def.promise;
-    }
+    };
 
 }
 
