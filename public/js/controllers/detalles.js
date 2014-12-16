@@ -317,9 +317,11 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
             console.log($scope.procedimientoSeleccionado);
 
             $scope.procedimientoSeleccionado.$update(function (response) {
-                $scope.mensaje_moviendo = 'PARA QUE EL CAMBIO TENGA EFECTO, EJECUTE MANUALMENTE EL RECÁLCULO DE PROCEDIMIENTO CACHE, JERARQUÍA Y PERMISOS AL TÉRMINO DE TODAS LAS OPERACIONES DE CAMBIO DE ORGÁNICA.';
-                return;
-                
+                if (!confirm('Esta operación requiere reajustar el sistema y puede tardar varios minutos, si confirma se realizará este ajuste ahora mismo. En otro caso, podrá hacerlo más adelante o manualmente desde el panel de administración correspondiente.')) {
+                    $scope.mensaje_moviendo = 'PARA QUE EL CAMBIO TENGA EFECTO, EJECUTE MANUALMENTE EL RECÁLCULO DE PROCEDIMIENTO CACHE, JERARQUÍA Y PERMISOS AL TÉRMINO DE TODAS LAS OPERACIONES DE CAMBIO DE ORGÁNICA.';
+                    return;
+                }
+
                 console.log(response);
                 // salvamos y ordenamos el recalculo.
                 var cmds = [
