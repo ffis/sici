@@ -1,23 +1,5 @@
 
-function intersect_safe(a, b)
-{
-  var ai=0, bi=0;
-  var result = new Array();
 
-  while( ai < a.length && bi < b.length )
-  {
-     if      (a[ai] < b[bi] ){ ai++; }
-     else if (a[ai] > b[bi] ){ bi++; }
-     else /* they're equal */
-     {
-       result.push(a[ai]);
-       ai++;
-       bi++;
-     }
-  }
-
-  return result;
-}
 
 function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosList,PersonasSearchList,ProcedimientoList,PermisosProcedimientoList,PermisosDirectosProcedimientoList,Jerarquia, Permiso, PersonasByPuesto, PersonasByLogin, PersonasByRegexp, Persona, $q, Procedimiento,PersonasByLoginPlaza,PermisosDelegar, PermisosByLoginPlaza, PermisosDelegarSeleccionado, PermisoToDelete, PermisoProcedimientoToDelete) {
 	$rootScope.nav = 'permisos';
@@ -43,7 +25,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 	$scope.usuariosbuscado = "";
 	$scope.ousuariobuscado = {};
 	$scope.normal_user_permisos;
-	$scope.permisoallogin = 0;
+	$scope.permisoallogin = false;
 	
 	$scope.superuser = $rootScope.superuser();
 	$rootScope.superuser().then(function(superuser){
@@ -60,6 +42,26 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 			});		
 		}
 	});
+
+	$scope.insersect_safe = function(a, b)
+		{
+		  var ai=0, bi=0;
+		  var result = new Array();
+
+		  while( ai < a.length && bi < b.length )
+		  {
+		     if      (a[ai] < b[bi] ){ ai++; }
+		     else if (a[ai] > b[bi] ){ bi++; }
+		     else /* they're equal */
+		     {
+		       result.push(a[ai]);
+		       ai++;
+		       bi++;
+		     }
+		  }
+
+		  return result;
+		};
 		
 	$scope.delegar = function(normal_user_usuariodelegado) {
 		var partes = normal_user_usuariodelegado.split("-");
@@ -82,14 +84,19 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 				
 		if (login!='-' || cod_plaza!='-') {
 			var permisos_delegados;
-			if (!$rootScope.permisoscalculados.superuser && $scope.procedimiento_seleccionado && !$scope.seleccionado_organica && confirm('Ha seleccionado un procedimiento. ¿Delegar unicamente sobre el procedimiento seleccionado?')){
-				permisos_delegados = PermisosDelegarSeleccionado.query({'login':login,'cod_plaza':cod_plaza,'procedimiento':$scope.procedimiento_seleccionado.codigo},function(){
-					alert('Permiso delegado correctamente');
-				});
+			if ( !$rootScope.permisoscalculados.superuser && $scope.procedimiento_seleccionado && !$scope.seleccionado_organica && confirm('Ha seleccionado un procedimiento. ¿Delegar unicamente sobre el procedimiento seleccionado?')){
+				if ($rootScope.permisoscalculados.procedimientosescritura.indexOf($scope.procedimiento_seleccionado.codigo)>=0)
+					permisos_delegados = PermisosDelegarSeleccionado.query({'login':login,'cod_plaza':cod_plaza,'procedimiento':$scope.procedimiento_seleccionado.codigo},function(){
+						alert('Permiso delegado correctamente');
+					});
+				else alert('No tiene permiso sobre el procedimiento');
 			} else { 
-				permisos_delegados = PermisosDelegar.query({'login':login,'cod_plaza':cod_plaza},function(){
-					alert('Permiso delegado correctamente');
-				});
+				if ($rootScope.permisoscalculados.jerarquialectura.indexOf($scope.seleccionado.id)>=0 || 
+					$rootScope.permisoscalculados.jerarquiaescritura.indexOf($scope.seleccionado.id)>=0)
+					permisos_delegados = PermisosDelegar.query({'login':login,'cod_plaza':cod_plaza},function(){
+						alert('Permiso delegado correctamente');
+					});
+				else alert('No tiene permiso sobre el nodo de la orgánica');
 			}
 		}
 		
@@ -283,10 +290,11 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 	};
 	
 
-	$scope.crearpermiso2 = function(spersona,w_option,grantoption,psuperuser) {
+	$scope.crearpermiso2 = function(spersona,w_option,grantoption,psuperuser,permisoallogin) {
 		$scope.w_option = w_option;
 		$scope.cb_grantoption = grantoption;
 		$scope.psuperuser = psuperuser;
+		$scope.permisoallogin = permisoallogin;
 
 		var partes = spersona.split("-");
 		if (partes.length<1)
@@ -294,9 +302,9 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 			alert('No se ha podido crear el permiso');
 			return;
 		}
-		var loginpersona = partes[0];
+		var loginpersona = partes[0];	
 
-		if ($scope.procedimiento_seleccionado && $scope.propietario){
+		if ($scope.procedimiento_seleccionado && $scope.propietario && $rootScope.permisoscalculados.procedimientosescritura.indexOf($scope.procedimiento_seleccionado.codigo)>0 ){
 			if (partes.length<2) {
 				alert('No se encuentra el código de plaza de la persona buscada');
 				return;
@@ -305,7 +313,6 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 			var proc = Procedimiento.get({'codigo':$scope.procedimiento_seleccionado.codigo},function(){
 				proc.cod_plaza = $codpaza;
 				proc.$update(function(){
-					console.log("Actualizada código de plaza del procedimiento");
 					var per = PersonasByPuesto.query({"cod_plaza":codplaza},function(){
 						for(var i=0;i<per.length;i++){
 							per.habilitado = true;
@@ -317,6 +324,9 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 				});
 			});
 			return;
+		} else if ($rootScope.permisoscalculados.jerarquiaescritura.indexOf($scope.seleccionado.id)===-1 && $rootScope.permisoscalculados.jerarquialectura.indexOf($scope.seleccionado.id)===-1){
+			alert('No tiene permiso sobre este nodo');
+			return;
 		}
 
 
@@ -325,30 +335,30 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		var promise = deferred.promise;
 		var persona ;
 		
-		if (loginpersona!='' && $scope.permisoallogin)
-			persona = PersonasByLogin.query({"login":partes[0]},function(){	
+		if (loginpersona!='' && $scope.permisoallogin) {
+			persona = PersonasByLogin.query({"login":loginpersona},function(){	
 				if (persona.length>0) deferred.resolve(persona[0]);
 				else deferred.reject();
 			});
-		else if (partes.length>1 && partes[1]!="")
+		} else if (partes.length>1 && partes[1]!="") {
 			persona = PersonasByPuesto.query({"cod_plaza":partes[1]},function(){
 				if (persona.length>0) deferred.resolve(persona[0]);
 				else deferred.reject();				
 			});
-			
+		} else console.log('ERROR '+loginpersona+" ; "+$scope.permisoallogin);
+					
+
 		promise.then(function(persona){	
-			console.log("El servicio de consulta de personas por login o personas por codigo de plaza ha devuelto...");	
-			console.log(persona);
 			permiso = {};
 
-			if (!$scope.permisoallogin && persona.codplaza)
+			if (!$scope.permisoallogin && persona.codplaza) {
 				permiso.codplaza = persona.codplaza;
-			else
+			}
+			else {
 				permiso.login = persona.login;					
-			
-			
+			}
+
 			if ($scope.cb_grantoption) {
-				alert('establecido grant a true '+$scope.cb_grantoption);
 				console.log($scope.cb_grantoption);
 				permiso.grantoption = true;
 			}
@@ -375,7 +385,6 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 				} 
 			}
 			
-			console.log('Salvando permiso '+JSON.stringify(permiso));
 						
 			Permiso.create(permiso,function(){
 				delete $scope.usuarioseleccionado ;
@@ -392,15 +401,16 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 
 			
 		}, function(err){
-			alert('Error asignando permisos');
+			alert('Error asignando permisos ');
+			console.log(err);
 		});
 	}
 	
-	$scope.crearpermiso = function(usuarioseleccionado,w_option,grantoption,psuperuser) {
+	$scope.crearpermiso = function(usuarioseleccionado,w_option,grantoption,psuperuser,permisoallogin) {
 
 		if (usuarioseleccionado)
 		{		
-			$scope.crearpermiso2(usuarioseleccionado,w_option,grantoption,psuperuser);
+			$scope.crearpermiso2(usuarioseleccionado,w_option,grantoption,psuperuser, permisoallogin);
 		} else {
 			alert('No ha seleccionado ninguna persona');
 		}
@@ -550,7 +560,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 						objs = objs.concat(permiso.jerarquiadirectaescritura);
 						for(var i=0;i<permiso.jerarquiadirectalectura.length;i++) if (objs.indexOf(permiso.jerarquiadirectalectura[i])==-1)
 							objs.push(permiso.jerarquiadirectalectura[i]);
-						objs = insersect_safe(objs,array_interseccion_permisos);
+						objs = $scope.insersect_safe(objs,array_interseccion_permisos);
 					}
 				else  {
 					console.error("Error, alguno de los arrays no es tal");
