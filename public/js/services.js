@@ -119,9 +119,9 @@ angular.module('sici.services', ['ngResource'])
             function ($resource) {
                 return $resource('/api/persona/:id', {id: '@id'}, {create: {method: 'POST'}, update: {method: 'PUT'}});
             }])
-        .factory('ExportarPersonas', ['$resource',
+        .factory('ExportarInforme', ['$resource',
             function ($resource) {
-                return $resource('/api/exportador/persona', {}, {});
+                return $resource('/api/exportador/informe/:year', {year: '@year'}, {get: {method: 'GET', isArray: false}});
             }])
         .factory('DetalleCarmProcedimiento', ['$resource',
             function ($resource) {
