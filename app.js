@@ -81,7 +81,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 
     app.get('/api/gs/:id', importador.parseGS());
     app.get('/api/cr/:id', importador.parseCr(Q, models));
-    app.get('/api/exportador/persona', exportador.exportarPersonas(models, app, md5, Q));
+    app.get('/api/exportador/informe/:year', exportador.exportarInforme(models, app, md5, Q));
 
 
     app.get('/api/personasByPuesto/:cod_plaza', persona.personasByPuesto(models));
