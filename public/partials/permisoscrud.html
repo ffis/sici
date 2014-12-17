@@ -405,7 +405,7 @@
 					<td><a ng-click="changeW(permiso)" href=""><span class="glyphicon" ng-class="{'glyphicon-ok green':isW(permiso),'glyphicon-remove burdeos':!isW(permiso)}"></span></a></td>					
 					<td><a ng-click="changeP(permiso)" href="" ><span class="glyphicon" ng-class="{'glyphicon-ok green':isP(permiso),'glyphicon-remove burdeos':!isP(permiso)}"></span></a></td>					
 					<td>
-						<div class="btn-group pull-right">
+						<div class="btn-group pull-right" ng-if="$root.permisoscalculados.superuser">
 						  <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
 						    <span class="glyphicon glyphicon glyphicon-remove"></span>&nbsp;<span class="caret"></span>
 						  </button>
