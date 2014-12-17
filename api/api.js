@@ -24,7 +24,11 @@ exports.arbol = function(Q, models){
 		var returnValue = [];
 		var promises = [];
 		var hijos = [];
-		var filterfn = function(jerarquia){ return jerarquia.numprocedimientos; };
+		var filterfn;
+		if (typeof req.params.withemptynodes === 'undefined')
+			filterfn = function(jerarquia){ return jerarquia.numprocedimientos; };
+		else
+			filterfn = function(jerarquia){ return true; }
 
 		Jerarquia.find({},function(err,jerarquias){
 			var mappingXid = [];

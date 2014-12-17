@@ -556,7 +556,7 @@ exports.create = function(models, Q, recalculate){
 					recalculate.softCalculatePermiso(Q, models, permiso).then(						
 						function(permiso){
 							console.log("Ok (in)"); console.log(permiso);
-							opermiso = new Permiso(permiso);
+							//opermiso = new Permiso(permiso);
 							opermiso.save(function(err){
 								if (err) { console.error(err); res.status(500); res.end(); return; }
 								else { console.log("Escribiendo salida"); res.json(permiso); }

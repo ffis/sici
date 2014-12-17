@@ -126,7 +126,8 @@ exports.procedimiento = function (models) {
         var Procedimiento = models.procedimiento();
         var restriccion = {};
         if (typeof req.params.codigo !== 'undefined')
-            restriccion.codigo = parseInt(req.params.codigo);
+            //restriccion.codigo = parseInt(req.params.codigo);
+			restriccion.codigo = req.params.codigo;
         restriccion.idjerarquia = {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)};
 
         Procedimiento.findOne(restriccion, function (err, data) {
@@ -149,7 +150,8 @@ exports.deleteProcedimiento = function (Q, models, recalculate) {
         var Procedimiento = models.procedimiento();
         var restriccion = {};
         if (typeof req.params.codigo !== 'undefined')
-            restriccion.codigo = parseInt(req.params.codigo);
+            //restriccion.codigo = parseInt(req.params.codigo);
+			restriccion.codigo = req.params.codigo;
         //comprobar si tiene permiso el usuario actual
         restriccion.idjerarquia = {'$in': req.user.permisoscalculados.jerarquiaescritura};
 
@@ -207,7 +209,8 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
         var Permiso = models.permiso();
         var restriccion = {};
         if (typeof req.params.codigo !== 'undefined')
-            restriccion.codigo = parseInt(req.params.codigo);
+            //restriccion.codigo = parseInt(req.params.codigo);
+			restriccion.codigo = req.params.codigo;
         //comprobar si tiene permiso el usuario actual
 
 
