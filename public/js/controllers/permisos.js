@@ -501,10 +501,9 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		return dfj.promise;
 	};
 
-	$scope.cacheobjetos = {
-		fecha : new Date()
-	};
-	
+	$scope.cachejerarquias = {};
+
+
 	$scope.getObjetoPermiso = function(permiso) {
 		
 		if ($scope.seleccionado_organica){	// si lo que se encuentra selecccionado es un nodo de organica
@@ -523,14 +522,14 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 				var jl = permiso.jerarquiadirectalectura;
 				var je = permiso.jerarquiadirectaescritura;
 				
-				console.log("Nodo seleccionado " + $scope.seleccionado.id + " ; arrays? ");
+				/*console.log("Nodo seleccionado " + $scope.seleccionado.id + " ; arrays? ");
 				if (jl.length <= 3 ) 
 						console.log(permiso.jerarquiadirectalectura); 
 				else console.log('superuser');
 				if (je.length<=3) 
 						console.log(permiso.jerarquiadirectaescritura);
 				else console.log('superuser');
-
+*/
 				if (!permiso.jerarquiadirectalectura) jl = [];
 				if (!permiso.jerarquiadirectaescritura) je = [];
 				
@@ -539,26 +538,20 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 					jl = permiso.jerarquialectura;
 				}
 				
-				if (!permiso.superuser) {
-					console.log("Buscando permiso directo "+$scope.seleccionado.id+".... para usuario "+permiso.login+";"+permiso.codplaza);
-					console.log(jl);
-					console.log(je);
-				}
 				
 				if ( jl.indexOf( $scope.seleccionado.id ) !== -1  //si es un permiso directo sobre el nodo actual, lo devolvemos sin más
 					|| je.indexOf( $scope.seleccionado.id ) !== -1
 					) {
-					console.log('Permiso directo, devolviendo "seleccionado"');
-					console.log($scope.seleccionado);
-					return [Jerarquia.query({"idjerarquia":$scope.seleccionado.id})];				
+
+					if (typeof $scope.cachejerarquias["idx"+$scope.seleccionado.id] !== 'undefined')
+						return [$scope.cachejerarquias["idx"+$scope.seleccionado.id]];
+					else {
+						var rj = Jerarquia.query({"idjerarquia":$scope.seleccionado.id});
+						$scope.cachejerarquias["idx"+$scope.seleccionado.id] = rj;
+						return [rj];				
+					}
 				}
 
-				if (!permiso.superuser) {
-					console.log("... pero no lo he encontrado ni en ...");
-					console.log(permiso.jerarquiadirectalectura);
-					console.log("ni en ...")
-					console.log(permiso.jerarquiadirectaescritura);
-				}
 
 				var array_interseccion_permisos = [];
 				if (s_array_busqueda != "")
@@ -566,12 +559,6 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 
 
 				var objs = [];
-				if (!Array.isArray(jl))
-					console.log("permiso.jerarquiadirectalectura no es un array");
-				if (!Array.isArray(je))
-					console.log("permiso.jerarquiadirectalectura no es un array");
-				if (!Array.isArray($scope.nodo_jerarquia[s_array_busqueda]))
-					console.log("array_interseccion_permisos no es un array");
 				if (Array.isArray(jl) && 
 					Array.isArray(je) &&
 					Array.isArray(array_interseccion_permisos))
@@ -588,17 +575,18 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 					return objs;
 				}
 				
-				console.log("GET OBJETO PERMISO 5");
-				console.log(array_interseccion_permisos);
-				console.log(jl);
-				console.log(je);
-				console.log(objs);
 				var resultado = [];
 				for(var i=0;i<objs.length;i++){
-					resultado[i] = Jerarquia.query({"idjerarquia":objs[i]}, function(){
-						console.log("Nodo devuelto...")
-						console.log(resultado[i]);
-					});
+					if (typeof $scope.cachejerarquias["idx"+objs[i]] !== 'undefined')
+						resultado[i] = $scope.cachejerarquias["idx"+objs[i]];
+					else {
+						var rj = Jerarquia.query({"idjerarquia":objs[i]}, function(){
+							console.log("Nodo devuelto...")
+							console.log(resultado[i]);
+						});
+						$scope.cachejerarquias["idx"+objs[i]] = rj;
+						resultado[i] = rj;
+					}
 				}				
 				return resultado;
 			} 		
