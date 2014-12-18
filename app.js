@@ -87,7 +87,6 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 
     app.get('/api/personasByPuesto/:cod_plaza', persona.personasByPuesto(models));
     app.get('/api/personasByLogin/:login', persona.personasByLogin(models));
-    app.post('/api/personas/actualizarGesper', persona.updateCodPlazaByLogin(models, Q));
     app.get('/api/PersonasByRegexp/:regex', persona.personasByRegex(models, Q));
     app.get('/api/searchpersonas', persona.personassearchlist(models, Q));
     app.post('/api/persona', persona.newPersona(models));
@@ -170,6 +169,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
     app.post('/api/updateByFile', upload.update(), csvsici.parse(models));
     app.post('/api/updateByFileIE', upload.update(), csvsici.parse(models));
 
+    app.get('/personas/actualizarGesper', persona.updateCodPlazaByLogin(models, Q));
 
     app.get('/tipologin.js', function (req, res) {
         var r = (cfg.logincarm) ?
