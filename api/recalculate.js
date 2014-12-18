@@ -293,8 +293,8 @@ exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
         for (var i = 1; i <= 4; i++) {
             var a = 'ancestro_'+i;
             var a_v = 'ancestro_v_'+i;
-            procedimiento[a] = '';
-            procedimiento[a_v] = '';
+            delete procedimiento[a];
+            delete procedimiento[a_v];
         }
         var tamanyo = procedimiento.ancestros.length;
         for (var i = 0; i < tamanyo; i++) {
