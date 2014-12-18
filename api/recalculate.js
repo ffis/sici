@@ -298,7 +298,6 @@ exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
             procedimiento[a_v] = procedimiento.ancestros[i].nombrelargo;
         }
     }
-    console.log(procedimiento);
 
     for (var periodo in procedimiento.periodos)
     {
