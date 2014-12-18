@@ -520,23 +520,44 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 				else if ($scope.is_show_recursive_users) // si mostramos los permisos recursivamente, buscamos entre los descendientes.
 					s_array_busqueda = "descendientes"; 
 
+				var jl = permiso.jerarquiadirectalectura;
+				var je = permiso.jerarquiadirectaescritura;
 				
 				console.log("Nodo seleccionado " + $scope.seleccionado.id + " ; arrays? ");
-				if (permiso.jerarquiadirectalectura.length <= 3 ) 
+				if (jl.length <= 3 ) 
 						console.log(permiso.jerarquiadirectalectura); 
 				else console.log('superuser');
-				if (permiso.jerarquiadirectaescritura.length<=3) 
+				if (je.length<=3) 
 						console.log(permiso.jerarquiadirectaescritura);
 				else console.log('superuser');
 
-				if (!permiso.jerarquiadirectalectura) permiso.jerarquiadirectalectura = [];
-				if (!permiso.jerarquiadirectaescritura) permiso.jerarquiadirectaescritura = [];
-						
-				if ( permiso.jerarquiadirectalectura.indexOf( $scope.seleccionado.id ) !== -1  //si es un permiso directo sobre el nodo actual, lo devolvemos sin más
-					|| permiso.jerarquiadirectaescritura.indexOf( $scope.seleccionado.id ) !== -1
+				if (!permiso.jerarquiadirectalectura) jl = [];
+				if (!permiso.jerarquiadirectaescritura) je = [];
+				
+				if (permiso.jerarquiadirectalectura.length==0 && permiso.jerarquiadirectaescritura.length==0)
+				{
+					jl = permiso.jerarquialectura;
+				}
+				
+				if (!permiso.superuser) {
+					console.log("Buscando permiso directo "+$scope.seleccionado.id+".... para usuario "+permiso.login+";"+permiso.codplaza);
+					console.log(jl);
+					console.log(je);
+				}
+				
+				if ( jl.indexOf( $scope.seleccionado.id ) !== -1  //si es un permiso directo sobre el nodo actual, lo devolvemos sin más
+					|| je.indexOf( $scope.seleccionado.id ) !== -1
 					) {
 					console.log('Permiso directo, devolviendo "seleccionado"');
-					return $scope.seleccionado;				
+					console.log($scope.seleccionado);
+					return [Jerarquia.query({"idjerarquia":$scope.seleccionado.id})];				
+				}
+
+				if (!permiso.superuser) {
+					console.log("... pero no lo he encontrado ni en ...");
+					console.log(permiso.jerarquiadirectalectura);
+					console.log("ni en ...")
+					console.log(permiso.jerarquiadirectaescritura);
 				}
 
 				var array_interseccion_permisos = [];
@@ -545,21 +566,21 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 
 
 				var objs = [];
-				if (!Array.isArray(permiso.jerarquiadirectalectura))
+				if (!Array.isArray(jl))
 					console.log("permiso.jerarquiadirectalectura no es un array");
-				if (!Array.isArray(permiso.jerarquiadirectaescritura))
+				if (!Array.isArray(je))
 					console.log("permiso.jerarquiadirectalectura no es un array");
 				if (!Array.isArray($scope.nodo_jerarquia[s_array_busqueda]))
 					console.log("array_interseccion_permisos no es un array");
-				if (Array.isArray(permiso.jerarquiadirectalectura) && 
-					Array.isArray(permiso.jerarquiadirectaescritura) &&
+				if (Array.isArray(jl) && 
+					Array.isArray(je) &&
 					Array.isArray(array_interseccion_permisos))
 						//objs = intersect_safe(permiso.jerarquiadirectalectura.concat(permiso.jerarquiadirectaescritura),array_interseccion_permisos);
 					{
 						console.log('concatenando....');
-						objs = objs.concat(permiso.jerarquiadirectaescritura);
-						for(var i=0;i<permiso.jerarquiadirectalectura.length;i++) if (objs.indexOf(permiso.jerarquiadirectalectura[i])==-1)
-							objs.push(permiso.jerarquiadirectalectura[i]);
+						objs = objs.concat(je);
+						for(var i=0;i<jl.length;i++) if (objs.indexOf(jl[i])==-1)
+							objs.push(jl[i]);
 						objs = $scope.insersect_safe(objs,array_interseccion_permisos);
 					}
 				else  {
@@ -569,8 +590,8 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 				
 				console.log("GET OBJETO PERMISO 5");
 				console.log(array_interseccion_permisos);
-				console.log(permiso.jerarquiadirectalectura);
-				console.log(permiso.jerarquiadirectaescritura);
+				console.log(jl);
+				console.log(je);
 				console.log(objs);
 				var resultado = [];
 				for(var i=0;i<objs.length;i++){

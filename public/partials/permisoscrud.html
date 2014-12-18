@@ -174,18 +174,14 @@
 
 			<tbody ng-if="permisos.length || procedimientos.length " >				
 		
-				<tr ng-repeat="permiso in permisos" ng-if="permisos.length">
+				<tr ng-repeat="permiso in permisos" ng-if="permisos.length"  ng-init="objetopermiso=getObjetoPermiso(permiso)">
 					<td>{{permiso.login}}</td>
 					<td>{{permiso.codplaza}}</td>
-					<td>
+					<td ng-if="is_show_recursive_users || is_show_inherited_users || procedimientos.length">
+						<ul ng-if="objetopermiso && objetopermiso.length">
+							<li ng-repeat="obj in objetopermiso">{{obj.nombre}} </li>
 						<ul>
-							<li ng-repeat="idjerarquia in permiso.jerarquialectura" ng-init="j=getJerarquia(idjerarquia)">
-								{{j.nombre}}
-							</li>
-							<li ng-repeat="idjerarquia in permiso.jerarquiaescritura"  ng-init="j=getJerarquia(idjerarquia)">
-								{{j.nombre}}
-							</li>
-						<ul>
+						<span ng-if="objetopermiso && !objetopermiso.length">objetopermiso.nombre</span>
 					</td>
 					<td></td>
 					<td style="color:gray"><span class="glyphicon" ng-class="{'glyphicon-ok':isR(permiso),'glyphicon-remove':!isR(permiso)}"></span></td>
@@ -396,7 +392,7 @@
 					<td ><span class="hidden-sm hidden-xs hidden-md" ng-init="persona=getPersona(permiso)">{{persona[0].nombre}} {{ persona[0].apellidos}}</span></td>
 					<td ng-if="is_show_recursive_users || is_show_inherited_users || procedimientos.length">
 						<ul ng-if="objetopermiso && objetopermiso.length">
-							<li ng-repeat="obj in objetopermiso">{{obj.nombre}}</li>
+							<li ng-repeat="obj in objetopermiso">{{obj.nombre}} </li>
 						<ul>
 						<span ng-if="objetopermiso && !objetopermiso.length">objetopermiso.nombre</span>
 					</td>
