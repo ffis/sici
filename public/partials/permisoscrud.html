@@ -178,9 +178,11 @@
 					<td>{{permiso.login}}</td>
 					<td>{{permiso.codplaza}}</td>
 					<td ng-if="is_show_recursive_users || is_show_inherited_users || procedimientos.length">
-						<ul ng-if="objetopermiso && objetopermiso.length">
+						
+						<ul ng-if="objetopermiso && objetopermiso.length>1">
 							<li ng-repeat="obj in objetopermiso">{{obj.nombre}} </li>
 						<ul>
+						<span ng-if="objetopermiso && objetopermiso.length==1">{{objetopermiso[0].nombre}}</span>
 						<span ng-if="objetopermiso && !objetopermiso.length">objetopermiso.nombre</span>
 					</td>
 					<td></td>
@@ -391,9 +393,12 @@
 					<td>{{permiso.codplaza}}</td>
 					<td ><span class="hidden-sm hidden-xs hidden-md" ng-init="persona=getPersona(permiso)">{{persona[0].nombre}} {{ persona[0].apellidos}}</span></td>
 					<td ng-if="is_show_recursive_users || is_show_inherited_users || procedimientos.length">
-						<ul ng-if="objetopermiso && objetopermiso.length">
+						
+						<span ng-if="objetopermiso && objetopermiso.length==1">{{objetopermiso[0].nombre}}</span>
+						<ul ng-if="objetopermiso && objetopermiso.length>1">
 							<li ng-repeat="obj in objetopermiso">{{obj.nombre}} </li>
 						<ul>
+						
 						<span ng-if="objetopermiso && !objetopermiso.length">objetopermiso.nombre</span>
 					</td>
 					<td><span class="burdeos glyphicon glyphicon-remove"></span></td>
