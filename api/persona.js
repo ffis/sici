@@ -201,6 +201,35 @@ exports.personasByRegex = function (models, Q) {
 
 var soap = require('soap');
 
+exports.infoByLogin2 = function () {
+    return function (req, res) {
+        var login = req.params.login;
+        var url = 'https://jad.carm.es/jAD/webservice/WSGesper/wsSICI?wsdl';
+        var args = {arg0: {key: 'p_login', value: login}};
+        var options = {
+            ignoredNamespaces: {
+                namespaces: ['tns']
+            }
+        };
+        soap.createClient(url, options, function (err, client) {
+            if (err) {
+                console.error(JSON.stringify(err));
+                res.status(500).end(err);
+            } else {
+                client.SacaPlaza(args, function (err, result) {
+                    if (err) {
+                        console.error('Error buscando login en WS');
+                        res.json(result);
+                    } else {
+                        console.log('Consulto el login ' + login);
+                        res.json(result);
+                    }
+                });
+            }
+        });
+    };
+};
+
 exports.infoByLogin = function (login, Q) {
     var def = Q.defer();
     var url = 'https://jad.carm.es/jAD/webservice/WSGesper/wsSICI?wsdl';
@@ -220,7 +249,7 @@ exports.infoByLogin = function (login, Q) {
                     console.error('Error buscando login en WS');
                     def.resolve(null);
                 } else {
-                    console.error('Consulto el login ' + login);
+                    console.login('Consulto el login ' + login);
                     def.resolve(result);
                 }
             });

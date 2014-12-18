@@ -137,6 +137,14 @@ var schemasfields = {
                 'eliminado' : Boolean,
 		'etiquetas':[String],
 		'padre':String,
+                'ancestro_1': String,
+                'ancestro_2': String,
+                'ancestro_3': String,
+                'ancestro_4': String,
+                'ancestro_v_1': String,
+                'ancestro_v_2': String,
+                'ancestro_v_3': String,
+                'ancestro_v_4': String,
 		//recalculable: (se incluye como AnyType abajo)
 		//'ancestros' : [ jerarquia],
 		//responsables : [persona]

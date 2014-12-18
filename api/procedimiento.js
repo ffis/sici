@@ -127,7 +127,7 @@ exports.procedimiento = function (models) {
         var restriccion = {};
         if (typeof req.params.codigo !== 'undefined')
             //restriccion.codigo = parseInt(req.params.codigo);
-			restriccion.codigo = req.params.codigo;
+            restriccion.codigo = req.params.codigo;
         restriccion.idjerarquia = {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)};
 
         Procedimiento.findOne(restriccion, function (err, data) {
@@ -151,7 +151,7 @@ exports.deleteProcedimiento = function (Q, models, recalculate) {
         var restriccion = {};
         if (typeof req.params.codigo !== 'undefined')
             //restriccion.codigo = parseInt(req.params.codigo);
-			restriccion.codigo = req.params.codigo;
+            restriccion.codigo = req.params.codigo;
         //comprobar si tiene permiso el usuario actual
         restriccion.idjerarquia = {'$in': req.user.permisoscalculados.jerarquiaescritura};
 
@@ -188,9 +188,12 @@ exports.deleteProcedimiento = function (Q, models, recalculate) {
                                         return;
                                     }
                                     else {
-                                        res.json(original);
-                                        console.log(JSON.stringify(elemento));
-                                        console.log(coincidencias);
+                                        recalculate.fullSyncjerarquia(Q, models).then(function (o) {
+                                            res.json(original);
+                                        }, function (err) {
+                                            console.error(err);
+                                            res.send(500, JSON.stringify(err));
+                                        });
                                     }
                                 });
                             });
@@ -210,7 +213,7 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
         var restriccion = {};
         if (typeof req.params.codigo !== 'undefined')
             //restriccion.codigo = parseInt(req.params.codigo);
-			restriccion.codigo = req.params.codigo;
+            restriccion.codigo = req.params.codigo;
         //comprobar si tiene permiso el usuario actual
 
 
@@ -406,7 +409,12 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
                                 promesa_proc.promise.then(function () {
                                     if (hayCambiarOcultoHijos) {
                                         exports.ocultarHijos(original, models, Q).then(function () {
-                                            res.json(original);
+                                            recalculate.fullSyncjerarquia(Q, models).then(function () {
+                                                res.json(original);
+                                            }, function (err) {
+                                                console.error(err);
+                                                res.send(500, JSON.stringify(err));
+                                            });
                                         });
                                     } else {
                                         res.json(original);
@@ -414,9 +422,7 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
                                         console.log(coincidencias);
                                     }
                                 }, function (err) {
-
                                     console.error(err);
-                                    console.log("Esto es una basura¡¡¡¡");
                                     res.status(500).send(JSON.stringify(err));
                                     res.end();
                                     return;
@@ -496,7 +502,7 @@ exports.procedimientoList = function (models, Q) {
                                         {'oculto': {$exists: false}},
                                         {'$and': [
                                                 {'oculto': {$exists: true}},
-                                                {'oculto': false},
+                                                {'oculto': false}
                                             ]}
                                     ]
                                 },
@@ -504,7 +510,7 @@ exports.procedimientoList = function (models, Q) {
                                         {'eliminado': {$exists: false}},
                                         {'$and': [
                                                 {'eliminado': {$exists: true}},
-                                                {'eliminado': false},
+                                                {'eliminado': false}
                                             ]}
                                     ]
                                 }

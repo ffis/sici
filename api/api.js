@@ -107,8 +107,25 @@ exports.aggregate = function(models){
 				groupfield['_id'] = "$"+campostr;
 			}
 			var matchstr = req.params.match;
+                        var match = {};
+                        var jerarquia = {'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}};
+                        var oculto = {'$or': [
+                                {'oculto': {$exists: false}},
+                                {'$and': [
+                                        {'oculto': {$exists: true}},
+                                        {'oculto': false}
+                                    ]}
+                            ]
+                        };
+                        var eliminado = {'$or': [
+                                {'eliminado': {$exists: false}},
+                                {'$and': [
+                                        {'eliminado': {$exists: true}},
+                                        {'eliminado': false}
+                                    ]}
+                            ]
+                        };
 			if (typeof matchstr === 'string'){
-				var match = {};
 				try{ //probar 
 					match = JSON.parse(matchstr);
 				}catch(e){
@@ -122,9 +139,21 @@ exports.aggregate = function(models){
 						match[campomatch] = valor;
 					});
 				}
-				match.idjerarquia = {'$in':req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)};
-				group.push({ "$match" : match });
-			}
+                                match = {'$and': [
+                                            match,
+                                            jerarquia,
+                                            oculto,
+                                            eliminado
+                                        ]};
+//				match.idjerarquia = {'$in':req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)};
+			} else {
+                            match = {'$and': [
+                                        jerarquia,
+                                        oculto,
+                                        eliminado
+                                    ]};
+                        }
+                        group.push({ "$match" : match });
 			groupfield['count'] = {'$sum':1};
 			groupfield['porcumplimentar'] = { '$sum':{'$cond': [ { '$eq':[0,'$periodos.a'+cfg.anyo+'.totalsolicitudes']}, 1, 0 ] } };
 
