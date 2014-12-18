@@ -283,13 +283,19 @@ exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
 
     //para cada periodo
     if (typeof procedimiento.periodos != "object") {
-        console.error('Error en procedimiento ' + procedimiento.codigo)
+        console.error('Error en procedimiento ' + procedimiento.codigo);
         deferred.reject(procedimiento);
 
         return deferred.promise;
     }
 
     if (typeof procedimiento.ancestros !== 'undefined') {
+        for (var i = 1; i <= 4; i++) {
+            var a = 'ancestro_'+i;
+            var a_v = 'ancestro_v_'+i;
+            procedimiento[a] = '';
+            procedimiento[a_v] = '';
+        }
         var tamanyo = procedimiento.ancestros.length;
         for (var i = 0; i < tamanyo; i++) {
             var a = 'ancestro_'+(i+1);
