@@ -249,7 +249,7 @@ exports.infoByLogin = function (login, Q) {
                     console.error('Error buscando login en WS');
                     def.resolve(null);
                 } else {
-                    console.login('Consulto el login ' + login);
+                    console.log('Consulto el login ' + login);
                     def.resolve(result);
                 }
             });
