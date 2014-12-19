@@ -202,8 +202,7 @@ exports.softCalculatePermiso = function (Q, models, permiso) {
         });
     });
     return deferred.promise;
-}
-
+};
 
 //comprobar si el periodo esta cerrado es cosa
 //del crud
@@ -266,13 +265,13 @@ exports.softCalculateProcedimientoCache = function (Q, models, procedimiento) {
     });
     deferredPersona.promise.then(function (personas) {
         procedimiento.responsables = personas;
-    })
+    });
 
     Q.all([deferredJerarquia.promise, deferredPersona.promise]).then(function () {
         deferred.resolve(procedimiento);
     }, function (err) {
         deferred.reject(err);
-    })
+    });
 
     return deferred.promise;
 }
@@ -287,22 +286,6 @@ exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
         deferred.reject(procedimiento);
 
         return deferred.promise;
-    }
-
-    if (typeof procedimiento.ancestros !== 'undefined') {
-        for (var i = 1; i <= 4; i++) {
-            var a = 'ancestro_'+i;
-            var a_v = 'ancestro_v_'+i;
-            delete procedimiento[a];
-            delete procedimiento[a_v];
-        }
-        var tamanyo = procedimiento.ancestros.length;
-        for (var i = 0; i < tamanyo; i++) {
-            var a = 'ancestro_'+(i+1);
-            var a_v = 'ancestro_v_'+(tamanyo-i);
-            procedimiento[a] = procedimiento.ancestros[i].nombrelargo;
-            procedimiento[a_v] = procedimiento.ancestros[i].nombrelargo;
-        }
     }
 
     for (var periodo in procedimiento.periodos)
