@@ -381,7 +381,7 @@ exports.permisosList = function(models, Q){
 						};
 						
 						//console.log(JSON.stringify(restriccion));
-						Permiso.find(restriccion, function(err, permisos){
+						Permiso.find(restriccion).sort({'codplaza':1,'login':1}).exec(function(err, permisos){
 							if (err) { dpermisos.reject(err); }
 							else {
 								//for(var i=0;i<permisos.length;i++) console.log(permisos[i].login+" "+permisos[i].codplaza);

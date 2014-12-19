@@ -467,6 +467,39 @@ exports.ocultarHijos = function (procedimiento, models, Q) {
 };
 
 
+exports.procedimientosByResponsable = function(models,Q)
+{
+	return function(req, res){
+		var Procedimiento = models.procedimiento();
+		if (typeof req.params.codplaza !== 'undefined' && req.params.codplaza!="") {
+			var cod_plaza = req.params.codplaza;
+			var restriccion = { $and: [ {'cod_plaza' : cod_plaza},
+								{'$or': [
+                                        {'oculto': {$exists: false}},
+                                        {'$and': [
+                                                {'oculto': {$exists: true}},
+                                                {'oculto': false},
+                                            ]}
+                                    ]
+                                } ]
+			};
+			Procedimiento.find(restriccion, function(err,procedimientos){
+				if (err) {
+					console.error(restriccion);
+					console.error(err);
+					res.status(500);
+					res.end();				
+				} else res.json(procedimientos);
+			});
+		} else {
+			console.error(restriccion);
+			console.error(err);
+			res.status(500);
+			res.end();		
+		}
+	};
+};
+
 exports.procedimientoList = function (models, Q) {
     return function (req, res) {
         var Procedimiento = models.procedimiento();

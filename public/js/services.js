@@ -27,6 +27,10 @@ angular.module('sici.services', ['ngResource'])
             function ($resource) {
                 return $resource('/api/procedimientoHasChildren/:codigo', {}, {query: {method: 'GET', isArray:false}});
             }])        
+        .factory('ProcedimientosByResponsable', ['$resource',
+            function ($resource) {
+                return $resource('/api/procedimientosByResponsable/:codplaza', {}, {query: {method: 'GET', isArray:true}});
+            }])        			
         .factory('Anualidad', ['$resource',
             function ($resource) {
                 return $resource('/api/createAnualidad/:anualidad', {}, {query: {method: 'GET', isArray:false}});
