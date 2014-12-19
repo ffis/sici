@@ -1,7 +1,7 @@
 
 
 
-function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosList,PersonasSearchList,ProcedimientoList,PermisosProcedimientoList,PermisosDirectosProcedimientoList,Jerarquia, Permiso, PersonasByPuesto, PersonasByLogin, PersonasByRegexp, Persona, $q, Procedimiento,PersonasByLoginPlaza,PermisosDelegar, PermisosByLoginPlaza, PermisosDelegarSeleccionado, PermisoToDelete, PermisoProcedimientoToDelete) {
+function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosList,PersonasSearchList,ProcedimientoList,PermisosProcedimientoList,PermisosDirectosProcedimientoList,Jerarquia, Permiso, PersonasByPuesto, PersonasByLogin, PersonasByRegexp, Persona, $q, Procedimiento,PersonasByLoginPlaza,PermisosDelegar, PermisosByLoginPlaza, PermisosDelegarSeleccionado, PermisoToDelete, PermisoProcedimientoToDelete, ProcedimientosByResponsable) {
 	$rootScope.nav = 'permisos';
 	$window.document.title ='SICI: Permisos';
 
@@ -227,11 +227,9 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 	
 
 	$scope.on_usuariobuscado_selected = function(item, model, label){
-		console.log("item");
+		console.log('ARRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR!!!!!');
 		console.log(item);
-		console.log("model");
 		console.log(model);
-		console.log("label");
 		console.log(label);
 
 		$scope.usuariodetalle = item;
@@ -277,7 +275,9 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 				}
 
 			}
-			$scope.permisostotales.procedimientos = $scope.procedimientos;
+
+			$scope.permisostotales.procedimientos = (item.codplaza?ProcedimientosByResponsable.query({codplaza:item.codplaza}):[]);
+			$scope.procedimientos = $scope.permisostotales.procedimientos;
 		});
 	};
 
@@ -500,6 +500,18 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 
 	
 
+	$scope.getObjetoPermisoUsuario = function(permiso){
+		if ($scope.usuarioseleccionado){
+			var resultado = $scope.insersect_safe(permiso.jerarquiadirectaescritura,permiso.jerarquiadirectaescritura);			
+			var oresultado = [];
+			for(var i=0;i<resultado.length;i++)
+			{
+				oresultado.push(Jerarquia.query({"idjerarquia":resultado[i]}));
+			}
+			return oresultado;
+		}
+		return [];
+	};
 
 	$scope.getObjetoPermiso = function(permiso) {
 		
@@ -652,7 +664,8 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		/*** formulario de nuevo usuario limpio**/
 		$scope.usuarioencontrado = false;		
 		$scope.nuevousuario = {};
-		$scope.is_nuevousuario = false;			
+		$scope.is_nuevousuario = false;	
+		$scope.usuariosbuscado = "";		
 		/*** ***/
 	}
 		
@@ -795,4 +808,4 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
     
 	
 }
-PermisoCtrl.$inject = ['$rootScope','$scope','$location','$window','Arbol','Session','PermisosList','PersonasSearchList','ProcedimientoList','PermisosProcedimientoList', 'PermisosDirectosProcedimientoList','Jerarquia','Permiso', 'PersonasByPuesto', 'PersonasByLogin', 'PersonasByRegexp','Persona','$q','Procedimiento','PersonasByLoginPlaza','PermisosDelegar','PermisosByLoginPlaza','PermisosDelegarSeleccionado', 'PermisoToDelete', 'PermisoProcedimientoToDelete'];
+PermisoCtrl.$inject = ['$rootScope','$scope','$location','$window','Arbol','Session','PermisosList','PersonasSearchList','ProcedimientoList','PermisosProcedimientoList', 'PermisosDirectosProcedimientoList','Jerarquia','Permiso', 'PersonasByPuesto', 'PersonasByLogin', 'PersonasByRegexp','Persona','$q','Procedimiento','PersonasByLoginPlaza','PermisosDelegar','PermisosByLoginPlaza','PermisosDelegarSeleccionado', 'PermisoToDelete', 'PermisoProcedimientoToDelete','ProcedimientosByResponsable'];
