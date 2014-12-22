@@ -261,14 +261,9 @@ exports.softCalculateProcedimientoCache = function (Q, models, procedimiento) {
         deferredPersona.resolve([]);
     }
 
-    deferredJerarquia.promise.then(function (jerarquias) {
-        procedimiento.ancestros = jerarquias;
-    });
-    deferredPersona.promise.then(function (personas) {
-        procedimiento.responsables = personas;
-    })
-
-    Q.all([deferredJerarquia.promise, deferredPersona.promise]).then(function () {
+    Q.all([deferredJerarquia.promise, deferredPersona.promise]).then(function (datos) {
+		procedimiento.ancestros = datos[0];//jerarquias;
+		procedimiento.responsables = datos[1];//personas;
         deferred.resolve(procedimiento);
     }, function (err) {
         deferred.reject(err);
