@@ -261,8 +261,23 @@ exports.softCalculateProcedimientoCache = function (Q, models, procedimiento) {
     }
 
     Q.all([deferredJerarquia.promise, deferredPersona.promise]).then(function (datos) {
-		procedimiento.ancestros = datos[0];//jerarquias;
-		procedimiento.responsables = datos[1];//personas;
+        procedimiento.ancestros = datos[0];//jerarquias;
+        procedimiento.responsables = datos[1];//personas;
+        if (typeof procedimiento.ancestros !== 'undefined') {
+            for (var i = 1; i <= 4; i++) {
+                var a = 'ancestro_'+i;
+                var a_v = 'ancestro_v_'+i;
+                procedimiento[a] = '';
+                procedimiento[a_v] = '';
+            }
+            var tamanyo = procedimiento.ancestros.length;
+            for (var i = 0; i < tamanyo; i++) {
+                var a = 'ancestro_'+(i+1);
+                var a_v = 'ancestro_v_'+(tamanyo-i);
+                procedimiento[a] = procedimiento.ancestros[i].nombrelargo;
+                procedimiento[a_v] = procedimiento.ancestros[i].nombrelargo;
+            }
+        }
         deferred.resolve(procedimiento);
     }, function (err) {
         deferred.reject(err);
