@@ -106,8 +106,7 @@ exports.aggregate = function(models){
 			}catch(e){
 				groupfield['_id'] = "$"+campostr;
 			}
-			var matchstr = req.params.match;
-                        var match = {};
+			var match = {};
                         var jerarquia = {'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}};
                         var oculto = {'$or': [
                                 {'oculto': {$exists: false}},
@@ -125,6 +124,9 @@ exports.aggregate = function(models){
                                     ]}
                             ]
                         };
+                        var blancos = {};
+                        blancos[campostr] = {$ne: ''};
+                        var matchstr = req.params.match;
 			if (typeof matchstr === 'string'){
 				try{ //probar 
 					match = JSON.parse(matchstr);
@@ -138,9 +140,11 @@ exports.aggregate = function(models){
 							valor = parseInt(valor);
 						match[campomatch] = valor;
 					});
+                                        
 				}
                                 match = {'$and': [
                                             match,
+                                            blancos,
                                             jerarquia,
                                             oculto,
                                             eliminado
@@ -148,6 +152,7 @@ exports.aggregate = function(models){
 //				match.idjerarquia = {'$in':req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)};
 			} else {
                             match = {'$and': [
+                                        blancos,
                                         jerarquia,
                                         oculto,
                                         eliminado
