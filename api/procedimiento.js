@@ -205,7 +205,7 @@ exports.deleteProcedimiento = function (Q, models, recalculate) {
 };
 
 
-exports.updateProcedimiento = function (Q, models, recalculate) {
+exports.updateProcedimiento = function (Q, models, recalculate, persona) {
     return function (req, res) {
         var Procedimiento = models.procedimiento();
         var Permiso = models.permiso();
@@ -387,6 +387,17 @@ exports.updateProcedimiento = function (Q, models, recalculate) {
                                                 else
                                                     promesa_proc.resolve();
                                             });
+											persona.registroPersonaWS(original.cod_plaza, Q).then(function(data) {
+												Persona.update({'codplaza':original.cod_plaza},{$set:{'habilitado':true}},{multi:false, upsert:false}, function(err){
+													console.error('Error habilitando personas del codigo de plaza responsable');
+												});
+											}, function(err) {
+												Persona.update({'codplaza':original.cod_plaza},{$set:{'habilitado':true}},{multi:false, upsert:false}, function(err){
+													console.error('Error habilitando personas del codigo de plaza responsable');
+												});
+												console.error(err);
+											});
+											
                                         } else
                                             promesa_per.resolve();
                                     }
