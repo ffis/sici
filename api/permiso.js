@@ -491,11 +491,43 @@ exports.permisosProcedimientoList = function(models,Q){
 };
 
 
-exports.update = function(models) {
+exports.update = function(models, recalculate,Q) {
 	return function(req, res) {
-		console.error('Funcionalidad no implementada');
-	}
-}
+		var Permiso = models.permiso();
+		var idp = req.params.id;
+		if (typeof req.params.id !== 'undefined') 
+		{
+			var newpermiso = req.body;
+			Permiso.findById(idp ,function(err, permiso){
+				if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return; }
+				//permiso = JSON.parse(JSON.stringify(permiso));
+				permiso.codplaza = newpermiso.codplaza;
+				permiso.descripcion = newpermiso.descripcion;
+				permiso.jerarquiaescritura = newpermiso.jerarquiaescritura;
+				permiso.jerarquialectura = newpermiso.jerarquialectura;
+				permiso.jerarquiadirectaescritura = newpermiso.jerarquiadirectaescritura;
+				permiso.jerarquiadirectalectura = newpermiso.jerarquiadirectalectura;
+				permiso.procedimientoslectura = newpermiso.procedimientoslectura;
+				permiso.procedimientosescritura = newpermiso.procedimientosescritura;
+				permiso.procedimientosdirectalectura = newpermiso.procedimientosdirectalectura;
+				permiso.procedimientosdirectaescritura = newpermiso.procedimientosdirectaescritura;
+				permiso.login = newpermiso.login;
+				permiso.caducidad = newpermiso.caducidad;
+				permiso.grantoption = newpermiso.grantoption;
+				permiso.superuser = newpermiso.superuser;
+
+				
+				recalculate.softCalculatePermiso(Q, models, permiso).then(function (permiso) {
+					permiso.save(function(err, actualizado){
+						if (err) { console.error(restriccion); console.error(err); res.status(500); res.end(); return; }
+						res.json(actualizado);
+					});
+				});
+
+			});
+		}
+	};
+};
 
 exports.create = function(models, Q, recalculate){
 	return function(req,res){

@@ -151,7 +151,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
     //app.get('/api/permisosCalculados', login.permisoscalculados(models)); 
     app.get('/api/permisos/delete-jerarquia/:idpermiso/:idjerarquia', permiso.removePermisoJerarquia(models, Q, recalculate));
     app.get('/api/permisos/delete-procedimiento/:idpermiso/:idprocedimiento', permiso.removePermisoJerarquia(models, Q, recalculate));
-    app.put('/api/permisos/:id', permiso.update(models));
+    app.put('/api/permisos/:id', permiso.update(models,recalculate,Q));
     app.get('/api/permisos/:id', permiso.get(models));
     app.delete('/api/permisos/:id', permiso.removePermiso(models, Q, recalculate, ObjectId));
     app.post('/api/permisos', permiso.create(models, Q, recalculate));
