@@ -142,8 +142,7 @@ exports.procedimiento = function (models) {
         });
 
     };
-}
-
+};
 
 exports.deleteProcedimiento = function (Q, models, recalculate) {
     return function (req, res) {
@@ -163,7 +162,7 @@ exports.deleteProcedimiento = function (Q, models, recalculate) {
                 res.end();
                 return;
             }
-            var procedimiento = req.body;
+//            var procedimiento = req.body;
             var puedeEscribirSiempre = req.user.permisoscalculados.superuser;
             if (puedeEscribirSiempre) {
                 original.eliminado = true;
@@ -478,7 +477,7 @@ exports.procedimientosByResponsable = function(models,Q)
                                         {'oculto': {$exists: false}},
                                         {'$and': [
                                                 {'oculto': {$exists: true}},
-                                                {'oculto': false},
+                                                {'oculto': false}
                                             ]}
                                     ]
                                 } ]

@@ -9,6 +9,7 @@
                 <div class="panel-body">
                     <div class="btn-group">
                         <button ng-class="{disabled: actualizando > 0}" ng-repeat="fn in funcionalidad.fn" class="btn btn-default" ng-click="invoke(fn.cmd)">{{fn.label}}</button>
+                        <p ng-if="{{actualizando > 0}}">Descargando...</p>
                     </div>
                     <br /><br />
                     Seleccione el año:

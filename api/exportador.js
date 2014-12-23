@@ -60,9 +60,11 @@ exports.exportarInforme = function (models, app, md5, Q) {
         var deferPersona = Q.defer();
         var deferProcedimiento = Q.defer();
         var deferPermiso = Q.defer();
+        var deferBD = Q.defer();
         promesasExcel.push(deferPersona.promise);
         promesasExcel.push(deferProcedimiento.promise);
         promesasExcel.push(deferPermiso.promise);
+        promesasExcel.push(deferBD.promise);
 
         // Genera hoja de usuarios
         Persona.find({}, {codplaza: true, login: true, nombre: true, apellidos: true}, function (err, data) {
@@ -105,14 +107,16 @@ exports.exportarInforme = function (models, app, md5, Q) {
                 deferPersona.resolve({'wsName': 'Usuarios', 'sheet': ws});
             }
         });
+        var procedimientos;
         // Genera hoja de procedimientos
-        Procedimiento.find({}, {codigo: true, denominacion: true, idjerarquia: true, responsables: true, cod_plaza: true, periodos: true}, function (err, data) {
+        Procedimiento.find({}, {codigo: true, denominacion: true, idjerarquia: true, responsables: true, cod_plaza: true, periodos: true, ancestros: true}, function (err, data) {
             if (err) {
                 console.error(err);
                 res.status(500);
                 res.end();
                 deferProcedimiento.reject(err);
             } else {
+                procedimientos = data;
                 var incidencias = ["Aumenta el N de expedientes pendientes", "Hay expedientes prescritos/caducados", "Hay quejas presentadas",
                     "Las solicitudes aumentan al menos 20%", "Se han resuelto expedientes fuera de Plazo"];
                 var indicadoresDatabase = ["solicitados", "iniciados", "quejas", "recursos", "resueltos_1", "resueltos_5", "resueltos_10", "resueltos_15", "resueltos_30",
@@ -165,8 +169,8 @@ exports.exportarInforme = function (models, app, md5, Q) {
                 var cellHeaderOculto = {v: 'Oculto', t: 's'};
                 var cellHeaderOcultoRef = XLSX.utils.encode_cell({c: 5, r: 1});
                 ws[cellHeaderOcultoRef] = cellHeaderOculto;
-                for (var i = 0; i < data.length; i++) {
-                    var procedimiento = data[i];
+                for (var i = 0; i < procedimientos.length; i++) {
+                    var procedimiento = procedimientos[i];
                     var cellCodigo = {v: procedimiento.codigo, t: 's'};
                     var cellCodigoRef = XLSX.utils.encode_cell({c: 0, r: i + 2});
                     ws[cellCodigoRef] = cellCodigo;
@@ -205,7 +209,7 @@ exports.exportarInforme = function (models, app, md5, Q) {
                     Jerarquia.findOne({'id': procedimiento.idjerarquia}, {nombrelargo: true}, cb(deferNombreJerarquia, i + 2, 3, ws));
                 }
                 Q.all(promesasNombreJerarquia).then(function () {
-                    var range = {s: {c: 0, r: 0}, e: {c: 6 + (indicadores.length + incidencias.length) * meses.length, r: data.length + 2}};
+                    var range = {s: {c: 0, r: 0}, e: {c: 6 + (indicadores.length + incidencias.length) * meses.length, r: procedimientos.length + 2}};
                     ws['!ref'] = XLSX.utils.encode_range(range);
                     deferProcedimiento.resolve({'wsName': 'Procedimientos', 'sheet': ws});
                 }, function (err) {
@@ -307,14 +311,178 @@ exports.exportarInforme = function (models, app, md5, Q) {
                 });
             }
         });
+        
+        // Genera hoja General
+        deferProcedimiento.promise.then(function() {
+            var indicadoresDatabase = ["solicitados", "iniciados", "resueltos_1", "resueltos_5", "resueltos_10", "resueltos_15", "resueltos_30",
+                "resueltos_45", "resueltos_mas_45", "resueltos_desistimiento_renuncia_caducidad", "resueltos_prescripcion", "t_medio_naturales", "t_medio_habiles",
+                "en_plazo", "quejas", "recursos"];
+            var indicadores = ["Solicitados", "Iniciados", "Resueltos < 1", "Resueltos 1 < 5","Resueltos 5 < 10", "Resueltos 10 < 15", "Resueltos 15 < 30", 
+                "Resueltos 30 < 45", "Resueltos > 45", "Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)", "Resueltos por Prescripción/Caducidad (Resp. Admón.)",
+                "Tiempo medio en días naturales", "Tiempo medio en días hábiles descontando Tiempo de suspensiones", "En plazo", "Quejas presentadas en el mes", 
+                "Recursos presentados en el mes"];
+            var meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            var precabeceras = ["Código", "Denominación del procedimiento", "Código Nivel 1", "Denominación Nivel 1", "Código Nivel 2", "Denominación Nivel 2", "Código Nivel 3", "Denominación Nivel 3", 
+                "Código plaza responsable", "Login responsable", "Nombre responsable", "Correo-e responsable", "Teléfono responsable", 
+                "Plazo máximo legal para resolver (dias naturales)", "Plazo máximo legal para resolver (dias hábiles)", "Plazo CS /ANS (días naturales)", 
+                "Plazo CS /ANS (días hábiles)", "Pendientes iniciales (a 31-12)"];
+            var ws = {};
+            var pos = 1;
+            for (var i = 0; i < precabeceras.length; i++) {
+                var cellHeader = {v: precabeceras[i], t: 's'};
+                var cellHeaderRef = XLSX.utils.encode_cell({c: pos++, r: 1});
+                ws[cellHeaderRef] = cellHeader;
+            }
+            var cellHeader = {v: 'RESUELTOS EN LOS MESES DE 2014', t: 's'};
+            var cellHeaderRef = XLSX.utils.encode_cell({c: pos+6, r: 0});
+            ws[cellHeaderRef] = cellHeader;   
+            for (var i = 0; i < meses.length; i++) {
+                var cellHeader = {v: meses[i], t: 's'};
+                var cellHeaderRef = XLSX.utils.encode_cell({c: pos++, r: 1});
+                ws[cellHeaderRef] = cellHeader;   
+            }
+            for (var i = 0; i < meses.length; i++) {
+                var cellHeader = {v: meses[i], t: 's'};
+                var cellHeaderRef = XLSX.utils.encode_cell({c: pos+6, r: 0});
+                ws[cellHeaderRef] = cellHeader;   
+                for (var j = 0; j < indicadores.length; j++) {
+                    var cellHeader = {v: indicadores[j], t: 's'};
+                    var cellHeaderRef = XLSX.utils.encode_cell({c: pos++, r: 1});
+                    ws[cellHeaderRef] = cellHeader;   
+                }
+            }
+            var dim = pos;
+            var promesasLogins = [];
+            for (var i = 0; i < procedimientos.length; i++) {
+                pos = 1;
+                var procedimiento = procedimientos[i];
+                var cellValue = {v: procedimiento.codigo, t: 's'};
+                var cellValueRef = XLSX.utils.encode_cell({c: pos++, r: i+2});
+                ws[cellValueRef] = cellValue;
+                cellValue = {v: procedimiento.denominacion, t: 's'};
+                cellValueRef = XLSX.utils.encode_cell({c: pos++, r: i+2});
+                ws[cellValueRef] = cellValue;
+                if ((typeof procedimiento.ancestros !== 'undefined') && (procedimiento.ancestros.length > 1)) {
+                    if (procedimiento.ancestros.length === 4) {
+                        for (var j = 0; j < 3; j++) {
+                            var cellValue = {v: procedimiento.ancestros[j].id, t: 'n'};
+                            var cellValueRef = XLSX.utils.encode_cell({c: pos, r: i+2});
+                            ws[cellValueRef] = cellValue;
+                            cellValue = {v: procedimiento.ancestros[j].nombrelargo, t: 's'};
+                            cellValueRef = XLSX.utils.encode_cell({c: pos+1, r: i+2});
+                            ws[cellValueRef] = cellValue;
+                            pos+=2;
+                        }
+                    } else if (procedimiento.ancestros.length === 3) {
+                        var cellValue = {v: procedimiento.ancestros[0].id, t: 'n'};
+                        var cellValueRef = XLSX.utils.encode_cell({c: pos, r: i+2});
+                        ws[cellValueRef] = cellValue;
+                        cellValue = {v: procedimiento.ancestros[0].nombrelargo, t: 's'};
+                        cellValueRef = XLSX.utils.encode_cell({c: pos+1, r: i+2});
+                        ws[cellValueRef] = cellValue;
+                        cellValue = {v: procedimiento.ancestros[1].id, t: 'n'};
+                        cellValueRef = XLSX.utils.encode_cell({c: pos+4, r: i+2});
+                        ws[cellValueRef] = cellValue;
+                        cellValue = {v: procedimiento.ancestros[1].nombrelargo, t: 's'};
+                        cellValueRef = XLSX.utils.encode_cell({c: pos+5, r: i+2});
+                        ws[cellValueRef] = cellValue;
+                        pos+=6;
+                    } else if (procedimiento.ancestros.length === 2) {
+                        var cellValue = {v: procedimiento.ancestros[0].id, t: 'n'};
+                        var cellValueRef = XLSX.utils.encode_cell({c: pos+4, r: i+2});
+                        ws[cellValueRef] = cellValue;
+                        cellValue = {v: procedimiento.ancestros[0].nombrelargo, t: 's'};
+                        cellValueRef = XLSX.utils.encode_cell({c: pos+5, r: i+2});
+                        ws[cellValueRef] = cellValue;
+                        pos += 6;
+                    }
+                } else {
+                    pos += 6;
+                }
+                cellValue = {v: procedimiento.cod_plaza, t: 's'};
+                cellValueRef = XLSX.utils.encode_cell({c: pos++, r: i+2});
+                ws[cellValueRef] = cellValue;
+                var deferLogin = Q.defer();
+                promesasLogins.push(deferLogin.promise);
+                Persona.findOne({'codplaza': procedimiento.cod_plaza}, cbLogin(deferLogin, i+2, pos, ws));
+                pos += 4;
+                cellValue = {v: ((typeof procedimiento.periodos[year].plazo_maximo_resolver === 'undefined' || procedimiento.periodos[year].plazo_maximo_resolver === null) ? '' : procedimiento.periodos[year].plazo_maximo_resolver), t: 'n'};
+                cellValueRef = XLSX.utils.encode_cell({c: pos++, r: i+2});
+                ws[cellValueRef] = cellValue;
+                cellValue = {v: ((typeof procedimiento.periodos[year].plazo_maximo_responder === 'undefined' || procedimiento.periodos[year].plazo_maximo_responder === null) ? '' : procedimiento.periodos[year].plazo_maximo_responder), t: 'n'};
+                cellValueRef = XLSX.utils.encode_cell({c: pos++, r: i+2});
+                ws[cellValueRef] = cellValue;
+                cellValue = {v: ((typeof procedimiento.periodos[year].plazo_CS_ANS_naturales === 'undefined' || procedimiento.periodos[year].plazo_CS_ANS_naturales === null) ? '' : procedimiento.periodos[year].plazo_CS_ANS_naturales), t: 'n'};
+                cellValueRef = XLSX.utils.encode_cell({c: pos++, r: i+2});
+                ws[cellValueRef] = cellValue;
+                cellValue = {v: ((typeof procedimiento.periodos[year].plazo_CS_ANS_habiles === 'undefined' || procedimiento.periodos[year].plazo_CS_ANS_habiles === null) ? '' : procedimiento.periodos[year].plazo_CS_ANS_habiles), t: 'n'};
+                cellValueRef = XLSX.utils.encode_cell({c: pos++, r: i+2});
+                ws[cellValueRef] = cellValue;
+                cellValue = {v: ((typeof procedimiento.periodos[year].pendientes_iniciales === 'undefined' || procedimiento.periodos[year].pendientes_iniciales === null) ? '' : procedimiento.periodos[year].pendientes_iniciales), t: 'n'};
+                cellValueRef = XLSX.utils.encode_cell({c: pos++, r: i+2});
+                ws[cellValueRef] = cellValue;
+                for (var mes = 0; mes < meses.length; mes++) {
+                    if (typeof procedimiento.periodos[year].total_resueltos !== 'undefined') {
+                        var cellValue = {v: ((typeof procedimiento.periodos[year].total_resueltos[mes] === 'undefined') ? '' : procedimiento.periodos[year].total_resueltos[mes]), t: 'n'};
+                        var cellValueRef = XLSX.utils.encode_cell({c: pos, r: i+2});
+                        ws[cellValueRef] = cellValue;
+                    }
+                    pos++;
+                }
+                for (var mes = 0; mes < meses.length; mes++) {
+                    for (var ind = 0; ind < indicadoresDatabase.length; ind++) {
+                        if (typeof procedimiento.periodos[year][indicadoresDatabase[ind]] !== 'undefined') {
+                            var cellValue = {v: ((typeof procedimiento.periodos[year][indicadoresDatabase[ind]][mes] === 'undefined') ? '' : procedimiento.periodos[year][indicadoresDatabase[ind]][mes]), t: 'n'};
+                            var cellValueRef = XLSX.utils.encode_cell({c: pos, r: i+2});
+                            ws[cellValueRef] = cellValue;
+                        }
+                        pos++;
+                    }
+                }
+            }
+            Q.all(promesasLogins).then(function () {
+                var range = {s: {c: 0, r: 0}, e: {c: dim+1, r: procedimientos.length + 1}};
+                ws['!ref'] = XLSX.utils.encode_range(range);
+                deferBD.resolve({'wsName': 'BD', 'sheet': ws});
+            }, function (err) {
+                console.error(err);
+                res.status(500);
+                res.end();
+                deferDB.reject(err);
+            });
+        }, function(err) {
+            deferBD.reject(err);
+        });
+
+        var cbLogin = function(deferLogin, r, c, ws) {
+            return function(err, persona) {
+                if (err) {
+                    deferLogin.reject(err);
+                } else {
+                    var cellValue = {v: persona.login, t: 's'};
+                    var cellValueRef = XLSX.utils.encode_cell({c: c, r: r});
+                    ws[cellValueRef] = cellValue;
+                    cellValue = {v: persona.apellidos+', '+persona.nombre, t: 's'};
+                    cellValueRef = XLSX.utils.encode_cell({c: c+1, r: r});
+                    ws[cellValueRef] = cellValue;
+                    cellValue = {v: persona.login+'@carm.es', t: 's'};
+                    cellValueRef = XLSX.utils.encode_cell({c: c+2, r: r});
+                    ws[cellValueRef] = cellValue;
+                    cellValue = {v: persona.telefono, t: 's'};
+                    cellValueRef = XLSX.utils.encode_cell({c: c+3, r: r});
+                    ws[cellValueRef] = cellValue;
+                    deferLogin.resolve();
+                }
+            };
+        };
 
         var cb = function (deferNombreJerarquia, r, c, ws) {
             return function (err, jerarquia) {
                 if (err) {
                     deferNombreJerarquia.reject(err);
                 } else {
-                    var cellNombreJerarquiaRef = XLSX.utils.encode_cell({c: c, r: r});
                     var cellNombreJerarquia = {v: jerarquia.nombrelargo, t: 's'};
+                    var cellNombreJerarquiaRef = XLSX.utils.encode_cell({c: c, r: r});
                     ws[cellNombreJerarquiaRef] = cellNombreJerarquia;
                     deferNombreJerarquia.resolve();
                 }
