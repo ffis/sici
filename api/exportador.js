@@ -459,18 +459,24 @@ exports.exportarInforme = function (models, app, md5, Q) {
                 if (err) {
                     deferLogin.reject(err);
                 } else {
-                    var cellValue = {v: persona.login, t: 's'};
-                    var cellValueRef = XLSX.utils.encode_cell({c: c, r: r});
-                    ws[cellValueRef] = cellValue;
-                    cellValue = {v: persona.apellidos+', '+persona.nombre, t: 's'};
-                    cellValueRef = XLSX.utils.encode_cell({c: c+1, r: r});
-                    ws[cellValueRef] = cellValue;
-                    cellValue = {v: persona.login+'@carm.es', t: 's'};
-                    cellValueRef = XLSX.utils.encode_cell({c: c+2, r: r});
-                    ws[cellValueRef] = cellValue;
-                    cellValue = {v: persona.telefono, t: 's'};
-                    cellValueRef = XLSX.utils.encode_cell({c: c+3, r: r});
-                    ws[cellValueRef] = cellValue;
+                    if (persona === null) {
+                        var cellValue = {v: 'Persona no encontrada', t: 's'};
+                        var cellValueRef = XLSX.utils.encode_cell({c: c, r: r});
+                        ws[cellValueRef] = cellValue;
+                    } else {
+                        var cellValue = {v: persona.login, t: 's'};
+                        var cellValueRef = XLSX.utils.encode_cell({c: c, r: r});
+                        ws[cellValueRef] = cellValue;
+                        cellValue = {v: persona.apellidos+', '+persona.nombre, t: 's'};
+                        cellValueRef = XLSX.utils.encode_cell({c: c+1, r: r});
+                        ws[cellValueRef] = cellValue;
+                        cellValue = {v: persona.login+'@carm.es', t: 's'};
+                        cellValueRef = XLSX.utils.encode_cell({c: c+2, r: r});
+                        ws[cellValueRef] = cellValue;
+                        cellValue = {v: persona.telefono, t: 's'};
+                        cellValueRef = XLSX.utils.encode_cell({c: c+3, r: r});
+                        ws[cellValueRef] = cellValue;
+                    }
                     deferLogin.resolve();
                 }
             };
