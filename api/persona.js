@@ -1,3 +1,4 @@
+'use strict';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 exports.personasByPuesto = function (models) {
@@ -148,17 +149,20 @@ exports.personasByRegex = function (models, Q) {
                     } else {
                         var regPlaza = new RegExp(/[A-Z]{2}\d{5}/);
                         if (regPlaza.test(req.params.regex)) {
-                            exports.registroPersonaWS(req.params.regex, models, Q).then(function(data) {
-								res.json(data);
-							}, function(err) {
-								res.json(data);
-							});
+                            exports.registroPersonaWS(req.params.regex, models, Q).then(
+								function(resultado) {
+									console.log("ESTE ES EL RESULTADOOOOOOOOOOOOOOOOOO¡¡¡");
+									console.log(resultado);
+									res.json(resultado);
+								}, function(err) {
+									res.json(data);
+								}
+							);
                         } else {
                             res.json(data);
                         }
                     }
-                }
-                res.json(data);
+                } else res.json(data);
             });
         } else {
             res.status(500).end();
@@ -167,12 +171,13 @@ exports.personasByRegex = function (models, Q) {
     };
 };
 
-exports.registroPersonaWS(codplaza, models, Q) {
+exports.registroPersonaWS = function(codplaza, models, Q) {
 	var deferRegistro = Q.defer();
 	var Persona = models.persona();
 	Persona.count({'codplaza': codplaza}, function(err, count) {
-		if (count !== 0) {
+		if (count === 0) {
 			exports.infoByPlaza(codplaza, Q).then(function (result) {
+				console.log(result);
 				if ((result !== null) && (typeof result.return !== 'undefined') && (result.return.length > 0) && (result.return[2].key === 'ERR_MSG')) {
 					var msg = result.return[2].value;
 					var valores = /(\d{2})\.-(.*)/g.exec(msg);
@@ -181,19 +186,23 @@ exports.registroPersonaWS(codplaza, models, Q) {
 							console.error(valores[2]);
 							deferRegistro.reject();
 							return;
-						} else {
+						} else {							
 							var nuevaPersona = new Persona();
-							nuevaPersona.codplaza = req.params.regex;
+							nuevaPersona.codplaza = codplaza;
 							nuevaPersona.login = result.return[0].value;
 							nuevaPersona.nombre = result.return[1].value;
 							nuevaPersona.apellidos = result.return[6].value + " " + result.return[5].value;
 							nuevaPersona.telefono = result.return[7].value;
 							nuevaPersona.habilitado = false;
+							console.log("creando persona 1...");
 							nuevaPersona.save(function (err) {
+							console.log("creando nueva persona...");
 								if (err) {
+									console.log("error");
 									console.err(err);
 									deferRegistro.reject();
 								} else {
+									console.log("chachi");
 									var output = [{'login': nuevaPersona.login, 'codplaza': nuevaPersona.codplaza, 'nombre': nuevaPersona.nombre, 'apellidos': nuevaPersona.apellidos}];
 									console.log('Nuevo usuario registrado: ' + JSON.stringify(output));
 									deferRegistro.resolve(output);

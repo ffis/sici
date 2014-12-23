@@ -387,14 +387,16 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
                                                 else
                                                     promesa_proc.resolve();
                                             });
-											persona.registroPersonaWS(original.cod_plaza, Q).then(function(data) {
+											persona.registroPersonaWS(original.cod_plaza,models, Q).then(function(data) {
 												Persona.update({'codplaza':original.cod_plaza},{$set:{'habilitado':true}},{multi:false, upsert:false}, function(err){
 													console.error('Error habilitando personas del codigo de plaza responsable');
 												});
+												console.log("El pavo no existía, lo ha buscado");
 											}, function(err) {
 												Persona.update({'codplaza':original.cod_plaza},{$set:{'habilitado':true}},{multi:false, upsert:false}, function(err){
 													console.error('Error habilitando personas del codigo de plaza responsable');
 												});
+												console.log("El pavo existía u ocurrió un error molón");
 												console.error(err);
 											});
 											
