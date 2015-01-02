@@ -143,13 +143,14 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
         $scope.superuser = $rootScope.superuser();
 
         var cod_plaza = $scope.procedimientoSeleccionado.cod_plaza;
+        var anualidad_anterior = parseInt($scope.anualidad.substring(1,5))-1;
         var graphskeys = [
             {caption: 'RESUMEN DE DATOS DE GESTIÓN ' + $scope.anualidad.substring(1, 5), keys: [
                     {caption: 'Solicitados', vals: 'periodos.' + $scope.anualidad + '.solicitados', maxx: $scope.mesActual},
                     {caption: 'Iniciados', vals: 'periodos.' + $scope.anualidad + '.iniciados', maxx: $scope.mesActual},
                     {caption: 'Pendientes', vals: 'periodos.' + $scope.anualidad + '.pendientes', maxx: $scope.mesActual},
                     {caption: 'Total resueltos', vals: 'periodos.' + $scope.anualidad + '.total_resueltos', maxx: $scope.mesActual},
-                    {caption: 'Total resueltos ' + ($scope.anualidad - 1), vals: 'periodos.a' + ($scope.anualidad - 1) + '.total_resueltos', maxx: 12},
+                    {caption: 'Total resueltos ' + anualidad_anterior, vals: 'periodos.a' + anualidad_anterior + '.total_resueltos', maxx: 12},
                 ]},
             {caption: 'RESUELTOS EN PLAZO ' + $scope.anualidad.substring(1, 5), keys: [
                     {caption: 'En plazo', vals: 'periodos.' + $scope.anualidad + '.en_plazo', maxx: $scope.mesActual},
@@ -162,7 +163,8 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
             {caption: 'QUEJAS Y RECURSOS CONTRA EL PROCEDIMIENTO ' + $scope.anualidad.substring(1, 5), keys: [
                     {caption: 'Quejas presentadas en el mes', vals: 'periodos.' + $scope.anualidad + '.quejas', maxx: $scope.mesActual},
                     {caption: 'Recursos presentados en el mes', vals: 'periodos.' + $scope.anualidad + '.recursos', maxx: $scope.mesActual},
-                ]}
+                ]},
+
         ];
         $scope.graphskeys = graphskeys;
         $scope.graphs = [];
