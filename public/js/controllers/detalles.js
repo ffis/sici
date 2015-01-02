@@ -99,6 +99,7 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
     };
 
     $scope.procedimientoSeleccionado = Procedimiento.get({codigo: $routeParams.codigo}, function () {
+      
         $window.document.title = 'SICI: ' + $scope.procedimientoSeleccionado.denominacion;
         $rootScope.procedimiento = $scope.procedimientoSeleccionado.codigo;
         $scope.anualidad = '000000';
@@ -217,9 +218,9 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
                 }
             });
         });
-        
-        $scope.changeFocus = function(form, index, attr, data) {
-			
+
+        $scope.changeFocus = function (form, index, attr, data) {
+
             if (isNaN(parseInt(data)) || !/^\d+$/.test(data) || parseInt(data) < 0) {
                 form.$setError('Error', 'Formato no v&aacute;lido.');
                 return;
@@ -331,7 +332,7 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
                 ];
                 cmds[0].defer.resolve();
                 $scope.mensaje_moviendo = $scope.msj_base;
-                for (var i = 1; i < cmds.length; i++) {                    
+                for (var i = 1; i < cmds.length; i++) {
                     $scope.execCmd(cmds, i).then(function (data) {
                         console.log(data.msj);
                         if (data.index == cmds.length - 1) {
@@ -426,18 +427,18 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
 
 
     $scope.recalculate = function (force) {
-		if (force || $scope.cellChanged) {
-			$scope.procedimientoSeleccionado.$update(function (response) {
-				console.error(response);
-			});
-		}
+        if (force || $scope.cellChanged) {
+            $scope.procedimientoSeleccionado.$update(function (response) {
+                console.error(response);
+            });
+        }
     };
-    
+
     $scope.checkNumber = function (data, anualidad, attr, index) {
-		if ($scope.procedimientoSeleccionado.periodos[anualidad][attr][index]!==data)
-			$scope.cellChanged = true;
-		else
-			$scope.cellChanged = false;
+        if ($scope.procedimientoSeleccionado.periodos[anualidad][attr][index] !== data)
+            $scope.cellChanged = true;
+        else
+            $scope.cellChanged = false;
         var valor = parseInt(data);
         if (isNaN(valor) || !/^\d+$/.test(data)) {
             return "Esto no es un número";
@@ -455,9 +456,40 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
             saveAs(blob, "image.png");
         });
     };
+    
+    $scope.guardarImagen = function(id) {
+//        http://techslides.com/save-svg-as-an-image
+      var html = d3.select('#svg'+id)
+        .attr("version", 1.1)
+        .attr("xmlns", "http://www.w3.org/2000/svg")
+        .node().parentNode.innerHTML;
+ 
+        console.log(html);
+        var imgsrc = 'data:image/svg+xml;base64,'+ btoa(html);
+        var img = '<img src="'+imgsrc+'">'; 
+        d3.select("#svgdataurl"+id).html(img);
+
+
+        var canvas = document.querySelector("canvas"),
+                context = canvas.getContext("2d");
+
+        var image = new Image();
+        image.src = imgsrc;
+        image.onload = function() {
+            context.drawImage(image, 0, 0);
+            var canvasdata = canvas.toDataURL("image/png");
+            var pngimg = '<img src="'+canvasdata+'">'; 
+            d3.select("#pngdataurl"+id).html(pngimg);
+
+            var a = document.createElement("a");
+            a.download = "grafica.png";
+            a.href = canvasdata;
+            a.click();
+        };  
+    };
 
 }
-DetallesCtrl.$inject = ['$q', '$rootScope', '$scope', '$routeParams', '$window', '$location', '$timeout', '$http', 'Procedimiento', 'DetalleCarmProcedimiento', 'DetalleCarmProcedimiento2', 'Raw', 'Aggregate', 'ProcedimientoHasChildren', 'ProcedimientoList','ArbolWithEmptyNodes'];
+DetallesCtrl.$inject = ['$q', '$rootScope', '$scope', '$routeParams', '$window', '$location', '$timeout', '$http', 'Procedimiento', 'DetalleCarmProcedimiento', 'DetalleCarmProcedimiento2', 'Raw', 'Aggregate', 'ProcedimientoHasChildren', 'ProcedimientoList', 'ArbolWithEmptyNodes'];
 
 function parseStr2Int(str) {
     var valor = parseInt(str);
