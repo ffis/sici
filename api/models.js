@@ -8,7 +8,7 @@ var schemasfields = {
 	settings: { version:Number, 'secret': String, 'secret2': String, 'anyo': String, 'port': Number,  'urlbasedecrypt': String, logincarm: Boolean },
 	reglasinconsistencias : { 'titulo': String, 'restriccion': String},
 	historico: {},
-	periodo: { 'a2013' : [Number] , 'a2014' : [Number] },
+	periodo: { a2013: [Number],a2014: [Number],a2015: [Number]},
 	persona : {
 		'codplaza' : String,
 		'login' : String,
@@ -18,7 +18,7 @@ var schemasfields = {
 		'telefono' : String,
 		'habilitado' : Boolean,
 		'ultimologin': Date,
-                'ultimoupdate': Date
+        'ultimoupdate': Date
 	},
 	permiso : {
 		'codplaza' : String,
@@ -196,6 +196,42 @@ var schemasfields = {
 					'Las solicitudes aumentan al menos 20%': [Number],
 					'Posible incumplimiento de compromisos': [Number],
 				},
+			'a2015':
+			{
+				'plazo_maximo_resolver':Number,
+				'plazo_maximo_responder':Number,
+				'plazo_CS_ANS_naturales':Number,
+				'plazo_CS_ANS_habiles':Number,
+				'pendientes_iniciales':Number,
+				'total_resueltos':[Number],
+				'solicitados':[Number],
+				'iniciados': [Number],
+				'resueltos_1':[Number],
+				'resueltos_5':[Number],				
+				'resueltos_10':[Number],
+				'resueltos_15':[Number],
+				'resueltos_30':[Number],
+				'resueltos_45':[Number],
+				'resueltos_mas_45':[Number],
+				'resueltos_desistimiento_renuncia_caducidad':[Number],
+				'resueltos_prescripcion':[Number],
+				't_medio_naturales':[Number],
+				't_medio_habiles':[Number],
+				'en_plazo':[Number],
+				'quejas':[Number],
+				'recursos':[Number],
+				'fuera_plazo':[Number],
+				'pendientes':[Number],
+				'periodoscerrados':[Number],
+				'totalsolicitudes':Number,
+				'Incidencias': {
+					'Se han resuelto expedientes fuera de Plazo': [Number],
+					'Aumenta el N de expedientes pendientes': [Number],
+					'Hay quejas presentadas': [Number],
+					'Hay expedientes prescritos/caducados': [Number],
+					'Las solicitudes aumentan al menos 20%': [Number],
+					'Posible incumplimiento de compromisos': [Number],
+				},				
 			}
 		}
 	}
@@ -226,9 +262,11 @@ function schemaConstructor(name, mongoose, strict){
 exports.init = function(mongoose) {
 	var Schema = mongoose.Schema;
 	schemasfields.crawled.any = Schema.Types.Mixed;
+	schemasfields.periodo = Schema.Types.Mixed;
 	schemasfields.registroactividad.req = Schema.Types.Mixed;
 	schemasfields.procedimiento.ancestros = Schema.Types.Mixed;
 	schemasfields.procedimiento.responsables = Schema.Types.Mixed;
+	schemasfields.procedimiento.periodos = Schema.Types.Mixed;
 	schemasfields.importacionesprocedimiento.input = Schema.Types.Mixed;
 	schemasfields.importacionesprocedimiento.output = Schema.Types.Mixed;
 	schemasfields.importacionesprocedimiento.avisos = Schema.Types.Mixed;
