@@ -196,6 +196,7 @@ var schemasfields = {
 					'Las solicitudes aumentan al menos 20%': [Number],
 					'Posible incumplimiento de compromisos': [Number],
 				},
+			},
 			'a2015':
 			{
 				'plazo_maximo_resolver':Number,
@@ -231,8 +232,8 @@ var schemasfields = {
 					'Hay expedientes prescritos/caducados': [Number],
 					'Las solicitudes aumentan al menos 20%': [Number],
 					'Posible incumplimiento de compromisos': [Number],
-				},				
-			}
+				}			
+			}			
 		}
 	}
 	
