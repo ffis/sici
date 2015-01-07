@@ -8,7 +8,7 @@ var schemasfields = {
 	settings: { version:Number, 'secret': String, 'secret2': String, 'anyo': String, 'port': Number,  'urlbasedecrypt': String, logincarm: Boolean },
 	reglasinconsistencias : { 'titulo': String, 'restriccion': String},
 	historico: {},
-	periodo: { a2013: [Number],a2014: [Number],a2015: [Number]},
+	periodo: { a2013:[Number], a2014:[Number], a2015:[Number] },
 	persona : {
 		'codplaza' : String,
 		'login' : String,
@@ -262,12 +262,11 @@ function schemaConstructor(name, mongoose, strict){
 
 exports.init = function(mongoose) {
 	var Schema = mongoose.Schema;
-	schemasfields.crawled.any = Schema.Types.Mixed;
-	schemasfields.periodo = Schema.Types.Mixed;
+	schemasfields.crawled.any = Schema.Types.Mixed;	
 	schemasfields.registroactividad.req = Schema.Types.Mixed;
 	schemasfields.procedimiento.ancestros = Schema.Types.Mixed;
 	schemasfields.procedimiento.responsables = Schema.Types.Mixed;
-	schemasfields.procedimiento.periodos = Schema.Types.Mixed;
+	
 	schemasfields.importacionesprocedimiento.input = Schema.Types.Mixed;
 	schemasfields.importacionesprocedimiento.output = Schema.Types.Mixed;
 	schemasfields.importacionesprocedimiento.avisos = Schema.Types.Mixed;
