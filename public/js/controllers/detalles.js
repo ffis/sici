@@ -1,4 +1,4 @@
-function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, $timeout, $http, Procedimiento, DetalleCarmProcedimiento, DetalleCarmProcedimiento2, Raw, Aggregate, ProcedimientoHasChildren, ProcedimientoList, ArbolWithEmptyNodes) {
+function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, $timeout, $http, Procedimiento, DetalleCarmProcedimiento, DetalleCarmProcedimiento2, Raw, Aggregate, ProcedimientoHasChildren, ProcedimientoList, ArbolWithEmptyNodes, ExportarResultadosProcedimiento) {
 
     $scope.detallesCarm = DetalleCarmProcedimiento.get({codigo: $routeParams.codigo});
     $scope.detallesCarm2 = DetalleCarmProcedimiento2.get({codigo: $routeParams.codigo});
@@ -205,6 +205,7 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
             if (maxvalue > 0) {
                 $scope.graphs.push({data: data, forcey: forcey, caption: caption});
                 $scope.numgraphs = $scope.numgraphs + 1;
+                console.log(data);
             }
         });
 
@@ -489,9 +490,18 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
             a.click();
         };  
     };
+    
+    $scope.descargarExcel = function() {
+        ExportarResultadosProcedimiento.get({codigo: $scope.procedimientoSeleccionado.codigo, year: $scope.anualidad}, function (token) {
+            var url = '/download/' + token.time + '/' + token.hash;
+            $window.location = url;
+        }, function() {
+            
+        });
+    };
 
 }
-DetallesCtrl.$inject = ['$q', '$rootScope', '$scope', '$routeParams', '$window', '$location', '$timeout', '$http', 'Procedimiento', 'DetalleCarmProcedimiento', 'DetalleCarmProcedimiento2', 'Raw', 'Aggregate', 'ProcedimientoHasChildren', 'ProcedimientoList', 'ArbolWithEmptyNodes'];
+DetallesCtrl.$inject = ['$q', '$rootScope', '$scope', '$routeParams', '$window', '$location', '$timeout', '$http', 'Procedimiento', 'DetalleCarmProcedimiento', 'DetalleCarmProcedimiento2', 'Raw', 'Aggregate', 'ProcedimientoHasChildren', 'ProcedimientoList', 'ArbolWithEmptyNodes', 'ExportarResultadosProcedimiento'];
 
 function parseStr2Int(str) {
     var valor = parseInt(str);

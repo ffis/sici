@@ -7,7 +7,7 @@ function InformesCtrl($rootScope, $scope, $window, $http, ExportarInforme) {
         {label: 'Informe global', fn: [{label: "Descargar Excel", cmd: 'descargarexcel', anyo: true}]}
     ];
     $scope.clasefuncionalidades = 'col-md-' + (12 / $scope.funcionalidades.length);
-    $scope.anyos = [{code: 'a2013', name: '2013'}, {code: 'a2014', name: '2014'}];
+    $scope.anyos = [{code: 'a2013', name: '2013'}, {code: 'a2014', name: '2014'}, {code: 'a2015', name: '2015'}];
     $scope.anyoSelected = '';
 
     $scope.invoke = function (cmd) {

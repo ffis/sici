@@ -83,6 +83,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
     app.get('/api/gs/:id', importador.parseGS());
     app.get('/api/cr/:id', importador.parseCr(Q, models));
     app.get('/api/exportador/informe/:year', exportador.exportarInforme(models, app, md5, Q));
+    app.get('/api/exportador/procedimiento/:codigo/:year', exportador.tablaResultadosProcedimiento(models, app, md5, Q));
 
 
     app.get('/api/personasByPuesto/:cod_plaza', persona.personasByPuesto(models));
@@ -219,7 +220,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
         }
     });
 
-// redirect all others to the index (HTML5 history)
+    // redirect all others to the index (HTML5 history)
     app.get('*', routes.index);//devolver el index.html del raiz
 
 

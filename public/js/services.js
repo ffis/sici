@@ -127,6 +127,10 @@ angular.module('sici.services', ['ngResource'])
             function ($resource) {
                 return $resource('/api/exportador/informe/:year', {year: '@year'}, {get: {method: 'GET', isArray: false}});
             }])
+        .factory('ExportarResultadosProcedimiento', ['$resource',
+            function ($resource) {
+                return $resource('/api/exportador/procedimiento/:codigo/:year', {codigo: '@codigo', year: '@year'}, {get: {method: 'GET', isArray: false}});
+            }])
         .factory('DetalleCarmProcedimiento', ['$resource',
             function ($resource) {
                 return $resource('/api/gs/:codigo', {}, {});
