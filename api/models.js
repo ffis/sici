@@ -150,7 +150,7 @@ var schemasfields = {
 		//'ancestros' : [ jerarquia],
 		//responsables : [persona]
 		//'periodos':{}
-/*
+
 		'periodos':{
 			'a2013':
 			{
@@ -237,7 +237,7 @@ var schemasfields = {
 				}			
 			}			
 		}
-*/	
+	
 	}
 	
 }
@@ -268,7 +268,7 @@ exports.init = function(mongoose) {
 	schemasfields.crawled.any = Schema.Types.Mixed;	
 	schemasfields.registroactividad.req = Schema.Types.Mixed;
 	schemasfields.procedimiento.ancestros = Schema.Types.Mixed;
-	schemasfields.procedimiento.periodos = Schema.Types.Mixed;
+	//schemasfields.procedimiento.periodos = Schema.Types.Mixed;
 	schemasfields.procedimiento.responsables = Schema.Types.Mixed;	
 	schemasfields.importacionesprocedimiento.input = Schema.Types.Mixed;
 	schemasfields.importacionesprocedimiento.output = Schema.Types.Mixed;
