@@ -150,7 +150,7 @@ var schemasfields = {
 		//'ancestros' : [ jerarquia],
 		//responsables : [persona]
 		//'periodos':{}
-/*
+		/*
 		'periodos':{
 			'a2013':
 			{
@@ -236,8 +236,8 @@ var schemasfields = {
 					'Posible incumplimiento de compromisos': [Number],
 				}			
 			}			
-		}
-*/	
+		}*/
+	
 	}
 	
 }

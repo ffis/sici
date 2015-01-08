@@ -81,33 +81,79 @@ exports.createProcedimiento = function (Q, models, recalculate) {
                             res.end();
                             return;
                         } else {
-                            procedimiento.save(function (err) {
-                                if (err) {
-                                    console.error(err);
-                                    res.status(500).send('Error 57 guardando');
-                                    res.end();
-                                    return;
-                                } else {
-                                    recalculate.softCalculateProcedimiento(Q, models, procedimiento).then(function (procedimiento) {
-                                        recalculate.softCalculateProcedimientoCache(Q, models, procedimiento).then(function (procedimiento) {
-                                            procedimiento.save(function (err) {
-                                                if (err) {
-                                                    console.error(err);
-                                                    res.status(500).send('Error 67 guardando');
-                                                    res.end();
-                                                    return;
-                                                } else {
-                                                    res.json(procedimiento);
-                                                }
-                                            });
-                                        });
-                                    });
-                                }
-                            });
+						
+							var PlantillaAnualidad = models.plantillaanualidad();
+							var Periodo = models.periodo();							
+							var defer_periodos = Q.defer();
+							var defer_plantilla = Q.defer();
+							
+							Periodo.findOne({},function(err,periodos){
+								if (err) {
+									console.error(err);
+									res.status(500);
+									res.end();
+									defer_periodos.reject(err);
+									return;
+								} 			
+								defer_periodos.resolve(periodos);
+							});	
+							
+							PlantillaAnualidad.findOne({}, function(err, plantilla){
+								if (err) {
+									console.error(err);
+									res.status(500);
+									res.end();
+									defer_plantilla.reject(err);
+									return;
+								} 
+								defer_plantilla.resolve(plantilla);
+							});
+							
+							
+							Q.all([defer_periodos.promise, defer_plantilla.promise]).then(function(data){
+								var periodos = JSON.parse(JSON.stringify(data[0]));
+								var plantilla = JSON.parse(JSON.stringify(data[1]));
+								delete plantilla._id;
+								
+								procedimiento.periodos = {};
+								for (var anualidad in periodos) {
+									if (isNaN(parseInt(anualidad.replace("a","")))) continue;	
+									procedimiento.periodos[anualidad]=plantilla;
+								}
+								
+								procedimiento.save(function (err) {
+									if (err) {
+										console.error(err);
+										res.status(500).send('Error 57 guardando');
+										res.end();
+										return;
+									} else {										
+										recalculate.softCalculateProcedimiento(Q, models, procedimiento).then(function (procedimiento) {
+											recalculate.softCalculateProcedimientoCache(Q, models, procedimiento).then(function (procedimiento) {
+												procedimiento.save(function (err) {
+													if (err) {
+														console.error(err);
+														res.status(500).send('Error 133 guardando');
+														res.end();
+														return;
+													} else {
+														res.json(procedimiento);
+													}
+												});
+											});
+										});
+									}
+								});								
+							}, function(err){
+								console.error(err);
+								res.status(500).send('Error 147 guardando');
+								res.end();
+								return;							
+							});		
                         }
                     });
                 } else {
-                    res.status(500).send('Error 67 guardando');
+                    res.status(500).send('Error 154 guardando');
                     res.end();
                     return;
                 }
@@ -209,6 +255,7 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
     return function (req, res) {
         var Procedimiento = models.procedimiento();
         var Permiso = models.permiso();
+		var Periodos = models.periodo();
         var restriccion = {};
         if (typeof req.params.codigo !== 'undefined')
             //restriccion.codigo = parseInt(req.params.codigo);
@@ -241,6 +288,18 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
         ];
 
 
+		var defer_periodos = Q.defer();
+		Periodos.findOne({},function(err,periodos){
+            if (err) {
+                console.error(err);
+                res.status(500);
+                res.end();
+				defer_periodos.reject(err);
+                return;
+            } 						
+			defer_periodos.resolve(periodos);
+		});
+		
 
         Procedimiento.findOne(restriccion, function (err, original) {
             if (err) {
@@ -250,7 +309,7 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
                 res.end();
                 return;
             }
-
+			
             if (typeof original === 'undefined' || original == null) {
                 res.status(500);
                 res.end('ERROR. imposible actualizar procedimiento ');
@@ -261,7 +320,8 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
                 return;
             }
 
-
+			original.markModified('periodos');
+			
             var procedimiento = req.body;
             //TODO: comprobar qué puede cambiar y qué no
 
@@ -285,165 +345,175 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
 
 
             //TODO: IMPEDIR EDICION DE ANUALIDADES MUY PRETÉRITAS		
-            var schema = models.getSchema('procedimiento');
+            var schema = models.getSchema('plantillaanualidad');
             var codplaza_changed = false;
-            for (var anualidad in schema.periodos) {
+			defer_periodos.promise.then(function(periodos){
+				periodos = JSON.parse(JSON.stringify(periodos));								
+				for (var anualidad in periodos) {
+					if (isNaN(parseInt(anualidad.replace("a","")))) continue;					
+
+					var periodoscerrados = original.periodos[anualidad].periodoscerrados;
+
+					if (puedeEscribirSiempre) {
+						/*
+						 for(var attr in schema){
+						 if (attr == 'codigo') continue;
+						 if (attr == 'periodos') continue;
+						 if (attr == 'idjerarquia') continue;
+						 if (attr == 'cod_plaza') continue;
+						 if (attr == 'fecha_creacion') continue;
+						 if (attr == 'fecha_fin') continue;
+						 if (attr == 'fecha_version') continue;
+						 if (attr == 'etiquetas') continue;
+						 if (attr == 'padre') continue;
+						 }*/
+						if (original.cod_plaza != procedimiento.cod_plaza) {
+							original.cod_plaza = procedimiento.cod_plaza;
+							codplaza_changed = true;
+						}
+						original.denominacion = procedimiento.denominacion;
+					}
 
 
-                var periodoscerrados = original.periodos[anualidad].periodoscerrados;
+					for (var attr in schema) {
+						if (attr == 'periodoscerrados')
+							continue;
+						if (typeof original.periodos[anualidad][attr] === 'object' && Array.isArray(original.periodos[anualidad][attr]))
+						{
+							for (var mes = 0, meses = periodoscerrados.length; mes < meses; mes++)
+							{
+								var val = periodoscerrados[mes];
+								if (!val || puedeEscribirSiempre) {//el periodo no está cerrado y se puede realizar la asignacion									
+									original.periodos[anualidad][attr][mes] =
+											procedimiento.periodos[anualidad][attr][mes] != null ?
+											parseInt(procedimiento.periodos[anualidad][attr][mes]) : null;
+								}
+							}
+						} else {
+							console.log(attr + '=>' + procedimiento.periodos[anualidad][attr]);
+							original.periodos[anualidad][attr] =
+									procedimiento.periodos[anualidad][attr] != null ?
+									parseInt(procedimiento.periodos[anualidad][attr]) : null;
+						}
+					}
+				}
 
-                if (puedeEscribirSiempre) {
-                    /*
-                     for(var attr in schema){
-                     if (attr == 'codigo') continue;
-                     if (attr == 'periodos') continue;
-                     if (attr == 'idjerarquia') continue;
-                     if (attr == 'cod_plaza') continue;
-                     if (attr == 'fecha_creacion') continue;
-                     if (attr == 'fecha_fin') continue;
-                     if (attr == 'fecha_version') continue;
-                     if (attr == 'etiquetas') continue;
-                     if (attr == 'padre') continue;
-                     }*/
-                    if (original.cod_plaza != procedimiento.cod_plaza) {
-                        original.cod_plaza = procedimiento.cod_plaza;
-                        codplaza_changed = true;
-                    }
-                    original.denominacion = procedimiento.denominacion;
-                }
+				
+				recalculate.softCalculateProcedimiento(Q, models, original).then(function (original) {
+					recalculate.softCalculateProcedimientoCache(Q, models, original).then(function (original) {				
+						exports.saveVersion(models, Q, original).then(function () {
+							original.fecha_version = new Date();	
+							Procedimiento.update({codigo: original.codigo}, JSON.parse(JSON.stringify(original)), {multi: false, upsert: false}, function (err, coincidencias, elemento) {							
+								if (err) {
+									console.error(err);
+									res.status(500).send(JSON.stringify(err));
+									res.end();
+									return;
+								}
+								else {		
+									
+									var promesa_proc = Q.defer();
+									var promesa_per = Q.defer();
 
-
-                for (var attr in schema.periodos[anualidad]) {
-                    if (attr == 'periodoscerrados')
-                        continue;
-                    if (typeof original.periodos[anualidad][attr] === 'object' && Array.isArray(original.periodos[anualidad][attr]))
-                    {
-                        for (var mes = 0, meses = periodoscerrados.length; mes < meses; mes++)
-                        {
-                            var val = periodoscerrados[mes];
-                            if (!val || puedeEscribirSiempre) {//el periodo no está cerrado y se puede realizar la asignacion
-                                original.periodos[anualidad][attr][mes] =
-                                        procedimiento.periodos[anualidad][attr][mes] != null ?
-                                        parseInt(procedimiento.periodos[anualidad][attr][mes]) : null;
-                            }
-                        }
-                    } else {
-                        console.log(attr + '=>' + procedimiento.periodos[anualidad][attr]);
-                        original.periodos[anualidad][attr] =
-                                procedimiento.periodos[anualidad][attr] != null ?
-                                parseInt(procedimiento.periodos[anualidad][attr]) : null;
-                    }
-                }
-
-            }
-
-
-            recalculate.softCalculateProcedimiento(Q, models, original).then(function (original) {
-                recalculate.softCalculateProcedimientoCache(Q, models, original).then(function (original) {
-                    exports.saveVersion(models, Q, original).then(function () {
-                        original.fecha_version = new Date();
-                        Procedimiento.update({codigo: original.codigo}, JSON.parse(JSON.stringify(original)), {multi: false, upsert: false}, function (err, coincidencias, elemento) {
-                            if (err) {
-                                console.error(err);
-                                res.status(500).send(JSON.stringify(err));
-                                res.end();
-                                return;
-                            }
-                            else {
-                                var promesa_proc = Q.defer();
-                                var promesa_per = Q.defer();
-
-                                if (codplaza_changed) {
-                                    Permiso.findOne(
-                                            {codplaza: original.cod_plaza},
-                                    function (err, permiso) {
-                                        if (err) {
-                                            console.error(err);
-                                            promesa_per.reject(err);
-                                        }
-                                        else if (permiso == null) {
-                                            // si no existe permiso asociado creamos uno para el camoto este.
-                                            var nuevopermiso = {
-                                                'codplaza': original.cod_plaza,
-                                                'login': null,
-                                                'jerarquialectura': [],
-                                                'jerarquiadirectalectura': [],
-                                                'jerarquiaescritura': [],
-                                                'jerarquiadirectaescritura': [],
-                                                'procedimientoslectura': [],
-                                                'procedimientosdirectalectura': [],
-                                                'procedimientosescritura': [],
-                                                'procedimientosdirectaescritura': [],
-                                                'superuser': 0,
-                                                'grantoption': 0,
-                                                'descripcion': 'Permiso otorgado por ' + req.user.login,
-                                                'caducidad': req.user.permisoscalculados.caducidad,
-                                                'cod_plaza_grantt': req.user.login
-                                            };
-                                            var p = new Permiso(nuevopermiso);
-                                            p.save(function (err) {
-                                                if (err)
-                                                    promesa_per.reject(err);
-                                                else
-                                                    promesa_proc.resolve();
-                                            });
-											persona.registroPersonaWS(original.cod_plaza,models, Q).then(function(data) {
-												Persona.update({'codplaza':original.cod_plaza},{$set:{'habilitado':true}},{multi:false, upsert:false}, function(err){
-													console.error('Error habilitando personas del codigo de plaza responsable');
-												});
-												console.log("El pavo no existía, lo ha buscado");
-											}, function(err) {
-												Persona.update({'codplaza':original.cod_plaza},{$set:{'habilitado':true}},{multi:false, upsert:false}, function(err){
-													console.error('Error habilitando personas del codigo de plaza responsable');
-												});
-												console.log("El pavo existía u ocurrió un error molón");
+									if (codplaza_changed) {
+										Permiso.findOne(
+												{codplaza: original.cod_plaza},
+										function (err, permiso) {
+											if (err) {
 												console.error(err);
+												promesa_per.reject(err);
+											}
+											else if (permiso == null) {
+												// si no existe permiso asociado creamos uno para el camoto este.
+												var nuevopermiso = {
+													'codplaza': original.cod_plaza,
+													'login': null,
+													'jerarquialectura': [],
+													'jerarquiadirectalectura': [],
+													'jerarquiaescritura': [],
+													'jerarquiadirectaescritura': [],
+													'procedimientoslectura': [],
+													'procedimientosdirectalectura': [],
+													'procedimientosescritura': [],
+													'procedimientosdirectaescritura': [],
+													'superuser': 0,
+													'grantoption': 0,
+													'descripcion': 'Permiso otorgado por ' + req.user.login,
+													'caducidad': req.user.permisoscalculados.caducidad,
+													'cod_plaza_grantt': req.user.login
+												};
+												var p = new Permiso(nuevopermiso);
+												p.save(function (err) {
+													if (err)
+														promesa_per.reject(err);
+													else
+														promesa_proc.resolve();
+												});
+												persona.registroPersonaWS(original.cod_plaza,models, Q).then(function(data) {
+													Persona.update({'codplaza':original.cod_plaza},{$set:{'habilitado':true}},{multi:false, upsert:false}, function(err){
+														console.error('Error habilitando personas del codigo de plaza responsable');
+													});
+													console.log("El pavo no existía, lo ha buscado");
+												}, function(err) {
+													Persona.update({'codplaza':original.cod_plaza},{$set:{'habilitado':true}},{multi:false, upsert:false}, function(err){
+														console.error('Error habilitando personas del codigo de plaza responsable');
+													});
+													console.log("El pavo existía u ocurrió un error molón");
+													console.error(err);
+												});
+												
+											} else
+												promesa_per.resolve();
+										}
+										);
+
+										promesa_per.promise.then(
+												function () {
+													recalculate.fullSyncpermiso(Q, models).then(function (data) {
+														promesa_proc.resolve();
+													});
+												},
+												function (err) {
+													promesa_proc.reject(err);
+												});
+									} else {
+										promesa_proc.resolve();
+									}
+
+									promesa_proc.promise.then(function () {
+										if (hayCambiarOcultoHijos) {
+											exports.ocultarHijos(original, models, Q).then(function () {
+												recalculate.fullSyncjerarquia(Q, models).then(function () {
+													res.json(original);
+												}, function (err) {
+													console.error(err);
+													res.send(500, JSON.stringify(err));
+												});
 											});
-											
-                                        } else
-                                            promesa_per.resolve();
-                                    }
-                                    );
-
-                                    promesa_per.promise.then(
-                                            function () {
-                                                recalculate.fullSyncpermiso(Q, models).then(function (data) {
-                                                    promesa_proc.resolve();
-                                                });
-                                            },
-                                            function (err) {
-                                                promesa_proc.reject(err);
-                                            });
-                                } else {
-                                    promesa_proc.resolve();
-                                }
-
-                                promesa_proc.promise.then(function () {
-                                    if (hayCambiarOcultoHijos) {
-                                        exports.ocultarHijos(original, models, Q).then(function () {
-                                            recalculate.fullSyncjerarquia(Q, models).then(function () {
-                                                res.json(original);
-                                            }, function (err) {
-                                                console.error(err);
-                                                res.send(500, JSON.stringify(err));
-                                            });
-                                        });
-                                    } else {
-                                        res.json(original);
-                                        console.log(JSON.stringify(elemento));
-                                        console.log(coincidencias);
-                                    }
-                                }, function (err) {
-                                    console.error(err);
-                                    res.status(500).send(JSON.stringify(err));
-                                    res.end();
-                                    return;
-                                });
-                            }
-                        });
-                    });
-                });
-            });
+										} else {
+											res.json(original);
+											console.log(JSON.stringify(elemento));
+											console.log(coincidencias);
+										}
+									}, function (err) {
+										console.error(err);
+										res.status(500).send(JSON.stringify(err));
+										res.end();
+										return;
+									});
+								}
+							});
+						});
+					});
+				});
+			
+			},function(err){				
+				console.error(err);
+				res.status(500).send(JSON.stringify(err));
+				res.end();
+				return;
+			});
+			
         });
     };
 };
