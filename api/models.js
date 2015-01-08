@@ -8,7 +8,8 @@ var schemasfields = {
 	settings: { version:Number, 'secret': String, 'secret2': String, 'anyo': String, 'port': Number,  'urlbasedecrypt': String, logincarm: Boolean },
 	reglasinconsistencias : { 'titulo': String, 'restriccion': String},
 	historico: {},
-	periodo: { a2013:[Number], a2014:[Number], a2015:[Number] },
+	//periodo: { a2013:[Number], a2014:[Number], a2015:[Number] },
+	periodo: {},
 	persona : {
 		'codplaza' : String,
 		'login' : String,
@@ -148,7 +149,8 @@ var schemasfields = {
 		//recalculable: (se incluye como AnyType abajo)
 		//'ancestros' : [ jerarquia],
 		//responsables : [persona]
-
+		//'periodos':{}
+/*
 		'periodos':{
 			'a2013':
 			{
@@ -235,6 +237,7 @@ var schemasfields = {
 				}			
 			}			
 		}
+*/	
 	}
 	
 }
@@ -265,8 +268,8 @@ exports.init = function(mongoose) {
 	schemasfields.crawled.any = Schema.Types.Mixed;	
 	schemasfields.registroactividad.req = Schema.Types.Mixed;
 	schemasfields.procedimiento.ancestros = Schema.Types.Mixed;
-	schemasfields.procedimiento.responsables = Schema.Types.Mixed;
-	
+	schemasfields.procedimiento.periodos = Schema.Types.Mixed;
+	schemasfields.procedimiento.responsables = Schema.Types.Mixed;	
 	schemasfields.importacionesprocedimiento.input = Schema.Types.Mixed;
 	schemasfields.importacionesprocedimiento.output = Schema.Types.Mixed;
 	schemasfields.importacionesprocedimiento.avisos = Schema.Types.Mixed;

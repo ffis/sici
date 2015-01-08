@@ -88,45 +88,72 @@ exports.removePeriodo = function(models){
 
 exports.nuevaAnualidad = function(models) {
 	return function(req, res) {
-		var Plantillaanualidad = models.plantillaanualidad();
-		var plantilla = Plantillaanualidad.query({});
-		var anualidad = req.params.anyo;
-		if (anualidad > 2014) {
-			var query = Procedimiento.findOne({'periodos.a2014':{'$exists':true}},function(err,procedimiento){
-				if (err){
-				 res.send({'error':'An error has occurred'});
-				} else {
-					var anualidades = Object.keys(procedimiento.periodos);
+		var Plantillaanualidad = models.plantillaanualidad();		
+		var Procedimiento = models.procedimiento();
+		Plantillaanualidad.findOne({}, function(err,plantilla){			
+			if (err) { console.error(err); res.status(500); res.end(); return ; }			
+			var anualidad = req.params.anyo;
+			var Periodo = models.periodo();			
+			console.log('Recuperada plantilla de año '+anualidad);
+			if (anualidad > 2014) {
+				console.log('Año correcto a priori');
+				var query =	Periodo.findOne({},function(err,periodo){
+					console.log('Recuperado periodo');
+					if (err) { console.error(err); res.status(500); res.end(); return ; }
+					periodo = JSON.parse(JSON.stringify(periodo));
+					delete periodo._id;
+					var anualidades = Object.keys(periodo);
 					var speriodonuevo = '';
+					var max = 0;
+					var speriodonuevo;
+					var periodo;
 					for (var i=0;i<anualidades.length;i++) {
 						if (!isNaN(parseInt(anualidades[i].replace('a',''))))
 						{
-							var periodo = parseInt(anualidades[i].replace('a',''));
+							periodo = parseInt(anualidades[i].replace('a',''));							
 							periodo++;
-							var speriodonuevo = 'a' + periodo;
+							if (max<periodo) {								
+								max=periodo;
+								speriodonuevo = 'a' + periodo;
+							}							
 						}
 					}
 					
-					if (speriodonuevo!='') {						
+					if (speriodonuevo!='') {								
 						var nuevoperiodo = JSON.parse(JSON.stringify(plantilla));
+						console.log(nuevoperiodo);
 						delete nuevoperiodo._id;
 						var restriccion = {};						
 						var periodos_periodo = 'periodos.'+speriodonuevo;
 						restriccion[periodos_periodo] = {'$exists':false};
-						var set = {};
-						set['$set'] = {speriodonuevo : nuevoperiodo };
+						var set = {};						
+						set['$set'] = {}
+						set['$set'][periodos_periodo] = nuevoperiodo ;
+						
 						Procedimiento.update(restriccion,set,{upsert:false,multi:true},function(err){
 							if (err) {
-								if (err) { console.error('nuevaAnualidad...'); console.error(err);  res.status(500); res.end(); return ; }
+								if (err) { console.error('nuevaAnualidad...'); console.error(err);  res.status(500); res.end(); return ; }								
 							} else {
-								res.json('OK');
+								res.json({});
+								console.log('Actualizados procedimientos de mentira');
 							}
 						});
+						var restriccion_periodo = {};
+						restriccion_periodo[speriodonuevo] = {'$exists':false};
+						var set_periodo = {};
+						set_periodo['$set'] = {};
+						set_periodo['$set'][speriodonuevo] = [0,0,0,0,0,0,0,0,0,0,0,0];
+						Periodo.update(restriccion_periodo,set_periodo,{multi:false,upsert:false},function(err){
+							if (err) {
+								if (err) { console.error('nuevaAnualidad...'); console.error(err);  res.status(500); res.end(); return ; }								
+							} else {								
+								console.log('Actualizados periodos');
+							}																					
+						});
 					}
-				}
-			});
-		}
-		
+				});
+			}
+		});
 	}
 }
 
