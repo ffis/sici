@@ -81,33 +81,79 @@ exports.createProcedimiento = function (Q, models, recalculate) {
                             res.end();
                             return;
                         } else {
-                            procedimiento.save(function (err) {
-                                if (err) {
-                                    console.error(err);
-                                    res.status(500).send('Error 57 guardando');
-                                    res.end();
-                                    return;
-                                } else {
-                                    recalculate.softCalculateProcedimiento(Q, models, procedimiento).then(function (procedimiento) {
-                                        recalculate.softCalculateProcedimientoCache(Q, models, procedimiento).then(function (procedimiento) {
-                                            procedimiento.save(function (err) {
-                                                if (err) {
-                                                    console.error(err);
-                                                    res.status(500).send('Error 67 guardando');
-                                                    res.end();
-                                                    return;
-                                                } else {
-                                                    res.json(procedimiento);
-                                                }
-                                            });
-                                        });
-                                    });
-                                }
-                            });
+						
+							var PlantillaAnualidad = models.plantillaanualidad();
+							var Periodo = models.periodo();							
+							var defer_periodos = Q.defer();
+							var defer_plantilla = Q.defer();
+							
+							Periodo.findOne({},function(err,periodos){
+								if (err) {
+									console.error(err);
+									res.status(500);
+									res.end();
+									defer_periodos.reject(err);
+									return;
+								} 			
+								defer_periodos.resolve(periodos);
+							});	
+							
+							PlantillaAnualidad.findOne({}, function(err, plantilla){
+								if (err) {
+									console.error(err);
+									res.status(500);
+									res.end();
+									defer_plantilla.reject(err);
+									return;
+								} 
+								defer_plantilla.resolve(plantilla);
+							});
+							
+							
+							Q.all([defer_periodos.promise, defer_plantilla.promise]).then(function(data){
+								var periodos = JSON.parse(JSON.stringify(data[0]));
+								var plantilla = JSON.parse(JSON.stringify(data[1]));
+								delete plantilla._id;
+								
+								procedimiento.periodos = {};
+								for (var anualidad in periodos) {
+									if (isNaN(parseInt(anualidad.replace("a","")))) continue;	
+									procedimiento.periodos[anualidad]=plantilla;
+								}
+								
+								procedimiento.save(function (err) {
+									if (err) {
+										console.error(err);
+										res.status(500).send('Error 57 guardando');
+										res.end();
+										return;
+									} else {										
+										recalculate.softCalculateProcedimiento(Q, models, procedimiento).then(function (procedimiento) {
+											recalculate.softCalculateProcedimientoCache(Q, models, procedimiento).then(function (procedimiento) {
+												procedimiento.save(function (err) {
+													if (err) {
+														console.error(err);
+														res.status(500).send('Error 133 guardando');
+														res.end();
+														return;
+													} else {
+														res.json(procedimiento);
+													}
+												});
+											});
+										});
+									}
+								});								
+							}, function(err){
+								console.error(err);
+								res.status(500).send('Error 147 guardando');
+								res.end();
+								return;							
+							});		
                         }
                     });
                 } else {
-                    res.status(500).send('Error 67 guardando');
+                    res.status(500).send('Error 154 guardando');
                     res.end();
                     return;
                 }
@@ -250,8 +296,7 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
                 res.end();
 				defer_periodos.reject(err);
                 return;
-            } 			
-			console.log(periodos);
+            } 						
 			defer_periodos.resolve(periodos);
 		});
 		

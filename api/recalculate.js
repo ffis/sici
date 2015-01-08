@@ -297,6 +297,7 @@ exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
 
         return deferred.promise;
     }	
+	
     for (var periodo in procedimiento.periodos)
     {
         if (typeof procedimiento.periodos[ periodo ] != 'object')
