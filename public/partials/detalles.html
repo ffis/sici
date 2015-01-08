@@ -132,14 +132,19 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                         <strong>Padre:</strong>
                         <span>&nbsp;</span>
                         <div ng-if="!mostrarAutocompletePadre">{{nombrePadre}}
-                            <a ng-if="$root.permisoscalculados.superuser" href="" ng-click="editarPadre()">&nbsp;
+                            <a style="text-decoration: none;" ng-if="$root.permisoscalculados.superuser" href="" ng-click="editarPadre()">&nbsp;
                                 <span  class="glyphicon glyphicon-pencil"></span> 
                             </a>
-                            <a ng-if="$root.permisoscalculados.superuser && procedimientoSeleccionado.padre" href="" ng-click="deletePadre()">&nbsp;
+                            <a style="text-decoration: none;" ng-if="$root.permisoscalculados.superuser && procedimientoSeleccionado.padre" href="" ng-click="deletePadre()">&nbsp;
+                                <span class="glyphicon glyphicon-trash"></span> 
+                            </a>
+                        </div>
+                        <div ng-if="mostrarAutocompletePadre">
+                            <input  placeholder="Introduce cualquier parte del c&oacute;digo o denominaci&oacute;n" class="col-lg-9 col-xs-12" type="text" ng-model="padre" typeahead-on-select="updatePadre($item)" name="padre" typeahead="showProcedimiento(procpadre) for procpadre in procedimientosPadre | codigoDenominacion:$viewValue | limitTo:10" typeahead-editable="false" />
+                            <a style="text-decoration: none;" ng-if="$root.permisoscalculados.superuser" href="" ng-click="ocultarEditarPadre()">&nbsp;
                                 <span class="glyphicon glyphicon-remove"></span> 
                             </a>
                         </div>
-                        <input ng-if="mostrarAutocompletePadre" placeholder="Introduce cualquier parte del c&oacute;digo o denominaci&oacute;n" class="col-lg-9 col-xs-12" type="text" ng-model="padre" typeahead-on-select="updatePadre($item)" name="padre" typeahead="showProcedimiento(procpadre) for procpadre in procedimientosPadre | codigoDenominacion:$viewValue | limitTo:10" typeahead-editable="false" />
                     </li>
                 </ul>
                 <br />

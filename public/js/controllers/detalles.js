@@ -93,6 +93,10 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
     $scope.editarPadre = function () {
         $scope.mostrarAutocompletePadre = true;
     };
+    
+    $scope.ocultarEditarPadre = function () {
+        $scope.mostrarAutocompletePadre = false;
+    };
 
     $scope.deletePadre = function () {
         $scope.procedimientoSeleccionado.padre = null;
