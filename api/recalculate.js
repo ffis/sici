@@ -296,15 +296,14 @@ exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
         deferred.reject(procedimiento);
 
         return deferred.promise;
-    }
-
+    }	
     for (var periodo in procedimiento.periodos)
     {
         if (typeof procedimiento.periodos[ periodo ] != 'object')
             continue;
 
         //comprobar si está inicilializados los campos de tipo array a 12 elementos
-        var campos = models.getSchema('procedimiento').periodos[periodo];
+        var campos = models.getSchema('plantillaanualidad');
         for (var campo in campos) {
             if (Array.isArray(procedimiento.periodos[ periodo ][campo]) && procedimiento.periodos[ periodo ][campo].length != 12) {
                 while (procedimiento.periodos[ periodo ][campo].length < 12)
@@ -333,8 +332,8 @@ exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
 
         var pendientes = parseStr2Int(procedimiento.periodos[ periodo ].pendientes_iniciales);
         var solicitudesprevias = parseStr2Int(procedimiento.periodos[ periodo ].solicitados);
-        var totalsolicitudes = 0;
-        for (var mes = 0; mes < 12; mes++) {
+        var totalsolicitudes = 0;	
+        for (var mes = 0; mes < 12; mes++) if (parseInt(periodo.replace("a",""))>2013) {
             var pendientesprevios = pendientes;
             var totalresueltos =
                     procedimiento.periodos[ periodo ].resueltos_1[mes] +
@@ -346,7 +345,6 @@ exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
                     procedimiento.periodos[ periodo ].resueltos_mas_45[mes] +
                     procedimiento.periodos[ periodo ].resueltos_desistimiento_renuncia_caducidad[mes] +
                     procedimiento.periodos[ periodo ].resueltos_prescripcion[mes];
-
             var fueradeplazo = totalresueltos - procedimiento.periodos[ periodo ].en_plazo[mes];
             var solicitudes = parseStr2Int(procedimiento.periodos[ periodo ].solicitados[mes]);
 
@@ -362,8 +360,8 @@ exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
             procedimiento.periodos[ periodo ].Incidencias['Hay quejas presentadas'].push(procedimiento.periodos[ periodo ].quejas[mes]);
             procedimiento.periodos[ periodo ].Incidencias['Hay expedientes prescritos/caducados'].push(procedimiento.periodos[ periodo ].resueltos_prescripcion[mes]);
             procedimiento.periodos[ periodo ].Incidencias['Las solicitudes aumentan al menos 20%'].push((solicitudes > solicitudesprevias * 1.2) ? solicitudes - solicitudesprevias : 0);
-            solicitudesprevias = solicitudes;
-        }
+            solicitudesprevias = solicitudes;			
+        }		
         procedimiento.periodos[ periodo ].totalsolicitudes = totalsolicitudes;
     }
     deferred.resolve(procedimiento);
