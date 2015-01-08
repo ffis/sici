@@ -283,36 +283,36 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
             <div ng-if="graphs[0].data" class="row">
                 <div class="col-md-12">
                     <div class="btn-group pull-right">
-                        <div ng-click="graficasgrandes = !graficasgrandes" class="btn btn-default">
+                        <div ng-click="graficasgrandes = !graficasgrandes; updateGraphKeys(anualidad.substring(1,5))" class="btn btn-default">
                             <span ng-class="{'glyphicon-resize-full':!graficasgrandes,'glyphicon-resize-small':graficasgrandes}" class="glyphicon"></span>
                         </div>
-                        <div ng-click="graficasbarras = !graficasbarras" ng-class="{active:graficasbarras, 'btn-default':!graficabarras}" class="btn">
+                        <div ng-click="graficasbarras = !graficasbarras; updateGraphKeys(anualidad.substring(1,5));" ng-class="{active:graficasbarras, 'btn-default':!graficabarras}" class="btn">
                             <span class="glyphicon glyphicon-stats"></span>
                         </div>
                     </div>
                 </div>
 
                 <hr style="clear:both"/>
-                <div ng-repeat="graph in graphs" ng-if="!graficasbarras && graph.data && !graficasgrandes" ng-class="{'col-lg-3':(numgraphs % 4 == 0),'col-lg-3':(numgraphs % 3 == 0)}" class="col-md-12 well">
+                <div ng-repeat="graph in graphs" ng-if="graph.data" ng-show="!graficasbarras && graph.data && !graficasgrandes" ng-class="{'col-lg-3':(numgraphs % 4 == 0),'col-lg-3':(numgraphs % 3 == 0)}" class="col-md-12 well">
                     <h5 class="text-danger text-center">{{graph.caption}}</h5>
                     <nvd3-line-chart noData="No hay datos que mostrar" data="graph.data" showXAxis="true" showYAxis="true" showLegend="true" interactive="true" height="350" xAxisTickValues="xAxisTickValuesFunction()" xAxisTickFormat="xAxisTickFormatFunction()" rotateLabels="45" forcey="graph.forcey">
                         <svg></svg>
                     </nvd3-line-chart>
                 </div>
-                <div ng-repeat="graph in graphs" ng-if="graficasbarras && graph.data && !graficasgrandes" ng-class="{'col-lg-3':(numgraphs % 4 == 0),'col-lg-3':(numgraphs % 3 == 0)}" class="col-md-12 well">
+                <div ng-repeat="graph in graphs" ng-if="graph.data" ng-show="graficasbarras && graph.data && !graficasgrandes" ng-class="{'col-lg-3':(numgraphs % 4 == 0),'col-lg-3':(numgraphs % 3 == 0)}" class="col-md-12 well">
                     <h5 class="text-danger text-center">{{graph.caption}}</h5>
-                    <nvd3-multi-bar-chart noData="No hay datos que mostrar" data="graph.data" showXAxis="true" showYAxis="true" showLegend="true" interactive="true" height="350" xAxisTickValues="xAxisTickValuesFunction()" xAxisTickFormat="xAxisTickFormatFunction()" rotateLabels="45" forcey="graph.forcey">
+                    <nvd3-multi-bar-chart noData="No hay datos que mostrar" data="graph.data" showXAxis="true" showYAxis="true" showLegend="true" interactive="true" height="350" xAxisTickValues="xAxisTickValuesFunction()" xAxisTickFormat="xAxisTickFormatFunction()" rotateLabels="45" forcey="graph.forcey" >
                         <svg></svg>
                     </nvd3-multi-bar-chart>
                 </div>				
-                <div ng-repeat="graph in graphs" ng-if="!graficasbarras && graph.data && graficasgrandes" style="clear:both" class="col-lg-12 well">
+                <div ng-repeat="graph in graphs" ng-if="graph.data" ng-show="!graficasbarras && graph.data && graficasgrandes" style="clear:both" class="col-lg-12 well">
                     <h5 class="text-danger text-center">{{graph.caption}}</h5>
                     <nvd3-line-chart previous="nvd3-multi-bar-chart" noData="No hay datos que mostrar" data="graph.data" showXAxis="true" showYAxis="true" showLegend="true" interactive="true" height="350" xAxisTickValues="xAxisTickValuesFunction()" xAxisTickFormat="xAxisTickFormatFunction()" rotateLabels="45" forcey="graph.forcey">
                         <svg>
                         </svg>
                     </nvd3-line-chart>
                 </div>
-                <div ng-repeat="graph in graphs" ng-if="graficasbarras && graph.data && graficasgrandes" style="clear:both" class="col-lg-12 well">
+                <div ng-repeat="graph in graphs" ng-if="graph.data" ng-show="graficasbarras && graph.data && graficasgrandes" style="clear:both" class="col-lg-12 well">
                     <h5 class="text-danger text-center">{{graph.caption}}</h5>
                     <nvd3-multi-bar-chart previous="nvd3-multi-bar-chart" noData="No hay datos que mostrar" data="graph.data" showXAxis="true" showYAxis="true" showLegend="true" interactive="true" height="350" xAxisTickValues="xAxisTickValuesFunction()" xAxisTickFormat="xAxisTickFormatFunction()" rotateLabels="45" forcey="graph.forcey">
                         <svg>
