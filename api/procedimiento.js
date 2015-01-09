@@ -4,17 +4,26 @@ exports.hasChildred = function (models) {
     return function (req, res) {
         var Procedimiento = models.procedimiento();
         var codigo = req.params.codigo;
-        Procedimiento.count({"padre": codigo}, function (err, count) {
-            if (err) {
-                console.error(restriccion);
-                console.error(err);
-                res.status(500);
-                res.end();
-                return;
-            }
-            console.log('hasChildren :' + count);
-            res.json({'count': count});
-        });
+		if (req.user.permisoscalculados &&
+			req.user.permisoscalculados.procedimientoslectura.indexOf(codigo)!==-1 || 			
+			req.user.permisoscalculados.superuser) {
+			Procedimiento.count({"padre": codigo}, function (err, count) {
+				if (err) {
+					console.error(restriccion);
+					console.error(err);
+					res.status(500);
+					res.end();
+					return;
+				}
+				console.log('hasChildren :' + count);
+				res.json({'count': count});
+			});
+		} else {
+			console.error('No tiene permiso para consultar el número de hijos de este procedimiento');
+			res.status(500);
+			res.end();
+			return;
+		}
     };
 };
 
@@ -53,6 +62,13 @@ exports.setPeriodosCerrados = function (models) {
 
 exports.createProcedimiento = function (Q, models, recalculate) {
     return function (req, res) {
+		if (!(req.user.permisoscalculados && req.user.permisoscalculados.superuser)) 
+		{
+			res.status(500).send('Error. Solo el administrador puede crear procedimientos');
+            res.end();
+            return;
+		}
+	
         if (req.body.idjerarquia && !isNaN(parseInt(req.body.idjerarquia)) &&
                 req.body.denominacion &&
                 req.body.codigo && req.body.cod_plaza && parseInt(req.body.idjerarquia) > 0)
@@ -262,7 +278,9 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
             restriccion.codigo = req.params.codigo;
         //comprobar si tiene permiso el usuario actual
 
-
+		if (!req.user.permisoscalculados.procedimientosdirectaescritura)
+			req.user.permisoscalculados.procedimientosdirectaescritura = [];
+			
         var arrays = [
             'jerarquiaescritura',
             'jerarquialectura',
@@ -520,6 +538,11 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
 
 exports.ocultarHijos = function (procedimiento, models, Q) {
     var defer = Q.defer();
+	if (!(req.user.permisoscalculados && req.user.permisoscalculados.superuser))
+	{
+		return;
+	}
+	
     var Procedimiento = models.procedimiento();
     var promesas_procs = [];
     Procedimiento.find({padre: procedimiento.codigo}, function (err, procs) {
@@ -552,6 +575,14 @@ exports.ocultarHijos = function (procedimiento, models, Q) {
 exports.procedimientosByResponsable = function(models,Q)
 {
 	return function(req, res){
+		if (!(req.user.permisoscalculados && req.user.permisoscalculados.superuser)) {
+			var msg = 'Error de permisos.';
+			console.error(msg);
+			res.status(500).send(msg);
+			res.end();
+			return;
+		}
+		
 		var Procedimiento = models.procedimiento();
 		if (typeof req.params.codplaza !== 'undefined' && req.params.codplaza!="") {
 			var cod_plaza = req.params.codplaza;
