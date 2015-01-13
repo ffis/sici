@@ -5,8 +5,8 @@ exports.hasChildred = function (models) {
         var Procedimiento = models.procedimiento();
         var codigo = req.params.codigo;
 		if (req.user.permisoscalculados &&
-			req.user.permisoscalculados.procedimientoslectura.indexOf(codigo)!==-1 || 			
-			req.user.permisoscalculados.superuser) {
+			(req.user.permisoscalculados.procedimientoslectura.indexOf(codigo)!==-1 || 			
+			req.user.permisoscalculados.superuser)) {
 			Procedimiento.count({"padre": codigo}, function (err, count) {
 				if (err) {
 					console.error(restriccion);
@@ -135,6 +135,7 @@ exports.createProcedimiento = function (Q, models, recalculate) {
 								for (var anualidad in periodos) {
 									if (isNaN(parseInt(anualidad.replace("a","")))) continue;	
 									procedimiento.periodos[anualidad]=plantilla;
+									procedimiento.periodos[anualidad].periodoscerrados=periodos[anualidad];
 								}
 								
 								procedimiento.save(function (err) {
