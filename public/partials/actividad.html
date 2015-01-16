@@ -119,6 +119,15 @@
 		<div>
 			{{filtrotxtprocedimiento.codigo}}
 		</div>
+                <div>
+                    <div class="btn-group">
+                        <button ng-class="{disabled: actualizando > 0}" class="btn btn-default" ng-click="descargarExcel()">
+                            <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>&nbsp;Descargar excel
+                        </button>
+                        <p ng-if="actualizando > 0">Generando informe...</p>
+                    </div>
+                    <div class="alert {{respuesta.clase}}" role="alert">{{respuesta.mensaje}}</div>
+                </div>
 		<div ng-if="procedimientosfiltrados.length" class="table-responsive">
 			<table class="table table-striped table-bordered table-condensed table-hover" id="procedimientostable">
 				<thead>
