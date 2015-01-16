@@ -36,6 +36,65 @@ function Workbook() {
     this.Sheets = {};
 }
 
+exports.mapReducePeriodos = function (Q) {
+    var o = {};
+    o.map = function () {
+        var d = new Date();
+        for (var i = 0, j = this.ancestros.length; i < j; i++) {
+            for (var anualidad = 2013; anualidad <= d.getFullYear(); anualidad++) {
+                emit({anualidad: anualidad, idjerarquia: this.ancestros[i].id}, this.periodos['a' + anualidad]);
+            }
+        }
+    };
+    o.reduce = function (key, values) {
+        var sumas = {};
+        var attrs = [
+            'total_resueltos',
+            'solicitados',
+            'iniciados',
+            'resueltos_1',
+            'resueltos_5',
+            'resueltos_10',
+            'resueltos_15',
+            'resueltos_30',
+            'resueltos_45',
+            'resueltos_mas_45',
+            'resueltos_desistimiento_renuncia_caducidad',
+            'resueltos_prescripcion',
+            't_medio_naturales',
+            't_medio_habiles',
+            'en_plazo',
+            'quejas',
+            'recursos',
+            'fuera_plazo',
+            'pendientes'
+        ];
+        attrs.forEach(function (attr) {
+            sumas[attr] = [];
+            for (var mes = 0; mes < 12; mes++) {
+                sumas[attr][mes] = 0;
+                for (var i = 0, j = values.length; i < j; i++) {
+                    if (values[i][attr]) {
+                        sumas[attr][mes] += parseInt(values[i][attr][mes]);
+                    }
+                }
+            }
+        });
+        return sumas;
+    };
+    var deferMR = Q.defer();
+    Procedimiento.mapReduce(o, function (err, results) {
+        if (err) {
+            console.error(err);
+            deferMR.reject(err);
+        } else {
+            console.log(results);
+            deferMR.resolve(results);
+        }
+    });
+    return deferMR.promise;
+};
+
 exports.completarTabla = function (periodo, ws) {
     var meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
     var indicadores = ["Solicitados", "Iniciados", "Quejas presentadas en el mes", "Recursos presentados en el mes", "Resueltos < 1", "Resueltos 1 < 5",
@@ -73,56 +132,12 @@ exports.tablaResultadosJerarquia = function (models, app, md5, Q) {
             return;
         }
         var Procedimiento = models.procedimiento();
-        var o = {};
-        o.map = function () {
-            var d = new Date();
-            for (var i = 0, j = this.ancestros.length; i < j; i++) {
-                for(var anualidad = 2013; anualidad <= d.getFullYear(); anualidad++) {
-                    emit({anualidad: anualidad, idjerarquia: this.ancestros[i].id} , this.periodos['a'+anualidad]);
-                }
-            }
-        };
-        o.reduce = function (key, values) {
-            var sumas = {};
-            var attrs = [
-                'total_resueltos',
-                'solicitados',
-                'iniciados',
-                'resueltos_1',
-                'resueltos_5',
-                'resueltos_10',
-                'resueltos_15',
-                'resueltos_30',
-                'resueltos_45',
-                'resueltos_mas_45',
-                'resueltos_desistimiento_renuncia_caducidad',
-                'resueltos_prescripcion',
-                't_medio_naturales',
-                't_medio_habiles',
-                'en_plazo',
-                'quejas',
-                'recursos',
-                'fuera_plazo',
-                'pendientes'
-            ];
-            attrs.forEach(function (attr) {
-                sumas[attr] = [];
-                for (var mes = 0; mes < 12; mes++) {
-                    sumas[attr][mes] = 0;
-                    for (var i = 0, j = values.length; i < j; i++) {
-                        sumas[attr][mes] += parseInt(values[i][attr][mes]);
-                    }
-                }
-            });
-            return sumas;
-        };
-        Procedimiento.mapReduce(o, function (err, results) {
-            if (err) {
-                console.error(err);
-            } else {
-                console.log(results);
-            }
+        exports.mapReducePeriodos(Q).then(function(results) {
+            
+        }, function(err) {
+            
         });
+        
     };
 };
 
@@ -620,9 +635,9 @@ exports.rellenarProcedimientos = function (procedimientos, year, Q, models) {
         var cellHeaderRef = XLSX.utils.encode_cell({c: pos++, r: 1});
         ws[cellHeaderRef] = cellHeader;
     }
-    var lastyear = parseInt(year.substring(1,5))-1;
-    var lastyearstr = 'a'+lastyear;
-    var cellHeader = {v: 'RESUELTOS EN LOS MESES DE '+lastyear, t: 's'};
+    var lastyear = parseInt(year.substring(1, 5)) - 1;
+    var lastyearstr = 'a' + lastyear;
+    var cellHeader = {v: 'RESUELTOS EN LOS MESES DE ' + lastyear, t: 's'};
     var cellHeaderRef = XLSX.utils.encode_cell({c: pos + 6, r: 0});
     ws[cellHeaderRef] = cellHeader;
     for (var i = 0; i < meses.length; i++) {
