@@ -36,7 +36,8 @@ function Workbook() {
     this.Sheets = {};
 }
 
-exports.mapReducePeriodos = function (Q) {
+exports.mapReducePeriodos = function (Q, models) {
+    var Procedimiento = models.procedimiento();
     var o = {};
     o.map = function () {
         var d = new Date();
@@ -85,10 +86,8 @@ exports.mapReducePeriodos = function (Q) {
     var deferMR = Q.defer();
     Procedimiento.mapReduce(o, function (err, results) {
         if (err) {
-            console.error(err);
             deferMR.reject(err);
         } else {
-            console.log(results);
             deferMR.resolve(results);
         }
     });
@@ -131,13 +130,14 @@ exports.tablaResultadosJerarquia = function (models, app, md5, Q) {
             res.end();
             return;
         }
-        var Procedimiento = models.procedimiento();
-        exports.mapReducePeriodos(Q).then(function(results) {
-            
+        exports.mapReducePeriodos(Q, models).then(function(results) {
+            console.log(results);
         }, function(err) {
-            
+            console.error('Error al hacer el map reduce '+err);
+            res.status(500);
+            res.end();
+            return;
         });
-        
     };
 };
 
