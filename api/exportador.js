@@ -470,7 +470,7 @@ exports.exportarInforme = function (models, app, md5, Q) {
                             ws[cellLoginRef] = cellLogin;
                             var cellPlazaRef = XLSX.utils.encode_cell({c: 1, r: pos});
                             ws[cellPlazaRef] = cellPlaza;
-                            var cellJerarquia = {v: jerarquia, t: 'n'};
+                            var cellJerarquia = {v: jerarquiaLectura, t: 'n'};
                             var cellJerarquiaRef = XLSX.utils.encode_cell({c: 2, r: pos});
                             ws[cellJerarquiaRef] = cellJerarquia;
                             var cellEscritura = {v: 'NO', t: 's'};
@@ -481,7 +481,7 @@ exports.exportarInforme = function (models, app, md5, Q) {
                             ws[cellLecturaRef] = cellLectura;
                             var deferNombreJerarquia = Q.defer();
                             promesasNombreJerarquia.push(deferNombreJerarquia.promise);
-                            Jerarquia.findOne({'id': jerarquia}, {nombrelargo: true}, cb(deferNombreJerarquia, pos, 3, ws));
+                            Jerarquia.findOne({'id': jerarquiaLectura}, {nombrelargo: true}, cb(deferNombreJerarquia, pos, 3, ws));
                             pos++;
                         }
                     }
