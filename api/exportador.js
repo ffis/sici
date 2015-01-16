@@ -36,7 +36,7 @@ function Workbook() {
     this.Sheets = {};
 }
 
-exports.mapReducePeriodos = function (Q, models) {
+exports.mapReducePeriodos = function (Q, models, idjerarquia) {
     var Procedimiento = models.procedimiento();
     var o = {};
     o.map = function () {
@@ -88,7 +88,13 @@ exports.mapReducePeriodos = function (Q, models) {
         if (err) {
             deferMR.reject(err);
         } else {
-            deferMR.resolve(results);
+            var periodos = {};
+            results.forEach(function (result) {
+                if (result._id.idjerarquia == idjerarquia) {
+                    periodos[parseInt(result._id.anualidad)] = result.value;
+                }
+            });
+            deferMR.resolve(periodos);
         }
     });
     return deferMR.promise;
@@ -130,10 +136,13 @@ exports.tablaResultadosJerarquia = function (models, app, md5, Q) {
             res.end();
             return;
         }
-        exports.mapReducePeriodos(Q, models).then(function(results) {
-            console.log(results);
-        }, function(err) {
-            console.error('Error al hacer el map reduce '+err);
+        exports.mapReducePeriodos(Q, models, req.params.jerarquia).then(function (periodos) {
+            console.log(periodos);
+            var wb = new Workbook();
+            var ws = {};
+//            exports.completarTabla(results, ws);
+        }, function (err) {
+            console.error('Error al hacer el map reduce ' + err);
             res.status(500);
             res.end();
             return;
