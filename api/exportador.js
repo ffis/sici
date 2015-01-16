@@ -75,8 +75,9 @@ exports.tablaResultadosJerarquia = function (models, app, md5, Q) {
         var Procedimiento = models.procedimiento();
         var o = {};
         o.map = function () {
+            var d = new Date();
             for (var i = 0, j = this.ancestros.length; i < j; i++) {
-                for(var anualidad = 2013; anualidad <= 2015; anualidad++) {
+                for(var anualidad = 2013; anualidad <= d.getFullYear(); anualidad++) {
                     emit({anualidad: anualidad, idjerarquia: this.ancestros[i].id} , this.periodos['a'+anualidad]);
                 }
             }
@@ -619,7 +620,9 @@ exports.rellenarProcedimientos = function (procedimientos, year, Q, models) {
         var cellHeaderRef = XLSX.utils.encode_cell({c: pos++, r: 1});
         ws[cellHeaderRef] = cellHeader;
     }
-    var cellHeader = {v: 'RESUELTOS EN LOS MESES DE 2014', t: 's'};
+    var lastyear = parseInt(year.substring(1,5))-1;
+    var lastyearstr = 'a'+lastyear;
+    var cellHeader = {v: 'RESUELTOS EN LOS MESES DE '+lastyear, t: 's'};
     var cellHeaderRef = XLSX.utils.encode_cell({c: pos + 6, r: 0});
     ws[cellHeaderRef] = cellHeader;
     for (var i = 0; i < meses.length; i++) {
@@ -708,8 +711,8 @@ exports.rellenarProcedimientos = function (procedimientos, year, Q, models) {
         cellValueRef = XLSX.utils.encode_cell({c: pos++, r: i + 2});
         ws[cellValueRef] = cellValue;
         for (var mes = 0; mes < meses.length; mes++) {
-            if (typeof procedimiento.periodos[year].total_resueltos !== 'undefined') {
-                var cellValue = {v: ((typeof procedimiento.periodos[year].total_resueltos[mes] === 'undefined') ? '' : procedimiento.periodos[year].total_resueltos[mes]), t: 'n'};
+            if (typeof procedimiento.periodos[lastyearstr] !== 'undefined' && typeof procedimiento.periodos[lastyearstr].total_resueltos !== 'undefined') {
+                var cellValue = {v: ((typeof procedimiento.periodos[lastyearstr].total_resueltos[mes] === 'undefined') ? '' : procedimiento.periodos[lastyearstr].total_resueltos[mes]), t: 'n'};
                 var cellValueRef = XLSX.utils.encode_cell({c: pos, r: i + 2});
                 ws[cellValueRef] = cellValue;
             }
