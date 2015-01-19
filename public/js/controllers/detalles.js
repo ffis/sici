@@ -174,6 +174,7 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
     };
 
     $scope.procedimientoSeleccionado = Procedimiento.get({codigo: $routeParams.codigo}, function () {
+        console.log($scope.procedimientoSeleccionado.periodos);
         $window.document.title = 'SICI: ' + $scope.procedimientoSeleccionado.denominacion;
         $rootScope.procedimiento = $scope.procedimientoSeleccionado.codigo;
         $scope.anualidad = '000000';
@@ -233,19 +234,31 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
             });
         });
 
-        $scope.changeFocus = function (form, index, attr, data) {
+        $scope.nextField = function(index) {
+            var periodoscerrados = $scope.procedimientoSeleccionado.periodos[$scope.anualidad].periodoscerrados;
+            while(periodoscerrados[index] == true) {
+                index++;
+                if (index >= 11) {
+                    index = 0;
+                }
+            }
+            return index;
+        };
 
+        $scope.changeFocus = function (form, index, attr, data) {
             if (isNaN(parseInt(data)) || !/^\d+$/.test(data) || parseInt(data) < 0) {
                 form.$setError('Error', 'Formato no v&aacute;lido.');
                 return;
             }
             form.$submit();
-            var formulario;
-            if (index >= 11) {
-                formulario = $scope.forms[0][$scope.attrstabla[$scope.attrstabla.indexOf(attr) + 1]];
+            var attrib;
+            var newindex = $scope.nextField(index + 1);
+            if (newindex < index) {
+                attrib = $scope.attrstabla[$scope.attrstabla.indexOf(attr) + 1];
+            } else {
+                attrib = attr;
             }
-            else
-                formulario = $scope.forms[index + 1][attr];
+            var formulario = $scope.forms[newindex][attrib];
             if (typeof formulario !== 'undefined')
                 formulario.$show();
         };
