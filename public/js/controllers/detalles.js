@@ -235,13 +235,13 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
         });
 
         $scope.nextField = function(index) {
+            console.log("Antes: "+index);
             var periodoscerrados = $scope.procedimientoSeleccionado.periodos[$scope.anualidad].periodoscerrados;
+            index = (index+1)%12;
             while(periodoscerrados[index] == true) {
-                index++;
-                if (index >= 11) {
-                    index = 0;
-                }
+                index = (index+1)%12;
             }
+            console.log("Después: "+index);
             return index;
         };
 
@@ -252,7 +252,7 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
             }
             form.$submit();
             var attrib;
-            var newindex = $scope.nextField(index + 1);
+            var newindex = $scope.nextField(index);
             if (newindex < index) {
                 attrib = $scope.attrstabla[$scope.attrstabla.indexOf(attr) + 1];
             } else {
