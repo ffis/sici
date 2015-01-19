@@ -224,8 +224,9 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
     // redirect all others to the index (HTML5 history)
     app.get('*', routes.index);//devolver el index.html del raiz
 
-
-    http.createServer(app).listen(app.get('port'), function () {
+    var server = http.createServer(app);
+    server.listen(app.get('port'), function () {
+        require('./api/socketioconsole')(server);
         console.log('Express server listening on port ' + app.get('port'));
     });
 });
