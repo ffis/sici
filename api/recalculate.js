@@ -187,7 +187,7 @@ exports.softCalculatePermiso = function (Q, models, permiso) {
                     };
                 };
 
-                Procedimiento.find({idjerarquia: {'$in': idsjerarquia}}, f(def, attr));
+                Procedimiento.find({idjerarquia: {'$in': idsjerarquia}},{codigo:true}, f(def, attr));
                 defs2.push(def.promise);
             });
 
