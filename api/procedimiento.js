@@ -403,7 +403,7 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
 			defer_periodos.promise.then(function(periodos){
 				periodos = JSON.parse(JSON.stringify(periodos));								
 				for (var anualidad in periodos) {
-					if (isNaN(parseInt(anualidad.replace("a","")))) continue;					
+					if (isNaN(parseInt(anualidad.replace("a",""))) || parseInt(anualidad.replace("a",""))==2013) continue;					
 
 					var periodoscerrados = original.periodos[anualidad].periodoscerrados;
 
@@ -450,7 +450,21 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
 						}
 					}
 				}
+								
+				original.periodos.a2013 = {
+					"plazo_maximo_resolver" : procedimiento.periodos.a2013.plazo_maximo_resolver,
+					"plazo_maximo_responder" : procedimiento.periodos.a2013.plazo_maximo_responder,
+					"plazo_CS_ANS_naturales" : procedimiento.periodos.a2013.plazo_CS_ANS_naturales,
+					"pendientes_iniciales" : procedimiento.periodos.a2013.pendientes_iniciales,
+					"periodoscerrados" : procedimiento.periodos.a2013.periodoscerrados
+				};				
 
+				if (! (Array.isArray(original.periodos.a2013.total_resueltos) && original.periodos.a2013.total_resueltos.length>0))
+					original.periodos.a2013.total_resueltos = [0,0,0,0,0,0,0,0,0,0,0,0];
+				
+				for(var mes = 0, meses = original.periodos.a2013.periodoscerrados.length; mes<meses; mes++) {
+					original.periodos.a2013.total_resueltos[mes] = parseInt(procedimiento.periodos.a2013.total_resueltos[mes]);
+				}
 				
 				recalculate.softCalculateProcedimiento(Q, models, original).then(function (original) {
 					recalculate.softCalculateProcedimientoCache(Q, models, original).then(function (original) {				
