@@ -49,7 +49,7 @@ exports.softCalculatePermiso = function (Q, models, permiso) {
             persona.save(function (err) {
                 if (err)
                     console.log(err);
-            });
+            });			
         }
     });
     /**** FIN PARCHE ***/
@@ -193,6 +193,10 @@ exports.softCalculatePermiso = function (Q, models, permiso) {
 
 
             Q.all(defs2).then(function () {
+			attrprocedimientos.forEach(function (attr, idx) {
+				permiso[ attr ] = permiso[ attr ].filter(function (value, index, self) {
+                    return self.indexOf(value) === index;
+                })});
                 deferred.resolve(permiso);
             }, function (err) {
                 console.error(110);
@@ -442,27 +446,28 @@ exports.fullSyncpermiso = function (Q, models) {
         var defs = [];
         var pindex = 0;
         var plength = permisos.length;
+		var f = function (promise, permiso) {
+			exports.softCalculatePermiso(Q, models, permiso).then(function (permiso) {
+				pindex++;
+				console.log('softcalculate permiso concluido ' + permiso._id + " ; " + permiso.login + ";" + permiso.codplaza + " (" + pindex + " de " + plength + ")");
+				permiso.save(function (error) {
+					if (error) {
+						console.error(error);
+						informes.push({codigo: permiso._id, status: 500});
+						promise.reject(err);
+					} else {
+						informes.push({codigo: permiso._id, status: 200, permiso: permiso});
+						promise.resolve();
+					}
+				});
+			}, function (err) {
+				informes.push({codigo: permiso._id, status: 500});
+				promise.reject(err);
+			})
+		};
         permisos.forEach(function (permiso, i) {
             var promise = Q.defer();
-            var f = function (promise, permiso) {
-                exports.softCalculatePermiso(Q, models, permiso).then(function (permiso) {
-                    pindex++;
-                    console.log('softcalculate permiso concluido ' + permiso._id + " ; " + permiso.login + ";" + permiso.codplaza + " (" + pindex + " de " + plength + ")");
-                    permiso.save(function (error) {
-                        if (error) {
-                            console.error(error);
-                            informes.push({codigo: permiso._id, status: 500});
-                            promise.reject(err);
-                        } else {
-                            informes.push({codigo: permiso._id, status: 200, permiso: permiso});
-                            promise.resolve();
-                        }
-                    });
-                }, function (err) {
-                    informes.push({codigo: permiso._id, status: 500});
-                    promise.reject(err);
-                })
-            }
+
             f(promise, permiso);
             defs.push(promise.promise);
         });
