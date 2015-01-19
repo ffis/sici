@@ -1,4 +1,4 @@
-function ActividadCtrl($q,$rootScope,$scope,$location,$window,$routeParams,$timeout, Arbol, ProcedimientoList,DetalleCarmProcedimiento,DetalleCarmProcedimiento2, PersonasByPuesto, Session, Etiqueta) {
+function ActividadCtrl($q,$rootScope,$scope,$location,$window,$routeParams,$timeout, Arbol, ProcedimientoList,DetalleCarmProcedimiento,DetalleCarmProcedimiento2, PersonasByPuesto, Session, Etiqueta, ExportarResultadosJerarquia) {
 	$rootScope.nav = 'actividad';
 	$window.document.title ='SICI: Actividad';
 	$scope.idjerarquia = ($routeParams.idjerarquia) ? $routeParams.idjerarquia :false;
@@ -262,6 +262,41 @@ function ActividadCtrl($q,$rootScope,$scope,$location,$window,$routeParams,$time
 		$scope.currentPage = n;
 		$scope.sparkline();
 	};
-	
+        
+        $scope.anyos = [{code: 'a2013', name: '2013'}, {code: 'a2014', name: '2014'}, {code: 'a2015', name: '2015'}];
+        $scope.anyoSelected = '';
+        $scope.actualizando = 0;
+        
+        $scope.updateAnyoSelected = function(code) {
+            $scope.anyoSelected = code;
+            console.log($scope.anyoSelected);
+        };
+        
+        $scope.descargarExcel = function () {
+            $scope.actualizando = 1;
+            if (typeof $scope.seleccionado === 'undefined') {
+                $scope.respuesta = {
+                    clase: 'alert-warning',
+                    mensaje: 'Debe seleccionar un nodo.'
+                };
+                $scope.actualizando = 0;
+                return;
+            }
+            ExportarResultadosJerarquia.get({jerarquia: $scope.seleccionado.id}, function (token) {
+                $scope.actualizando = 0;
+                $scope.respuesta = {
+                    clase: 'alert-success',
+                    mensaje: 'Ha funcionado correctamente.'
+                };
+                var url = '/download/' + token.time + '/' + token.hash;
+                $window.location = url;
+            }, function () {
+                $scope.actualizando = 0;
+                $scope.respuesta = {
+                    clase: 'alert-warning',
+                    mensaje: 'Error al descargar el informe.'
+                };
+            });
+        };
 }
-ActividadCtrl.$inject = ['$q','$rootScope','$scope','$location','$window','$routeParams','$timeout','Arbol','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','PersonasByPuesto','Session', 'Etiqueta'];
+ActividadCtrl.$inject = ['$q','$rootScope','$scope','$location','$window','$routeParams','$timeout','Arbol','ProcedimientoList','DetalleCarmProcedimiento','DetalleCarmProcedimiento2','PersonasByPuesto','Session', 'Etiqueta', 'ExportarResultadosJerarquia'];

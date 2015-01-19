@@ -120,7 +120,7 @@ exports.completarTabla = function (periodo, ws) {
         var cellValueRef = XLSX.utils.encode_cell({c: 3, r: 17 + i});
         ws[cellValueRef] = cellValue;
         for (var mes = 0; mes < 12; mes++) {
-            var cellValue = {v: periodo[indicadoresDatabase[i]][mes], t: 'n'};
+            var cellValue = {v: periodo[indicadoresDatabase[i]] ? periodo[indicadoresDatabase[i]][mes] : 0, t: 'n'};
             var cellValueRef = XLSX.utils.encode_cell({c: 4 + mes, r: 17 + i});
             ws[cellValueRef] = cellValue;
         }
@@ -136,13 +136,46 @@ exports.tablaResultadosJerarquia = function (models, app, md5, Q) {
             res.end();
             return;
         }
-        exports.mapReducePeriodos(Q, models, req.params.jerarquia).then(function (periodos) {
-            console.log(periodos);
-            var wb = new Workbook();
-            var ws = {};
-//            exports.completarTabla(results, ws);
+        var Jerarquia = models.jerarquia();
+        var deferNombre = Q.defer();
+        Jerarquia.findOne({'id': req.params.jerarquia}, {nombrelargo: true}, function (err, data) {
+            if (err) {
+                console.error('No se ha definido el parámetro "jerarquia"');
+                res.status(500);
+                res.end();
+                deferNombre.reject(err);
+            } else {
+                deferNombre.resolve(data.nombrelargo);
+            }
+        });
+        deferNombre.promise.then(function (denominacion) {
+            exports.mapReducePeriodos(Q, models, req.params.jerarquia).then(function (periodos) {
+                var d = new Date();
+                var wb = new Workbook();
+                for (var anualidad = 2013; anualidad <= d.getFullYear(); anualidad++) {
+                    var ws = {};
+                    var cellValue = {v: denominacion, t: 's'};
+                    var cellValueRef = XLSX.utils.encode_cell({c: 4, r: 5});
+                    ws[cellValueRef] = cellValue;
+                    exports.completarTabla(periodos[anualidad], ws);
+                    var range = {s: {c: 0, r: 0}, e: {c: 20, r: 40}};
+                    ws['!ref'] = XLSX.utils.encode_range(range);
+                    var wsName = '' + anualidad;
+                    wb.SheetNames.push(wsName);
+                    wb.Sheets[wsName] = ws;
+                }
+                var time = new Date().getTime();
+                var path = app.get('prefixtmp');
+                XLSX.writeFile(wb, path + time + '.xlsx');
+                res.json({'time': time, 'hash': md5('sicidownload7364_' + time)});
+            }, function (err) {
+                console.error('Error al hacer el map reduce ' + err);
+                res.status(500);
+                res.end();
+                return;
+            });
         }, function (err) {
-            console.error('Error al hacer el map reduce ' + err);
+            console.error(err);
             res.status(500);
             res.end();
             return;
