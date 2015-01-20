@@ -829,7 +829,6 @@ exports.ratioResueltos = function (models) {
                 res.status(500).end();
                 return;
             } else {
-                console.log(result);
                 if (result.length == 0) {
                     res.json({'ratio': 0});
                 } else {
