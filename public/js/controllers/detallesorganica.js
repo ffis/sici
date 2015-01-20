@@ -1,0 +1,290 @@
+function DetallesOrganicaCtrl($q, $rootScope, $scope, $routeParams, $window, $location, $timeout, $http, JerarquiaAncestros,Periodo,ExportarResultadosJerarquia,ResumenNodoJerarquia) {
+    
+    $scope.numgraphs = 0;
+    $scope.graficasbarras = false;
+    $scope.mesActual = (new Date()).getMonth();
+    $scope.graphs = false;
+    $scope.padre = "";
+	$scope.ancestros=[];
+
+	$scope.periodos = Periodo.query(function(){
+		$scope.periodo = $scope.periodos[0];
+	});
+
+	$scope.getAncestros = function(jerarquia) {
+		return ancestros;
+	}
+	
+    $scope.nextYear = function () {
+        var year = parseInt($scope.anualidad.substring(1, 5)) + 1;
+        $scope.anualidad = 'a' + (year);
+        $scope.updateGraphKeys(year);
+    };
+	
+    $scope.exists = function (attr) {
+        if ($scope.anualidad) {
+            return $scope.resumenJerarquiaSeleccionada[$scope.anualidad] &&
+                typeof $scope.resumenJerarquiaSeleccionada[$scope.anualidad][attr] !== 'undefined';
+        }
+    };	
+
+    $scope.prevYear = function () {
+        var year = parseInt($scope.anualidad.substring(1, 5)) - 1;
+        $scope.anualidad = 'a' + (year);
+        $scope.updateGraphKeys(year);
+    };
+
+    $scope.getNext = function () {
+        if ($scope.anualidad) {
+            return "" + (parseInt("" + $scope.anualidad.substring(1, 5)) + 1);
+        }
+    };
+
+    $scope.getPrev = function () {
+        if ($scope.anualidad) {
+            return "" + (parseInt("" + $scope.anualidad.substring(1, 5)) - 1);
+        }
+    };
+
+    $scope.editarPadre = function () {
+        $scope.mostrarAutocompletePadre = true;
+    };
+    
+    $scope.ocultarEditarPadre = function () {
+        $scope.mostrarAutocompletePadre = false;
+    };
+
+    $scope.deletePadre = function () {
+        $scope.procedimientoSeleccionado.padre = null;
+        $scope.procedimientoSeleccionado.$update(function (response) {
+            console.error(response);
+        });
+        $scope.nombrePadre = 'Sin definir';
+    };
+    
+    
+   $scope.updateGraphKeys = function(anualidad) {
+        var anualidad_anterior = anualidad-1;
+        var graphskeys = [
+            {caption: 'RESUMEN DE DATOS DE GESTIÓN ' + anualidad, keys: [
+                    {caption: 'Solicitados', vals: 'a' + anualidad + '.solicitados', maxx: $scope.mesActual},
+                    {caption: 'Iniciados', vals: 'a' + anualidad + '.iniciados', maxx: $scope.mesActual},
+                    {caption: 'Pendientes', vals: 'a' + anualidad + '.pendientes', maxx: $scope.mesActual},
+                    {caption: 'Total resueltos', vals: 'a' + anualidad + '.total_resueltos', maxx: $scope.mesActual},
+                    {caption: 'Total resueltos ' + anualidad_anterior, vals: 'a' + anualidad_anterior + '.total_resueltos', maxx: 12}
+                ]},
+            {caption: 'RESUELTOS EN PLAZO ' + anualidad, keys: [
+                    {caption: 'En plazo', vals: 'a' + anualidad + '.en_plazo', maxx: $scope.mesActual},
+                    {caption: 'Fuera de plazo', vals: 'a' + anualidad + '.fuera_plazo', maxx: $scope.mesActual}
+                ]},
+            {caption: 'DESESTIMIENTOS/RENUNCIAS Y PRESCRITOS/CADUCADOS ' + anualidad, keys: [
+                    {caption: 'Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)', vals: 'a' + anualidad + '.resueltos_desistimiento_renuncia_caducidad', maxx: $scope.mesActual},
+                    {caption: 'Resueltos por Prescripcion/Caducidad (Resp_Admon)', vals: 'a' + anualidad + '.resueltos_prescripcion', maxx: $scope.mesActual}
+                ]},
+            {caption: 'QUEJAS Y RECURSOS CONTRA EL PROCEDIMIENTO ' + anualidad, keys: [
+                    {caption: 'Quejas presentadas en el mes', vals: 'a' + anualidad + '.quejas', maxx: $scope.mesActual},
+                    {caption: 'Recursos presentados en el mes', vals: 'a' + anualidad + '.recursos', maxx: $scope.mesActual}
+                ]}
+
+        ];
+        $scope.graphskeys = graphskeys;
+        $scope.graphs = [];
+        $scope.numgraphs = 0;
+        graphskeys.forEach(function (g, i) {
+            var maxvalue = 0;
+            var data = [];
+            var caption = g.caption;
+            g.keys.forEach(function (key, indx) {
+                var k = $scope.resumenJerarquiaSeleccionada;
+                var values = [];
+                var indexes = key.vals.split('.');
+                for (var j in indexes) {
+                    var index = indexes[j];
+                    if (typeof k[index] === 'undefined')
+                        break;
+                    k = k[index];
+                }
+                if (typeof k !== 'undefined' && k.length > 0) {
+                    k.forEach(function (val, idx) {
+                        /*try{
+                         console.log(idx +':'+graphskeys[i].keys[indx].maxx);
+                         }catch(e){
+                         console.error(i+':'+indx);
+                         }*/
+                        if (((idx <= graphskeys[i].keys[indx].maxx) && (anualidad === $scope.anualidadActual)) || (anualidad !== $scope.anualidadActual)) {
+                            values.push([idx, val]);
+                            if (maxvalue < val)
+                                maxvalue = val;
+                        }
+                    });
+                    data.push({"key": key.caption, "values": values});
+                } else {
+                    console.log('Index malo:' + indexes);
+                }
+            });
+            var forcey = [0, Math.ceil(maxvalue * 1.3)];
+            if (maxvalue > 0) {
+                $scope.graphs.push({data: data, forcey: forcey, caption: caption});
+                $scope.numgraphs = $scope.numgraphs + 1;
+            }
+        });
+    };
+
+	
+	
+	
+	$scope.resumenJerarquiaSeleccionada = ResumenNodoJerarquia.get({jerarquia: $routeParams.idjerarquia}, function(){});			
+	
+    $scope.jerarquiaSeleccionada = Jerarquia.get({id: $routeParams.idjerarquia}, function () {
+        $window.document.title = 'SICI: ' + $scope.jerarquiaSeleccionada.nombrelargo;
+		$scope.anualidad = 'a'+ (new Date()).getYear();
+		$scope.anualidadActual = parseInt($scope.anualidad.replace("a",""));
+        //$scope.procedimientosPadre = ProcedimientoList.query({'idjerarquia': $scope.procedimientoSeleccionado.idjerarquia, 'recursivo': false});
+
+		$scope.ancestros = JerarquiaAncestros.query({'idjerarquia':$routeParams.idjerarquia},function(){
+			if ($scope.ancestros && $scope.ancestros[0].id == 1)
+			{
+				$scope.ancestros.reverse();//TODO: revisar este parche
+			}		
+		});
+
+        $rootScope.W($scope.procedimientoSeleccionado).then(function (val) {
+            $rootScope.superuser().then(function (val2) {
+                $scope.W = val || val2;
+            }, function (err) {
+                $scope.W = false;
+            });
+        }, function (err) {
+            $scope.W = false;
+        });
+
+        $scope.superuser = $rootScope.superuser();
+        $scope.updateGraphKeys($scope.anualidad.substring(1,5));
+        
+        $scope.filtrosocultos = false;
+        $scope.seleccinado = null;
+        $scope.mensaje_moviendo = '';
+        $scope.msj_base = 'Moviendo (Esta operación puede tardar un tiempo)...';
+
+        $scope.gotoBreadCrumb = function () {
+            //$location.hash('breadcrumb');	
+        };
+
+        $scope.gotOkCancel = function () {
+            //$location.hash('ok_cancel_changeOrganica');
+        };
+
+        /******************************/
+
+
+
+    });
+    $scope.attrspar = [
+        'idjerarquia', 'nombrelargo', 'numprocedimientos'
+    ];
+
+    $scope.attrsanualidad_permisos = ['w', 's', 'w', 'w', 'w', 'w'];
+
+    $scope.attrstabla = [
+        'solicitados',
+        'iniciados',
+        'quejas', 'recursos',
+        'resueltos_1', 'resueltos_5', 'resueltos_10', 'resueltos_15', 'resueltos_30', 'resueltos_45', 'resueltos_mas_45',
+        'resueltos_desistimiento_renuncia_caducidad', 'resueltos_prescripcion',
+        'en_plazo',
+        't_medio_habiles', 't_medio_naturales'
+    ];
+    /* 'totalsolicitudes', */
+    $scope.attrstablacalculados = ['total_resueltos', 'fuera_plazo', 'pendientes'];
+	$scope.attrstabla = $scope.attrstabla.concat($scope.attrstablacalculados);
+	
+    $scope.meses = $rootScope.meses;
+    $scope.colorText = $rootScope.colorText;
+
+    $scope.graficasgrandes = false;
+    $scope.xAxisTickValuesFunction = function () {
+        return function (d) {
+            return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+        };
+    };
+    $scope.xAxisTickFormatFunction = function () {
+        return function (d) {
+            return $scope.meses[d];
+        }
+    };
+    $scope.colorFunction2 = function () {
+        return function (d, i) {
+            return $rootScope.colorToHex($rootScope.colorText(i, 5, 60));
+        }
+    };
+    var colorCategory = d3.scale.category20b()
+    $scope.colorFunction = function () {
+        return function (d, i) {
+            return colorCategory(i);
+        };
+    };
+
+    $scope.checkNumber = function (data, anualidad, attr, index) {
+        if ($scope.resumenJerarquiaSeleccionada[anualidad][attr][index] !== data)
+            $scope.cellChanged = true;
+        else
+            $scope.cellChanged = false;
+        var valor = parseInt(data);
+        if (isNaN(valor) || !/^\d+$/.test(data)) {
+            return "Esto no es un número";
+        } else if (valor < 0) {
+            return "No se admiten valores menores de 0";
+        }
+    };
+
+//    $scope.downloadGraphic = function (id) {
+//        console.log(id);
+//        var canvas = document.getElementById(id);
+//        var ctx = canvas.getContext("2d");
+//        // draw to canvas...
+//        canvas.toBlob(function (blob) {
+//            saveAs(blob, "image.png");
+//        });
+//    };
+//    
+//    $scope.guardarImagen = function(id) {
+////        http://techslides.com/save-svg-as-an-image
+//      var html = d3.select('#svg'+id)
+//        .attr("version", 1.1)
+//        .attr("xmlns", "http://www.w3.org/2000/svg")
+//        .node().parentNode.innerHTML;
+// 
+//        console.log(html);
+//        var imgsrc = 'data:image/svg+xml;base64,'+ btoa(html);
+//        var img = '<img src="'+imgsrc+'">'; 
+//        d3.select("#svgdataurl"+id).html(img);
+//
+//
+//        var canvas = document.querySelector("canvas"),
+//                context = canvas.getContext("2d");
+//
+//        var image = new Image();
+//        image.src = imgsrc;
+//        image.onload = function() {
+//            context.drawImage(image, 0, 0);
+//            var canvasdata = canvas.toDataURL("image/png");
+//            var pngimg = '<img src="'+canvasdata+'">'; 
+//            d3.select("#pngdataurl"+id).html(pngimg);
+//
+//            var a = document.createElement("a");
+//            a.download = "grafica.png";
+//            a.href = canvasdata;
+//            a.click();
+//        };  
+//    };
+    
+}
+DetallesOrganicaCtrl.$inject = ['$q', '$rootScope', '$scope', '$routeParams', '$window', '$location', '$timeout', '$http','JerarquiaAncestros','Periodo','ExportarResultadosJerarquia','ResumenNodoJerarquia'];
+
+function parseStr2Int(str) {
+    var valor = parseInt(str);
+    if (isNaN(valor) || !/^\d+$/.test(data))
+        valor = 0;
+    return valor;
+}
+
