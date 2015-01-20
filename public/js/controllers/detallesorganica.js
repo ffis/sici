@@ -1,4 +1,4 @@
-function DetallesOrganicaCtrl($q, $rootScope, $scope, $routeParams, $window, $location, $timeout, $http, JerarquiaAncestros,Periodo,ExportarResultadosJerarquia,ResumenNodoJerarquia) {
+function DetallesOrganicaCtrl($q, $rootScope, $scope, $routeParams, $window, $location, $timeout, $http, JerarquiaAncestros,Periodo,ExportarResultadosJerarquia,ResumenNodoJerarquia,Jerarquia) {
     
     $scope.numgraphs = 0;
     $scope.graficasbarras = false;
@@ -12,7 +12,7 @@ function DetallesOrganicaCtrl($q, $rootScope, $scope, $routeParams, $window, $lo
 	});
 
 	$scope.getAncestros = function(jerarquia) {
-		return ancestros;
+		return $scope.ancestros;
 	}
 	
     $scope.nextYear = function () {
@@ -67,23 +67,23 @@ function DetallesOrganicaCtrl($q, $rootScope, $scope, $routeParams, $window, $lo
         var anualidad_anterior = anualidad-1;
         var graphskeys = [
             {caption: 'RESUMEN DE DATOS DE GESTIÓN ' + anualidad, keys: [
-                    {caption: 'Solicitados', vals: 'a' + anualidad + '.solicitados', maxx: $scope.mesActual},
-                    {caption: 'Iniciados', vals: 'a' + anualidad + '.iniciados', maxx: $scope.mesActual},
-                    {caption: 'Pendientes', vals: 'a' + anualidad + '.pendientes', maxx: $scope.mesActual},
-                    {caption: 'Total resueltos', vals: 'a' + anualidad + '.total_resueltos', maxx: $scope.mesActual},
-                    {caption: 'Total resueltos ' + anualidad_anterior, vals: 'a' + anualidad_anterior + '.total_resueltos', maxx: 12}
+                    {caption: 'Solicitados', vals: '' + anualidad + '.solicitados', maxx: $scope.mesActual},
+                    {caption: 'Iniciados', vals: '' + anualidad + '.iniciados', maxx: $scope.mesActual},
+                    {caption: 'Pendientes', vals: '' + anualidad + '.pendientes', maxx: $scope.mesActual},
+                    {caption: 'Total resueltos', vals: '' + anualidad + '.total_resueltos', maxx: $scope.mesActual},
+                    {caption: 'Total resueltos ' + anualidad_anterior, vals: '' + anualidad_anterior + '.total_resueltos', maxx: 12}
                 ]},
             {caption: 'RESUELTOS EN PLAZO ' + anualidad, keys: [
-                    {caption: 'En plazo', vals: 'a' + anualidad + '.en_plazo', maxx: $scope.mesActual},
-                    {caption: 'Fuera de plazo', vals: 'a' + anualidad + '.fuera_plazo', maxx: $scope.mesActual}
+                    {caption: 'En plazo', vals: '' + anualidad + '.en_plazo', maxx: $scope.mesActual},
+                    {caption: 'Fuera de plazo', vals: '' + anualidad + '.fuera_plazo', maxx: $scope.mesActual}
                 ]},
             {caption: 'DESESTIMIENTOS/RENUNCIAS Y PRESCRITOS/CADUCADOS ' + anualidad, keys: [
-                    {caption: 'Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)', vals: 'a' + anualidad + '.resueltos_desistimiento_renuncia_caducidad', maxx: $scope.mesActual},
-                    {caption: 'Resueltos por Prescripcion/Caducidad (Resp_Admon)', vals: 'a' + anualidad + '.resueltos_prescripcion', maxx: $scope.mesActual}
+                    {caption: 'Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)', vals: '' + anualidad + '.resueltos_desistimiento_renuncia_caducidad', maxx: $scope.mesActual},
+                    {caption: 'Resueltos por Prescripcion/Caducidad (Resp_Admon)', vals: '' + anualidad + '.resueltos_prescripcion', maxx: $scope.mesActual}
                 ]},
             {caption: 'QUEJAS Y RECURSOS CONTRA EL PROCEDIMIENTO ' + anualidad, keys: [
-                    {caption: 'Quejas presentadas en el mes', vals: 'a' + anualidad + '.quejas', maxx: $scope.mesActual},
-                    {caption: 'Recursos presentados en el mes', vals: 'a' + anualidad + '.recursos', maxx: $scope.mesActual}
+                    {caption: 'Quejas presentadas en el mes', vals: '' + anualidad + '.quejas', maxx: $scope.mesActual},
+                    {caption: 'Recursos presentados en el mes', vals: '' + anualidad + '.recursos', maxx: $scope.mesActual}
                 ]}
 
         ];
@@ -137,26 +137,17 @@ function DetallesOrganicaCtrl($q, $rootScope, $scope, $routeParams, $window, $lo
 	
     $scope.jerarquiaSeleccionada = Jerarquia.get({id: $routeParams.idjerarquia}, function () {
         $window.document.title = 'SICI: ' + $scope.jerarquiaSeleccionada.nombrelargo;
-		$scope.anualidad = 'a'+ (new Date()).getYear();
+		$scope.anualidad = ''+ (new Date()).getYear();
 		$scope.anualidadActual = parseInt($scope.anualidad.replace("a",""));
         //$scope.procedimientosPadre = ProcedimientoList.query({'idjerarquia': $scope.procedimientoSeleccionado.idjerarquia, 'recursivo': false});
 
 		$scope.ancestros = JerarquiaAncestros.query({'idjerarquia':$routeParams.idjerarquia},function(){
-			if ($scope.ancestros && $scope.ancestros[0].id == 1)
+			if ($scope.ancestros &&  $scope.ancestros[0] && $scope.ancestros[0].id== 1)
 			{
 				$scope.ancestros.reverse();//TODO: revisar este parche
 			}		
 		});
 
-        $rootScope.W($scope.procedimientoSeleccionado).then(function (val) {
-            $rootScope.superuser().then(function (val2) {
-                $scope.W = val || val2;
-            }, function (err) {
-                $scope.W = false;
-            });
-        }, function (err) {
-            $scope.W = false;
-        });
 
         $scope.superuser = $rootScope.superuser();
         $scope.updateGraphKeys($scope.anualidad.substring(1,5));
@@ -180,7 +171,7 @@ function DetallesOrganicaCtrl($q, $rootScope, $scope, $routeParams, $window, $lo
 
     });
     $scope.attrspar = [
-        'idjerarquia', 'nombrelargo', 'numprocedimientos'
+        'id', 'nombrelargo', 'numprocedimientos'
     ];
 
     $scope.attrsanualidad_permisos = ['w', 's', 'w', 'w', 'w', 'w'];
@@ -279,7 +270,7 @@ function DetallesOrganicaCtrl($q, $rootScope, $scope, $routeParams, $window, $lo
 //    };
     
 }
-DetallesOrganicaCtrl.$inject = ['$q', '$rootScope', '$scope', '$routeParams', '$window', '$location', '$timeout', '$http','JerarquiaAncestros','Periodo','ExportarResultadosJerarquia','ResumenNodoJerarquia'];
+DetallesOrganicaCtrl.$inject = ['$q', '$rootScope', '$scope', '$routeParams', '$window', '$location', '$timeout', '$http','JerarquiaAncestros','Periodo','ExportarResultadosJerarquia','ResumenNodoJerarquia','Jerarquia'];
 
 function parseStr2Int(str) {
     var valor = parseInt(str);

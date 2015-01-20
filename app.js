@@ -124,6 +124,8 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 
 
     app.get('/api/jerarquia/:idjerarquia', jerarquia.getNodoJerarquia(models));
+	app.get('/api/jerarquiaacestros/:idjerarquia',jerarquia.getAncestros(models));
+	app.get('/api/jerarquia/resumen/:idjerarquia', jerarquia.getResumenJerarquia(models,Q,exportador));
 
     app.get('/api/reglasinconsistencias', reglainconsistencia.getReglaInconsistencia(models));
     app.post('/api/reglasinconsistencias', reglainconsistencia.newReglaInconsistencia(models));
@@ -161,6 +163,8 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
     app.get('/api/permisosdelegar/:login/:cod_plaza', permiso.delegarpermisos(models, Q, recalculate));
     app.get('/api/permisosdelegar/:login/:cod_plaza/:procedimiento', permiso.delegarpermisosProcedimiento(models, Q));
 
+	app.get('/api/exportador/jerarquia/:jerarquia', exportador.tablaResultadosJerarquia(models, app, md5, Q));
+	
     app.get('/api/excelgesper', persona.importarGesper(models, Q));
 
 

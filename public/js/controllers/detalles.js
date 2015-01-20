@@ -409,7 +409,7 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
         'codigo', 'denominacion', 'tipo', 'cod_plaza', 'fecha_creacion', 'fecha_version' /* 'fecha_fin', */
     ];
 
-    $scope.attrsanualidad = ['pendientes_iniciales', /*'periodoscerrados',*/
+    $scope.attrsanualidad = ['pendientes_iniciales', 
         'plazo_CS_ANS_habiles', 'plazo_CS_ANS_naturales', 'plazo_maximo_resolver', 'plazo_maximo_responder'];
     $scope.attrsanualidad_permisos = ['w', 'w', 'w', 'w', 'w'];
 

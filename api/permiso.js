@@ -44,10 +44,16 @@ function getPermisosByLoginPlaza(req, res, models ,Q ,login, cod_plaza)
 
 
 exports.delegarpermisosProcedimiento = function(models,Q){
-	return function(req,res){
+	return function(req,res){		
 		var proc = req.params.procedimiento;
-		console.log(req.user);
-		/**if (req.user.permisoscalculados.procedimientosescritura.indexOf(proc)!==-1 ){*/
+		if (!((req.user.permisoscalculados.grantoption ||
+			req.user.permisoscalculados.superuser) && req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura).indexOf(proc)) ){
+			console.error(err);
+			res.status(500);
+			res.end();
+			return;			
+		}
+		
 			var Permiso = models.permiso();
 			var Procedimiento = models.procedimiento();
 			var Jerarquia = models.jerarquia();
@@ -105,6 +111,14 @@ exports.delegarpermisos = function(models,Q, recalculate)
 {
 	return function(req, res) {
 		var Permiso = models.permiso();
+		if (!(req.user.permisoscalculados.grantoption ||
+			req.user.permisoscalculados.superuser))
+		{
+			console.error(err);
+			res.status(500);
+			res.end();
+			return;
+		}
 		var promesa_permisos = getPermisosByLoginPlaza(req, res, models,Q,req.user.login,req.user.codplaza);
 		promesa_permisos.then(
 			function(permisos){
@@ -184,6 +198,18 @@ exports.removePermisoProcedimiento = function(models, Q, recalculate) {
 			var idpermiso = req.params.idpermiso;
 			var idprocedimiento = req.params.idprocedimiento;
 
+			if (!
+				(req.user.permisoscalculados.grantoption ||
+				 req.user.permisoscalculados.superuser) 
+				 &&
+				 req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura).indexOf(idprocedimiento)!==-1
+				)
+			{				
+				res.status(500).send('No tiene permiso para realizar esta operación');
+				res.end();
+				return;
+			}			
+			
 			Permiso.findById(idpermiso,function(err,permiso){
 				console.log(permiso);
 				if (err) {
@@ -234,7 +260,6 @@ exports.removePermisoProcedimiento = function(models, Q, recalculate) {
 
 exports.removePermisoJerarquia = function(models, Q, recalculate) {
 	return function(req, res) {
-	
 		console.log("Eliminando jerarquia de permiso. Idjerarquia y permiso:");
 		console.log(req.params.idjerarquia);
 		console.log(req.params.idpermiso);
@@ -247,7 +272,18 @@ exports.removePermisoJerarquia = function(models, Q, recalculate) {
 			var idpermiso = req.params.idpermiso;
 			var idjerarquia = parseInt(req.params.idjerarquia);
 			
-			
+			if (!
+				(req.user.permisoscalculados.grantoption ||
+				 req.user.permisoscalculados.superuser) 
+				 &&
+				 req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura).indexOf(idjerarquia)!==-1
+				)
+			{
+				console.error('El usuario ha intentado realizar una operación sobre permisos que no le está permitida');
+				res.status(500);
+				res.end();
+				return;
+			}			
 		
 			Permiso.findById(idpermiso,function(err,permiso){
 	
@@ -433,6 +469,20 @@ exports.permisosDirectosList = function(models, Q){
 
 		if (typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))) {								
 				var idj = parseInt(req.params.idjerarquia);
+
+				if (!
+					(req.user.permisoscalculados.grantoption ||
+					 req.user.permisoscalculados.superuser) 
+					 &&
+					 req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura).indexOf(idj)!==-1
+					)
+				{
+					console.error('El usuario ha intentado realizar una operacion (permisosDirectosList) que no le está permitida');
+					res.status(500).send('No tiene permiso para operar sobre permisos');
+					res.end();
+					return;
+				}				
+				
 				var restriccion = {'jerarquiadirectalectura':idj};
 				Permiso.find(restriccion, function(err, permisos){
 					if (err) {console.error(restriccion); console.error(err); res.status(500); res.end(); return; }
@@ -455,6 +505,20 @@ exports.permisosDirectosProcedimientoList = function(models,Q){
 
 		if (typeof req.params.codigoprocedimiento !== 'undefined') {								
 				var idp = req.params.codigoprocedimiento;
+
+				if (!
+					(req.user.permisoscalculados.grantoption ||
+					 req.user.permisoscalculados.superuser) 
+					 &&
+					 req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura).indexOf(idp)!==-1
+					)
+				{
+					console.error('El usuario ha intentado realizar una operacion (permisosDirectosProcedimientoList) que no le está permitida');
+					res.status(500).send('No tiene permiso para operar sobre permisos');
+					res.end();
+					return;
+				}				
+				
 				var restriccion = {'procedimientodirectalectura':idp};
 				Permiso.find(restriccion, function(err, permisos){
 					if (err) {console.error(restriccion); console.error(err); res.status(500); res.end(); return; }
@@ -478,6 +542,20 @@ exports.permisosProcedimientoList = function(models,Q){
 		console.log("Buscando procedimiento "+req.params.codigoprocedimiento);
 		if (typeof req.params.codigoprocedimiento !== 'undefined') {								
 				var idp = req.params.codigoprocedimiento;
+				
+				if (!
+					(req.user.permisoscalculados.grantoption ||
+					 req.user.permisoscalculados.superuser) 
+					 &&
+					 req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura).indexOf(idp)!==-1
+					)
+				{
+					console.error('El usuario ha intentado realizar una operacion (permisosDirectosProcedimientoList) que no le está permitida');
+					res.status(500).send('No tiene permiso para operar sobre permisos');
+					res.end();
+					return;
+				}				
+				
 				var restriccion = {'procedimientoslectura':idp};
 				Permiso.find(restriccion, function(err, permisos){
 					if (err) {console.error(restriccion); console.error(err); res.status(500); res.end(); return; }

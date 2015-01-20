@@ -57,8 +57,12 @@ angular.module('sici.services', ['ngResource'])
             }])
         .factory('Jerarquia', ['$resource',
             function ($resource) {
-                return $resource('/api/jerarquia/:idjerarquia', {}, {query: {method: 'GET', isArray: false}});
+                return $resource('/api/jerarquia/:id', {}, {get: {method: 'GET', isArray: false}});
             }])
+        .factory('JerarquiaAncestros', ['$resource',
+            function ($resource) {
+                return $resource('/api/jerarquiaacestros/:idjerarquia', {}, {query: {method: 'GET', isArray: true}});
+            }])			
         .factory('PermisosDirectosProcedimientoList', ['$resource',
             function ($resource) {
                 return $resource('/api/permisosDirectosProcedimientoList/:codigoprocedimiento', {}, {query: {method: 'GET', isArray: true}});
@@ -134,6 +138,10 @@ angular.module('sici.services', ['ngResource'])
         .factory('ExportarResultadosJerarquia', ['$resource',
             function ($resource) {
                 return $resource('/api/exportador/jerarquia/:jerarquia', {jerarquia: '@jerarquia'}, {get: {method: 'GET', isArray: false}});
+            }])
+		.factory('ResumenNodoJerarquia', ['$resource',
+            function ($resource) {
+                return $resource('/api/jerarquia/resumen/:jerarquia', {},  {jerarquia: '@jerarquia'}, {get: {method: 'GET', isArray: false}});
             }])
         .factory('DetalleCarmProcedimiento', ['$resource',
             function ($resource) {
