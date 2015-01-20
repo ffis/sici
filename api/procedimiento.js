@@ -443,7 +443,7 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
 								}
 							}
 						} else {
-							console.log(attr + '=>' + procedimiento.periodos[anualidad][attr]);
+							
 							original.periodos[anualidad][attr] =
 									procedimiento.periodos[anualidad][attr] != null ?
 									parseInt(procedimiento.periodos[anualidad][attr]) : null;
