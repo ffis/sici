@@ -294,6 +294,7 @@ exports.softCalculateProcedimientoCache = function (Q, models, procedimiento) {
 exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
     var deferred = Q.defer();
 
+	console.log("softCalculateProcedimiento "+procedimiento.codigo);
     //para cada periodo
     if (typeof procedimiento.periodos != "object") {
         console.error('Error en procedimiento ' + procedimiento.codigo);
@@ -315,8 +316,6 @@ exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
                     procedimiento.periodos[ periodo ][campo].push(0);
 
                 //procedimiento.periodos[ periodo ][campo] = [0,0,0,0,0,0,0,0,0,0,0,0];
-            } else {
-                console.error('campo:' + campo + ' ' + typeof procedimiento.periodos[ periodo ][campo]);
             }
         }
 

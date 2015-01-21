@@ -158,12 +158,10 @@ exports.parseGS = function(){
 					lista.forEach(function(detalle){
 						var campo = detalle.childNodes && detalle.childNodes.length>0 ? detalle.childNodes.item(0).textContent : detalle.textContent;
 						var valorDiv = detalle.nextSibling;
-						console.log(typeof detalle.nextSibling);
-						
 						var parent = valorDiv.parentNode;
-						var valor = typeof parent.innerHTML == 'string' ? parent.innerHTML : typeof parent.innerHTML;
-						
-						datos[campo] = valor;
+						var valor = typeof parent.innerHTML == 'string' ? parent.innerHTML : false;
+						if (valor)
+							datos[campo] = valor;
 					});
 
 					res.json(datos);			

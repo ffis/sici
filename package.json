@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "MD5": "^1.2.1",
     "crawler": "^0.2.7",
     "csv-parse": "0.0.6",
     "encoding": "^0.1.10",
@@ -15,7 +16,11 @@
     "q": "^1.0.1",
     "request": "^2.48.0",
     "soap": "^0.6.0",
+    "socket.io": "^1.2.1",
+    "stack-trace": "0.0.9",
     "underscore": "^1.7.0",
+    "v8-profiler": "^5.2.2",
+    "webkit-devtools-agent": "^0.3.1",
     "xlsx": "^0.7.12",
     "zombie": "^2.0.8"
   }

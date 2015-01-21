@@ -443,7 +443,7 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
 								}
 							}
 						} else {
-							console.log(attr + '=>' + procedimiento.periodos[anualidad][attr]);
+							
 							original.periodos[anualidad][attr] =
 									procedimiento.periodos[anualidad][attr] != null ?
 									parseInt(procedimiento.periodos[anualidad][attr]) : null;
@@ -775,7 +775,6 @@ exports.totalProcedimientos = function (models) {
                 res.status(500).end();
                 return;
             } else {
-                console.log(count);
                 res.json({count: count});
             }
         });
@@ -785,11 +784,11 @@ exports.totalProcedimientos = function (models) {
 exports.totalTramites = function (settings, models) {
     return function (req, res) {
         var Procedimiento = models.procedimiento();
+        var anualidad = req.params.anualidad ? parseInt(req.params.anualidad) : settings.anyo;
         Procedimiento.aggregate([
-            {$unwind: "$periodos.a2014.solicitados"},
             {$match: {idjerarquia: {$in: req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}},
             {'$group': {_id: '',
-                    suma: {$sum: '$periodos.a2014.solicitados'},
+                    suma: {$sum: '$periodos.a'+anualidad+'.totalsolicitados'},
                 }}
         ], function (err, result) {
             if (err) {
@@ -803,15 +802,17 @@ exports.totalTramites = function (settings, models) {
     };
 };
 
-exports.ratioResueltos = function (models) {
+exports.ratioResueltos = function (settings, models) {
     return function (req, res) {
         var Procedimiento = models.procedimiento();
+        var anualidad = req.params.anualidad ? parseInt(req.params.anualidad) : settings.anyo;
+
         Procedimiento.aggregate([
             {'$match': {idjerarquia: {$in: req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}},
-            {'$unwind': "$periodos.a2014.solicitados"},
+            {'$unwind': '$periodos.a'+anualidad+'.solicitados'},
             {'$group': {_id: '$_id',
-                    suma: {$sum: '$periodos.a2014.solicitados'},
-                    resueltos: {$first: '$periodos.a2014.total_resueltos'}}},
+                    suma: {$sum: '$periodos.a'+anualidad+'.solicitados'},
+                    resueltos: {$first: '$periodos.a'+anualidad+'.total_resueltos'}}},
             {$unwind: '$resueltos'},
             {'$group': {_id: '$_id',
                     suma: {$first: '$suma'},
@@ -829,7 +830,6 @@ exports.ratioResueltos = function (models) {
                 res.status(500).end();
                 return;
             } else {
-                console.log(result);
                 if (result.length == 0) {
                     res.json({'ratio': 0});
                 } else {
@@ -841,14 +841,16 @@ exports.ratioResueltos = function (models) {
     };
 };
 
-exports.procedimientosSinExpedientes = function (models) {
+exports.procedimientosSinExpedientes = function (settings, models) {
     return function (req, res) {
         var Procedimiento = models.procedimiento();
+        var anualidad = req.params.anualidad ? parseInt(req.params.anualidad) : settings.anyo;
+
         Procedimiento.aggregate([
             {$match: {idjerarquia: {$in: req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}},
-            {$unwind: "$periodos.a2014.solicitados"},
+            {$unwind: '$periodos.a'+anualidad+'.solicitados'},
             {$group: {_id: '$_id',
-                    suma: {$sum: '$periodos.a2014.solicitados'}}},
+                    suma: {$sum: '$periodos.a'+anualidad+'.solicitados'}}},
             {$match: {'suma': 0}},
             {$group: {_id: '',
                     total: {$sum: 1}}}
@@ -865,7 +867,7 @@ exports.procedimientosSinExpedientes = function (models) {
     };
 };
 
-exports.mediaMesTramites = function (models) {
+exports.mediaMesTramites = function (settings, models) {
     return function (req, res) {
         var anualidad = settings.anyo;
         var Procedimiento = models.procedimiento();
@@ -877,11 +879,9 @@ exports.mediaMesTramites = function (models) {
                 res.status(500).end();
                 return;
             } else {
-                console.log(count);
                 res.json({count: count});
             }
         });
     };
 };
-
 
