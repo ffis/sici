@@ -117,7 +117,7 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                     <li ng-repeat="attr in attrspar" >
                         <strong>{{attr| translate}}</strong>
                         <span>&nbsp;</span>
-                        <a ng-if="$root.permisoscalculados.superuser" href="#" onaftersave="recalculate(true)" editable-text="procedimientoSeleccionado[attr]">{{procedimientoSeleccionado[attr]!=null ?procedimientoSeleccionado[attr] : '-' }}</a>
+                        <a ng-if="$root.permisoscalculados.superuser" href="#" onaftersave="recalculate(true)" editable-text="procedimientoSeleccionado[attr]">{{(procedimientoSeleccionado[attr]!=null && procedimientoSeleccionado[attr] != '') ?procedimientoSeleccionado[attr] : '-' }}</a>
                         <span ng-if="!$root.permisoscalculados.superuser" >{{ procedimientoSeleccionado[attr]!=null ?procedimientoSeleccionado[attr]  : '-' }}</span>
                     </li>
                     <li ng-repeat="(index,attr) in attrsanualidad" ng-show="exists(attr)">
@@ -125,7 +125,7 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                             <strong>{{attr| translate}}</strong>
                             <span>&nbsp;</span>
                             <a  title="edita este valor"  href="#" ng-if="(W && attrsanualidad_permisos[index] != 's') || $root.permisoscalculados.superuser" onaftersave="recalculate(true)"  editable-text="procedimientoSeleccionado.periodos[anualidad][attr]">{{ procedimientoSeleccionado.periodos[anualidad][attr]!=null ? procedimientoSeleccionado.periodos[anualidad][attr] :  '-' }}</a>
-                            <span ng-if="!((W && attrsanualidad_permisos[index] != 's') || $root.permisoscalculados.superuser)" >{{ procedimientoSeleccionado.periodos[anualidad][attr]!=null ? procedimientoSeleccionado.periodos[anualidad][attr] : '-' }}</span>
+                            <span ng-if="!((W && attrsanualidad_permisos[index] != 's') || $root.permisoscalculados.superuser)" >{{ (procedimientoSeleccionado.periodos[anualidad][attr]!=null && procedimientoSeleccionado.periodos[anualidad][attr]!='') ? procedimientoSeleccionado.periodos[anualidad][attr] : '-' }}</span>
                         </div>
                     </li>
                     <li>
