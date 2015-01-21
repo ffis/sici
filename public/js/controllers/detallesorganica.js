@@ -16,8 +16,8 @@ function DetallesOrganicaCtrl($q, $rootScope, $scope, $routeParams, $window, $lo
 	}
 	
     $scope.nextYear = function () {
-        var year = parseInt($scope.anualidad.substring(1, 5)) + 1;
-        $scope.anualidad = 'a' + (year);
+        var year = parseInt($scope.anualidad.replace("a","")) + 1;
+        $scope.anualidad = '' + (year);
         $scope.updateGraphKeys(year);
     };
 	
@@ -29,20 +29,20 @@ function DetallesOrganicaCtrl($q, $rootScope, $scope, $routeParams, $window, $lo
     };	
 
     $scope.prevYear = function () {
-        var year = parseInt($scope.anualidad.substring(1, 5)) - 1;
-        $scope.anualidad = 'a' + (year);
+        var year = parseInt($scope.anualidad.replace("a","")) - 1;		
+        $scope.anualidad = '' + (year);
         $scope.updateGraphKeys(year);
     };
 
     $scope.getNext = function () {
         if ($scope.anualidad) {
-            return "" + (parseInt("" + $scope.anualidad.substring(1, 5)) + 1);
+            return "" + (parseInt("" + $scope.anualidad.replace("a","")) + 1);
         }
     };
 
     $scope.getPrev = function () {
         if ($scope.anualidad) {
-            return "" + (parseInt("" + $scope.anualidad.substring(1, 5)) - 1);
+            return "" + (parseInt("" + $scope.anualidad.replace("a","")) - 1);
         }
     };
 
@@ -64,6 +64,7 @@ function DetallesOrganicaCtrl($q, $rootScope, $scope, $routeParams, $window, $lo
     
     
    $scope.updateGraphKeys = function(anualidad) {
+		console.log("MIERDA "+anualidad);
         var anualidad_anterior = anualidad-1;
         var graphskeys = [
             {caption: 'RESUMEN DE DATOS DE GESTIÓN ' + anualidad, keys: [
@@ -137,7 +138,7 @@ function DetallesOrganicaCtrl($q, $rootScope, $scope, $routeParams, $window, $lo
 	
     $scope.jerarquiaSeleccionada = Jerarquia.get({id: $routeParams.idjerarquia}, function () {
         $window.document.title = 'SICI: ' + $scope.jerarquiaSeleccionada.nombrelargo;
-		$scope.anualidad = ''+ (new Date()).getYear();
+		$scope.anualidad = ''+ (new Date()).getFullYear(); 
 		$scope.anualidadActual = parseInt($scope.anualidad.replace("a",""));
         //$scope.procedimientosPadre = ProcedimientoList.query({'idjerarquia': $scope.procedimientoSeleccionado.idjerarquia, 'recursivo': false});
 
@@ -150,7 +151,7 @@ function DetallesOrganicaCtrl($q, $rootScope, $scope, $routeParams, $window, $lo
 
 
         $scope.superuser = $rootScope.superuser();
-        $scope.updateGraphKeys($scope.anualidad.substring(1,5));
+        $scope.updateGraphKeys($scope.anualidad.replace("a",""));
         
         $scope.filtrosocultos = false;
         $scope.seleccinado = null;
@@ -173,8 +174,6 @@ function DetallesOrganicaCtrl($q, $rootScope, $scope, $routeParams, $window, $lo
     $scope.attrspar = [
         'id', 'nombrelargo', 'numprocedimientos'
     ];
-
-    $scope.attrsanualidad_permisos = ['w', 's', 'w', 'w', 'w', 'w'];
 
     $scope.attrstabla = [
         'solicitados',
