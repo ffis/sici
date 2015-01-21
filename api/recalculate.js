@@ -39,7 +39,7 @@ exports.softCalculatePermiso = function (Q, models, permiso) {
 
     if (permiso.login && permiso.codplaza)
     {
-        Persona.update(restriccion_persona, {'$set' : {habilitado : true}},  function (err, personas) {
+        Persona.update(restriccion_persona, {'$set' : {habilitado : true}}, {multi:1}, function (err, personas) {
             if (err) {
                 console.log(err);
             }
@@ -362,6 +362,7 @@ exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
         procedimiento.periodos[ periodo ].totalsolicitudes = totalsolicitudes;
     }
     deferred.resolve(procedimiento);
+    console.log("softCalculatedProcedimiento "+procedimiento.codigo);
 
     return deferred.promise;
 }
