@@ -235,13 +235,11 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
         });
 
         $scope.nextField = function(index) {
-            console.log("Antes: "+index);
             var periodoscerrados = $scope.procedimientoSeleccionado.periodos[$scope.anualidad].periodoscerrados;
             index = (index+1)%12;
             while(periodoscerrados[index] == true) {
                 index = (index+1)%12;
             }
-            console.log("Después: "+index);
             return index;
         };
 

@@ -310,45 +310,75 @@ exports.updateCodPlazaByLogin = function (models, Q) {
         var filas = [];
         var promesasActualizacion = [];
         Persona.find({habilitado: true}).sort({ultimoupdate: 1}).limit(1).exec(function (err, personas) {
-            console.log(personas);
-            personas.forEach(function (persona) {
-                var promesaUpdate = Q.defer();
-                promesasActualizacion.push(promesaUpdate.promise);
-                exports.infoByLogin(persona.login, Q).then(function (result) {
-                    if ((result !== null) && (typeof result.return !== 'undefined') && (result.return.length > 0)) {
-                        var msg = result.return[2].value;
-                        var valores = /(\d{2})\.-(.*)/g.exec(msg);
-                        if (valores !== null) {
-                            if (valores[1] === '00') {
-                                var codplaza = result.return[1].value;
-                                if (codplaza !== persona.codplaza) {
-                                    var fila = {'login': persona.login, 'codplaza prev': persona.codplaza, 'codplaza desp': codplaza};
-                                    filas.push(fila);
-                                    persona.codplaza = codplaza;
-                                } else {
-                                    console.log('No se modifica el código de plaza del usuario: ' + persona.login);
+            if (err) {
+                console.error(err);
+                res.status(500).end();
+                return;
+            } else {
+                console.log(personas);
+                personas.forEach(function (persona) {
+                    var promesaUpdate = Q.defer();
+                    promesasActualizacion.push(promesaUpdate.promise);
+                    exports.infoByLogin(persona.login, Q).then(function (result) {
+                        var codplaza;
+                        if ((result !== null) && (typeof result.return !== 'undefined') && (result.return.length > 0)) {
+                            var msg = result.return[2].value;
+                            var valores = /(\d{2})\.-(.*)/g.exec(msg);
+                            if (valores !== null) {
+                                if (valores[1] === '00') {
+                                    codplaza = result.return[1].value;
+                                    if (codplaza !== persona.codplaza) {
+                                        var fila = {'login': persona.login, 'codplaza prev': persona.codplaza, 'codplaza desp': codplaza};
+                                        filas.push(fila);
+                                        persona.codplaza = codplaza;
+                                    } else {
+                                        console.log('No se modifica el código de plaza del usuario: ' + persona.login);
+                                    }
+                                    var telefono = result.return[7].value;
+                                    persona.telefono = telefono;
+                                } else if (valores[1] === '01') {
+                                    console.log('Usuario ' + persona.login + ' ya no está en gesper y eliminamos su código plaza ' + persona.codplaza);
+                                    codplaza = persona.codplaza;
+                                    persona.codplaza = '';
                                 }
-                                var telefono = result.return[7].value;
-                                persona.telefono = telefono;
                             }
                         }
-                    }
-                    persona.ultimoupdate = new Date();
-                    console.log(persona);
-                    persona.save(function (err) {
-                        if (err) {
-                            console.error('NO se ha podido actualizar el usuario ' + persona.login + '. Error: ' + err);
-                            promesaUpdate.reject(err);
-                        } else {
-                            console.log('Se ha actualizado el usuario ' + persona.login + ': ' + persona.codplaza);
-                            promesaUpdate.resolve(fila);
-                        }
+                        persona.ultimoupdate = new Date();
+                        console.log(persona);
+                        persona.save(function (err) {
+                            if (err) {
+                                console.error('NO se ha podido actualizar el usuario ' + persona.login + '. Error: ' + err);
+                                promesaUpdate.reject(err);
+                            } else {
+                                console.log('Se ha actualizado el usuario ' + persona.login + ': ' + persona.codplaza);
+                                if (persona.codplaza !== codplaza) {
+                                    Persona.count({'codplaza': codplaza}, function (err, count) {
+                                        if (err) {
+                                            promesaUpdate.reject(err);
+                                        } else {
+                                            if (count > 0) {
+                                                promesaUpdate.resolve(fila);
+                                            } else {
+                                                exports.registroPersonaWS(codplaza, models, Q).then(function (resultado) {
+                                                    fila.nuevoUsuario = resultado.login;
+                                                    promesaUpdate.resolve(fila);
+                                                }, function (err) {
+                                                    promesaUpdate.reject(err);
+                                                });
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    promesaUpdate.resolve(fila);
+                                }
+                            }
+                        });
+                    }, function (err) {
+                        console.error(err);
+                        res.status(500).end();
                     });
-                }, function (err) {
-                    console.error(err);
-                    res.status(500).end();
                 });
-            });
+            }
             Q.all(promesasActualizacion).then(function () {
                 res.json(filas);
             }, function (err) {
