@@ -1,5 +1,5 @@
 'use strict';
-
+var memwatch = require('memwatch');
 var express = require('express'),
         http = require('http'),
         Q = require('q'),
@@ -28,7 +28,6 @@ var express = require('express'),
         md5 = require('MD5'),
         path = require('path'),
         csvsici = require('./api/csvsici');
-
 
 app.set('mongosrv', process.env.MONGOSVR || 'mongodb://mongosvr/sici');
 
@@ -230,6 +229,15 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
             res.status(404).send('Hash no válido');
         }
     });
+
+    var previousinvoke =  new memwatch.HeapDiff();
+    app.get('/memory', function(req,res){
+        if (global && global.gc) global.gc();
+        var diff = previousinvoke.end();
+        previousinvoke = new memwatch.HeapDiff();
+        diff.change.details.sort(function(a,b){ return (b.size_bytes - a.size_bytes); });
+        res.json(diff);
+    })
 
     // redirect all others to the index (HTML5 history)
     app.get('*', routes.index);//devolver el index.html del raiz
