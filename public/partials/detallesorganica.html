@@ -32,6 +32,11 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                     </li>
                 </ul>
                 <br />
+				<button ng-class="{disabled: actualizando > 0}" class="btn btn-default btn-sm" ng-click="descargarExcel()">
+					<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>&nbsp;Descargar excel
+				</button>
+				<p ng-if="actualizando > 0">Generando informe...</p>				
+				<br/><br/>		
             </div>
 
             <div style="clear:both" class="table-responsive" ng-if="resumenJerarquiaSeleccionada">

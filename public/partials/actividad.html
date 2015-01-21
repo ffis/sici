@@ -123,7 +123,9 @@
                     <div class="btn-group">
                         <button ng-class="{disabled: actualizando > 0}" class="btn btn-default" ng-click="descargarExcel()">
                             <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>&nbsp;Descargar excel
-                        </button>&nbsp;&nbsp;<a class="btn btn-default" role="button" href="/resumenorganica/{{idjerarquia}}" ng-if="idjerarquia">Ver resumen</a>
+                        </button>&nbsp;&nbsp;
+						<a class="btn btn-default" role="button" href="/resumenorganica/{{idjerarquia}}" ng-if="idjerarquia && !seleccionado">Ver resumen</a>
+						<a class="btn btn-default" role="button" href="/resumenorganica/{{seleccionado.id}}" ng-if="seleccionado && seleccionado.id">Ver resumen</a>
                         <p ng-if="actualizando > 0">Generando informe...</p>
                     </div>
                     <div class="alert {{respuesta.clase}}" role="alert">{{respuesta.mensaje}}</div>

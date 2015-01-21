@@ -62,6 +62,26 @@ function DetallesOrganicaCtrl($q, $rootScope, $scope, $routeParams, $window, $lo
         $scope.nombrePadre = 'Sin definir';
     };
     
+	
+	$scope.descargarExcel = function () {
+		$scope.actualizando = 1;
+
+		ExportarResultadosJerarquia.get({jerarquia: $scope.jerarquiaSeleccionada.id}, function (token) {
+			$scope.actualizando = 0;
+			$scope.respuesta = {
+				clase: 'alert-success',
+				mensaje: 'Ha funcionado correctamente.'
+			};
+			var url = '/download/' + token.time + '/' + token.hash;
+			$window.location = url;
+		}, function () {
+			$scope.actualizando = 0;
+			$scope.respuesta = {
+				clase: 'alert-warning',
+				mensaje: 'Error al descargar el informe.'
+			};
+		});
+	};	
     
    $scope.updateGraphKeys = function(anualidad) {
 		console.log("MIERDA "+anualidad);
