@@ -1,4 +1,4 @@
-function ReglasInconsistenciasCtrl($rootScope,$scope,$routeParams,ReglasInconsistencias) {
+function ReglasInconsistenciasCtrl($rootScope,$scope,$routeParams,$window, ReglasInconsistencias) {
 	$window.document.title ='SICI: Reglas Inconsistencias';
 	$scope.cambios = [];
 	$scope.inconsistencias =  ReglasInconsistencias.query();
@@ -23,4 +23,4 @@ function ReglasInconsistenciasCtrl($rootScope,$scope,$routeParams,ReglasInconsis
 	}
 }
 
-ReglasInconsistenciasCtrl.$inject = ['$rootScope','$scope','$routeParams','ReglasInconsistencias'];
+ReglasInconsistenciasCtrl.$inject = ['$rootScope','$scope','$routeParams','$window', 'ReglasInconsistencias'];
