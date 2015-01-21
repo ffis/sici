@@ -114,13 +114,19 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
     app.put('/api/procedimiento/:codigo', procedimiento.updateProcedimiento(Q, models, recalculate, persona));
     //app.post('/api/procedimiento', procedimiento.createProcedimiento(Q, models, recalculate) );
     app.post('/api/procedimiento/:codigo', procedimiento.createProcedimiento(Q, models, recalculate));
-    app.get('/api/procedimientoCount', procedimiento.totalProcedimientos(models));
+    
+    app.get('/api/procedimientosSinExpedientes', procedimiento.procedimientosSinExpedientes(cfg,models));
+    app.get('/api/procedimientosSinExpedientes/:anualidad', procedimiento.procedimientosSinExpedientes(cfg,models));
     app.get('/api/procedimientoHasChildren/:codigo', procedimiento.hasChildred(models));
-    app.get('/api/procedimientosSinExpedientes', procedimiento.procedimientosSinExpedientes(models));
 	app.get('/api/procedimientosByResponsable/:codplaza', procedimiento.procedimientosByResponsable(models,Q));
-    app.get('/api/tramiteCount', procedimiento.totalTramites(Settings, models));
-    app.get('/api/ratioResueltos', procedimiento.ratioResueltos(models));
-    app.get('/api/tramitesMediaMes', procedimiento.mediaMesTramites(models));
+
+    app.get('/api/procedimientoCount', procedimiento.totalProcedimientos(models));
+    app.get('/api/tramiteCount', procedimiento.totalTramites(cfg, models));
+    app.get('/api/ratioResueltos', procedimiento.ratioResueltos(cfg, models));
+    app.get('/api/tramitesMediaMes', procedimiento.mediaMesTramites(cfg, models));
+    app.get('/api/tramiteCount/:anualidad', procedimiento.totalTramites(cfg, models));
+    app.get('/api/ratioResueltos/:anualidad', procedimiento.ratioResueltos(cfg, models));
+    app.get('/api/tramitesMediaMes/:anualidad', procedimiento.mediaMesTramites(cfg, models));
 
 
     app.get('/api/jerarquia/:idjerarquia', jerarquia.getNodoJerarquia(models));
