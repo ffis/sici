@@ -37,21 +37,14 @@ exports.softCalculatePermiso = function (Q, models, permiso) {
     if (permiso.codplaza)
         restriccion_persona.codplaza = permiso.codplaza;
 
-    Persona.find(restriccion_persona, function (err, personas) {
-        if (err) {
-            console.log(err);
-            return;
-        }
-        for (var i = 0; i < personas.length; i++)
-        {
-            var persona = personas[i];
-            persona.habilitado = true;
-            persona.save(function (err) {
-                if (err)
-                    console.log(err);
-            });			
-        }
-    });
+    if (permiso.login && permiso.codplaza)
+    {
+        Persona.update(restriccion_persona, {'$set' : {habilitado : true}},  function (err, personas) {
+            if (err) {
+                console.log(err);
+            }
+        });
+    }
     /**** FIN PARCHE ***/
 
     // comprobamos que cualquier permiso sobre procedimiento permite leer la jerarquia a que pertenece.
@@ -75,7 +68,7 @@ exports.softCalculatePermiso = function (Q, models, permiso) {
     }
 
 
-    if (restriccion_proc != null)
+    if (restriccion_proc)
     {
         //buscamos los procedimientos cuyo responsable sea el del permiso
         Procedimiento.find(restriccion_proc).select('idjerarquia cod_plaza codigo').exec(function (err, procedimientos) {
@@ -123,7 +116,7 @@ exports.softCalculatePermiso = function (Q, models, permiso) {
                 return;
             var def = Q.defer();
             // buscamos todas las jerarquías indicadas en el mismo
-            Jerarquia.find({id: {'$in': idsjerarquia}}, function (err, jerarquias) {
+            Jerarquia.find({id: {'$in': idsjerarquia}},{id:true, descendientes:true}, function (err, jerarquias) {
                 if (err) {
                     def.reject(err);
                     return;
@@ -374,9 +367,9 @@ exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
 }
 
 exports.fullSyncprocedimiento = function (Q, models, fnprocedimiento) {
-    var deferred = Q.defer();
-    var Procedimiento = models.procedimiento();
-    var informes = [];
+    var deferred = Q.defer(),
+    Procedimiento = models.procedimiento(),
+    informes = [];
 
     Procedimiento.find({}, function (err, procedimientos) {
         if (err) {
@@ -448,13 +441,14 @@ exports.fullSyncpermiso = function (Q, models) {
 		var f = function (promise, permiso) {
 			exports.softCalculatePermiso(Q, models, permiso).then(function (permiso) {
 				pindex++;
-				console.log('softcalculate permiso concluido ' + permiso._id + " ; " + permiso.login + ";" + permiso.codplaza + " (" + pindex + " de " + plength + ")");
 				permiso.save(function (error) {
 					if (error) {
-						console.error(error);
+						console.error();
+                        console.error(error+' softcalculate permiso concluido ' + permiso._id + " ; " + permiso.login + ";" + permiso.codplaza + " (" + pindex + " de " + plength + ")");
 						informes.push({codigo: permiso._id, status: 500});
 						promise.reject(err);
 					} else {
+                        console.log('softcalculate permiso concluido ' + permiso._id + " ; " + permiso.login + ";" + permiso.codplaza + " (" + pindex + " de " + plength + ")");
 						informes.push({codigo: permiso._id, status: 200, permiso: permiso});
 						promise.resolve();
 					}
