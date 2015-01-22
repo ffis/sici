@@ -227,7 +227,7 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
                 try {
                     var restriccion = JSON.parse(i.restriccion);
                     restriccion.codigo = $scope.procedimientoSeleccionado.codigo;
-                    $scope.inconsistencias[idx].datos = Aggregate.query({campo: JSON.stringify(campo), restriccion: JSON.stringify(restriccion)});
+                    $scope.inconsistencias[idx].datos = Aggregate.query({anualidad:$scope.anualidad, campo: JSON.stringify(campo), restriccion: JSON.stringify(restriccion)});
                 } catch (exception) {
                     console.error('La restricción ' + i.restriccion + ' no es correcta');
                 }
