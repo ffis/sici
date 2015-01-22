@@ -5,10 +5,14 @@ function StatsCtrl($rootScope,$scope,$window,Aggregate){
 	$scope.graphs = [];
 	$scope.campos = ['ancestro_v_2','ancestro_v_3','ancestro_v_4','cod_plaza','denominacion','codigo'];
 	$scope.campo = $scope.campos[0];
-
+	$scope.anualidad = new Date().getFullYear();
+	$scope.anualidades = [];
+	for(var anyo=2014; anyo<=$scope.anualidad; anyo++){
+		$scope.anualidades.push(anyo);
+	}
 	$scope.newGraph = function(){
 		var campo = $scope.campo;
-		$scope.tmp  = Aggregate.query({campo: campo},aux(campo,'',null));
+		$scope.tmp  = Aggregate.query({ anualidad : $scope.anualidad, campo: campo},aux(campo,'',null));
 		var index = $scope.campos.indexOf($scope.campo);
 		if (index < $scope.campos.length-1){
 			$scope.campo = $scope.campos[index+1];
@@ -44,17 +48,14 @@ function StatsCtrl($rootScope,$scope,$window,Aggregate){
 		var campo = $scope.campo;
 
 		//JSON.stringify(campo)
-		$scope.tmp  = Aggregate.query({campo: $scope.campo,restriccion:restriccion},aux(campo,titulo,restriccion));
+		$scope.tmp  = Aggregate.query({anualidad : $scope.anualidad, campo: $scope.campo,restriccion:restriccion},aux(campo,titulo,restriccion));
 	};
 
 	$scope.orden='count';
 	$scope.ascending=true;
 
 	$scope.xFunction  = function () { return function (d) { 
-
 		var id  = d._id ? d._id : '';
-		
-
 		var a = id.replace('CONSEJERIA',"CONSJ.").replace('ORGANISMO',"ORG."); if (a.length > 20) a=a.substring(0,18)+'...'; return a; }; };
 	$scope.yFunction  = function () { return function (d) { return d.count; }; };
 	$scope.yFunction2 = function () { return function (d) { return d.porcumplimentar; }; };

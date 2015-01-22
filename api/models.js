@@ -280,8 +280,14 @@ exports.init = function(mongoose) {
 	}
 }
 
+var mapconstructors  = {};
+
 function constructorschema(name){
-	return function(mongoose) { return schemaConstructor(name,mongoose, true); };
+	return function(mongoose) {
+		if (mapconstructors[name])
+			return mapconstructors[name];
+		return mapconstructors[name]=schemaConstructor(name,mongoose, true);
+	};
 }
 
 for(var name in schemasfields){
