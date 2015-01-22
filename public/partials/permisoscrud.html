@@ -188,6 +188,9 @@
 						<span>
 							<i ng-if="objetopermiso && objetopermiso.length==0 && permiso.superuser">administrador</i>
 							<i ng-if="objetopermiso && objetopermiso.length==0 && !permiso.superuser">permiso sobre procedimiento</i>
+							<pre>
+								{{ objetopermiso | json }}
+							</pre>
 						</span>											
 						<ul ng-if="objetopermiso && objetopermiso.length && objetopermiso.length>1">
 							<li ng-repeat="obj in objetopermiso">{{obj.nombre}} </li>
