@@ -75,8 +75,8 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.get('/api/arbol/:withemptynodes', api.arbol(Q, models));
 
     app.get('/api/raw/:modelname', api.raw(models));
-    app.get('/api/aggregate/:campo', api.aggregate(models));
-    app.get('/api/aggregate/:campo/:match', api.aggregate(models));
+    app.get('/api/aggregate/:anualidad/:campo', api.aggregate(cfg, models));
+    app.get('/api/aggregate/:anualidad/:campo/:match', api.aggregate(cfg, models));
 
 
     app.get('/api/gs/:id', importador.parseGS());

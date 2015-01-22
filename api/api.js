@@ -86,20 +86,14 @@ exports.raw = function(models){
 	}
 }
 
-exports.aggregate = function(models){
+exports.aggregate = function(cfg, models){
 	return function(req,res){
 		var Procedimiento = models.procedimiento();
-		/*** parche ***/
-		var Settings = models.settings();
-		var cfg;
-		Settings.findOne({},function(err, settings){
-			if (err) { console.error(err); res.status(500); res.end(); return ; }
-			cfg = settings;	
-		/*** ***/
-			var connection = Procedimiento.collection;
-			var campostr = req.params.campo;
-			var group = [];
-			var groupfield = {};
+		var connection = Procedimiento.collection;
+		var campostr = req.params.campo;
+		var anualidad = req.params.anualidad ? parseInt(req.params.anualidad) : cfg.anyo;
+		var group = [];
+		var groupfield = {};
 
 			try{
 				groupfield['_id'] = JSON.parse(campostr);
@@ -160,7 +154,7 @@ exports.aggregate = function(models){
                         }
                         group.push({ "$match" : match });
 			groupfield['count'] = {'$sum':1};
-			groupfield['porcumplimentar'] = { '$sum':{'$cond': [ { '$eq':[0,'$periodos.a'+cfg.anyo+'.totalsolicitudes']}, 1, 0 ] } };
+			groupfield['porcumplimentar'] = { '$sum':{'$cond': [ { '$eq':[0,'$periodos.a'+anualidad+'.totalsolicitudes']}, 1, 0 ] } };
 
 			/*group.push({'$unwind':'$ancestros'});*/
 			group.push({"$group" : groupfield});
@@ -171,7 +165,7 @@ exports.aggregate = function(models){
 				//console.log(JSON.stringify(group));
 				res.json (data);
 			});
-		});		
+
 	}
 }
 

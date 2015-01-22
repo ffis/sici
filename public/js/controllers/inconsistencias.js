@@ -9,7 +9,7 @@ function InconsistenciasCtrl($rootScope,$scope,$routeParams,Raw,Aggregate) {
 	$scope.camposamostrar.forEach(function(campo){
 		$scope.seleccionados[campo] = $scope.camposmostrados.indexOf(campo)>=0;
 	});
-
+	$scope.anualidad = new Date().getFullYear();
 	$scope.$watch('seleccionados.$',function(){ $scope.update(); });
 
 	$scope.exportXLS = function(idx){
@@ -28,18 +28,17 @@ function InconsistenciasCtrl($rootScope,$scope,$routeParams,Raw,Aggregate) {
 					c[campo] = '$'+campo;
 			}
 			var campo = JSON.stringify(c);
-			$scope.inconsistencias[i].datos = Aggregate.query({campo: campo,restriccion:a.restriccion},
+
+			$scope.inconsistencias[i].datos = Aggregate.query({anualidad:$scope.anualidad, campo: campo, restriccion:a.restriccion},
 				function(){
-
-		setTimeout(function() {
-			angular.element("[data-badge]").each(function(){
-				var a = angular.element( $(this) ).find('.panel-heading a');
-				var html = '<span class="badge pull-right">'+ $(this).data('badge') +'</span>';
-				if (angular.element( $(this) ).find('.badge').length==0 && angular.element( $(this) ).find('tr').length>0)
-					a.append(html);
-			})
-		}, 500);
-
+					setTimeout(function() {
+						angular.element("[data-badge]").each(function(){
+							var a = angular.element( $(this) ).find('.panel-heading a');
+							var html = '<span class="badge pull-right">'+ $(this).data('badge') +'</span>';
+							if (angular.element( $(this) ).find('.badge').length==0 && angular.element( $(this) ).find('tr').length>0)
+								a.append(html);
+						})
+					}, 500);
 				});
 		});
 

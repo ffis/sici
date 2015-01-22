@@ -44,11 +44,13 @@ function WelcomeCtrl($rootScope,$scope,$window,Aggregate,ProcedimientoCount,Tram
     $scope.anyoActual = date.getFullYear();
     $scope.pendientes =
         Aggregate.query({
+            anualidad : $scope.anyoActual,
             campo: JSON.stringify({'codigo':'$codigo','denominacion':'$denominacion'}),
             restriccion: "{\"periodos.a"+$scope.anyoActual+".totalsolicitudes\":{\"$lt\":1}}"
     });
     $scope.inconsistencias =
         Aggregate.query({
+            anualidad : $scope.anyoActual,
             campo: JSON.stringify({'codigo':'$codigo','denominacion':'$denominacion'}),
             restriccion: "{\"periodos.a"+$scope.anyoActual+".pendientes\":{\"$lt\":0}}"
     });

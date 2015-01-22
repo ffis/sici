@@ -157,7 +157,7 @@ angular.module('sici.services', ['ngResource'])
             }])
         .factory('Aggregate', ['$resource',
             function ($resource) {
-                return $resource('/api/aggregate/:campo/:restriccion', {}, {query: {method: 'GET', isArray: true}});
+                return $resource('/api/aggregate/:anualidad/:campo/:restriccion', {}, {query: {method: 'GET', isArray: true}});
             }])
         .factory('ReglasInconsistencias', ['$resource',
             function ($resource) {
