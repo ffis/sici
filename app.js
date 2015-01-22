@@ -93,7 +93,8 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
     app.get('/api/searchpersonas', persona.personassearchlist(models, Q));
     app.post('/api/persona', persona.newPersona(models));
     app.put('/api/persona/:id', persona.updatePersona(models));
-    app.get('/persona/infoByLogin/:login', persona.infoByLogin2());
+    app.get('/persona/infoByLogin/:login', persona.infoByLogin2(cfg));
+    app.get('/persona/infoByPlaza/:codplaza', persona.infoByPlaza2(cfg));
 
 
 //  app.get('/api/periodos', procedimiento.setPeriodosCerrados(models));
