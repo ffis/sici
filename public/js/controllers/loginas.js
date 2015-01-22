@@ -22,10 +22,12 @@ function LoginAsCtrl ($rootScope, $scope, $http, $window, Session) {
 
 	$scope.confirm = function(){
 		if ($scope.datosusuario){
+			$rootScope.recalcularpermisos();
 			$window.localStorage.token = $scope.datosusuario.token;
 			Session.create($scope.datosusuario.profile);
 			$rootScope.setLogeado(true);
 			$scope.actualuser = JSON.parse($window.localStorage.client_session);
+			
 		}
 	} 
 
