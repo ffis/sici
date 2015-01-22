@@ -34,7 +34,7 @@ function AppCtrl($window,$q, $scope, $rootScope, Session, $location, PermisosCal
 	];
 	
 	if ($rootScope.logeado) {
-		$rootScope.permisoscalculados = permisoscalculados.query({});
+		$rootScope.permisoscalculados = PermisosCalculados.query({});
 	}
 	$rootScope.loginCarm = AuthService.carmlogin;
 
@@ -170,6 +170,14 @@ function AppCtrl($window,$q, $scope, $rootScope, Session, $location, PermisosCal
         return def.promise;
     };
 
+	
+	$rootScope.recalcularpermisos = function()
+	{
+		if ($rootScope.logeado) {
+			$rootScope.permisoscalculados = PermisosCalculados.query({});
+		}
+	}
+	
 }
 
 AppCtrl.$inject = ['$window','$q','$scope','$rootScope','Session', '$location','PermisosCalculados','AuthService'];
