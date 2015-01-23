@@ -475,8 +475,14 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 	
 
 	$scope.getObjetoPermisoUsuario = function(permiso){
-		if ($scope.usuarioseleccionado){
-			var resultado = $scope.insersect_safe(permiso.jerarquiadirectaescritura,permiso.jerarquiadirectaescritura);			
+		console.log("usuariodetalle:"+$scope.usuariodetalle);
+		if ($scope.usuarioseleccionado || $scope.usuariodetalle){					
+			var resultado = permiso.jerarquiadirectaescritura.concat(permiso.jerarquiadirectalectura).filter(function (e, i, arr) {
+					return arr.lastIndexOf(e) === i;
+			});			
+			console.log(permiso);
+			console.log("resultado:");
+			console.log(resultado);
 			var oresultado = [];
 			for(var i=0;i<resultado.length;i++)
 			{
