@@ -57,7 +57,7 @@ angular.module('sici.services', ['ngResource'])
             }])
         .factory('Jerarquia', ['$resource',
             function ($resource) {
-                return $resource('/api/jerarquia/:id', {}, {get: {method: 'GET', isArray: false}});
+                return $resource('/api/jerarquia/:id', {}, {get: {method: 'GET', isArray: false},query: {method: 'GET', isArray: false}} );
             }])
         .factory('JerarquiaAncestros', ['$resource',
             function ($resource) {
