@@ -16,7 +16,6 @@
     "mongoose": "^3.8.14",
     "q": "^1.0.1",
     "request": "^2.48.0",
-    "soap": "^0.6.0",
     "socket.io": "^1.2.1",
     "stack-trace": "0.0.9",
     "underscore": "^1.7.0",

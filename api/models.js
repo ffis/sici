@@ -5,7 +5,7 @@ var schemas = {};
 var schemasfields = {
 	crawled : { 'id': Number, 'jerarquia': [String], 'completo': String, 'oculto': Boolean, 'eliminado': Boolean },
 	guiacarm: {	'id': Number,'titulo': String },
-	settings: { version:Number, 'secret': String, 'secret2': String, 'anyo': String, 'port': Number,  'urlbasedecrypt': String, logincarm: Boolean },
+	settings: { version:Number, 'secret': String, 'secret2': String, 'anyo': String, 'port': Number,  'urlbasedecrypt': String, logincarm: Boolean, ws_user: String, ws_pwd: String },
 	reglasinconsistencias : { 'titulo': String, 'restriccion': String},
 	historico: {},
 	//periodo: { a2013:[Number], a2014:[Number], a2015:[Number] },
