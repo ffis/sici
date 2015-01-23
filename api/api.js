@@ -69,7 +69,8 @@ exports.raw = function(models){
 	return function(req,res){
 		var modelname = req.params.modelname;
 		var fields = req.query.fields;
-		if (typeof models[modelname] !== 'function')
+		var permitidas = ['reglasinconsistencias', 'crawled'];
+		if (typeof models[modelname] !== 'function' && permitidas.indexOf(modelname)>-1)
 		{
 			console.error(modelname + " doesn't exists in model"); res.status(500); res.end(); return ; 
 		}

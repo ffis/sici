@@ -282,7 +282,7 @@ function ActividadCtrl($q,$rootScope,$scope,$location,$window,$routeParams,$time
                 $scope.actualizando = 0;
                 return;
             }
-            ExportarResultadosJerarquia.get({jerarquia: $scope.seleccionado.id}, function (token) {
+            ExportarResultadosJerarquia.get({jerarquia: $scope.seleccionado.id}, function (token) {			
                 $scope.actualizando = 0;
                 $scope.respuesta = {
                     clase: 'alert-success',

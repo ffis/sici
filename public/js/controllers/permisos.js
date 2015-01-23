@@ -264,7 +264,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 
 
 	$scope.getJerarquia = function(idjerarquia){			
-		return Jerarquia.query({'idjerarquia':idjerarquia});
+		return Jerarquia.query({'id':idjerarquia});
 	};
 	
 
@@ -475,12 +475,18 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 	
 
 	$scope.getObjetoPermisoUsuario = function(permiso){
-		if ($scope.usuarioseleccionado){
-			var resultado = $scope.insersect_safe(permiso.jerarquiadirectaescritura,permiso.jerarquiadirectaescritura);			
+		console.log("usuariodetalle:"+$scope.usuariodetalle);
+		if ($scope.usuarioseleccionado || $scope.usuariodetalle){					
+			var resultado = permiso.jerarquiadirectaescritura.concat(permiso.jerarquiadirectalectura).filter(function (e, i, arr) {
+					return arr.lastIndexOf(e) === i;
+			});			
+			console.log(permiso);
+			console.log("resultado:");
+			console.log(resultado);
 			var oresultado = [];
 			for(var i=0;i<resultado.length;i++)
 			{
-				oresultado.push(Jerarquia.query({"idjerarquia":resultado[i]}));
+				oresultado.push(Jerarquia.query({"id":resultado[i]}));
 			}
 			return oresultado;
 		}
@@ -522,7 +528,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 					if (typeof $scope.cachejerarquias["idx"+$scope.seleccionado.id] !== 'undefined')
 						return [$scope.cachejerarquias["idx"+$scope.seleccionado.id]];
 					else {
-						var rj = Jerarquia.query({"idjerarquia":$scope.seleccionado.id});
+						var rj = Jerarquia.query({"id":$scope.seleccionado.id});
 						$scope.cachejerarquias["idx"+$scope.seleccionado.id] = rj;
 						return [rj];				
 					}
@@ -557,7 +563,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 					if (typeof $scope.cachejerarquias["idx"+objs[i]] !== 'undefined')
 						resultado[i] = $scope.cachejerarquias["idx"+objs[i]];
 					else {
-						var rj = Jerarquia.query({"idjerarquia":objs[i]});
+						var rj = Jerarquia.query({"id":objs[i]});
 						$scope.cachejerarquias["idx"+objs[i]] = rj;
 						resultado[i] = rj;
 					}
@@ -583,7 +589,7 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 				$scope.permisos = $scope.permisostotales.permisos;
 				$scope.procedimientos = $scope.permisostotales.procedimientos;
 			});		
-			var filtroRequest = {"idjerarquia":$scope.seleccionado.id};			
+			var filtroRequest = {"id":$scope.seleccionado.id};			
 			$scope.nodo_jerarquia = Jerarquia.query(filtroRequest);
 			// si no están cargados los procedimientos del nodo actual, los cargamos
 			if (!$scope.seleccionado.procedimientos) for(var i=0;i<$scope.arbol.length;i++) {

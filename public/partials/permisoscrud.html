@@ -187,12 +187,12 @@
 						<span ng-if="objetopermiso && !objetopermiso.length">{{objetopermiso.nombre}}</span>						
 						<span>
 							<i ng-if="objetopermiso && objetopermiso.length==0 && permiso.superuser">administrador</i>
-							<i ng-if="objetopermiso && objetopermiso.length==0 && !permiso.superuser">permiso sobre procedimiento</i>
+							<i ng-if="objetopermiso && objetopermiso.length==0 && !permiso.superuser">permiso sobre procedimiento</i>							
 						</span>											
 						<ul ng-if="objetopermiso && objetopermiso.length && objetopermiso.length>1">
 							<li ng-repeat="obj in objetopermiso">{{obj.nombre}} </li>
 						<ul>											
-						
+					
 					</td>
 					<td><span class="burdeos glyphicon glyphicon-remove"></span></td>
 				
