@@ -74,7 +74,7 @@ exports.raw = function(models){
 			console.error(modelname + " doesn't exists in model"); res.status(500); res.end(); return ; 
 		}
 		var Loader = models[modelname]();
-		var query = Loader.find({});
+		var query = Loader.find({'oculto':{'$ne':true},'eliminado':{'$ne':true}});
 
 		if (typeof fields !== 'undefined'){
 			query.select(fields);
