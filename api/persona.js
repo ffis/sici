@@ -69,7 +69,7 @@ exports.newPersona = function (models) {
     };
 };
 
-exports.personasByRegex = function (models, Q) {
+exports.personasByRegex = function (models, Q, cfg) {
     return function (req, res) {
         var Persona = models.persona();
         var restriccion = {};
@@ -109,7 +109,7 @@ exports.personasByRegex = function (models, Q) {
                 if (data.length === 0) {
                     var regLogin = new RegExp(/[a-z]{3}\d{2}[a-z]{1}/);
                     if (regLogin.test(req.params.regex)) {
-                        exports.infoByLogin(req.params.regex, Q).then(function (result) {
+                        exports.infoByLogin(req.params.regex, Q, cfg).then(function (result) {
                             if ((result !== null) && (typeof result.return !== 'undefined') && (result.return.length > 0) && (result.return[2].key === 'ERR_MSG')) {
                                 var msg = result.return[2].value;
                                 var valores = /(\d{2})\.-(.*)/g.exec(msg);
@@ -218,27 +218,58 @@ exports.registroPersonaWS = function (codplaza, models, Q) {
     return deferRegistro.promise;
 };
 
-var soap = require('soap');
+var soap = require('../lib/soap');
 
-exports.infoByLogin2 = function () {
+
+exports.infoByPlaza2 = function (cfg) {
     return function (req, res) {
-        var login = req.params.login;
+        var codplaza = req.params.codplaza;
         var url = 'https://jad.carm.es/jAD/webservice/WSGesper/wsSICI?wsdl';
-        var args = {arg0: {key: 'p_login', value: login}};
+        var args = {arg0: {key: 'P_PLAZA', value: codplaza}};
         var options = {
-            ignoredNamespaces: {
-                namespaces: ['tns']
-            }
+//            ignoredNamespaces: {
+//                namespaces: ['pp'], override:true
+//            }
         };
         soap.createClient(url, options, function (err, client) {
             if (err) {
                 console.error(JSON.stringify(err));
                 res.status(500).end(err);
             } else {
+                client.setSecurity(new soap.WSSecurity(cfg.ws_user, cfg.ws_pwd, 'PasswordText'));
+                client.SacaOcupante(args, function (err, result) {
+                    if (err) {
+                        console.error('Error buscando plaza en WS');
+                        res.json(err);
+                    } else {
+                        res.json(result);
+                    }
+                });
+            }
+        });
+    };
+};
+
+exports.infoByLogin2 = function (cfg) {
+    return function (req, res) {
+        var login = req.params.login;
+        var url = 'https://jad.carm.es/jAD/webservice/WSGesper/wsSICI?wsdl';
+        var args = {arg0: {key: 'p_login', value: login}};
+        var options = {
+//            ignoredNamespaces: {
+//                namespaces: ['pp'], override:true
+//            }
+        };
+        soap.createClient(url, options, function (err, client) {
+            if (err) {
+                console.error(JSON.stringify(err));
+                res.status(500).end(err);
+            } else {
+                client.setSecurity(new soap.WSSecurity(cfg.ws_user, cfg.ws_pwd, 'PasswordText'));
                 client.SacaPlaza(args, function (err, result) {
                     if (err) {
-                        console.error('Error buscando login en WS');
-                        res.json(result);
+                        console.error('Error buscando login en WS: '+err);
+                        res.json(err);
                     } else {
                         console.log('Consulto el login ' + login);
                         res.json(result);
@@ -249,20 +280,21 @@ exports.infoByLogin2 = function () {
     };
 };
 
-exports.infoByLogin = function (login, Q) {
+exports.infoByLogin = function (login, Q, cfg) {
     var def = Q.defer();
     var url = 'https://jad.carm.es/jAD/webservice/WSGesper/wsSICI?wsdl';
     var args = {arg0: {key: 'p_login', value: login}};
     var options = {
-        ignoredNamespaces: {
-            namespaces: ['tns']
-        }
+//        ignoredNamespaces: {
+//            namespaces: ['tns']
+//        }
     };
     soap.createClient(url, options, function (err, client) {
         if (err) {
             console.error(JSON.stringify(err));
             def.reject(err);
         } else {
+            client.setSecurity(new soap.WSSecurity(cfg.ws_user, cfg.ws_pwd, 'PasswordText'));
             client.SacaPlaza(args, function (err, result) {
                 if (err) {
                     console.error('Error buscando login en WS');
@@ -277,20 +309,21 @@ exports.infoByLogin = function (login, Q) {
     return def.promise;
 };
 
-exports.infoByPlaza = function (codplaza, Q) {
+exports.infoByPlaza = function (codplaza, Q, cfg) {
     var def = Q.defer();
     var url = 'https://jad.carm.es/jAD/webservice/WSGesper/wsSICI?wsdl';
     var args = {arg0: {key: 'P_PLAZA', value: codplaza}};
     var options = {
-        ignoredNamespaces: {
-            namespaces: ['tns']
-        }
+//        ignoredNamespaces: {
+//            namespaces: ['tns']
+//        }
     };
     soap.createClient(url, options, function (err, client) {
         if (err) {
             console.error(JSON.stringify(err));
             def.reject(err);
         } else {
+            client.setSecurity(new soap.WSSecurity(cfg.ws_user, cfg.ws_pwd, 'PasswordText'));
             client.SacaOcupante(args, function (err, result) {
                 if (err) {
                     console.error('Error buscando plaza en WS');
@@ -304,7 +337,7 @@ exports.infoByPlaza = function (codplaza, Q) {
     return def.promise;
 };
 
-exports.updateCodPlazaByLogin = function (models, Q) {
+exports.updateCodPlazaByLogin = function (models, Q, cfg) {
     return function (req, res) {
         var Persona = models.persona();
         var filas = [];
@@ -319,7 +352,7 @@ exports.updateCodPlazaByLogin = function (models, Q) {
                 personas.forEach(function (persona) {
                     var promesaUpdate = Q.defer();
                     promesasActualizacion.push(promesaUpdate.promise);
-                    exports.infoByLogin(persona.login, Q).then(function (result) {
+                    exports.infoByLogin(persona.login, Q, cfg).then(function (result) {
                         var codplaza;
                         if ((result !== null) && (typeof result.return !== 'undefined') && (result.return.length > 0)) {
                             var msg = result.return[2].value;
