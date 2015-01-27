@@ -128,14 +128,15 @@ exports.createProcedimiento = function (Q, models, recalculate) {
 							
 							Q.all([defer_periodos.promise, defer_plantilla.promise]).then(function(data){
 								var periodos = JSON.parse(JSON.stringify(data[0]));
+								delete periodos._id;
 								var plantilla = JSON.parse(JSON.stringify(data[1]));
 								delete plantilla._id;
 								
 								procedimiento.periodos = {};
 								for (var anualidad in periodos) {
-									if (isNaN(parseInt(anualidad.replace("a","")))) continue;	
-									procedimiento.periodos[anualidad]=plantilla;
-									procedimiento.periodos[anualidad].periodoscerrados=periodos[anualidad];
+									if (isNaN(parseInt(anualidad.replace("a","")))) continue;										
+									procedimiento.periodos[anualidad]=JSON.parse(JSON.stringify(plantilla));
+									procedimiento.periodos[anualidad].periodoscerrados=periodos[anualidad];									
 								}
 								procedimiento.periodos['a2013'] = {
 									"plazo_maximo_resolver" : 0,
@@ -157,7 +158,8 @@ exports.createProcedimiento = function (Q, models, recalculate) {
 										0
 									],
 									"periodoscerrados" : periodos.a2013
-								};
+								};								
+
 								
 								procedimiento.save(function (err) {
 									if (err) {

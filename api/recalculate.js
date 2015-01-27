@@ -327,6 +327,15 @@ exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
             'Las solicitudes aumentan al menos 20%': [],
         };
 
+		if (parseInt(periodo.replace("a",""))>2014) {
+			var iperiodo = parseInt(periodo.replace("a",""));
+			var sant = "a"+(iperiodo-1);
+			var pi = procedimiento.periodos[sant].totalsolicitudes + procedimiento.periodos[sant].pendientes_iniciales;
+			for(var mes=0;mes<12;mes++)
+				pi -= procedimiento.periodos[sant].total_resueltos[mes];
+			procedimiento.periodos[ periodo ].pendientes_iniciales = pi;
+		}
+		
         var pendientes = parseStr2Int(procedimiento.periodos[ periodo ].pendientes_iniciales);
         var solicitudesprevias = parseStr2Int(procedimiento.periodos[ periodo ].solicitados);
         var totalsolicitudes = 0;	
