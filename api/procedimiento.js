@@ -138,7 +138,7 @@ exports.createProcedimiento = function (Q, models, recalculate) {
 									procedimiento.periodos[anualidad].periodoscerrados=periodos[anualidad];
 								}
 								procedimiento.periodos['a2013'] = {
-									"plazo_maximo_resolver" : 180,
+									"plazo_maximo_resolver" : 0,
 									"plazo_maximo_responder" : null,
 									"plazo_CS_ANS_naturales" : null,
 									"pendientes_iniciales" : 0,
@@ -156,20 +156,7 @@ exports.createProcedimiento = function (Q, models, recalculate) {
 										0, 
 										0
 									],
-									"periodoscerrados" : [ 
-										0, 
-										0, 
-										0, 
-										0, 
-										0, 
-										0, 
-										0, 
-										0, 
-										0, 
-										0, 
-										0, 
-										0
-									]
+									"periodoscerrados" : periodos.a2013
 								};
 								
 								procedimiento.save(function (err) {

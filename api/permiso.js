@@ -120,16 +120,32 @@ exports.delegarpermisos = function(models,Q, recalculate)
 			return;
 		}
 		var promesa_permisos = getPermisosByLoginPlaza(req, res, models,Q,req.user.login,req.user.codplaza);
-		promesa_permisos.then(
+
+		promesa_permisos.then(			
 			function(permisos){
-				console.log("nump "+permisos.length);
+				var paux = [];				
 				var promesas_permisos = [];
+				var defer_permisos = [];
 				var promesas_recalculos = [];
+				
+				var a = function(err) {
+				}
+				
 				for(var i=0;i<permisos.length;i++)
 				{	
-					var p = JSON.parse(JSON.stringify(permisos[i]));	
+					var p = JSON.parse(JSON.stringify(permisos[i]));					
 					
-					delete p._id;		
+					if (paux.indexOf(p._id)!==-1) continue;										
+					else paux.push(p._id);
+					
+					console.log(p._id);
+					
+					var defer = Q.defer();
+					defer_permisos.push(defer)
+					promesas_permisos.push(defer.promise);										
+					
+					delete p._id;
+					
 					if (req.params.login && req.params.login != "-")
 						p.login=req.params.login
 					if (req.params.cod_plaza && req.params.cod_plaza != "-")
@@ -139,25 +155,30 @@ exports.delegarpermisos = function(models,Q, recalculate)
 					var op = new Permiso(p);														
 					op.grantoption = false;
 					
-					var defer = Q.defer();
-					promesas_permisos.push(defer.promise);
-										
-					op.save(function(err){
-						if (err) {
-							console.error("Imposible salvar nuevo permiso"); console.error(err); res.status(500); res.end(); return;
-							defer.reject(err);
-						} else {									
-							recalculate.softCalculatePermiso(Q, models, p).then(function(p){ 
-								p.save(function(error){
-									if (error) { console.error("Imposible salvar nuevo permiso"); console.error(err); res.status(500); res.end(); defer.reject(p); }
-									else defer.resolve(p);
-								});								
-							},function(err){
+					var fsave = function(op, defer) { 
+						return function(err)
+						{
+							if (err) {
+								console.error("Imposible salvar nuevo permiso"); console.error(err); res.status(500); res.end(); return;
 								defer.reject(err);
-							});							
-						}
-					});
+							} else {			
+								recalculate.softCalculatePermiso(Q, models, op).then(function(pe){ 
+									Permiso.update({"_id":pe._id},pe,function(error){ 								
+										if (error) { console.error("Imposible salvar nuevo permiso"); console.error(err); res.status(500); res.end(); defer.reject(pe); }
+										else {  defer.resolve(pe); }
+									});
+																	
+								},function(err){
+									defer.reject(err);
+								});							
+							}
+						};
+					};
+										
+					op.save(fsave(op,defer));
 				}
+				
+			
 				Q.all(promesas_permisos).then(function(permisos){
 					//console.log(permisos);
 					res.json(permisos);
