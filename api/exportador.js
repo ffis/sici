@@ -1,13 +1,6 @@
 'use strict';
 
-// JavaScript Document
-var os = require('os');
-var Crawler = false;
-var Browser = false;
-if (os.platform() === 'linux') {
-    Crawler = require("crawler").Crawler;
-    Browser = require("zombie");
-}
+
 var encoding = require("encoding");
 var util = require('util');
 var XLSX = require('xlsx');
@@ -88,13 +81,17 @@ exports.mapReducePeriodos = function (Q, models, idjerarquia) {
         if (err) {
             deferMR.reject(err);
         } else {
-            var periodos = {};
-            results.forEach(function (result) {
-                if (result._id.idjerarquia == idjerarquia) {
-                    periodos[parseInt(result._id.anualidad)] = result.value;
-                }
-            });
-            deferMR.resolve(periodos);
+            if (!idjerarquia){
+                deferMR.resolve(results);
+            }else{
+                var periodos = {};
+                results.forEach(function (result) {
+                    if (result._id.idjerarquia == idjerarquia) {
+                        periodos[parseInt(result._id.anualidad)] = result.value;
+                    }
+                });
+                deferMR.resolve(periodos);
+            }
         }
     });
     return deferMR.promise;
@@ -128,7 +125,7 @@ exports.completarTabla = function (periodo, ws) {
     return ws;
 };
 
-exports.tablaResultadosJerarquia = function (models, app, md5, Q) {
+exports.tablaResultadosJerarquia = function (models, app, md5, Q, cfg) {
     return function (req, res) {
         if ((typeof req.params.jerarquia === 'undefined') || (req.params.jerarquia === null)) {
             console.error('No se ha definido el parámetro "jerarquia"');
@@ -167,7 +164,7 @@ exports.tablaResultadosJerarquia = function (models, app, md5, Q) {
                 var time = new Date().getTime();
                 var path = app.get('prefixtmp');
                 XLSX.writeFile(wb, path + time + '.xlsx');
-                res.json({'time': time, 'hash': md5('sicidownload7364_' + time)});
+                res.json({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});
             }, function (err) {
                 console.error('Error al hacer el map reduce ' + err);
                 res.status(500);
@@ -183,7 +180,7 @@ exports.tablaResultadosJerarquia = function (models, app, md5, Q) {
     };
 };
 
-exports.tablaResultadosProcedimiento = function (models, app, md5, Q) {
+exports.tablaResultadosProcedimiento = function (models, app, md5, Q, cfg) {
     return function (req, res) {
         if ((typeof req.params.codigo === 'undefined') || (req.params.codigo === null)) {
             console.error('No se ha definido el parámetro "codigo"');
@@ -272,7 +269,7 @@ exports.tablaResultadosProcedimiento = function (models, app, md5, Q) {
                     var time = new Date().getTime();
                     var path = app.get('prefixtmp');
                     XLSX.writeFile(wb, path + time + '.xlsx');
-                    res.json({'time': time, 'hash': md5('sicidownload7364_' + time)});
+                    res.json({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});
                 }, function (err) {
                     console.error(err);
                     res.status(500);
@@ -622,7 +619,7 @@ exports.exportarInforme = function (models, app, md5, Q) {
             var time = new Date().getTime();
             var path = app.get('prefixtmp');
             XLSX.writeFile(wb, path + time + '.xlsx');
-            res.json({'time': time, 'hash': md5('sicidownload7364_' + time)});
+            res.json({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});
         }, function (err) {
             console.error(err);
             res.status(500);
@@ -800,3 +797,40 @@ exports.rellenarProcedimientos = function (procedimientos, year, Q, models) {
     });
     return deferProc.promise;
 };
+
+
+exports.download = function(app, cfg, fs){
+    return function (req, res, next) {
+        var filename = req.params.token + '.xlsx', ruta = app.get('prefixtmp'), rutaefectiva = path.resolve(ruta, filename);
+        if (md5(cfg.downloadhashprefix + req.params.token) === req.params.hash) {
+            fs.exists(ruta + filename, function (exists) {
+                if (exists) {
+                    if (path.dirname(rutaefectiva) + path.sep === ruta) {
+                        res.download(ruta + filename, filename, function (err) {
+                            if (err) {
+                                console.error(err);
+                            } else {
+                                console.log('Fichero ' + ruta + filename + '.xlsx descargado');
+                                fs.unlink(ruta + filename, function (err) {
+                                    if (err) {
+                                        console.error('No se ha podido borrar el fichero ' + ruta + filename);
+                                    } else {
+                                        console.log('Fichero ' + ruta + filename + ' borrado');
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        console.error('Acceso denegado:' + ruta + filename);
+                        res.status(404).send('Acceso denegado');
+                    }
+                } else {
+                    console.error('Fichero no válido' + ruta + filename);
+                    res.status(404).send('Fichero no válido');
+                }
+            });
+        } else {
+            res.status(404).send('Hash no válido');
+        }
+    }
+}

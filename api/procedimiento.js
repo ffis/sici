@@ -128,17 +128,18 @@ exports.createProcedimiento = function (Q, models, recalculate) {
 							
 							Q.all([defer_periodos.promise, defer_plantilla.promise]).then(function(data){
 								var periodos = JSON.parse(JSON.stringify(data[0]));
+								delete periodos._id;
 								var plantilla = JSON.parse(JSON.stringify(data[1]));
 								delete plantilla._id;
 								
 								procedimiento.periodos = {};
 								for (var anualidad in periodos) {
-									if (isNaN(parseInt(anualidad.replace("a","")))) continue;	
-									procedimiento.periodos[anualidad]=plantilla;
-									procedimiento.periodos[anualidad].periodoscerrados=periodos[anualidad];
+									if (isNaN(parseInt(anualidad.replace("a","")))) continue;										
+									procedimiento.periodos[anualidad]=JSON.parse(JSON.stringify(plantilla));
+									procedimiento.periodos[anualidad].periodoscerrados=periodos[anualidad];									
 								}
 								procedimiento.periodos['a2013'] = {
-									"plazo_maximo_resolver" : 180,
+									"plazo_maximo_resolver" : 0,
 									"plazo_maximo_responder" : null,
 									"plazo_CS_ANS_naturales" : null,
 									"pendientes_iniciales" : 0,
@@ -156,21 +157,9 @@ exports.createProcedimiento = function (Q, models, recalculate) {
 										0, 
 										0
 									],
-									"periodoscerrados" : [ 
-										0, 
-										0, 
-										0, 
-										0, 
-										0, 
-										0, 
-										0, 
-										0, 
-										0, 
-										0, 
-										0, 
-										0
-									]
-								};
+									"periodoscerrados" : periodos.a2013
+								};								
+
 								
 								procedimiento.save(function (err) {
 									if (err) {
@@ -263,6 +252,11 @@ exports.deleteProcedimiento = function (Q, models, recalculate) {
             var puedeEscribirSiempre = req.user.permisoscalculados.superuser;
             if (puedeEscribirSiempre) {
                 original.eliminado = true;
+				if (!isNaN(parseInt(original.codigo)))
+					Crawled.update({id:parseInt(original.codigo)},{'$set':{'eliminado':original.eliminado}},{multi:false, upsert:false}, function(err)
+					{
+						if (err) { console.error(err); }
+					});				
             }
             Procedimiento.count({"padre": original.codigo}, function (err, count) {
                 if (err) {
@@ -307,6 +301,7 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
         var Procedimiento = models.procedimiento();
         var Permiso = models.permiso();
 		var Periodos = models.periodo();
+		var Crawled = models.crawled();
         var restriccion = {};
         if (typeof req.params.codigo !== 'undefined')
             //restriccion.codigo = parseInt(req.params.codigo);
@@ -392,6 +387,11 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
                 // Actualiza estado oculto o eliminado
                 if (original.oculto !== procedimiento.oculto) {
                     hayCambiarOcultoHijos = true;
+					if (!isNaN(parseInt(procedimiento.codigo)))
+						Crawled.update({id:parseInt(procedimiento.codigo)},{'$set':{'oculto':original.oculto}},{multi:false, upsert:false}, function(err)
+						{
+							if (err) { console.error(err); }
+						});
                 }
                 original.oculto = procedimiento.oculto;
             }
@@ -673,63 +673,21 @@ exports.procedimientoList = function (models, Q) {
                         {'$and': [
                                 {'ancestros.id': {'$in': [parseInt(req.params.idjerarquia)]}},
                                 {'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}},
-                                {'$or': [
-                                        {'oculto': {$exists: false}},
-                                        {'$and': [
-                                                {'oculto': {$exists: true}},
-                                                {'oculto': false},
-                                            ]}
-                                    ]
-                                },
-                                {'$or': [
-                                        {'eliminado': {$exists: false}},
-                                        {'$and': [
-                                                {'eliminado': {$exists: true}},
-                                                {'eliminado': false},
-                                            ]}
-                                    ]
-                                }
+								{'oculto':{'$ne':true}},
+								{'eliminado':{'$ne':true}}
                             ]} :
                         {'$and': [
                                 {'idjerarquia': parseInt(req.params.idjerarquia)},
                                 {'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}},
-                                {'$or': [
-                                        {'oculto': {$exists: false}},
-                                        {'$and': [
-                                                {'oculto': {$exists: true}},
-                                                {'oculto': false}
-                                            ]}
-                                    ]
-                                },
-                                {'$or': [
-                                        {'eliminado': {$exists: false}},
-                                        {'$and': [
-                                                {'eliminado': {$exists: true}},
-                                                {'eliminado': false}
-                                            ]}
-                                    ]
-                                }
+								{'oculto':{'$ne':true}},
+								{'eliminado':{'$ne':true}}
                             ]}
                 )
                 :
                 {'$and': [
                         {'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}},
-                        {'$or': [
-                                {'oculto': {$exists: false}},
-                                {'$and': [
-                                        {'oculto': {$exists: true}},
-                                        {'oculto': false},
-                                    ]}
-                            ]
-                        },
-                        {'$or': [
-                                {'eliminado': {$exists: false}},
-                                {'$and': [
-                                        {'eliminado': {$exists: true}},
-                                        {'eliminado': false},
-                                    ]}
-                            ]
-                        }
+						{'oculto':{'$ne':true}},
+						{'eliminado':{'$ne':true}}
                     ]};
 
         var cb = function (err, data) {
@@ -739,10 +697,13 @@ exports.procedimientoList = function (models, Q) {
                 res.status(500);
                 res.end();
                 return;
-            }
+            }	
+			console.log(data.length);
             res.json(data);
+
         };
 
+		
         var query = Procedimiento.find(restriccion);
         if (typeof fields !== 'undefined') {
             query.select(fields);

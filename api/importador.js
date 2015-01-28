@@ -166,7 +166,8 @@ exports.parseGS = function(){
 
 					res.json(datos);			
 
-				}, function(){
+				}, function(error){
+					console.error(error);
 					res.status(500).send('Error');
 				})
 			}

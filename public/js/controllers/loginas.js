@@ -1,12 +1,10 @@
 function LoginAsCtrl ($rootScope, $scope, $http, $window, Session) {
-
 	$scope.datosusuario = false;
 	$scope.actualuser = JSON.parse($window.localStorage.client_session);
 	$scope.mensaje = false;
 	$scope.fake = function(login){
-
 		if (login!=''){
-		  	$http.post('/api/pretend/'+login, {username:login}).
+		  	$http.post('/api/v1/restricted/pretend/'+login, {username:login}).
 		  		success(function(data, status, headers, config) {
 		  			$scope.datosusuario = data;
 		  			$scope.actualuser = JSON.parse($window.localStorage.client_session);
@@ -27,10 +25,8 @@ function LoginAsCtrl ($rootScope, $scope, $http, $window, Session) {
 			Session.create($scope.datosusuario.profile);
 			$rootScope.setLogeado(true);
 			$scope.actualuser = JSON.parse($window.localStorage.client_session);
-			
 		}
 	} 
-
 }
 
 LoginAsCtrl.$inject = ['$rootScope','$scope', '$http','$window', 'Session'];

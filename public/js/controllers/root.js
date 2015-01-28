@@ -34,7 +34,7 @@ function AppCtrl($window,$q, $scope, $rootScope, Session, $location, PermisosCal
 	];
 	
 	if ($rootScope.logeado) {
-		$rootScope.permisoscalculados = PermisosCalculados.query({});
+		$rootScope.permisoscalculados = PermisosCalculados.query({});		
 	}
 	$rootScope.loginCarm = AuthService.carmlogin;
 
