@@ -480,7 +480,6 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
 									return;
 								}
 								else {		
-									console.log(__line);
 									var promesa_proc = Q.defer();
 									var promesa_per = Q.defer();
 
@@ -535,35 +534,25 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
 												promesa_per.resolve();
 										}
 										);
-console.log(__line);
 										promesa_per.promise.then(
 												function () {
-                                                                                                    console.log(__line);
 													recalculate.fullSyncpermiso(Q, models).then(function (data) {
 														promesa_proc.resolve();
-                                                                                                                console.log(__line);
 													});
 												},
 												function (err) {
-                                                                                                    console.log(__line);
 													promesa_proc.reject(err);
 												});
 									} else {
-                                                                            console.log(__line);
 										promesa_proc.resolve();
 									}
 
 									promesa_proc.promise.then(function () {
-                                                                            console.log(__line);
 										if (hayCambiarOcultoHijos) {
-                                                                                    console.log(__line);
 											exports.ocultarHijos(original, models, Q).then(function () {
-                                                                                            console.log(__line);
 												recalculate.fullSyncjerarquia(Q, models).then(function () {
-                                                                                                    console.log(__line);
 													res.json(original);
 												}, function (err) {
-                                                                                                    console.log(__line);
 													console.error(err);
 													res.send(500, JSON.stringify(err));
 												});
@@ -574,13 +563,11 @@ console.log(__line);
 											console.log(coincidencias);
 										}
 									}, function (err) {
-                                                                            console.log(__line);
 										console.error(err);
 										res.status(500).send(JSON.stringify(err));
 										res.end();
 										return;
 									});
-                                                                        console.log(__line);
 								}
 							});
 						});
