@@ -59,11 +59,11 @@ angular.module('sici.login.util', ['ngResource'])
 	.run(['$rootScope', '$location', 'AuthService','$log',
 		function ($rootScope, $location, AuthService, $log) {
 		  $rootScope.$on('$routeChangeStart', function (event, next, current) {		
-			if (!AuthService.isAuthenticated() &&  next &&  next.templateUrl != 'partials/login.html'){
+			if (!AuthService.isAuthenticated() &&  next &&  next.templateUrl !== 'partials/login.html'){
 				$log.debug('No autenticado e intentando acceder a otra dirección. Vamos a login');
 				$location.path('/login');
 			}
-			else if (AuthService.isAuthenticated() &&  next  && next.templateUrl == 'partials/login.html') {
+			else if (AuthService.isAuthenticated() &&  next  && next.templateUrl === 'partials/login.html') {
 				$log.debug('Autenticado e intentando acceder a login. Vamos a /');
 				$location.path('/welcome');
 			} else if (next && next.templateUrl) {

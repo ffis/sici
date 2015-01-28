@@ -351,9 +351,9 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
                 // salvamos y ordenamos el recalculo.
                 var cmds = [
                     {cmd: '', defer: $q.defer()},
-                    {cmd: '/api/fprocedimiento', defer: $q.defer(), msj: 'Ajustando procedimiento'},
-                    {cmd: '/api/fjerarquia', defer: $q.defer(), msj: 'Ajustando organica'},
-                    {cmd: '/api/fpermiso', defer: $q.defer(), msj: 'Comprobando permisos'}
+                    {cmd: '/api/v1/restricted/fprocedimiento', defer: $q.defer(), msj: 'Ajustando procedimiento'},
+                    {cmd: '/api/v1/restricted/fjerarquia', defer: $q.defer(), msj: 'Ajustando organica'},
+                    {cmd: '/api/v1/restricted/fpermiso', defer: $q.defer(), msj: 'Comprobando permisos'}
                 ];
                 cmds[0].defer.resolve();
                 $scope.mensaje_moviendo = $scope.msj_base;
