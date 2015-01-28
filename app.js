@@ -114,7 +114,8 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
     app.post('/api/v1/restricted/persona', persona.newPersona(models));
     app.put('/api/v1/restricted/persona/:id', persona.updatePersona(models));
 
-    app.delete('/api/v1/restricted/procedimiento/:codigo', procedimiento.deleteProcedimiento(Q, models, recalculate));
+    /*fake public */
+    app.delete('/api/v1/public/procedimiento/:codigo', procedimiento.deleteProcedimiento(Q, models, recalculate));
 
     app.get('/api/v1/restricted/reglasinconsistencias', reglainconsistencia.getReglaInconsistencia(models));
     app.post('/api/v1/restricted/reglasinconsistencias', reglainconsistencia.newReglaInconsistencia(models));
@@ -219,7 +220,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 
 
 
-    app.get('/download/:token/:hash', exportador.download(app, cfg));
+    app.get('/download/:token/:hash', exportador.download(app, cfg, fs, md5, path));
 
     if (os.platform() == 'linux'){
         var memwatch = require('memwatch');

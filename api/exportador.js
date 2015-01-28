@@ -280,7 +280,7 @@ exports.tablaResultadosProcedimiento = function (models, app, md5, Q, cfg) {
     };
 };
 
-exports.exportarInforme = function (models, app, md5, Q) {
+exports.exportarInforme = function (models, app, md5, Q, cfg) {
     return function (req, res) {
         if ((typeof req.params.year === 'undefined') || (req.params.year === null)) {
             console.error('No se ha definido el parámetro "year"');
@@ -799,7 +799,7 @@ exports.rellenarProcedimientos = function (procedimientos, year, Q, models) {
 };
 
 
-exports.download = function(app, cfg, fs){
+exports.download = function(app, cfg, fs, md5, path){
     return function (req, res, next) {
         var filename = req.params.token + '.xlsx', ruta = app.get('prefixtmp'), rutaefectiva = path.resolve(ruta, filename);
         if (md5(cfg.downloadhashprefix + req.params.token) === req.params.hash) {

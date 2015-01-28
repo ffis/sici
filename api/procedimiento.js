@@ -1,4 +1,4 @@
-
+require('magic-globals');
 
 exports.hasChildred = function (models) {
     return function (req, res) {
@@ -233,6 +233,7 @@ exports.procedimiento = function (models) {
 exports.deleteProcedimiento = function (Q, models, recalculate) {
     return function (req, res) {
         var Procedimiento = models.procedimiento();
+        var Crawled  = models.crawled();
         var restriccion = {};
         if (typeof req.params.codigo !== 'undefined')
             //restriccion.codigo = parseInt(req.params.codigo);
@@ -252,11 +253,11 @@ exports.deleteProcedimiento = function (Q, models, recalculate) {
             var puedeEscribirSiempre = req.user.permisoscalculados.superuser;
             if (puedeEscribirSiempre) {
                 original.eliminado = true;
-				if (!isNaN(parseInt(original.codigo)))
-					Crawled.update({id:parseInt(original.codigo)},{'$set':{'eliminado':original.eliminado}},{multi:false, upsert:false}, function(err)
-					{
-						if (err) { console.error(err); }
-					});				
+                if (!isNaN(parseInt(original.codigo)))
+                        Crawled.remove({id:parseInt(original.codigo)}, function(err)
+                        {
+                                if (err) { console.error(err); }
+                        });				
             }
             Procedimiento.count({"padre": original.codigo}, function (err, count) {
                 if (err) {
@@ -302,6 +303,7 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
         var Permiso = models.permiso();
 		var Periodos = models.periodo();
 		var Crawled = models.crawled();
+                var Persona = models.persona();
         var restriccion = {};
         if (typeof req.params.codigo !== 'undefined')
             //restriccion.codigo = parseInt(req.params.codigo);
@@ -478,7 +480,7 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
 									return;
 								}
 								else {		
-									
+									console.log(__line);
 									var promesa_proc = Q.defer();
 									var promesa_per = Q.defer();
 
@@ -533,26 +535,35 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
 												promesa_per.resolve();
 										}
 										);
-
+console.log(__line);
 										promesa_per.promise.then(
 												function () {
+                                                                                                    console.log(__line);
 													recalculate.fullSyncpermiso(Q, models).then(function (data) {
 														promesa_proc.resolve();
+                                                                                                                console.log(__line);
 													});
 												},
 												function (err) {
+                                                                                                    console.log(__line);
 													promesa_proc.reject(err);
 												});
 									} else {
+                                                                            console.log(__line);
 										promesa_proc.resolve();
 									}
 
 									promesa_proc.promise.then(function () {
+                                                                            console.log(__line);
 										if (hayCambiarOcultoHijos) {
+                                                                                    console.log(__line);
 											exports.ocultarHijos(original, models, Q).then(function () {
+                                                                                            console.log(__line);
 												recalculate.fullSyncjerarquia(Q, models).then(function () {
+                                                                                                    console.log(__line);
 													res.json(original);
 												}, function (err) {
+                                                                                                    console.log(__line);
 													console.error(err);
 													res.send(500, JSON.stringify(err));
 												});
@@ -563,11 +574,13 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
 											console.log(coincidencias);
 										}
 									}, function (err) {
+                                                                            console.log(__line);
 										console.error(err);
 										res.status(500).send(JSON.stringify(err));
 										res.end();
 										return;
 									});
+                                                                        console.log(__line);
 								}
 							});
 						});
@@ -587,14 +600,13 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
 
 exports.ocultarHijos = function (procedimiento, models, Q) {
     var defer = Q.defer();
-	if (!(req.user.permisoscalculados && req.user.permisoscalculados.superuser))
-	{
-		return;
-	}
 	
     var Procedimiento = models.procedimiento();
     var promesas_procs = [];
     Procedimiento.find({padre: procedimiento.codigo}, function (err, procs) {
+        if (err){
+             defer.reject(err);
+        }
         procs.forEach(function (proc) {
             exports.saveVersion(models, Q, proc).then(function () {
                 var deferProc = Q.defer();
