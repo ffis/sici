@@ -1,4 +1,3 @@
-require('magic-globals');
 
 exports.hasChildred = function (models) {
     return function (req, res) {
