@@ -67,6 +67,8 @@ modulo
                 return $resource('/api/v1/restricted/periodos/:id', {id: '@_id'}, {update: {method: 'PUT'}}); }])
         .factory('Persona', ['$resource', function ($resource) {
                 return $resource('/api/v1/restricted/persona/:id', {id: '@id'}, {create: {method: 'POST'}, update: {method: 'PUT'}}); }])
+        .factory('PeriodosStats', ['$resource', function ($resource) {
+                return $resource('/api/v1/restricted/mapReducePeriodos'); }])
         
 ;
 /* private services */
