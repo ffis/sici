@@ -179,9 +179,9 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
         $rootScope.procedimiento = $scope.procedimientoSeleccionado.codigo;
         $scope.anualidad = '000000';
 
-        ProcedimientoHasChildren.query({'codigo': $scope.procedimientoSeleccionado.codigo}, function (data) {
-            $scope.tiene_hijos = data.count;
-        });
+//        ProcedimientoHasChildren.query({'codigo': $scope.procedimientoSeleccionado.codigo}, function (data) {
+//            $scope.tiene_hijos = data.count;
+//        });
 
         $scope.procedimientosPadre = ProcedimientoList.query({'idjerarquia': $scope.procedimientoSeleccionado.idjerarquia, 'recursivo': false});
 
@@ -210,6 +210,9 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
         $rootScope.W($scope.procedimientoSeleccionado).then(function (val) {
             $rootScope.superuser().then(function (val2) {
                 $scope.W = val || val2;
+                ProcedimientoHasChildren.query({'codigo': $scope.procedimientoSeleccionado.codigo}, function (data) {
+                    $scope.tiene_hijos = data.count;
+                });
             }, function (err) {
                 $scope.W = false;
             });

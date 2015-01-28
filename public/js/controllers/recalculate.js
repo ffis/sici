@@ -35,9 +35,8 @@ function RecalculateCtrl($rootScope, $scope, $window, $http, PersonasActualizaci
     };
     
     $scope.actualizarPersonas = function() {
-        console.log('Entro');
         PersonasActualizacionGesper.query(function(data) {
-            console.log(data);
+//            console.log(data);
         });
     };
 

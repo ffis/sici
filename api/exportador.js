@@ -601,7 +601,11 @@ exports.exportarInforme = function (models, app, md5, Q) {
                 if (err) {
                     deferNombreJerarquia.reject(err);
                 } else {
-                    var cellNombreJerarquia = {v: jerarquia.nombrelargo, t: 's'};
+                    var value = "No encontrado";
+                    if (jerarquia) {
+                        value = jerarquia.nombrelargo;
+                    }
+                    var cellNombreJerarquia = {v: value, t: 's'};
                     var cellNombreJerarquiaRef = XLSX.utils.encode_cell({c: c, r: r});
                     ws[cellNombreJerarquiaRef] = cellNombreJerarquia;
                     deferNombreJerarquia.resolve();
