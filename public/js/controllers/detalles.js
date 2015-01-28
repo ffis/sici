@@ -98,6 +98,12 @@ function DetallesCtrl($q, $rootScope, $scope, $routeParams, $window, $location, 
         $scope.mostrarAutocompletePadre = false;
     };
 
+	$scope.periodosOk = function(anualidad, procedimiento)
+	{
+		return procedimiento.periodos[anualidad].plazo_CS_ANS_habiles || 
+			procedimiento.periodos[anualidad].plazo_CS_ANS_naturales;
+	}
+	
     $scope.deletePadre = function () {
         $scope.procedimientoSeleccionado.padre = null;
         $scope.procedimientoSeleccionado.$update(function (response) {

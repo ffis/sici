@@ -142,13 +142,13 @@ exports.nuevaAnualidad = function (models) {
                         var nuevoperiodo = JSON.parse(JSON.stringify(plantilla));
                         console.log(nuevoperiodo);
                         delete nuevoperiodo._id;
+						nuevoperiodo 
                         var restriccion = {};
                         var periodos_periodo = 'periodos.' + speriodonuevo;
                         restriccion[periodos_periodo] = {'$exists': false};
                         var set = {};
                         set['$set'] = {}
-                        set['$set'][periodos_periodo] = nuevoperiodo;
-
+                        set['$set'][periodos_periodo] = nuevoperiodo;						
                         Procedimiento.update(restriccion, set, {upsert: false, multi: true}, function (err) {
                             if (err) {
                                 if (err) {
@@ -167,7 +167,7 @@ exports.nuevaAnualidad = function (models) {
                         restriccion_periodo[speriodonuevo] = {'$exists': false};
                         var set_periodo = {};
                         set_periodo['$set'] = {};
-                        set_periodo['$set'][speriodonuevo] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                        set_periodo['$set'][speriodonuevo] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];						
                         Periodo.update(restriccion_periodo, set_periodo, {multi: false, upsert: false}, function (err) {
                             if (err) {
                                 if (err) {

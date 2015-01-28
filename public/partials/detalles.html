@@ -147,6 +147,7 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                         </div>
                     </li>
                 </ul>
+				<p ng-if="W && !periodosOk(anualidad, procedimientoSeleccionado)"><br/><span class="alert alert-danger" role="alert">Debe definir el plazo en alguno de las modalidades para poder introducir datos.</span></p>
                 <br />
                 <div ng-if="$root.permisoscalculados.superuser">
                     <div>
@@ -237,10 +238,10 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                         <tr ng-repeat="attr in attrstabla" ng-show="exists(attr)"> 
                             <th>{{attr| translate}}</th>
                             <td ng-repeat="val in procedimientoSeleccionado.periodos[anualidad][attr] track by $index" class="numberCell">
-                                <a e-ng-blur="changeFocus($form, $index, attr, $data)" ng-if="W && procedimientoSeleccionado.periodos[anualidad].periodoscerrados[$index] == 0" href="#" editable-text="procedimientoSeleccionado.periodos[anualidad][attr][$index]" onaftersave="recalculate()" onbeforesave="checkNumber($data, anualidad, attr, $index)">
+                                <a e-ng-blur="changeFocus($form, $index, attr, $data)" ng-if="W && procedimientoSeleccionado.periodos[anualidad].periodoscerrados[$index] == 0 && periodosOk(anualidad, procedimientoSeleccionado)" href="#" editable-text="procedimientoSeleccionado.periodos[anualidad][attr][$index]" onaftersave="recalculate()" onbeforesave="checkNumber($data, anualidad, attr, $index)">
                                     {{ procedimientoSeleccionado.periodos[anualidad][attr][$index] || 0  |numberFormat}} {{addForm(attr, $index, $form)}}
                                 </a>
-                                <span ng-if="!W || procedimientoSeleccionado.periodos[anualidad].periodoscerrados[$index] != 0">{{ procedimientoSeleccionado.periodos[anualidad][attr][$index] || 0  |numberFormat}}</span>
+                                <span ng-if="!W || procedimientoSeleccionado.periodos[anualidad].periodoscerrados[$index] != 0 || !periodosOk(anualidad, procedimientoSeleccionado)">{{ procedimientoSeleccionado.periodos[anualidad][attr][$index] || 0  |numberFormat}}</span>
                             </td>
                         </tr>
                         <tr ng-repeat="attr in attrstablacalculados" ng-show="exists(attr)"> 
