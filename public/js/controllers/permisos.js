@@ -1,7 +1,7 @@
 
 
 
-function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosList,PersonasSearchList,ProcedimientoList,PermisosProcedimientoList,PermisosDirectosProcedimientoList,Jerarquia, Permiso, PersonasByPuesto, PersonasByLogin, PersonasByRegexp, Persona, $q, Procedimiento,PersonasByLoginPlaza,PermisosDelegar, PermisosByLoginPlaza, PermisosDelegarSeleccionado, PermisoToDelete, PermisoProcedimientoToDelete, ProcedimientosByResponsable) {
+function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosList,PersonasSearchList,ProcedimientoList,PermisosProcedimientoList,PermisosDirectosProcedimientoList,Jerarquia, Permiso, PersonasByPuesto, PersonasByLogin, PersonasByRegexp, Persona, $q, Procedimiento,PermisosByLoginPlaza,PermisosDelegar, PermisosByLoginPlaza, PermisosDelegarSeleccionado, PermisoToDelete, PermisoProcedimientoToDelete, ProcedimientosByResponsable) {
 	$rootScope.nav = 'permisos';
 	$window.document.title ='SICI: Permisos';
 
@@ -400,13 +400,23 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 				PermisoToDelete.delete_permiso({'idpermiso':permiso._id,'idjerarquia':$scope.seleccionado.id},function(){
 					$scope.setSeleccionado($scope.seleccionado);
 				});
-			} else {
+			} else if (!$scope.show_details_permiso) {
 				PermisoProcedimientoToDelete.delete_permiso({'idpermiso':permiso._id,'idprocedimiento':$scope.procedimiento_seleccionado.codigo}, function(){
 					$scope.setProcSeleccionado($scope.procedimiento_seleccionado);
 				});
+			} else {
+				$scope.on_usuariobuscado_selected($scope.usuariodetalle,null,null);
 			}
 		}
 	};
+	
+	/*
+	$scope.on_usuariobuscado_selected = function(item, model, label){
+		
+		$scope.usuariodetalle = item;
+		
+		$scope.show_details_permiso = true;	
+	*/
 	
 	$scope.eliminarDefinitivamentePermiso = function(permiso){
 		if (confirm('Si continúa se eliminará el permiso completa y definitivamente'))
@@ -414,7 +424,9 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 			var p = Permiso.get({id:permiso._id}, function(){
 				p.$delete({id:p._id},function(err){
 					if ($scope.seleccionado_organica) $scope.setSeleccionado($scope.seleccionado);		
-					else $scope.setProcSeleccionado($scope.procedimiento_seleccionado);
+					else if ($scope.show_details_permiso){
+						$scope.on_usuariobuscado_selected($scope.usuariodetalle,null,null);
+					} else $scope.setProcSeleccionado($scope.procedimiento_seleccionado);
 				});				
 			})
 		}
@@ -787,4 +799,4 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
     
 	
 }
-PermisoCtrl.$inject = ['$rootScope','$scope','$location','$window','Arbol','Session','PermisosList','PersonasSearchList','ProcedimientoList','PermisosProcedimientoList', 'PermisosDirectosProcedimientoList','Jerarquia','Permiso', 'PersonasByPuesto', 'PersonasByLogin', 'PersonasByRegexp','Persona','$q','Procedimiento','PersonasByLoginPlaza','PermisosDelegar','PermisosByLoginPlaza','PermisosDelegarSeleccionado', 'PermisoToDelete', 'PermisoProcedimientoToDelete','ProcedimientosByResponsable'];
+PermisoCtrl.$inject = ['$rootScope','$scope','$location','$window','Arbol','Session','PermisosList','PersonasSearchList','ProcedimientoList','PermisosProcedimientoList', 'PermisosDirectosProcedimientoList','Jerarquia','Permiso', 'PersonasByPuesto', 'PersonasByLogin', 'PersonasByRegexp','Persona','$q','Procedimiento','PermisosByLoginPlaza','PermisosDelegar','PermisosByLoginPlaza','PermisosDelegarSeleccionado', 'PermisoToDelete', 'PermisoProcedimientoToDelete','ProcedimientosByResponsable'];
