@@ -33,6 +33,7 @@ exports.mapReducePeriodos = function (Q, models, idjerarquia) {
     var Procedimiento = models.procedimiento();
     var o = {};
     o.map = function () {
+        if (this.oculto || this.eliminado) return;
         var d = new Date();
         for (var i = 0, j = this.ancestros.length; i < j; i++) {
             for (var anualidad = 2013; anualidad <= d.getFullYear(); anualidad++) {
@@ -63,6 +64,7 @@ exports.mapReducePeriodos = function (Q, models, idjerarquia) {
             'fuera_plazo',
             'pendientes'
         ];
+
         attrs.forEach(function (attr) {
             sumas[attr] = [];
             for (var mes = 0; mes < 12; mes++) {
@@ -74,6 +76,13 @@ exports.mapReducePeriodos = function (Q, models, idjerarquia) {
                 }
             }
         });
+        sumas['numProcedimientos'] = values.length;
+        sumas['numProcedimientosConSolicitudes'] = 0;
+        for (var i = 0, j = values.length; i < j; i++) {
+            if (values[i]['totalsolicitudes']>0) {
+                sumas['numProcedimientosConSolicitudes']++;
+            }
+        }
         return sumas;
     };
     var deferMR = Q.defer();

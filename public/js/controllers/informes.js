@@ -64,6 +64,21 @@ function InformesCtrl($rootScope, $scope, $window, $http, $timeout, ExportarInfo
             }, 20);
         }
     };
+    $scope.detallado = false;
+    $scope.setDetallado = function( detallad){
+        if (detallad){
+            if ($scope.detallado && detallad.id == $scope.detallado.id)
+            {
+                $scope.detallado = false;
+            }else{
+                $scope.detallado = detallad;
+                $timeout(function(){
+                    $("body").animate({scrollTop: $('#detallesNodo').offset().top}, "slow");
+                }, 20);
+            }
+        }
+    }
+
     var cached = null;
      $scope.fnGetStatsNode = function(nodoid, anualidad){
         if (cached && cached._id && cached._id.idjerarquia==nodoid && cached._id.anualidad==anualidad){
@@ -88,7 +103,7 @@ function InformesCtrl($rootScope, $scope, $window, $http, $timeout, ExportarInfo
     $scope.oculto= false;
     $scope.columnasocultas = true;
     $scope.campos = [
-            't_medio_habiles', 't_medio_naturales',
+            //'t_medio_habiles', 't_medio_naturales',
             'en_plazo', 'fuera_plazo', 
             'resueltos_desistimiento_renuncia_caducidad', 'resueltos_prescripcion',
             'resueltos_1', 'resueltos_5', 'resueltos_10', 'resueltos_15', 'resueltos_30', 'resueltos_45', 'resueltos_mas_45',
