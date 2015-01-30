@@ -354,11 +354,11 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 			} else if ($scope.procedimiento_seleccionado) {
 				permiso.jerarquiadirectaescritura = [ ];
 				permiso.jerarquiadirectalectura = [ ];
-				permiso.procedimientodirectalectura = [ $scope.procedimiento_seleccionado.codigo ];
-				permiso.procedimientolectura =  [ $scope.procedimiento_seleccionado.codigo ];
+				permiso.procedimientosdirectalectura = [ $scope.procedimiento_seleccionado.codigo ];
+				permiso.procedimientoslectura =  [ $scope.procedimiento_seleccionado.codigo ];
 				if ($scope.w_option) {
-					permiso.procedimientodirectaescritura = [ $scope.procedimiento_seleccionado.codigo ];
-					permiso.procedimientoescritura =  [ $scope.procedimiento_seleccionado.codigo ];
+					permiso.procedimientosdirectaescritura = [ $scope.procedimiento_seleccionado.codigo ];
+					permiso.procedimientosescritura =  [ $scope.procedimiento_seleccionado.codigo ];
 				} 
 			}
 			
