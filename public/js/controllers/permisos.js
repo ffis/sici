@@ -349,8 +349,8 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 					permiso.jerarquiadirectaescritura = [ $scope.seleccionado.id ];
 					permiso.jerarquiaescritura = [ $scope.seleccionado.id ];
 				}
-				permiso.procedimientodirectalectura = [];
-				permiso.procedimientodirectaescritura = [];
+				permiso.procedimientosdirectalectura = [];
+				permiso.procedimientosdirectaescritura = [];
 			} else if ($scope.procedimiento_seleccionado) {
 				permiso.jerarquiadirectaescritura = [ ];
 				permiso.jerarquiadirectalectura = [ ];
@@ -710,10 +710,10 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 					}
 					break;
 				case false:
-					if (!Array.isArray(permiso.procedimientodirectaescritura) || permiso.procedimientodirectaescritura.indexOf($scope.procedimiento_seleccionado.codigo)===-1){
+					if (!Array.isArray(permiso.procedimientosdirectaescritura) || permiso.procedimientosdirectaescritura.indexOf($scope.procedimiento_seleccionado.codigo)===-1){
 							alert('Este usuario no tiene un permiso directo sobre este procedimiento. Se trata de un permiso heredado. La operación no puede realizarse.');
-					} else if (Array.isArray(permiso.procedimientodirectaescritura)){
-							permiso.procedimientodirectaescritura.splice(permiso.procedimientodirectaescritura.indexOf($scope.procedimiento_seleccionado.codigo),1);
+					} else if (Array.isArray(permiso.procedimientosdirectaescritura)){
+							permiso.procedimientosdirectaescritura.splice(permiso.procedimientosdirectaescritura.indexOf($scope.procedimiento_seleccionado.codigo),1);
 					}
 					break;			
 			}
@@ -728,10 +728,10 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 						
 					break;
 				case false:
-						if (Array.isArray(permiso.procedimientodirectaescritura))
-							if (permiso.procedimientodirectaescritura.indexOf($scope.seleccionado.id)==-1) // esto no sería necesario si todo fuera sincronizado. Pero puede que ande esperando a que se haya actualizado "procedimientoescritura" en el servidor
-								permiso.procedimientodirectaescritura.push($scope.procedimiento_seleccionado.codigo);
-						else permiso.procedimientodirectaescritura = [$scope.procedimiento_seleccionado.codigo];
+						if (Array.isArray(permiso.procedimientosdirectaescritura))
+							if (permiso.procedimientosdirectaescritura.indexOf($scope.seleccionado.id)==-1) // esto no sería necesario si todo fuera sincronizado. Pero puede que ande esperando a que se haya actualizado "procedimientoescritura" en el servidor
+								permiso.procedimientosdirectaescritura.push($scope.procedimiento_seleccionado.codigo);
+						else permiso.procedimientosdirectaescritura = [$scope.procedimiento_seleccionado.codigo];
 						
 					break;			
 			}

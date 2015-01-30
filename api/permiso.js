@@ -78,7 +78,7 @@ exports.delegarpermisosProcedimiento = function(models,Q){
 					ep.descripcion = 'Permisos delegados por ' + ep.cod_plaza_grantt;
 					ep.grantoption = false;
 
-					Permiso.find({'$or':[{'procedimientoescritura' : procedimiento.codigo},{'procedimientosdirectaescritura' : procedimiento.codigo}]},function(err,procs){
+					Permiso.find({'$or':[{'procedimientosescritura' : procedimiento.codigo},{'procedimientosdirectaescritura' : procedimiento.codigo}]},function(err,procs){
 						if (err) {
 								console.error("Imposible salvar nuevo permiso (5)"); console.error(err); res.status(500); res.end(); return;
 						}
@@ -540,7 +540,7 @@ exports.permisosDirectosProcedimientoList = function(models,Q){
 					return;
 				}				
 				
-				var restriccion = {'procedimientodirectalectura':idp};
+				var restriccion = {'procedimientosdirectalectura':idp};
 				Permiso.find(restriccion, function(err, permisos){
 					if (err) {console.error(restriccion); console.error(err); res.status(500); res.end(); return; }
 					else res.json(permisos);
@@ -800,7 +800,7 @@ exports.create = function(models) {
 				if (req.body.procedimiento && req.body.procedimiento!="") {
 					permiso.procedimientosdirectalectura.push(req.body.procedimiento);
 					if (req.body.w_option)
-						permiso.procedimientodirectaescritura.push(req.body.procedimiento);
+						permiso.procedimientosdirectaescritura.push(req.body.procedimiento);
 				}else {
 					err = "Error. Identificador de procedimiento incorrecto";
 				}			
