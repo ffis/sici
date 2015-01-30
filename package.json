@@ -6,6 +6,7 @@
     "MD5": "^1.2.1",
     "body-parser": "^1.10.2",
     "crawler": "^0.2.7",
+    "crypto": "0.0.3",
     "csv-parse": "0.0.6",
     "encoding": "^0.1.10",
     "express": "^4.11.1",

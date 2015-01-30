@@ -75,6 +75,7 @@ exports.authenticate = function(config){
 	var secret = config.secret;
 	var Persona = config.models.persona();
 	var Permisos = config.models.permiso();
+	var crypto = config.crypto;
 
 	if (!jwt || !secret || !Persona || ! Permisos)
 		throw new Error('bad config for authenticate method');
@@ -85,12 +86,25 @@ exports.authenticate = function(config){
 		//if is invalid, return 401
 		//for testing this should be enough
 
-		if (req.body.password !== 'password') {
+		/*if (req.body.password !== 'password') {
 		  res.status(401).send('Wrong password');
 		  return;
-		}
-
-		Persona.find( { login: req.body.username, habilitado:true },
+		}*/
+		
+		var restriccion = {login: req.body.username, habilitado : true};
+		var shasum = crypto.createHash('sha256');
+		shasum.update(req.body.password);
+		var shasum_digest = shasum.digest('hex');
+		console.log('digerido');
+		console.log(shasum_digest);
+		
+		
+		if (!!req.body.notcarmuser)
+			restriccion.contrasenya = shasum_digest;
+		
+		console.log(restriccion);
+		
+		Persona.find( restriccion,
 			function(err,personas){			
 				if (err ||personas.length===0)
 				{

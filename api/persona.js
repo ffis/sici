@@ -168,12 +168,12 @@ exports.personasByRegex = function (models, Q, cfg) {
     };
 };
 
-exports.registroPersonaWS = function (codplaza, models, Q) {
+exports.registroPersonaWS = function (codplaza, models, Q, cfg) {
     var deferRegistro = Q.defer();
     var Persona = models.persona();
     Persona.count({'codplaza': codplaza}, function (err, count) {
         if (count === 0) {
-            exports.infoByPlaza(codplaza, Q).then(function (result) {
+            exports.infoByPlaza(codplaza, Q, cfg).then(function (result) {
                 console.log(result);
                 if ((result !== null) && (typeof result.return !== 'undefined') && (result.return.length > 0) && (result.return[2].key === 'ERR_MSG')) {
                     var msg = result.return[2].value;
@@ -369,10 +369,15 @@ exports.updateCodPlazaByLogin = function (models, Q, cfg) {
                                     }
                                     var telefono = result.return[7].value;
                                     persona.telefono = telefono;
-                                } else if (valores[1] === '01') {
-                                    console.log('Usuario ' + persona.login + ' ya no está en gesper y eliminamos su código plaza ' + persona.codplaza);
+                                } else if (valores[1] === '01') {                                    
                                     codplaza = persona.codplaza;
-                                    persona.codplaza = '';
+									var regCodPlaza = new RegExp(/X{3}\d{3}/i);
+                                   if (!regCodPlaza.test(persona.codplaza)) {
+										console.log('Usuario ' + persona.login + ' ya no está en gesper y eliminamos su código plaza ' + persona.codplaza);
+                                       persona.codplaza = '';
+                                   } else {
+										console.log("Usuario con código de plaza especial. No actualizado.");
+								   }
                                 }
                             }
                         }
@@ -392,7 +397,7 @@ exports.updateCodPlazaByLogin = function (models, Q, cfg) {
                                             if (count > 0) {
                                                 promesaUpdate.resolve(fila);
                                             } else {
-                                                exports.registroPersonaWS(codplaza, models, Q).then(function (resultado) {
+                                                exports.registroPersonaWS(codplaza, models, Q,cfg).then(function (resultado) {
                                                     fila.nuevoUsuario = resultado.login;
                                                     promesaUpdate.resolve(fila);
                                                 }, function (err) {

@@ -1,6 +1,6 @@
 angular.module('sici.login.util', ['ngResource'])
-	.service('Session', ['$rootScope','$window', '$log',
-		function ($rootScope, $window, $log ) {
+	.service('Session', ['$rootScope','$window', '$log', '$cookieStore',
+		function ($rootScope, $window, $log, $cookieStore ) {
 			this.userId = false;
 	  		this.create = function (data) {
 			    if (data)
@@ -44,6 +44,9 @@ angular.module('sici.login.util', ['ngResource'])
 				$window.localStorage.client_session = '';
 				delete $window.localStorage.client_session;
 				$rootScope.setLogeado(false); 
+				/*Set-Cookie:JSESSIONID=; Path=/SICI_SSO/; HttpOnly*/
+				$cookieStore.remove("JSESSIONID");
+				document.cookie = "JSESSIONID=; Path=/SICI_SSO/; HttpOnly; expires=Thu, 01 Jan 1970 00:00:00 UTC";				
 			  };
 			  return this;
 	}])	
@@ -74,22 +77,56 @@ angular.module('sici.login.util', ['ngResource'])
 			}
 		});
 	}])
-	.factory('AuthService',	 ['$http','Session','$rootScope', '$location', '$route','$window','$log',
-		function ($http, Session, $rootScope, $location, $route, $window,$log) {
+	.factory('AuthService',	 ['$http','Session','$rootScope', '$location', '$route','$window','$log','$q',
+		function ($http, Session, $rootScope, $location, $route, $window,$log,$q) {
 
 		  return {
 		  	carmlogin: false,
-			login: function (credentials) {
-				/** hacemos un post a la dirección del login. Esperamos respuesta. Si statusCode=401 hay error de autenticación **/				
-				return $http.post('/authenticate', credentials)
-				  	.success(function (data, status, headers, config) {
+			login: function (credentials) {				
+				if (!!credentials.notcarmuser){					
+					return $http.post('/authenticate', credentials)
+					.success(function (data, status, headers, config) {
 						$window.localStorage.token = data.token;
 						$log.info('Contraseña válida');
 						Session.create(data.profile);
 					}).error(function(data, status, headers, config){
 						$log.info('Contraseña no válida');
 						delete $window.localStorage.token;
+					});				
+				} else  {
+					var urlconsulta = '/SICI_SSO/LoginSSO';
+					var urllogin = '/SICI_SSO/';
+					
+					var deferred = $q.defer()
+					$http.get(urlconsulta).success(
+						function(data, status, headers, config){
+							if (typeof data.t === 'undefined') {								
+								$log.info('URL sesión no iniciada');
+								var full = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+								window.location.href=full+urllogin;
+							}else{
+								
+								/** hacemos un post a la dirección del login. Esperamos respuesta. Si statusCode=401 hay error de autenticación **/				
+								$http.post('/authenticate', data)
+									.success(function (data, status, headers, config) {
+										$window.localStorage.token = data.token;
+										$log.info('Contraseña válida');
+										Session.create(data.profile);
+										deferred.resolve(data.profile);
+									}).error(function(data, status, headers, config){
+										$log.info('Contraseña no válida');
+										delete $window.localStorage.token;
+										deferred.reject();
+									});
+							}
+						}
+					).error(function(data, status, headers, config){
+						$log.info('URL sesión no iniciada');
+						alert('He fallado '+ JSON.stringify(data));
+						deferred.reject();
 					});
+					return deferred.promise;
+				}
 			},
 			user: function(){
 			    return Session;
@@ -157,5 +194,7 @@ angular.module('sici.login.util', ['ngResource'])
 		}
 	])
 	.config(function ($httpProvider) {
+		$httpProvider.defaults.useXDomain = true;
+        delete $httpProvider.defaults.headers.common['X-Requested-With'];	
 		$httpProvider.interceptors.push('AuthInterceptor');
 	})

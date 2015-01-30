@@ -19,7 +19,8 @@ var schemasfields = {
 		'telefono' : String,
 		'habilitado' : Boolean,
 		'ultimologin': Date,
-        'ultimoupdate': Date
+        'ultimoupdate': Date,
+		'contrasenya' : String
 	},
 	permiso : {
 		'codplaza' : String,

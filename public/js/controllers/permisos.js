@@ -220,8 +220,8 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 	$scope.on_usuariobuscado_selected = function(item, model, label){
 		
 		$scope.usuariodetalle = item;
-		
-		$scope.show_details_permiso = true;
+		$scope.seleccionado_organica = false;
+		$scope.showDetailsPermiso();
 		$scope.permisostotales = {};
 		var peraux = {};
 
@@ -397,14 +397,17 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		if (confirm('Si continúa se eliminará el permiso sobre el nodo ' + $scope.seleccionado.title))
 		{
 			if ($scope.seleccionado_organica) {
+				console.log("!$seleccionado_organica.. cargando proc ... so:"+$scope.seleccionado_organica+" ; sdp "+$scope.show_details_permiso);
 				PermisoToDelete.delete_permiso({'idpermiso':permiso._id,'idjerarquia':$scope.seleccionado.id},function(){
 					$scope.setSeleccionado($scope.seleccionado);
 				});
 			} else if (!$scope.show_details_permiso) {
+				console.log("!$show_details_permiso.. cargando proc");
 				PermisoProcedimientoToDelete.delete_permiso({'idpermiso':permiso._id,'idprocedimiento':$scope.procedimiento_seleccionado.codigo}, function(){
 					$scope.setProcSeleccionado($scope.procedimiento_seleccionado);
 				});
 			} else {
+				console.log("provocando usuariobuscando_selected");
 				$scope.on_usuariobuscado_selected($scope.usuariodetalle,null,null);
 			}
 		}
@@ -423,10 +426,16 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		{
 			var p = Permiso.get({id:permiso._id}, function(){
 				p.$delete({id:p._id},function(err){
-					if ($scope.seleccionado_organica) $scope.setSeleccionado($scope.seleccionado);		
-					else if ($scope.show_details_permiso){
+					if ($scope.seleccionado_organica) {
+						console.log("!$seleccionado_organica.. cargando proc ... so:"+$scope.seleccionado_organica+" ; sdp "+$scope.show_details_permiso);
+						$scope.setSeleccionado($scope.seleccionado);		
+					} else if ($scope.show_details_permiso){
+						console.log("provocando usuariobuscando_selected");
 						$scope.on_usuariobuscado_selected($scope.usuariodetalle,null,null);
-					} else $scope.setProcSeleccionado($scope.procedimiento_seleccionado);
+					} else {
+						console.log("!$show_details_permiso.. cargando proc");
+						$scope.setProcSeleccionado($scope.procedimiento_seleccionado);
+					}
 				});				
 			})
 		}

@@ -5,6 +5,9 @@ exports.uncrypt = function(urlbasedecrypt){
 	return function(req,res,next)
 	{//espera en body un objeto json {t:sesionencriptada}
 
+		console.log(req.body);
+		if (req.body.notcarmuser) { next(); return; }
+	
 		var buffer = req.body.t,
 			url = urlbasedecrypt+buffer;
 

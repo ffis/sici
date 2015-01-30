@@ -30,7 +30,8 @@ var os = require('os'),
     logincarm = require('./api/login.carm'),
     exportador = require('./api/exportador'),
     csvsici = require('./api/csvsici'),
-    serveStatic = require('serve-static')
+    serveStatic = require('serve-static'),
+	crypto = require('crypto');
 
 
 app.set('mongosrv', process.env.MONGOSVR || 'mongodb://mongosvr/sici');
@@ -73,9 +74,9 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
     });
 
     if (cfg.logincarm)
-        app.post('/authenticate', logincarm.uncrypt(cfg.urlbasedecrypt), login.authenticate({secret: cfg.secret, jwt: jwt, models: models}));
+        app.post('/authenticate', logincarm.uncrypt(cfg.urlbasedecrypt), login.authenticate({secret: cfg.secret, jwt: jwt, models: models, crypto : crypto}));
     else
-        app.post('/authenticate', login.authenticate({secret: cfg.secret, jwt: jwt, models: models}));
+        app.post('/authenticate', login.authenticate({secret: cfg.secret, jwt: jwt, models: models, crypto: crypto}));
 
     
     app.use('/api/v1/restricted/', function(req,res,next){
