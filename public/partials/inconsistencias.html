@@ -20,7 +20,7 @@
 		<hr class="clear"/>
 		<div style="margin-top:2em" class="col-sm-12">
 			<accordion close-others="oneAtATime">
-				<accordion-group heading="{{inconsistencia.titulo}}" data-badge="{{inconsistencia.datos.length}}" ng-repeat="inconsistencia in inconsistencias track by $index ">
+				<accordion-group heading="{{inconsistencia.datos.length}} - {{inconsistencia.titulo}}" data-badge="{{inconsistencia.datos.length}}" ng-repeat="inconsistencia in inconsistencias track by $index ">
 				<div class="calculado">
 				</div>
 				<div ng-if="inconsistencia.datos.length" class="table-resposive">
@@ -48,7 +48,7 @@
 						</tbody>
 					</table>
 				</div>
-				<button type="button" ng-click="exportXLS($index)" class="btn pull-right">
+				<button type="button" ng-click="$root.exportXLS('tabladatos' + $index, 'inconsistencias' )" class="btn pull-right">
 					<span class="glyphicon glyphicon-floppy-disk">
 					</span>Exportar a excel</button>
 				</accordion-group>
