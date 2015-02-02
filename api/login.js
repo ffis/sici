@@ -94,9 +94,7 @@ exports.authenticate = function(config){
 		var restriccion = {login: req.body.username, habilitado : true};
 		var shasum = crypto.createHash('sha256');
 		shasum.update(req.body.password);
-		var shasum_digest = shasum.digest('hex');
-		console.log('digerido');
-		console.log(shasum_digest);
+		var shasum_digest = shasum.digest('hex');				
 		
 		
 		if (!!req.body.notcarmuser)
