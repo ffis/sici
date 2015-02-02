@@ -1,8 +1,8 @@
-(function(angular, document, $, Blob, saveAs, console){
+(function(angular, document, $, Blob, saveAs){
 	'use strict';
 	angular.module('sici')
-	.controller('AppCtrl', ['$window', '$q', '$scope', '$rootScope', 'Session', '$location', 'PermisosCalculados', 'AuthService',
-		function ($window, $q, $scope, $rootScope, Session, $location, PermisosCalculados, AuthService) {
+	.controller('AppCtrl', ['$window', '$q', '$scope', '$rootScope', '$log', 'Session', '$location', 'PermisosCalculados', 'AuthService',
+		function ($window, $q, $scope, $rootScope, $log, Session, $location, PermisosCalculados, AuthService) {
 
 		$rootScope.setTitle = function (title){ $scope.name = title; };
 		$rootScope.setLogeado = function(t){
@@ -59,17 +59,17 @@
 		$rootScope.colorToHex = function(color){
 			var rgb = color.blue | (color.green << 8) | (color.red << 16),
 			s = rgb.toString(16);
-			return '#' + "000000".substring(0, 6 - s.length) + s;
+			return '#' + '000000'.substring(0, 6 - s.length) + s;
 		};
 
 		$rootScope.exportXLS = function(idx, nombre){
 			var blob = new Blob(['<meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8"><table width="100%">' + document.getElementById(idx).innerHTML + '</table>'], {
-				type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"
+				type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8'
 			});
-			saveAs(blob, nombre + ".xls");
+			saveAs(blob, nombre + '.xls');
 		};
 
-		$rootScope.exportDOC = function (idx, nombre) { console.error('not supported');
+		$rootScope.exportDOC = function (idx, nombre) { $log.error('not supported');
 			return false;
 		};
 
@@ -148,4 +148,4 @@
 		});
 	}
 	]);
-})(angular, document, $, Blob, saveAs, console);
+})(angular, document, $, Blob, saveAs);

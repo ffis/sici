@@ -1,4 +1,4 @@
-(function(angular, confirm){
+(function(angular){
 	'use strict';
 	angular.module('sici')
 		.controller('EtiquetaCtrl', [ '$rootScope', '$scope', '$window', '$routeParams', 'Etiqueta',
@@ -14,7 +14,7 @@
 					});
 				};
 				$scope.eliminar = function(regla){
-					if (confirm('¿Está seguro? Esta operación no es reversible.'))
+					if ($window.confirm('¿Está seguro? Esta operación no es reversible.'))
 					{
 						regla.$delete(function(){
 							$scope.cambios = [];
@@ -30,4 +30,4 @@
 				};
 			}
 		]);
-})(angular, confirm);
+})(angular);

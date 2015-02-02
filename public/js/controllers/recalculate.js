@@ -1,4 +1,4 @@
-(function(angular, alert){
+(function(angular){
     'use strict';
     angular.module('sici')
         .controller('RecalculateCtrl', ['$rootScope', '$scope', '$window', '$http',
@@ -17,7 +17,7 @@
 
                 $scope.invoke = function (cmd) {
                     if ($scope.actualizando) {
-                        alert('Espere a que termine la actualización previa');
+                        $window.alert('Espere a que termine la actualización previa');
                         return;
                     }
                     $scope.actualizando++;
@@ -37,4 +37,4 @@
                 };
             }
         ]);
-})(angular, alert);
+})(angular);
