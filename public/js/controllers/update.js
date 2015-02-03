@@ -1,8 +1,8 @@
 (function(angular){
 	'use strict';
 	angular.module('sici')
-	.controller('UpdateCtrl', ['$rootScope', '$scope', '$window', '$log', '$upload', 'Importacion',
-		function ($rootScope, $scope, $window, $log, $upload, Importacion) {
+	.controller('UpdateCtrl', ['$rootScope', '$scope', '$window', '$log', '$http', '$upload', 'Importacion',
+		function ($rootScope, $scope, $window, $log, $http, $upload, Importacion) {
 			$rootScope.nav = 'update';
 			$scope.actualizando = 0;
 			$window.document.title = 'SICI - Importación';
@@ -10,13 +10,18 @@
 
 			$scope.remove = function(respuesta){
 				if ($window.confirm('¿Está seguro de querer borrar esta importación? Esta operación no es reversible.')){
-					respuesta.$delete(function(){ $scope.respuestas = Importacion.query(); });
+					//respuesta.$delete(function(){ $scope.respuestas = Importacion.query(); });
+					$http.delete('/api/v1/public/importacion/' + respuesta._id , function(){
+						$scope.respuestas = Importacion.query();
+					});
 				}
 			};
 
 			$scope.confirm = function(respuesta){
 				if ($window.confirm('¿Está seguro de querer aplicar esta importación? Esta operación no es reversible.')){
-					respuesta.$save(function(){ $scope.respuestas = Importacion.query(); });
+					$http.post('/api/v1/public/importacion/' + respuesta._id , function(){
+						$scope.respuestas = Importacion.query();
+					});
 				}
 			};
 			$scope.$watch('files', function() {
