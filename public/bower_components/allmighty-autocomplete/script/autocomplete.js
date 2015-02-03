@@ -11,11 +11,14 @@ app.directive('autocomplete', function() {
       searchParam: '=ngModel',
       suggestions: '=data',
       onType: '=onType',
-      onSelect: '=onSelect'
+      onSelect: '=onSelect',
+      autocompleteRequired: '='
     },
     controller: ['$scope', function($scope){
       // the index of the suggestions that's currently selected
       $scope.selectedIndex = -1;
+
+      $scope.initLock = true;
 
       // set new index
       $scope.setIndex = function(i){
@@ -40,7 +43,7 @@ app.directive('autocomplete', function() {
       // starts autocompleting on typing in something
       $scope.$watch('searchParam', function(newValue, oldValue){
 
-        if (oldValue === newValue || !oldValue) {
+        if (oldValue === newValue || (!oldValue && $scope.initLock)) {
           return;
         }
 
@@ -95,6 +98,11 @@ app.directive('autocomplete', function() {
     }],
     link: function(scope, element, attrs){
 
+      setTimeout(function() {
+        scope.initLock = false;
+        scope.$apply();
+      }, 250);
+
       var attr = '';
 
       // Default atts
@@ -118,8 +126,10 @@ app.directive('autocomplete', function() {
       if (attrs.clickActivation) {
         element[0].onclick = function(e){
           if(!scope.searchParam){
-            scope.completing = true;
-            scope.$apply();
+            setTimeout(function() {
+              scope.completing = true;
+              scope.$apply();
+            }, 200);
           }
         };
       }
@@ -146,13 +156,16 @@ app.directive('autocomplete', function() {
           scope.select();
           scope.setIndex(-1);
           scope.$apply();
-        }, 200);
+        }, 150);
       }, true);
 
       element[0].addEventListener("keydown",function (e){
         var keycode = e.keyCode || e.which;
 
         var l = angular.element(this).find('li').length;
+
+        // this allows submitting forms by pressing Enter in the autocompleted field
+        if(!scope.completing || l == 0) return;
 
         // implementation of the up and down movement in the list of suggestions
         switch (keycode){
@@ -234,8 +247,9 @@ app.directive('autocomplete', function() {
             ng-model="searchParam"\
             placeholder="{{ attrs.placeholder }}"\
             class="{{ attrs.inputclass }}"\
-            id="{{ attrs.inputid }}"/>\
-          <ul ng-if="completing && suggestions.length>0">\
+            id="{{ attrs.inputid }}"\
+            ng-required="{{ autocompleteRequired }}" />\
+          <ul ng-show="completing && (suggestions | filter:searchFilter).length > 0">\
             <li\
               suggestion\
               ng-repeat="suggestion in suggestions | filter:searchFilter | orderBy:\'toString()\' track by $index"\

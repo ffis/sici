@@ -12,16 +12,16 @@
   ],
   "license": "MIT",
   "main": [
-    "./script/autocomplete.js"
+    "./script/autocomplete.js",
+    "./style/autocomplete.css"
   ],
-  "_release": "879cd68e31",
+  "_release": "e72c900d0f",
   "_resolution": {
     "type": "branch",
     "branch": "master",
-    "commit": "879cd68e3163b5e3b38cb85d91b95538c9e483c3"
+    "commit": "e72c900d0f891479f9acfe13da7a51484467d5e4"
   },
   "_source": "git://github.com/JustGoscha/allmighty-autocomplete.git",
   "_target": "*",
-  "_originalSource": "allmighty-autocomplete",
-  "_direct": true
+  "_originalSource": "allmighty-autocomplete"
 }
