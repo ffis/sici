@@ -11,7 +11,7 @@
 			$scope.remove = function(respuesta){
 				if ($window.confirm('¿Está seguro de querer borrar esta importación? Esta operación no es reversible.')){
 					//respuesta.$delete(function(){ $scope.respuestas = Importacion.query(); });
-					$http.delete('/api/v1/public/importacion/' + respuesta._id , function(){
+					$http.delete('/api/v1/public/importacion/' + respuesta._id, {}).success(function(){
 						$scope.respuestas = Importacion.query();
 					});
 				}
@@ -19,7 +19,7 @@
 
 			$scope.confirm = function(respuesta){
 				if ($window.confirm('¿Está seguro de querer aplicar esta importación? Esta operación no es reversible.')){
-					$http.post('/api/v1/public/importacion/' + respuesta._id , function(){
+					$http.post('/api/v1/public/importacion/' + respuesta._id, {}).success(function(){
 						$scope.respuestas = Importacion.query();
 					});
 				}
