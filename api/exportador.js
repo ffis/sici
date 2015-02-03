@@ -39,7 +39,7 @@ exports.mapReducePeriodos = function (Q, models, idjerarquia) {
 		{
 			for(var i2 = 0, j2 = procedimientos[i].ancestros.length; i2 < j2; i2++)
 			{
-				for (var anualidad = 2014; anualidad <= d.getFullYear(); anualidad++)
+				for (var anualidad = 2013; anualidad <= d.getFullYear(); anualidad++)
 				{
 					if (typeof procedimientos[i].periodos['a' + anualidad] === 'undefined')
 					{
@@ -111,18 +111,20 @@ exports.mapReducePeriodos = function (Q, models, idjerarquia) {
 					sumas.numProcedimientosConSolicitudes++;
 					sumas.totalsolicitudes += values[i].totalsolicitudes;
 				}
-				for(var mes = 0; mes < 12; mes++){
-					if (values[i].total_resueltos[mes] > 0)
-					{
-						if (values[i].t_medio_naturales[mes] > 0)
+				if (key.anualidad>2013){
+					for(var mes = 0; mes < 12; mes++){
+						if (values[i].total_resueltos[mes] > 0)
 						{
-							sumas.t_medio_naturales[mes].count++;
-							sumas.t_medio_naturales[mes].value += sumas.t_medio_naturales[mes].value;
-						}
-						if (values[i].t_medio_habiles[mes] > 0)
-						{
-							sumas.t_medio_habiles[mes].count++;
-							sumas.t_medio_habiles[mes].value += sumas.t_medio_habiles[mes].value;
+							if (values[i].t_medio_naturales[mes] > 0)
+							{
+								sumas.t_medio_naturales[mes].count++;
+								sumas.t_medio_naturales[mes].value += sumas.t_medio_naturales[mes].value;
+							}
+							if (values[i].t_medio_habiles[mes] > 0)
+							{
+								sumas.t_medio_habiles[mes].count++;
+								sumas.t_medio_habiles[mes].value += sumas.t_medio_habiles[mes].value;
+							}
 						}
 					}
 				}
@@ -157,107 +159,6 @@ exports.mapReducePeriodos = function (Q, models, idjerarquia) {
 	return deferMR.promise;
 };
 
-exports.mapReducePeriodosFallido = function (Q, models, idjerarquia) {
-	var Procedimiento = models.procedimiento();
-	var o = {};
-	o.map = function () {
-		if (this.oculto || this.eliminado){ return; }
-		var d = new Date();
-		for (var i = 0, j = this.ancestros.length; i < j; i++) {
-			for (var anualidad = 2013; anualidad <= d.getFullYear(); anualidad++) {
-				//emit({anualidad: anualidad, idjerarquia: this.ancestros[i].id}, this.periodos ['a' + anualidad]);
-				emit({anualidad: anualidad, idjerarquia: this.ancestros[i].id}, {codigo:this.codigo, totalsolicitudes: this.periodos ['a' + anualidad].totalsolicitudes });
-			}
-		}
-	};
-	o.reduce = function (key, values) {
-		var sumas = {};
-		sumas.totalsolicitudes = 0;
-		sumas.numProcedimientos = values.length;
-
-		sumas.procedimientos = [];
-		sumas.numProcedimientosConSolicitudes = 0;
-		for (var i = 0, j = values.length; i < j; i++) {
-			sumas.procedimientos.push(values[i].codigo);
-			if (values[i].totalsolicitudes > 0) {
-				sumas.numProcedimientosConSolicitudes++;
-				sumas.totalsolicitudes += values[i].totalsolicitudes;
-			}
-		}
-		return sumas;
-	};
-	var test = function(key, values){
-		var sumas = {};
-		var attrs = [
-			'total_resueltos',
-			'solicitados',
-			'iniciados',
-			'resueltos_1',
-			'resueltos_5',
-			'resueltos_10',
-			'resueltos_15',
-			'resueltos_30',
-			'resueltos_45',
-			'resueltos_mas_45',
-			'resueltos_desistimiento_renuncia_caducidad',
-			'resueltos_prescripcion',
-			//'t_medio_naturales',
-			//'t_medio_habiles',
-			'en_plazo',
-			'quejas',
-			'recursos',
-			'fuera_plazo',
-			'pendientes'
-		];
-
-		attrs.forEach(function (attr) {
-			sumas[attr] = [];
-			for (var mes = 0; mes < 12; mes++) {
-				sumas[attr][mes] = 0;
-				for (var i = 0, j = values.length; i < j; i++) {
-					if (values[i][attr]) {
-						sumas[attr][mes] += parseInt(values[i][attr][mes]);
-					}
-				}
-			}
-		});
-		//calculo de medias
-
-
-		sumas.totalsolicitudes = 0;
-		sumas.numProcedimientos = values.length;
-
-		sumas.procedimientos = [];
-		sumas.numProcedimientosConSolicitudes = 0;
-		for (var i = 0, j = values.length; i < j; i++) {
-			sumas.procedimientos.push(values[i].codigo);
-			if (values[i].totalsolicitudes > 0) {
-				sumas.numProcedimientosConSolicitudes++;
-				sumas.totalsolicitudes += values[i].totalsolicitudes;
-			}
-		}
-		return sumas;
-	};
-	var deferMR = Q.defer();
-	Procedimiento.mapReduce(o, function (err, results) {
-		if (err) {
-			deferMR.reject(err);
-		} else {
-			if (typeof idjerarquia === 'undefined'){
-				deferMR.resolve(results);
-			}else{
-				var periodos = {};
-				results.forEach(function (result) {
-					if (result._id.idjerarquia === idjerarquia) {
-						periodos[parseInt(result._id.anualidad)] = result.value;
-					}
-				});
-				deferMR.resolve(periodos);
-			}
-		}
-	});
-	return deferMR.promise;
-};
 
 exports.completarTabla = function (periodo, ws) {
 	var meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];

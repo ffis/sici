@@ -1,241 +1,241 @@
 <div class="row">
-    <div class="col-lg-12">
-        <h3>Informes</h3>
-        <div class="{{clasefuncionalidades}}" ng-repeat="funcionalidad in funcionalidades">
-            <div class="panel panel-danger">
-                <div class="panel-heading">
-                    <h3 class="panel-title">{{funcionalidad.label}}</h3>
-                </div>
-                <div class="panel-body">
-                    <div class="btn-group col-md-6">
-                        <button ng-class="{disabled: actualizando > 0}" ng-repeat="fn in funcionalidad.fn" class="btn btn-default" ng-click="invoke(fn.cmd)">{{fn.label}}</button>
-                    </div>
-                    <div class="btn-group col-md-6" style="text-align:center">
-                    <p  ng-If="funcionalidad.selectanyo">
-                    Seleccione el año:
-                    <select ng-model="anyoSelected" ng-options="a.name for a in anyos"></select>
-                    </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="clear"></div>
-        <p ng-If="actualizando > 0">Generando informe...</p>
-        <div class="alert {{respuesta.clase}}" role="alert" ng-repeat="respuesta in respuestas">{{respuesta.mensaje}}</div>
-    </div>
+	<div class="col-lg-12">
+		<h3>Informes</h3>
+		<div class="{{clasefuncionalidades}}" ng-repeat="funcionalidad in funcionalidades">
+			<div class="panel panel-danger">
+				<div class="panel-heading">
+					<h3 class="panel-title">{{funcionalidad.label}}</h3>
+				</div>
+				<div class="panel-body">
+					<div class="btn-group col-md-6">
+						<button ng-class="{disabled: actualizando > 0}" ng-repeat="fn in funcionalidad.fn" class="btn btn-default" ng-click="invoke(fn.cmd, anyoSelected)">{{fn.label}}</button>
+					</div>
+					<div class="btn-group col-md-6" style="text-align:center">
+					<p  ng-If="funcionalidad.selectanyo">
+						Seleccione el año:
+						<select ng-model="$parent.anyoSelected" ng-options="a.name for a in anyos"></select>
+					</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="clear"></div>
+		<p ng-If="actualizando > 0">Generando informe...</p>
+		<div class="alert {{respuesta.clase}}" role="alert" ng-repeat="respuesta in respuestas">{{respuesta.mensaje}}</div>
+	</div>
 </div>
 <div class="row" ng-if="arbol.length>0">
-    <div ng-class="{'col-lg-5': !oculto, 'hidden': oculto}" class="left animated">
-        <div class="panel panel-danger">
-            <div class="panel-heading">
-                <h3 class="panel-title">
-                    Organismos
-                </h3>
-            </div>
-            <div class="panel-body">            
-                <input type="text" ng-model="texto.$" placeholder="Filtro" style="margin-bottom:1em" class="form-control"/>
-                <ul ng-if="arbol.length" style="padding-left:0.6em">
-                    <li ng-repeat="element in arbol |filter:texto| filter:filtrojerarquia" ng-class="{'list-group-item-warning':element.id==seleccionado.id}">
-                        <p>
-                        <strong>
-                            [{{element.id}}] &nbsp;
-                        </strong>
-                        <span ng-click="setSeleccionado(element)" class="cursor"  title="Engloba {{element.numprocedimientos}} procedimientos">
-                            {{element.title}} 
-                        </span>
-                        <span class="badge pull-right">{{element.numprocedimientos}}</span>
-                        </p>
-                        <ul class="list-group" ng-if="element.nodes" style="clear:both">
-                            <li class="list-group-item" ng-repeat="elemen in element.nodes |filter:texto | filter:filtrojerarquia" ng-class="{'list-group-item-danger':elemen.id==seleccionado.id}">
-                            <p>
-                                <strong>
-                                    [{{elemen.id}}] &nbsp;
-                                </strong>
-                                <span ng-click="setSeleccionado(elemen)" class="cursor" title="Engloba {{elemen.numprocedimientos}} procedimientos">
-                                    {{elemen.title}} 
-                                </span>
-                                <span class="badge pull-right">{{elemen.numprocedimientos}}</span>
-                                </p>
-                                <ul ng-if="elemen.nodes" style="clear:both">
-                                    <li ng-repeat="eleme in elemen.nodes |filter:texto |filter:filtrojerarquia"  ng-class="{'list-group-item-danger':eleme.id==seleccionado.id}" >
-                                    <p>
-                                        <strong>
-                                            [{{eleme.id}}] &nbsp;
-                                        </strong>
-                                        <span ng-class="{'bg-danger':eleme.id==seleccionado.id }" ng-click="setSeleccionado(eleme)" class="cursor" title="Engloba {{eleme.numprocedimientos}} procedimientos">
-                                            {{eleme.title}} 
-                                        </span>
-                                        <span class="badge pull-right">{{eleme.numprocedimientos}}</span>
-                                        </p>
-                                        <ul ng-if="eleme.nodes" style="clear:both">
-                                            <li ng-repeat="elem in eleme.nodes |filter:texto |filter:filtrojerarquia">
-                                            <p>
-                                                <strong>
-                                                    [{{elem.id}}] &nbsp;
-                                                </strong>
-                                                <span ng-class="{'bg-danger':elem.id==seleccionado.id }" ng-click="setSeleccionado(elem)" class="cursor"  title="Engloba {{elem.numprocedimientos}} procedimientos">
-                                                    {{elem.title}} 
-                                                </span>
-                                                <span class="badge pull-right">{{elem.numprocedimientos}}</span>
-                                                </p>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated" id="detallesjerarquia" ng-If="seleccionado ">
-        <div class="cursor" ng-click="mutextoculto()">
-            <span class="glyphicon glyphicon-fullscreen pull-right">
-            </span>
-            <h2>
-                {{seleccionado.title}}
-            </h2>
-        </div>
-        <table class="table table-striped table-bordered table-condensed table-hover" id="procedimientostable">
-            <thead>
-                <tr>
-                    <th>Pulse para seleccionar una jerarquía más específica</th>
-                    <th class="cursor" ng-colspan="columnasocultas ? 1 : 3" ng-class="{'warning': detallado.id==seleccionado.id}">{{seleccionado.title}}</th>
-                    <th class="cursor" ng-colspan="columnasocultas ? 1 : 3" ng-repeat="nodo in seleccionado.nodes" ng-click="setSeleccionado(nodo)" ng-class="{'warning': detallado.id==nodo.id}">{{nodo.title}}</th>
-                </tr>
-            </thead>
-            <tfoot>
-                <tr>
-                    <th>Pulse en esta fila para ver los detalles por meses</th>
-                    <th class="cursor" ng-colspan="columnasocultas ? 1 : 3" ng-click="setDetallado(seleccionado)" ng-class="{'warning': detallado.id==seleccionado.id}">{{seleccionado.title}}</th>
-                    <th class="cursor" ng-colspan="columnasocultas ? 1 : 3" ng-repeat="nodo in seleccionado.nodes" ng-click="setDetallado(nodo)" ng-class="{'warning': detallado.id==nodo.id}">{{nodo.title}}</th>
-                </tr>
-            </tfoot>
-            <tbody>
-                <tr>
-                    <th>N&ordm; de procedimientos</th>
-                    <td ng-colspan="columnasocultas ? 1 : 3" style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}" >
-                        <a href="/actividad/{{seleccionado.id}}">{{seleccionado.numprocedimientos}}</a></td>
-                    <td ng-colspan="columnasocultas ? 1 : 3" ng-repeat="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">
-                        <a href="/actividad/{{nodo.id}}">{{nodo.numprocedimientos}}</a></td>
-                </tr>
-                <tr>
-                    <th>N&ordm; de procedimientos con datos en 2014</th>
-                    <td ng-colspan="columnasocultas ? 1 : 3" style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{fnGetStatsNode(seleccionado.id, 2014).value.numProcedimientosConSolicitudes}}</td>
-                    <td ng-colspan="columnasocultas ? 1 : 3" ng-repeat="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{fnGetStatsNode(nodo.id, 2014).value.numProcedimientosConSolicitudes}}</td>
-                </tr>
-                <tr>
-                    <th>N&ordm; de procedimientos con datos en 2015</th>
-                    <td ng-colspan="columnasocultas ? 1 : 3" style="text-align:right" data-node-id="{{seleccionado.id}}" ng-class="{'warning': detallado.id==seleccionado.id}">{{fnGetStatsNode(seleccionado.id, 2015).value.numProcedimientosConSolicitudes}}</td>
-                    <td ng-colspan="columnasocultas ? 1 : 3" ng-repeat="nodo in seleccionado.nodes" style="text-align:right" data-node-id="{{nodo.id}}" ng-class="{'warning': detallado.id==nodo.id}">{{fnGetStatsNode(nodo.id, 2015).value.numProcedimientosConSolicitudes}}</td>
-                </tr>
-                <tr class="info">
-                    <th>AÑO 2013</th>
-                    <th style="text-align:center" ng-class="{'warning': detallado.id==seleccionado.id}">TOTALES</th>
-                    <th style="text-align:center" ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}">MEDIAS MENSUALES</th>
-                    <th style="text-align:center" ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></th>
-                    <th style="text-align:center" ng-repeat-start="nodo in seleccionado.nodes" ng-class="{'warning': detallado.id==nodo.id}">TOTALES</th>
-                    <th style="text-align:center" ng-hide="columnasocultas" ng-class="{'warning': detallado.id==nodo.id}">MEDIAS MENSUALES</th>
-                    <th style="text-align:center" ng-hide="columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></th>
-                </tr>
-                <tr>
-                    <th>Resueltos en 2013 totales</th>
-                    <th style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{getTotales(seleccionado.id, 2013, 'total_resueltos') | numberFormat}}</th>
-                    <th ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></th>
-                    <th ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></th>
-                    <th ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{getTotales(nodo.id, 2013, 'total_resueltos') | numberFormat}}</th>
-                    <th ng-hide="columnasocultas" ng-class="{'warning': detallado.id==nodo.id}"></th>
-                    <th ng-hide="columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></th>
-                </tr>
-                <tr class="info">
-                    <th>AÑO 2014</th>
-                    <th style="text-align:center" ng-class="{'warning': detallado.id==seleccionado.id}">TOTALES</th>
-                    <th style="text-align:center" ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}">MEDIAS MENSUALES</th>
-                    <th style="text-align:center" ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></th>
-                    <th style="text-align:center" ng-repeat-start="nodo in seleccionado.nodes" ng-class="{'warning': detallado.id==nodo.id}">TOTALES</th>
-                    <th style="text-align:center" ng-hide="columnasocultas" ng-class="{'warning': detallado.id==nodo.id}">MEDIAS MENSUALES</th>
-                    <th style="text-align:center" ng-hide="columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></th>
-                </tr>
-                <tr>
-                    <th>Solicitados</th>
-                    <td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{getTotales(seleccionado.id, 2014, 'solicitados') | numberFormat}}</td>
-                    <td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
-                    <td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
-                    <td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{getTotales(nodo.id, 2014, 'solicitados') | numberFormat}}</td>
-                    <td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==nodo.id}"></td>
-                    <td ng-hide="columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></td>
-                </tr>
-                <tr>
-                    <th>Iniciados</th>
-                    <td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{getTotales(seleccionado.id, 2014, 'iniciados') | numberFormat}}</td>
-                    <td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
-                    <td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
-                    <td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{getTotales(nodo.id, 2014, 'iniciados') | numberFormat}}</td>
-                    <td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==nodo.id}"></td>
-                    <td ng-hide="columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></td>                  
-                </tr>
-                <tr>
-                    <th>Resueltos totales</th>
-                    <td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{getTotales(seleccionado.id, 2014, 'total_resueltos') | numberFormat}}</td>
-                    <td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
-                    <td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
-                    <td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{getTotales(nodo.id, 2014, 'total_resueltos') | numberFormat}}</td>
-                    <td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==nodo.id}"></td>
-                    <td ng-hide="columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></td>                    
-                </tr>
-                <tr>
-                    <th>Pendientes (a final de periodo= ultimos pendientes)</th>
-                    <td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{fnGetStatsNode(seleccionado.id, 2014).value.pendientes[11]| numberFormat}}</td>
-                    <td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
-                    <td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
-                    <td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{fnGetStatsNode(nodo.id, 2014).value.pendientes[11]  | numberFormat}}</td>
-                    <td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==nodo.id}"></td>
-                    <td ng-hide="columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></td>
-                </tr>
-                <tr ng-repeat="campo in campos">
-                    <th>{{campo | translate}}</th>
-                    <td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{getTotales(seleccionado.id, 2014, campo) | numberFormat}}</td>
-                    <td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
-                    <td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
-                    <td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{getTotales(nodo.id, 2014, campo) | numberFormat}}</td>
-                    <td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==nodo.id}"></td>
-                    <td ng-hide="columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></td>
-                </tr>
-            </tbody>
-        </table>
-        <p><button class="button btn" ng-click="mostrarcolumnasocultas()">Mostrar columnas ocultas</button></p>
-        <div ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated" id="detallesNodo" ng-If="detallado">
-            <h3>{{detallado.title}}</h3>
-            <table class="table table-striped table-bordered table-condensed table-hover full">
-                <caption>2014</caption>
-                <thead>
-                    <tr>
-                        <th>Indicador</th>
-                        <th ng-repeat="mes in $root.meses">{{mes}}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th>Solicitados</th>
-                        <td ng-repeat="valor in fnGetStatsNode(detallado.id, 2014, campo).value['solicitados'] track by $index" style="text-align:right">{{ valor | numberFormat}}</td>
-                   </tr>
-                    <tr>
-                        <th>Iniciados</th>
-                        <td ng-repeat="valor in fnGetStatsNode(detallado.id, 2014, campo).value['iniciados'] track by $index" style="text-align:right">{{ valor | numberFormat}}</td>
-                    </tr>
-                    <tr>
-                        <th>Resueltos totales</th>
-                        <td ng-repeat="valor in fnGetStatsNode(detallado.id, 2014, campo).value['total_resueltos'] track by $index" style="text-align:right">{{ valor | numberFormat}}</td>
-                    </tr>
-                    <tr ng-repeat="campo in campos">
-                        <th>{{campo | translate}}</th>
-                        <td ng-repeat="valor in fnGetStatsNode(detallado.id, 2014, campo).value[campo] track by $index" style="text-align:right">{{ valor | numberFormat}}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+	<div ng-class="{'col-lg-5': !oculto, 'hidden': oculto}" class="left animated">
+		<div class="panel panel-danger">
+			<div class="panel-heading">
+				<h3 class="panel-title">
+					Organismos
+				</h3>
+			</div>
+			<div class="panel-body">            
+				<input type="text" ng-model="texto.$" placeholder="Filtro" style="margin-bottom:1em" class="form-control"/>
+				<ul ng-if="arbol.length" style="padding-left:0.6em">
+					<li ng-repeat="element in arbol |filter:texto| filter:filtrojerarquia" ng-class="{'list-group-item-warning':element.id==seleccionado.id}">
+						<p>
+						<strong>
+							[{{element.id}}] &nbsp;
+						</strong>
+						<span ng-click="setSeleccionado(element)" class="cursor"  title="Engloba {{element.numprocedimientos}} procedimientos">
+							{{element.title}} 
+						</span>
+						<span class="badge pull-right">{{element.numprocedimientos}}</span>
+						</p>
+						<ul class="list-group" ng-if="element.nodes" style="clear:both">
+							<li class="list-group-item" ng-repeat="elemen in element.nodes |filter:texto | filter:filtrojerarquia" ng-class="{'list-group-item-danger':elemen.id==seleccionado.id}">
+							<p>
+								<strong>
+									[{{elemen.id}}] &nbsp;
+								</strong>
+								<span ng-click="setSeleccionado(elemen)" class="cursor" title="Engloba {{elemen.numprocedimientos}} procedimientos">
+									{{elemen.title}} 
+								</span>
+								<span class="badge pull-right">{{elemen.numprocedimientos}}</span>
+								</p>
+								<ul ng-if="elemen.nodes" style="clear:both">
+									<li ng-repeat="eleme in elemen.nodes |filter:texto |filter:filtrojerarquia"  ng-class="{'list-group-item-danger':eleme.id==seleccionado.id}" >
+									<p>
+										<strong>
+											[{{eleme.id}}] &nbsp;
+										</strong>
+										<span ng-class="{'bg-danger':eleme.id==seleccionado.id }" ng-click="setSeleccionado(eleme)" class="cursor" title="Engloba {{eleme.numprocedimientos}} procedimientos">
+											{{eleme.title}} 
+										</span>
+										<span class="badge pull-right">{{eleme.numprocedimientos}}</span>
+										</p>
+										<ul ng-if="eleme.nodes" style="clear:both">
+											<li ng-repeat="elem in eleme.nodes |filter:texto |filter:filtrojerarquia">
+											<p>
+												<strong>
+													[{{elem.id}}] &nbsp;
+												</strong>
+												<span ng-class="{'bg-danger':elem.id==seleccionado.id }" ng-click="setSeleccionado(elem)" class="cursor"  title="Engloba {{elem.numprocedimientos}} procedimientos">
+													{{elem.title}} 
+												</span>
+												<span class="badge pull-right">{{elem.numprocedimientos}}</span>
+												</p>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated" id="detallesjerarquia" ng-If="seleccionado ">
+		<div class="cursor" ng-click="mutextoculto()">
+			<span class="glyphicon glyphicon-fullscreen pull-right">
+			</span>
+			<h2>
+				{{seleccionado.title}}
+			</h2>
+		</div>
+		<table class="table table-striped table-bordered table-condensed table-hover" id="procedimientostable">
+			<thead>
+				<tr>
+					<th>Pulse para seleccionar una jerarquía más específica</th>
+					<th class="cursor" ng-colspan="columnasocultas ? 1 : 3" ng-class="{'warning': detallado.id==seleccionado.id}">{{seleccionado.title}}</th>
+					<th class="cursor" ng-colspan="columnasocultas ? 1 : 3" ng-repeat="nodo in seleccionado.nodes" ng-click="setSeleccionado(nodo)" ng-class="{'warning': detallado.id==nodo.id}">{{nodo.title}}</th>
+				</tr>
+			</thead>
+			<tfoot>
+				<tr>
+					<th>Pulse en esta fila para ver los detalles por meses</th>
+					<th class="cursor" ng-colspan="columnasocultas ? 1 : 3" ng-click="setDetallado(seleccionado)" ng-class="{'warning': detallado.id==seleccionado.id}">{{seleccionado.title}}</th>
+					<th class="cursor" ng-colspan="columnasocultas ? 1 : 3" ng-repeat="nodo in seleccionado.nodes" ng-click="setDetallado(nodo)" ng-class="{'warning': detallado.id==nodo.id}">{{nodo.title}}</th>
+				</tr>
+			</tfoot>
+			<tbody>
+				<tr>
+					<th>N&ordm; de procedimientos</th>
+					<td ng-colspan="columnasocultas ? 1 : 3" style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}" >
+						<a href="/actividad/{{seleccionado.id}}">{{seleccionado.numprocedimientos}}</a></td>
+					<td ng-colspan="columnasocultas ? 1 : 3" ng-repeat="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">
+						<a href="/actividad/{{nodo.id}}">{{nodo.numprocedimientos}}</a></td>
+				</tr>
+				<tr>
+					<th>N&ordm; de procedimientos con datos en 2014</th>
+					<td ng-colspan="columnasocultas ? 1 : 3" style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{fnGetStatsNode(seleccionado.id, 2014).value.numProcedimientosConSolicitudes}}</td>
+					<td ng-colspan="columnasocultas ? 1 : 3" ng-repeat="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{fnGetStatsNode(nodo.id, 2014).value.numProcedimientosConSolicitudes}}</td>
+				</tr>
+				<tr>
+					<th>N&ordm; de procedimientos con datos en 2015</th>
+					<td ng-colspan="columnasocultas ? 1 : 3" style="text-align:right" data-node-id="{{seleccionado.id}}" ng-class="{'warning': detallado.id==seleccionado.id}">{{fnGetStatsNode(seleccionado.id, 2015).value.numProcedimientosConSolicitudes}}</td>
+					<td ng-colspan="columnasocultas ? 1 : 3" ng-repeat="nodo in seleccionado.nodes" style="text-align:right" data-node-id="{{nodo.id}}" ng-class="{'warning': detallado.id==nodo.id}">{{fnGetStatsNode(nodo.id, 2015).value.numProcedimientosConSolicitudes}}</td>
+				</tr>
+				<tr class="info">
+					<th>AÑO 2013</th>
+					<th style="text-align:center" ng-class="{'warning': detallado.id==seleccionado.id}">TOTALES</th>
+					<th style="text-align:center" ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}">MEDIAS MENSUALES</th>
+					<th style="text-align:center" ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></th>
+					<th style="text-align:center" ng-repeat-start="nodo in seleccionado.nodes" ng-class="{'warning': detallado.id==nodo.id}">TOTALES</th>
+					<th style="text-align:center" ng-hide="columnasocultas" ng-class="{'warning': detallado.id==nodo.id}">MEDIAS MENSUALES</th>
+					<th style="text-align:center" ng-hide="columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></th>
+				</tr>
+				<tr>
+					<th>Resueltos en 2013 totales</th>
+					<th style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{getTotales(seleccionado.id, 2013, 'total_resueltos') | numberFormat}}</th>
+					<th ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></th>
+					<th ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></th>
+					<th ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{getTotales(nodo.id, 2013, 'total_resueltos') | numberFormat}}</th>
+					<th ng-hide="columnasocultas" ng-class="{'warning': detallado.id==nodo.id}"></th>
+					<th ng-hide="columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></th>
+				</tr>
+				<tr class="info">
+					<th>AÑO 2014</th>
+					<th style="text-align:center" ng-class="{'warning': detallado.id==seleccionado.id}">TOTALES</th>
+					<th style="text-align:center" ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}">MEDIAS MENSUALES</th>
+					<th style="text-align:center" ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></th>
+					<th style="text-align:center" ng-repeat-start="nodo in seleccionado.nodes" ng-class="{'warning': detallado.id==nodo.id}">TOTALES</th>
+					<th style="text-align:center" ng-hide="columnasocultas" ng-class="{'warning': detallado.id==nodo.id}">MEDIAS MENSUALES</th>
+					<th style="text-align:center" ng-hide="columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></th>
+				</tr>
+				<tr>
+					<th>Solicitados</th>
+					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{getTotales(seleccionado.id, 2014, 'solicitados') | numberFormat}}</td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
+					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{getTotales(nodo.id, 2014, 'solicitados') | numberFormat}}</td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==nodo.id}"></td>
+					<td ng-hide="columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></td>
+				</tr>
+				<tr>
+					<th>Iniciados</th>
+					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{getTotales(seleccionado.id, 2014, 'iniciados') | numberFormat}}</td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
+					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{getTotales(nodo.id, 2014, 'iniciados') | numberFormat}}</td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==nodo.id}"></td>
+					<td ng-hide="columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></td>                  
+				</tr>
+				<tr>
+					<th>Resueltos totales</th>
+					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{getTotales(seleccionado.id, 2014, 'total_resueltos') | numberFormat}}</td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
+					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{getTotales(nodo.id, 2014, 'total_resueltos') | numberFormat}}</td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==nodo.id}"></td>
+					<td ng-hide="columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></td>                    
+				</tr>
+				<tr>
+					<th>Pendientes (a final de periodo= ultimos pendientes)</th>
+					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{fnGetStatsNode(seleccionado.id, 2014).value.pendientes[11]| numberFormat}}</td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
+					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{fnGetStatsNode(nodo.id, 2014).value.pendientes[11]  | numberFormat}}</td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==nodo.id}"></td>
+					<td ng-hide="columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></td>
+				</tr>
+				<tr ng-repeat="campo in campos">
+					<th>{{campo | translate}}</th>
+					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{getTotales(seleccionado.id, 2014, campo) | numberFormat}}</td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
+					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{getTotales(nodo.id, 2014, campo) | numberFormat}}</td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==nodo.id}"></td>
+					<td ng-hide="columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></td>
+				</tr>
+			</tbody>
+		</table>
+		<p><button class="button btn" ng-click="mostrarcolumnasocultas()">Mostrar columnas ocultas</button></p>
+		<div ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated" id="detallesNodo" ng-If="detallado">
+			<h3>{{detallado.title}}</h3>
+			<table class="table table-striped table-bordered table-condensed table-hover full">
+				<caption>2014</caption>
+				<thead>
+					<tr>
+						<th>Indicador</th>
+						<th ng-repeat="mes in $root.meses">{{mes}}</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<th>Solicitados</th>
+						<td ng-repeat="valor in fnGetStatsNode(detallado.id, 2014, campo).value['solicitados'] track by $index" style="text-align:right">{{ valor | numberFormat}}</td>
+				   </tr>
+					<tr>
+						<th>Iniciados</th>
+						<td ng-repeat="valor in fnGetStatsNode(detallado.id, 2014, campo).value['iniciados'] track by $index" style="text-align:right">{{ valor | numberFormat}}</td>
+					</tr>
+					<tr>
+						<th>Resueltos totales</th>
+						<td ng-repeat="valor in fnGetStatsNode(detallado.id, 2014, campo).value['total_resueltos'] track by $index" style="text-align:right">{{ valor | numberFormat}}</td>
+					</tr>
+					<tr ng-repeat="campo in campos">
+						<th>{{campo | translate}}</th>
+						<td ng-repeat="valor in fnGetStatsNode(detallado.id, 2014, campo).value[campo] track by $index" style="text-align:right">{{ valor | numberFormat}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
 </div>
 <style>
 .full  { width:100%;}

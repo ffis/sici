@@ -91,7 +91,7 @@
                                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancelar
                             </button>			
                             <br/>
-                            <small><span ng-bind="mensaje_moviendo" class=""></span></small>
+                            <small><span ng-bind="mensajeMoviendo" class=""></span></small>
                         </div>						
                     </div>
                 </div>
@@ -157,13 +157,13 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                         <button type="button" ng-if="procedimientoSeleccionado.oculto" class="btn btn-default" aria-label="Left Align" ng-click="ocultarProcedimiento(procedimientoSeleccionado)">
                             <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> &nbsp;Anular Oculto
                         </button>
-                        <button type="button" ng-if="!procedimientoSeleccionado.eliminado" class="btn btn-default" aria-label="Left Align" ng-disabled="tiene_hijos > 0 || procedimientoSeleccionado.oculto"  ng-click="eliminarProcedimiento(procedimientoSeleccionado)">
+                        <button type="button" ng-if="!procedimientoSeleccionado.eliminado" class="btn btn-default" aria-label="Left Align" ng-disabled="tieneHijos > 0 || procedimientoSeleccionado.oculto"  ng-click="eliminarProcedimiento(procedimientoSeleccionado)">
                             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> &nbsp;Eliminar procedimiento
                         </button>
                         <button type="button" class="btn btn-default" aria-label="Left Align" ng-click="descargarExcel()">
                             <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>&nbsp;Descargar excel
                         </button>
-                        <span ng-if="tiene_hijos > 0 && !procedimientoSeleccionado.oculto"><br/>
+                        <span ng-if="tieneHijos > 0 && !procedimientoSeleccionado.oculto"><br/>
                             No puede eliminar el procedimiento porque tiene hijos. Elimine los hijos antes de eliminar este procedimiento.
                         </span>
                         <div ng-if="respuesta" class="alert {{respuesta.clase}}" role="alert">{{respuesta.mensaje}}</div>
