@@ -4,7 +4,12 @@ var fs = require('fs');
 
 
 exports.parse = function(models){
-	return function(req,res,next){
+	return function(req, res, next){
+
+		if (!req.files){
+			res.status(500).send('Error');
+			return;
+		}
 
 		var parser = csvparse({delimiter: ';'})
 		var inputs = [], output=[];

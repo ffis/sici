@@ -23,7 +23,7 @@
 			{{respuestas.length}} ficheros cargados
 		</div>
 		<hr/>
-		<div ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="drop-boxover" ng-show="dropSupported" class="drop-box">
+		<div ng-file-drop ng-model="files" class="drop-box" ng-file-drag-over-class="drop-boxover" multiple="true" ng-show="dropSupported" class="drop-box">
 			Arrastra tus ficheros aquí
 		</div>
 		<div ng-file-drop-available="dropSupported=true" ng-show="!dropSupported">

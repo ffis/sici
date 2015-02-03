@@ -31,7 +31,8 @@ var os = require('os'),
     exportador = require('./api/exportador'),
     csvsici = require('./api/csvsici'),
     serveStatic = require('serve-static'),
-	crypto = require('crypto');
+	crypto = require('crypto'),
+    multer  = require('multer');
 
 
 app.set('mongosrv', process.env.MONGOSVR || 'mongodb://mongosvr/sici');
@@ -45,8 +46,9 @@ var ObjectId = mongoose.Types.ObjectId;
 
 var Settings = models.settings();
 Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
-    if (err)
+    if (err){
         throw err;
+    }
 
     var cfg = cfgs[0];
 
@@ -54,16 +56,20 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
     app.set('port', process.env.PORT || cfg.port || 6000);
     app.set('prefixtmp', __dirname + path.sep + 'tmp' + path.sep);
 
+
     // parse application/json
-    app.use(bodyParser.json())
+    
+
     app.use(serveStatic(path.join(__dirname, 'public')) );
 
     mongoose.set('debug', false);
 
+    app.use('/api', bodyParser.json());
     app.use('/api', expressJwt({secret: cfg.secret}));
     app.use('/api', login.setpermisoscalculados({models: models}));
     app.use('/api', api.log(models));
 
+    app.use('/api/v1/public/updateByFile', multer({ dest: __dirname + path.sep + 'tmp' + path.sep}));
 
     app.get('/tipologin.js', function (req, res) {
         var r = (cfg.logincarm) ?
@@ -73,12 +79,13 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
         res.status(200).type('application/javascript').send(r);
     });
 
-    if (cfg.logincarm)
+    if (cfg.logincarm){
         app.post('/authenticate', logincarm.uncrypt(cfg.urlbasedecrypt), login.authenticate({secret: cfg.secret, jwt: jwt, models: models, crypto : crypto}));
-    else
+    }else{
         app.post('/authenticate', login.authenticate({secret: cfg.secret, jwt: jwt, models: models, crypto: crypto}));
+    }
 
-    
+
     app.use('/api/v1/restricted/', function(req,res,next){
         if (req.user.permisoscalculados.superuser){ if (next) next(); }
         else{ res.status(403).json({error:'Unathorized'}); }
