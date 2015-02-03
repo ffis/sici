@@ -22,6 +22,8 @@ exports.mapReducePeriodos = function (Q, models, idjerarquia) {
 	if (typeof idjerarquia !== 'undefined'){
 		restriccion['ancestros.id'] = idjerarquia;
 	}
+	restriccion.oculto = {'$ne': true};
+	restriccion.eliminado = {'$ne': true};
 
 	Procedimiento.find(restriccion, {'ancestros.id': 1, 'periodos': 1}, function(error, procedimientos){
 		if (error){
