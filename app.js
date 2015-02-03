@@ -64,7 +64,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 
     mongoose.set('debug', false);
 
-    app.use('/api', bodyParser.json());
+    app.use(bodyParser.json());
     app.use('/api', expressJwt({secret: cfg.secret}));
     app.use('/api', login.setpermisoscalculados({models: models}));
     app.use('/api', api.log(models));
