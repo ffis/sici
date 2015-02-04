@@ -33,6 +33,8 @@
 							typeof $scope.procedimientoSeleccionado.periodos[$scope.anualidad][attr] !== 'undefined';
 					}
 				};
+				
+				$scope.getIntAnualidad = function(){ return parseInt($scope.anualidad.substring(1, 5)); };
 
 				$scope.getNext = function () {
 					if ($scope.anualidad) {

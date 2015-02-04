@@ -124,8 +124,8 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                         <div >
                             <strong>{{attr| translate}}</strong>
                             <span>&nbsp;</span>
-                            <a  title="edita este valor"  href="#" ng-if="(W && attrsanualidad_permisos[index] != 's') || $root.permisoscalculados.superuser" onaftersave="recalculate(true)"  editable-text="procedimientoSeleccionado.periodos[anualidad][attr]">{{ procedimientoSeleccionado.periodos[anualidad][attr]!=null ? procedimientoSeleccionado.periodos[anualidad][attr] :  '-' }}</a>
-                            <span ng-if="!((W && attrsanualidad_permisos[index] != 's') || $root.permisoscalculados.superuser)" >{{ (procedimientoSeleccionado.periodos[anualidad][attr]!=null && procedimientoSeleccionado.periodos[anualidad][attr]!='') ? procedimientoSeleccionado.periodos[anualidad][attr] : '-' }}</span>
+                            <a  title="edita este valor"  href="#" ng-if="(W  && attrsanualidad_permisos[index] != 's' && (attr!='pendientes_iniciales' || getIntAnualidad()==2014)) || $root.permisoscalculados.superuser" onaftersave="recalculate(true)"  editable-text="procedimientoSeleccionado.periodos[anualidad][attr]">{{ procedimientoSeleccionado.periodos[anualidad][attr]!=null ? procedimientoSeleccionado.periodos[anualidad][attr] :  '-' }}</a>
+                            <span ng-if="!((W && attrsanualidad_permisos[index] != 's' && (attr!='pendientes_iniciales' || getIntAnualidad()==2014) ) || $root.permisoscalculados.superuser)" >{{ (procedimientoSeleccionado.periodos[anualidad][attr]!=null && procedimientoSeleccionado.periodos[anualidad][attr]!='') ? procedimientoSeleccionado.periodos[anualidad][attr] : '-' }}</span>
                         </div>
                     </li>
                     <li>
