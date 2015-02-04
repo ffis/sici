@@ -782,18 +782,42 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		else return "";
 	}	
 	
-	$scope.getPersona = function(permiso){
+	$scope.getPersona = function(permiso){		
 		var busqueda = "";
-		if (permiso.login!=null && permiso.login!='' && typeof permiso.login !== 'undefined')
+		var busquedabylogin = false;
+		if (permiso.login!=null && permiso.login!='' && typeof permiso.login !== 'undefined'){
 			busqueda = permiso.login;
-		else if (permiso.codplaza!=null && permiso.codplaza!='' && typeof permiso.codplaza !== 'undefined')
+			busquedabylogin = true;
+		} else if (permiso.codplaza!=null && permiso.codplaza!='' && typeof permiso.codplaza !== 'undefined')
 			busqueda = permiso.codplaza;
 		else return '';
-
-		if (typeof $scope.cachepersonas[busqueda] !== 'undefined')
-			var p = $scope.cachepersonas[busqueda];
-		else {
-			var p = PersonasByRegexp.query({"regex":busqueda});
+		
+		var p;
+		
+		if (typeof $scope.cachepersonas === 'undefined')
+			$scope.cachepersonas = [];
+			
+		if (typeof $scope.cachepersonas[busqueda] !== 'undefined') {
+			p = $scope.cachepersonas[busqueda];
+			console.log("devolviendo de cache para busqueda: "+busqueda);
+		} else {			
+			if (busquedabylogin){
+				console.log("buscando por login: "+busqueda);
+				p = PersonasByLogin.query({'login':busqueda}, function(){	
+					if (p == null || p.length == 0) {
+						console.log("no encontrado, buscando por regex (desde login): "+busqueda);
+						p = PersonasByRegexp.query({"regex":busqueda});
+					}
+				});
+			} else {
+				console.log("buscando por plaza: "+busqueda);
+				p = PersonasByPuesto.query({"cod_plaza":busqueda},function(){
+					if (p == null || p.length == 0) {
+						console.log("no encontrado, buscando por regex (desde plaza): "+busqueda);
+						p = PersonasByRegexp.query({"regex":busqueda});
+					}					
+				});
+			}
 			 $scope.cachepersonas[busqueda] = p;
 		}
 		return p;
