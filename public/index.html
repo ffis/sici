@@ -12,8 +12,9 @@
 		<link rel="stylesheet" href="/bower_components/nvd3/nv.d3.css">
 		<link rel="stylesheet" href="/bower_components/angular-xeditable/dist/css/xeditable.css">
 		<link rel="stylesheet" href="/bower_components/angular-bootstrap-colorpicker/css/colorpicker.css">
+		<link rel="stylesheet" href="/bower_components/angularjs-toaster/toaster.css">
 		<link rel="stylesheet" href="/css/font-awesome-4.2.0/css/font-awesome.min.css">
-		
+
 	</head>
 	<body>
 		<div role="navigation" ng-controller="AppCtrl" class="navbar navbar-default navbar-fixed-top">
@@ -52,6 +53,7 @@
 		</div>
 		<div class="container-fluid">
 			<div ng-view></div>
+			<toaster-container></toaster-container>
 		</div>
 		<script>
 		//IE sucks
@@ -96,6 +98,7 @@
 
 		<script src="/bower_components/angular-translate/angular-translate.js"></script>
 		<script src="/bower_components/allmighty-autocomplete/script/autocomplete.js"></script>
+		<script src="/bower_components/angularjs-toaster/toaster.js"></script>
 		
 		<script src="/tipologin.js"></script>
 		<script src="/js/app.js"></script>
@@ -136,6 +139,7 @@
 		<script src="/bower_components/angular-bootstrap/ui-bootstrap.js"></script>
 		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 		<script src="/js/lib/angular/ui-bootstrap-tpls-0.11.0.min.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/angular-filter/0.1.1/angular-filter.js"> </script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/angular-filter/0.1.1/angular-filter.js"></script>
 	</body>
 </html>
+

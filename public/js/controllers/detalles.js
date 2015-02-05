@@ -1,8 +1,8 @@
 (function(angular){
 	'use strict';
 	angular.module('sici')
-		.controller('DetallesCtrl', ['$q', '$rootScope', '$scope', '$routeParams', '$window', '$location', '$timeout', '$http', '$log', 'Procedimiento', 'DetalleCarmProcedimiento', 'DetalleCarmProcedimiento2', 'Raw', 'Aggregate', 'ProcedimientoHasChildren', 'ProcedimientoList', 'ArbolWithEmptyNodes', 'ExportarResultadosProcedimiento',
-			function ($q, $rootScope, $scope, $routeParams, $window, $location, $timeout, $http, $log, Procedimiento, DetalleCarmProcedimiento, DetalleCarmProcedimiento2, Raw, Aggregate, ProcedimientoHasChildren, ProcedimientoList, ArbolWithEmptyNodes, ExportarResultadosProcedimiento) {
+		.controller('DetallesCtrl', ['$q', '$rootScope', '$scope', '$routeParams', '$window', '$location', '$timeout', '$http', '$log', 'toaster', 'Procedimiento', 'DetalleCarmProcedimiento', 'DetalleCarmProcedimiento2', 'Raw', 'Aggregate', 'ProcedimientoHasChildren', 'ProcedimientoList', 'ArbolWithEmptyNodes', 'ExportarResultadosProcedimiento',
+			function ($q, $rootScope, $scope, $routeParams, $window, $location, $timeout, $http, $log, toaster, Procedimiento, DetalleCarmProcedimiento, DetalleCarmProcedimiento2, Raw, Aggregate, ProcedimientoHasChildren, ProcedimientoList, ArbolWithEmptyNodes, ExportarResultadosProcedimiento) {
 
 				$scope.detallesCarm = DetalleCarmProcedimiento.get({codigo: $routeParams.codigo});
 				$scope.detallesCarm2 = DetalleCarmProcedimiento2.get({codigo: $routeParams.codigo});
@@ -14,6 +14,7 @@
 				$scope.padre = '';
 				$scope.mostrarAutocompletePadre = false;
 				$scope.nombrePadre = false;
+				$scope.anualidad = 'a' + (new Date()).getFullYear();
 
 				$scope.nextYear = function () {
 					var year = parseInt($scope.anualidad.substring(1, 5)) + 1;
@@ -29,11 +30,12 @@
 
 				$scope.exists = function (attr) {
 					if ($scope.anualidad) {
-						return $scope.procedimientoSeleccionado.periodos[$scope.anualidad] &&
+						return $scope.procedimientoSeleccionado && $scope.procedimientoSeleccionado.periodos &&
+							$scope.procedimientoSeleccionado.periodos[$scope.anualidad] &&
 							typeof $scope.procedimientoSeleccionado.periodos[$scope.anualidad][attr] !== 'undefined';
 					}
 				};
-				
+
 				$scope.getIntAnualidad = function(){ return parseInt($scope.anualidad.substring(1, 5)); };
 
 				$scope.getNext = function () {
@@ -104,6 +106,7 @@
 
 				$scope.periodosOk = function(anualidad, procedimiento)
 				{
+					if (!procedimiento || !anualidad || !procedimiento.periodos){ return false; }
 					return procedimiento.periodos[anualidad].plazo_CS_ANS_habiles || procedimiento.periodos[anualidad].plazo_CS_ANS_naturales;
 				};
 
@@ -225,15 +228,23 @@
 					});
 
 					$scope.updateGraphKeys($scope.anualidad.substring(1, 5));
+
 					$scope.checkInconsistencias = function(){
 						if ($scope.inconsistencias && $scope.inconsistencias.length > 0){
+							var fnWarning = function(idx){
+								if ($scope.inconsistencias[idx].datos && $scope.inconsistencias[idx].datos.length > 0){
+									toaster.pop('warning', 'Aviso', $scope.inconsistencias[idx].titulo);
+								}
+							};
 							$scope.inconsistencias.forEach(function (i, idx) {
 								var campo = {'codigo': '$codigo'};
 								try {
 									var restriccion = JSON.parse(i.restriccion);
 									restriccion.codigo = $scope.procedimientoSeleccionado.codigo;
-									$scope.inconsistencias[idx].datos = Aggregate.query({anualidad: $scope.anualidad, campo: JSON.stringify(campo), restriccion: JSON.stringify(restriccion)});
+									var parametros = {anualidad: $scope.anualidad, campo: JSON.stringify(campo), restriccion: JSON.stringify(restriccion)};
+									$scope.inconsistencias[idx].datos = Aggregate.query(parametros, fnWarning(idx) );
 								} catch (exception) {
+									$log.error(exception);
 									$log.error('La restricción ' + i.restriccion + ' no es correcta');
 								}
 							});
@@ -321,7 +332,6 @@
 					$scope.seleccinado = null;
 					$scope.mensajeMoviendo = '';
 					$scope.msjBase = 'Moviendo (Esta operación puede tardar un tiempo)...';
-
 
 					$scope.setSeleccionado = function (elemento) {
 						$scope.seleccionado = elemento;
