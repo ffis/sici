@@ -118,12 +118,12 @@ exports.mapReducePeriodos = function (Q, models, idjerarquia) {
 							if (values[i].t_medio_naturales[mes] > 0)
 							{
 								sumas.t_medio_naturales[mes].count++;
-								sumas.t_medio_naturales[mes].value += sumas.t_medio_naturales[mes].value;
+								sumas.t_medio_naturales[mes].value += values[i].t_medio_naturales[mes];
 							}
 							if (values[i].t_medio_habiles[mes] > 0)
 							{
 								sumas.t_medio_habiles[mes].count++;
-								sumas.t_medio_habiles[mes].value += sumas.t_medio_habiles[mes].value;
+								sumas.t_medio_habiles[mes].value += values[i].t_medio_habiles[mes];
 							}
 						}
 					}

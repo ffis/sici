@@ -26,6 +26,7 @@
 			{ id: 'errors', caption: 'Incoherencias' },
 			{ id: 'inconsistencias', caption: 'Inconsistencias' },
 			{ id: (IEChecker.test(browser) ? 'updateIE' : 'update'), caption: 'Actualizar mediante fichero' },
+			{ id: 'http://intranet.carm.es/web/integra.servlets.Blob?ARCHIVO=GU%CDA%20R%C1PIDA.pdf&TABLA=ARCHIVOS&CAMPOCLAVE=IDARCHIVO&VALORCLAVE=103830&CAMPOIMAGEN=ARCHIVO&IDTIPO=60', caption: 'Ayuda'},
 			{ id: 'logout', caption: 'Salir' }
 		];
 		$rootScope.navegabilidadSuper = [
