@@ -225,19 +225,22 @@
 					});
 
 					$scope.updateGraphKeys($scope.anualidad.substring(1, 5));
+					$scope.checkInconsistencias = function(){
+						if ($scope.inconsistencias && $scope.inconsistencias.length > 0){
+							$scope.inconsistencias.forEach(function (i, idx) {
+								var campo = {'codigo': '$codigo'};
+								try {
+									var restriccion = JSON.parse(i.restriccion);
+									restriccion.codigo = $scope.procedimientoSeleccionado.codigo;
+									$scope.inconsistencias[idx].datos = Aggregate.query({anualidad: $scope.anualidad, campo: JSON.stringify(campo), restriccion: JSON.stringify(restriccion)});
+								} catch (exception) {
+									$log.error('La restricción ' + i.restriccion + ' no es correcta');
+								}
+							});
+						}
+					};
 
-					$scope.inconsistencias = Raw.query({model: 'reglasinconsistencias'}, function () {
-						$scope.inconsistencias.forEach(function (i, idx) {
-							var campo = {'codigo': '$codigo'};
-							try {
-								var restriccion = JSON.parse(i.restriccion);
-								restriccion.codigo = $scope.procedimientoSeleccionado.codigo;
-								$scope.inconsistencias[idx].datos = Aggregate.query({anualidad: $scope.anualidad, campo: JSON.stringify(campo), restriccion: JSON.stringify(restriccion)});
-							} catch (exception) {
-								$log.error('La restricción ' + i.restriccion + ' no es correcta');
-							}
-						});
-					});
+					$scope.inconsistencias = Raw.query({model: 'reglasinconsistencias'}, function () { $scope.checkInconsistencias(); });
 
 					$scope.nextField = function(index) {
 						var periodoscerrados = $scope.procedimientoSeleccionado.periodos[$scope.anualidad].periodoscerrados;
@@ -465,6 +468,7 @@
 					if (force || $scope.cellChanged) {
 						$scope.procedimientoSeleccionado.$update(function (response) {
 							$scope.updateGraphKeys($scope.anualidad.substring(1, 5));
+							$scope.checkInconsistencias();
 							$log.error(response);
 						});
 					}
@@ -481,6 +485,22 @@
 						return 'Esto no es un número';
 					} else if (valor < 0) {
 						return 'No se admiten valores menores de 0';
+					}
+				};
+
+				$scope.resetData = function(){
+					if ($scope.procedimientoSeleccionado && $scope.W ){
+						if ($window.confirm('¿Está seguro de querer borrar los datos introducidos PARA ESTE PROCEDIMIENTO PARA ESTA ANUALIDAD?')){
+							var fnSetZero = function(procedimiento, anualidad, attr){
+								for(var i = 0, j = procedimiento.periodos[ anualidad ][attr].length; i < j; i++ ){
+									procedimiento.periodos[ anualidad ][attr][i] = 0;
+								}
+							};
+							for(var a in $scope.attrstabla){
+								fnSetZero( $scope.procedimientoSeleccionado, $scope.anualidad, $scope.attrstabla[a] );
+							}
+							$scope.recalculate(true);
+						}
 					}
 				};
 
