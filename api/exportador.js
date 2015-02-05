@@ -209,7 +209,7 @@ exports.tablaResultadosJerarquia = function (models, app, md5, Q, cfg) {
 			}
 		});
 		deferNombre.promise.then(function (denominacion) {
-			exports.mapReducePeriodos(Q, models, req.params.jerarquia).then(function (periodos) {
+			exports.mapReducePeriodos(Q, models, parseInt(req.params.jerarquia)).then(function (periodos) {
 				var d = new Date();
 				var wb = new Workbook();
 				for (var anualidad = 2013; anualidad <= d.getFullYear(); anualidad++) {
