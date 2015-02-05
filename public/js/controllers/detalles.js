@@ -232,9 +232,26 @@
 					$scope.checkInconsistencias = function(){
 						if ($scope.inconsistencias && $scope.inconsistencias.length > 0){
 							var fnWarning = function(idx){
-								if ($scope.inconsistencias[idx].datos && $scope.inconsistencias[idx].datos.length > 0){
-									toaster.pop('warning', 'Aviso', $scope.inconsistencias[idx].titulo);
-								}
+								/*
+								Querido lector, bienvenido al mundo de la incertidumbre.
+								Sé valiente y revisa este código en momento de lucidez.
+								Tiene sentido que este código sea inconsistente mientras trata inconsistencias.
+								Un timeout, todo lo cura.
+								*/
+								var fn = function(idx){
+									return function(){
+
+										if ($scope.inconsistencias[idx].datos && $scope.inconsistencias[idx].datos &&
+											(
+												(typeof $scope.inconsistencias[idx].$resolved !== 'undefined' && $scope.inconsistencias[idx].$resolved ) ||
+												typeof $scope.inconsistencias[idx].$resolved === 'undefined'
+											) && $scope.inconsistencias[idx].datos.length > 0){
+											toaster.pop('warning', 'Aviso', $scope.inconsistencias[idx].titulo);
+										}
+									};
+								};
+								$timeout(fn(idx), 500);
+
 							};
 							$scope.inconsistencias.forEach(function (i, idx) {
 								var campo = {'codigo': '$codigo'};
