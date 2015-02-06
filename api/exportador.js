@@ -188,6 +188,137 @@ exports.completarTabla = function (periodo, ws) {
 	return ws;
 };
 
+
+exports.tablaResultadosJerarquiaDesglosado = function(Q, models, jerarquia) {
+	var defer = Q.defer();
+	var defer_descendientes = Q.defer();
+	var Jerarquia = models.jerarquia();
+	var indicadores = ["Solicitados", "Iniciados", "Quejas presentadas en el mes", "Recursos presentados en el mes", "Resueltos < 1", "Resueltos 1 < 5",
+		"Resueltos 5 < 10", "Resueltos 10 < 15", "Resueltos 15 < 30", "Resueltos 30 < 45", "Resueltos > 45",
+		"Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)", "Resueltos por Prescripción/Caducidad (Resp. Admón.)",
+		"En plazo", 
+		"Resueltos totales", "Fuera de plazo", "Pendientes"];
+	var indicadoresDatabase = ["solicitados", "iniciados", "quejas", "recursos", "resueltos_1", "resueltos_5", "resueltos_10", "resueltos_15", "resueltos_30",
+		"resueltos_45", "resueltos_mas_45", "resueltos_desistimiento_renuncia_caducidad", "resueltos_prescripcion", "en_plazo", 
+		"total_resueltos", "fuera_plazo", "pendientes"];	
+		
+	
+	Jerarquia.find({ancestrodirecto:jerarquia.id},{id:true,_id:false,nombre:true,numProcedimientos:true,nombrelargo:true},function(err, hijos){
+		if (err)
+			defer_descendientes.reject(err);
+		else {
+			defer_descendientes.resolve(hijos);
+		}
+	});
+
+	Q.all([defer_descendientes.promise, exports.mapReducePeriodos(Q, models)]).then(
+		function(all_data) {		
+			var results = all_data[1];
+			var hijos = all_data[0];
+			hijos = ([ {nombrelargo:jerarquia.nombrelargo, nombre:jerarquia.nombre, id:jerarquia.id} ]).concat(hijos);
+			var ihijos = [];
+
+			hijos.forEach(function(hijo){ihijos.push(hijo.id)});
+
+			var periodos = {};
+
+			results.forEach(function (result) {
+				if (ihijos.indexOf(result._id.idjerarquia)!==-1) {
+					var idjerarquia = result._id.idjerarquia;
+					if (typeof periodos[idjerarquia] === 'undefined') 
+					{
+						periodos[idjerarquia] = {};					
+					}
+					periodos[idjerarquia][parseInt(result._id.anualidad)] = result.value;					
+				}
+			});
+			var rowhead = 4;
+			var columnhead = 4;
+			var ws = {};			
+			var ic = columnhead + 1;	
+			var max_r = ir;
+			var max_c = ic;
+			// linea de cabecera
+			var cellValue;
+			var cellValueRef;
+			
+			for(var i=0,j=hijos.length,k=0;i<j;i++)
+			{
+				var h = hijos[i];
+
+				if (typeof periodos[ihijos[i]] === 'undefined') continue;					
+
+				cellValue = {v:h.nombrelargo, t:'s'};
+				cellValueRef = XLSX.utils.encode_cell({c: ic+k, r: rowhead});
+				ws[cellValueRef] = cellValue;
+				k++;
+			}		
+			max_c = ic+k;
+			ic = columnhead;
+			ir = rowhead+1;
+			if (typeof periodos[jerarquia.id] === 'undefined'){ 
+				periodos[jerarquia.id] = {};
+			}
+			
+			for(var anualidad=2014;typeof periodos[jerarquia.id][anualidad] !== 'undefined';anualidad++)
+			{
+				cellValue = {v:anualidad, t:'n'};
+				cellValueRef = XLSX.utils.encode_cell({c: ic, r: ir});
+				ws[cellValueRef] = cellValue;
+				ir++;				
+				for(var ind=0,l2=indicadoresDatabase.length;ind<l2;ind++){
+					cellValue = {v:indicadores[ind], t:'s'};
+					cellValueRef = XLSX.utils.encode_cell({c: ic, r: ir});
+					ws[cellValueRef] = cellValue;
+					ir++;
+				}
+			}	
+			max_r = ir;
+			
+			// RESTO DE LINEAS
+			ic = columnhead + 1;
+			ir = rowhead + 1;
+						
+			// PARA CADA HIJO UNA COLUMNA
+			for(var i=0,l=hijos.length;i<l;i++)
+			{
+				var ir = rowhead+1;
+				if (typeof periodos[ihijos[i]] === 'undefined') 
+				{
+					continue;
+				}
+				for(var anualidad=2014;typeof periodos[ihijos[i]][anualidad] !== 'undefined';anualidad++)
+				{
+
+					/*cellValue = {v: anualidad, t:'n'};
+					cellValueRef = XLSX.utils.encode_cell({c: ic, r: ir});	
+					ws[cellValueRef] = cellValue;		*/			
+					ir++;
+					for(var ind=0,l2=indicadoresDatabase.length;ind<l2;ind++)
+					{
+						var valor = periodos[ihijos[i]][anualidad][indicadoresDatabase[ind]];
+						var ivalor = valor[0]+valor[1]+valor[2]+valor[3]+valor[4]+valor[5]+valor[6]+valor[7]+valor[8]+valor[9]+valor[10]+valor[11];
+
+						cellValue = {v: ivalor, t:'n'};
+						cellValueRef = XLSX.utils.encode_cell({c: ic, r: ir});
+						ws[cellValueRef] = cellValue;
+						ir++;
+					}
+				}
+				ic++;
+			}
+			var range = {s: {c: 0, r: 0}, e: {c: max_c, r: max_r}};
+			ws['!ref'] = XLSX.utils.encode_range(range);
+			defer.resolve(ws);
+		},
+		function(err) {
+			defer.reject(err);
+		}
+	
+	);
+	return defer.promise;
+};
+
 exports.tablaResultadosJerarquia = function (models, app, md5, Q, cfg) {
 	return function (req, res) {
 		if ((typeof req.params.jerarquia === 'undefined') || (req.params.jerarquia === null)) {
@@ -198,20 +329,23 @@ exports.tablaResultadosJerarquia = function (models, app, md5, Q, cfg) {
 		}
 		var Jerarquia = models.jerarquia();
 		var deferNombre = Q.defer();
-		Jerarquia.findOne({'id': req.params.jerarquia}, {nombrelargo: true}, function (err, data) {
+		var deferSheets = [Q.defer(), Q.defer()];
+		var jerarquia;
+		Jerarquia.findOne({'id': req.params.jerarquia}, function (err, data) {
 			if (err) {
 				console.error('No se ha definido el parámetro "jerarquia"');
 				res.status(500);
-				res.end();
+				res.end();				
 				deferNombre.reject(err);
 			} else {
+				jerarquia = data;
 				deferNombre.resolve(data.nombrelargo);
 			}
 		});
 		deferNombre.promise.then(function (denominacion) {
+			var d = new Date();
+			var wb = new Workbook();		
 			exports.mapReducePeriodos(Q, models, parseInt(req.params.jerarquia)).then(function (periodos) {
-				var d = new Date();
-				var wb = new Workbook();
 				for (var anualidad = 2013; anualidad <= d.getFullYear(); anualidad++) {
 					var ws = {};
 					var cellValue = {v: denominacion, t: 's'};
@@ -224,16 +358,41 @@ exports.tablaResultadosJerarquia = function (models, app, md5, Q, cfg) {
 					wb.SheetNames.push(wsName);
 					wb.Sheets[wsName] = ws;
 				}
-				var time = new Date().getTime();
-				var path = app.get('prefixtmp');
-				XLSX.writeFile(wb, path + time + '.xlsx');
-				res.json({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});
+				deferSheets[0].resolve();
 			}, function (err) {
 				console.error('Error al hacer el map reduce ' + err);
 				res.status(500);
 				res.end();
-				return;
+				deferSheets[0].reject();
 			});
+			
+			exports.tablaResultadosJerarquiaDesglosado(Q, models, jerarquia).then(
+				function(ws2){				
+					var wsName = 'resumen descendientes';
+					wb.SheetNames.push(wsName);
+					wb.Sheets[wsName] = ws2;				
+					deferSheets[1].resolve();
+				},function(err){
+					console.error('Error al hacer el map reduce ' + err);
+					res.status(500);
+					res.end();
+					deferSheets[1].reject();
+				}
+			);
+				
+			Q.all([deferSheets[0].promise, deferSheets[1].promise]).then(function(data){
+				var time = new Date().getTime();
+				var path = app.get('prefixtmp');
+				XLSX.writeFile(wb, path + time + '.xlsx');
+				console.log({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});
+				res.json({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});			
+			},function(err){
+				console.error(err);
+				res.status(500);
+				res.end();
+				return;				
+			});
+			
 		}, function (err) {
 			console.error(err);
 			res.status(500);
