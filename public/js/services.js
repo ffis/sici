@@ -69,8 +69,6 @@ modulo
                 return $resource('/api/v1/restricted/persona/:id', {id: '@id'}, {create: {method: 'POST'}, update: {method: 'PUT'}}); }])
         .factory('PeriodosStats', ['$resource', function ($resource) {
                 return $resource('/api/v1/restricted/mapReducePeriodos'); }])
-        .factory('PermisosByLoginPlaza', ['$resource', function ($resource) {
-                return $resource('/api/v1/restricted/permisosByLoginPlaza/:login/:cod_plaza', {}, {query: {method: 'GET', isArray: true}}); }])
         
 ;
 /* private services */
@@ -92,6 +90,8 @@ modulo
                 return $resource('/api/v1/private/permisosdelegar/:login/:cod_plaza', {}, {query: {method: 'GET', isArray: true}}); }])
         .factory('PermisosDelegarSeleccionado', ['$resource', function ($resource) {
                 return $resource('/api/v1/private/permisosdelegar/:login/:cod_plaza/:procedimiento', {}, {query: {method: 'GET', isArray: false}}); }])			
+        .factory('PermisosByLoginPlaza', ['$resource', function ($resource) {
+                return $resource('/api/v1/private/permisosByLoginPlaza/:login/:cod_plaza', {}, {query: {method: 'GET', isArray: true}}); }])
         .factory('PersonasByPuesto', ['$resource', function ($resource) {
                 return $resource('/api/v1/private/personasByPuesto/:cod_plaza', {}, {query: {method: 'GET', isArray: true}}); }])
         .factory('PersonasByLogin', ['$resource', function ($resource) {

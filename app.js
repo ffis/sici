@@ -90,7 +90,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 		else{ res.status(403).json({error: 'Unathorized'}); }
 	});
 	app.use('/api/v1/private/', function(req, res, next){
-		if (req.user.permisoscalculados.superuser || req.user.permisoscalculados.grantuser){ if (next){ next();} }
+		if (req.user.permisoscalculados.superuser || req.user.permisoscalculados.grantoption){ if (next){ next();} }
 		else{ res.status(403).json({error: 'Unathorized'}); }
 	});
 	app.use('/bot/', function(req, res, next){
@@ -120,7 +120,6 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 
 	app.post('/api/v1/restricted/persona', persona.newPersona(models));
 	app.put('/api/v1/restricted/persona/:id', persona.updatePersona(models));
-	app.get('/api/v1/restricted/permisosByLoginPlaza/:login/:cod_plaza', permiso.permisosByLoginPlaza(models, Q));
 
 	/*fake public */
 	app.delete('/api/v1/public/procedimiento/:codigo', procedimiento.deleteProcedimiento(Q, models, recalculate));
@@ -144,6 +143,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.delete('/api/v1/private/permisos/:id', permiso.removePermiso(models, Q, recalculate, ObjectId));
 	app.post('/api/v1/private/permisos', permiso.create(models, Q, recalculate));
 
+	app.get('/api/v1/private/permisosByLoginPlaza/:login/:cod_plaza', permiso.permisosByLoginPlaza(models, Q));
 	app.get('/api/v1/private/personasByPuesto/:cod_plaza', persona.personasByPuesto(models));
 	app.get('/api/v1/private/personasByLogin/:login', persona.personasByLogin(models));
 	app.get('/api/v1/private/personasByRegexp/:regex', persona.personasByRegex(models, Q, cfg));
