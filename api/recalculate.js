@@ -37,21 +37,14 @@ exports.softCalculatePermiso = function (Q, models, permiso) {
     if (permiso.codplaza)
         restriccion_persona.codplaza = permiso.codplaza;
 
-    Persona.find(restriccion_persona, function (err, personas) {
-        if (err) {
-            console.log(err);
-            return;
-        }
-        for (var i = 0; i < personas.length; i++)
-        {
-            var persona = personas[i];
-            persona.habilitado = true;
-            persona.save(function (err) {
-                if (err)
-                    console.log(err);
-            });
-        }
-    });
+    if (permiso.login && permiso.codplaza)
+    {
+        Persona.update(restriccion_persona, {'$set' : {habilitado : true}}, {multi:1}, function (err, personas) {
+            if (err) {
+                console.log(err);
+            }
+        });
+    }
     /**** FIN PARCHE ***/
 
     // comprobamos que cualquier permiso sobre procedimiento permite leer la jerarquia a que pertenece.
@@ -75,7 +68,7 @@ exports.softCalculatePermiso = function (Q, models, permiso) {
     }
 
 
-    if (restriccion_proc != null)
+    if (restriccion_proc)
     {
         //buscamos los procedimientos cuyo responsable sea el del permiso
         Procedimiento.find(restriccion_proc).select('idjerarquia cod_plaza codigo').exec(function (err, procedimientos) {
@@ -123,7 +116,7 @@ exports.softCalculatePermiso = function (Q, models, permiso) {
                 return;
             var def = Q.defer();
             // buscamos todas las jerarquías indicadas en el mismo
-            Jerarquia.find({id: {'$in': idsjerarquia}}, function (err, jerarquias) {
+            Jerarquia.find({id: {'$in': idsjerarquia}},{id:true, descendientes:true}, function (err, jerarquias) {
                 if (err) {
                     def.reject(err);
                     return;
@@ -187,12 +180,16 @@ exports.softCalculatePermiso = function (Q, models, permiso) {
                     };
                 };
 
-                Procedimiento.find({idjerarquia: {'$in': idsjerarquia}}, f(def, attr));
+                Procedimiento.find({idjerarquia: {'$in': idsjerarquia}},{codigo:true}, f(def, attr));
                 defs2.push(def.promise);
             });
 
 
             Q.all(defs2).then(function () {
+			attrprocedimientos.forEach(function (attr, idx) {
+				permiso[ attr ] = permiso[ attr ].filter(function (value, index, self) {
+                    return self.indexOf(value) === index;
+                })});
                 deferred.resolve(permiso);
             }, function (err) {
                 console.error(110);
@@ -290,29 +287,28 @@ exports.softCalculateProcedimientoCache = function (Q, models, procedimiento) {
 exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
     var deferred = Q.defer();
 
+	console.log("softCalculateProcedimiento "+procedimiento.codigo);
     //para cada periodo
     if (typeof procedimiento.periodos != "object") {
         console.error('Error en procedimiento ' + procedimiento.codigo);
         deferred.reject(procedimiento);
 
         return deferred.promise;
-    }
-
+    }	
+	
     for (var periodo in procedimiento.periodos)
     {
         if (typeof procedimiento.periodos[ periodo ] != 'object')
             continue;
 
         //comprobar si está inicilializados los campos de tipo array a 12 elementos
-        var campos = models.getSchema('procedimiento').periodos[periodo];
+        var campos = models.getSchema('plantillaanualidad');
         for (var campo in campos) {
             if (Array.isArray(procedimiento.periodos[ periodo ][campo]) && procedimiento.periodos[ periodo ][campo].length != 12) {
                 while (procedimiento.periodos[ periodo ][campo].length < 12)
                     procedimiento.periodos[ periodo ][campo].push(0);
 
                 //procedimiento.periodos[ periodo ][campo] = [0,0,0,0,0,0,0,0,0,0,0,0];
-            } else {
-                console.error('campo:' + campo + ' ' + typeof procedimiento.periodos[ periodo ][campo]);
             }
         }
 
@@ -331,10 +327,19 @@ exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
             'Las solicitudes aumentan al menos 20%': [],
         };
 
+		if (parseInt(periodo.replace("a",""))>2014) {
+			var iperiodo = parseInt(periodo.replace("a",""));
+			var sant = "a"+(iperiodo-1);
+			var pi = procedimiento.periodos[sant].totalsolicitudes + procedimiento.periodos[sant].pendientes_iniciales;
+			for(var mes=0;mes<12;mes++)
+				pi -= procedimiento.periodos[sant].total_resueltos[mes];
+			procedimiento.periodos[ periodo ].pendientes_iniciales = pi;
+		}
+		
         var pendientes = parseStr2Int(procedimiento.periodos[ periodo ].pendientes_iniciales);
         var solicitudesprevias = parseStr2Int(procedimiento.periodos[ periodo ].solicitados);
-        var totalsolicitudes = 0;
-        for (var mes = 0; mes < 12; mes++) {
+        var totalsolicitudes = 0;	
+        for (var mes = 0; mes < 12; mes++) if (parseInt(periodo.replace("a",""))>2013) {
             var pendientesprevios = pendientes;
             var totalresueltos =
                     procedimiento.periodos[ periodo ].resueltos_1[mes] +
@@ -346,7 +351,6 @@ exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
                     procedimiento.periodos[ periodo ].resueltos_mas_45[mes] +
                     procedimiento.periodos[ periodo ].resueltos_desistimiento_renuncia_caducidad[mes] +
                     procedimiento.periodos[ periodo ].resueltos_prescripcion[mes];
-
             var fueradeplazo = totalresueltos - procedimiento.periodos[ periodo ].en_plazo[mes];
             var solicitudes = parseStr2Int(procedimiento.periodos[ periodo ].solicitados[mes]);
 
@@ -362,19 +366,20 @@ exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
             procedimiento.periodos[ periodo ].Incidencias['Hay quejas presentadas'].push(procedimiento.periodos[ periodo ].quejas[mes]);
             procedimiento.periodos[ periodo ].Incidencias['Hay expedientes prescritos/caducados'].push(procedimiento.periodos[ periodo ].resueltos_prescripcion[mes]);
             procedimiento.periodos[ periodo ].Incidencias['Las solicitudes aumentan al menos 20%'].push((solicitudes > solicitudesprevias * 1.2) ? solicitudes - solicitudesprevias : 0);
-            solicitudesprevias = solicitudes;
-        }
+            solicitudesprevias = solicitudes;			
+        }		
         procedimiento.periodos[ periodo ].totalsolicitudes = totalsolicitudes;
     }
     deferred.resolve(procedimiento);
+    console.log("softCalculatedProcedimiento "+procedimiento.codigo);
 
     return deferred.promise;
 }
 
 exports.fullSyncprocedimiento = function (Q, models, fnprocedimiento) {
-    var deferred = Q.defer();
-    var Procedimiento = models.procedimiento();
-    var informes = [];
+    var deferred = Q.defer(),
+    Procedimiento = models.procedimiento(),
+    informes = [];
 
     Procedimiento.find({}, function (err, procedimientos) {
         if (err) {
@@ -443,27 +448,29 @@ exports.fullSyncpermiso = function (Q, models) {
         var defs = [];
         var pindex = 0;
         var plength = permisos.length;
+		var f = function (promise, permiso) {
+			exports.softCalculatePermiso(Q, models, permiso).then(function (permiso) {
+				pindex++;
+				permiso.save(function (error) {
+					if (error) {
+						console.error();
+                        console.error(error+' softcalculate permiso concluido ' + permiso._id + " ; " + permiso.login + ";" + permiso.codplaza + " (" + pindex + " de " + plength + ")");
+						informes.push({codigo: permiso._id, status: 500});
+						promise.reject(err);
+					} else {
+                        console.log('softcalculate permiso concluido ' + permiso._id + " ; " + permiso.login + ";" + permiso.codplaza + " (" + pindex + " de " + plength + ")");
+						informes.push({codigo: permiso._id, status: 200, permiso: permiso});
+						promise.resolve();
+					}
+				});
+			}, function (err) {
+				informes.push({codigo: permiso._id, status: 500});
+				promise.reject(err);
+			})
+		};
         permisos.forEach(function (permiso, i) {
             var promise = Q.defer();
-            var f = function (promise, permiso) {
-                exports.softCalculatePermiso(Q, models, permiso).then(function (permiso) {
-                    pindex++;
-                    console.log('softcalculate permiso concluido ' + permiso._id + " ; " + permiso.login + ";" + permiso.codplaza + " (" + pindex + " de " + plength + ")");
-                    permiso.save(function (error) {
-                        if (error) {
-                            console.error(error);
-                            informes.push({codigo: permiso._id, status: 500});
-                            promise.reject(err);
-                        } else {
-                            informes.push({codigo: permiso._id, status: 200, permiso: permiso});
-                            promise.resolve();
-                        }
-                    });
-                }, function (err) {
-                    informes.push({codigo: permiso._id, status: 500});
-                    promise.reject(err);
-                })
-            }
+
             f(promise, permiso);
             defs.push(promise.promise);
         });

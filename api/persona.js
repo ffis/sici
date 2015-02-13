@@ -69,7 +69,7 @@ exports.newPersona = function (models) {
     };
 };
 
-exports.personasByRegex = function (models, Q) {
+exports.personasByRegex = function (models, Q, cfg) {
     return function (req, res) {
         var Persona = models.persona();
         var restriccion = {};
@@ -109,7 +109,7 @@ exports.personasByRegex = function (models, Q) {
                 if (data.length === 0) {
                     var regLogin = new RegExp(/[a-z]{3}\d{2}[a-z]{1}/);
                     if (regLogin.test(req.params.regex)) {
-                        exports.infoByLogin(req.params.regex, Q).then(function (result) {
+                        exports.infoByLogin(req.params.regex, Q, cfg).then(function (result) {
                             if ((result !== null) && (typeof result.return !== 'undefined') && (result.return.length > 0) && (result.return[2].key === 'ERR_MSG')) {
                                 var msg = result.return[2].value;
                                 var valores = /(\d{2})\.-(.*)/g.exec(msg);
@@ -168,12 +168,12 @@ exports.personasByRegex = function (models, Q) {
     };
 };
 
-exports.registroPersonaWS = function (codplaza, models, Q) {
+exports.registroPersonaWS = function (codplaza, models, Q, cfg) {
     var deferRegistro = Q.defer();
     var Persona = models.persona();
     Persona.count({'codplaza': codplaza}, function (err, count) {
         if (count === 0) {
-            exports.infoByPlaza(codplaza, Q).then(function (result) {
+            exports.infoByPlaza(codplaza, Q, cfg).then(function (result) {
                 console.log(result);
                 if ((result !== null) && (typeof result.return !== 'undefined') && (result.return.length > 0) && (result.return[2].key === 'ERR_MSG')) {
                     var msg = result.return[2].value;
@@ -218,27 +218,58 @@ exports.registroPersonaWS = function (codplaza, models, Q) {
     return deferRegistro.promise;
 };
 
-var soap = require('soap');
+var soap = require('../lib/soap');
 
-exports.infoByLogin2 = function () {
+
+exports.infoByPlaza2 = function (cfg) {
     return function (req, res) {
-        var login = req.params.login;
+        var codplaza = req.params.codplaza;
         var url = 'https://jad.carm.es/jAD/webservice/WSGesper/wsSICI?wsdl';
-        var args = {arg0: {key: 'p_login', value: login}};
+        var args = {arg0: {key: 'P_PLAZA', value: codplaza}};
         var options = {
-            ignoredNamespaces: {
-                namespaces: ['tns']
-            }
+//            ignoredNamespaces: {
+//                namespaces: ['pp'], override:true
+//            }
         };
         soap.createClient(url, options, function (err, client) {
             if (err) {
                 console.error(JSON.stringify(err));
                 res.status(500).end(err);
             } else {
+                client.setSecurity(new soap.WSSecurity(cfg.ws_user, cfg.ws_pwd, 'PasswordText'));
+                client.SacaOcupante(args, function (err, result) {
+                    if (err) {
+                        console.error('Error buscando plaza en WS');
+                        res.json(err);
+                    } else {
+                        res.json(result);
+                    }
+                });
+            }
+        });
+    };
+};
+
+exports.infoByLogin2 = function (cfg) {
+    return function (req, res) {
+        var login = req.params.login;
+        var url = 'https://jad.carm.es/jAD/webservice/WSGesper/wsSICI?wsdl';
+        var args = {arg0: {key: 'p_login', value: login}};
+        var options = {
+//            ignoredNamespaces: {
+//                namespaces: ['pp'], override:true
+//            }
+        };
+        soap.createClient(url, options, function (err, client) {
+            if (err) {
+                console.error(JSON.stringify(err));
+                res.status(500).end(err);
+            } else {
+                client.setSecurity(new soap.WSSecurity(cfg.ws_user, cfg.ws_pwd, 'PasswordText'));
                 client.SacaPlaza(args, function (err, result) {
                     if (err) {
-                        console.error('Error buscando login en WS');
-                        res.json(result);
+                        console.error('Error buscando login en WS: '+err);
+                        res.json(err);
                     } else {
                         console.log('Consulto el login ' + login);
                         res.json(result);
@@ -249,20 +280,21 @@ exports.infoByLogin2 = function () {
     };
 };
 
-exports.infoByLogin = function (login, Q) {
+exports.infoByLogin = function (login, Q, cfg) {
     var def = Q.defer();
     var url = 'https://jad.carm.es/jAD/webservice/WSGesper/wsSICI?wsdl';
     var args = {arg0: {key: 'p_login', value: login}};
     var options = {
-        ignoredNamespaces: {
-            namespaces: ['tns']
-        }
+//        ignoredNamespaces: {
+//            namespaces: ['tns']
+//        }
     };
     soap.createClient(url, options, function (err, client) {
         if (err) {
             console.error(JSON.stringify(err));
             def.reject(err);
         } else {
+            client.setSecurity(new soap.WSSecurity(cfg.ws_user, cfg.ws_pwd, 'PasswordText'));
             client.SacaPlaza(args, function (err, result) {
                 if (err) {
                     console.error('Error buscando login en WS');
@@ -277,20 +309,21 @@ exports.infoByLogin = function (login, Q) {
     return def.promise;
 };
 
-exports.infoByPlaza = function (codplaza, Q) {
+exports.infoByPlaza = function (codplaza, Q, cfg) {
     var def = Q.defer();
     var url = 'https://jad.carm.es/jAD/webservice/WSGesper/wsSICI?wsdl';
     var args = {arg0: {key: 'P_PLAZA', value: codplaza}};
     var options = {
-        ignoredNamespaces: {
-            namespaces: ['tns']
-        }
+//        ignoredNamespaces: {
+//            namespaces: ['tns']
+//        }
     };
     soap.createClient(url, options, function (err, client) {
         if (err) {
             console.error(JSON.stringify(err));
             def.reject(err);
         } else {
+            client.setSecurity(new soap.WSSecurity(cfg.ws_user, cfg.ws_pwd, 'PasswordText'));
             client.SacaOcupante(args, function (err, result) {
                 if (err) {
                     console.error('Error buscando plaza en WS');
@@ -304,51 +337,86 @@ exports.infoByPlaza = function (codplaza, Q) {
     return def.promise;
 };
 
-exports.updateCodPlazaByLogin = function (models, Q) {
+exports.updateCodPlazaByLogin = function (models, Q, cfg) {
     return function (req, res) {
         var Persona = models.persona();
         var filas = [];
         var promesasActualizacion = [];
         Persona.find({habilitado: true}).sort({ultimoupdate: 1}).limit(1).exec(function (err, personas) {
-            console.log(personas);
-            personas.forEach(function (persona) {
-                var promesaUpdate = Q.defer();
-                promesasActualizacion.push(promesaUpdate.promise);
-                exports.infoByLogin(persona.login, Q).then(function (result) {
-                    if ((result !== null) && (typeof result.return !== 'undefined') && (result.return.length > 0)) {
-                        var msg = result.return[2].value;
-                        var valores = /(\d{2})\.-(.*)/g.exec(msg);
-                        if (valores !== null) {
-                            if (valores[1] === '00') {
-                                var codplaza = result.return[1].value;
-                                if (codplaza !== persona.codplaza) {
-                                    var fila = {'login': persona.login, 'codplaza prev': persona.codplaza, 'codplaza desp': codplaza};
-                                    filas.push(fila);
-                                    persona.codplaza = codplaza;
-                                } else {
-                                    console.log('No se modifica el código de plaza del usuario: ' + persona.login);
+            if (err) {
+                console.error(err);
+                res.status(500).end();
+                return;
+            } else {
+                console.log(personas);
+                personas.forEach(function (persona) {
+                    var promesaUpdate = Q.defer();
+                    promesasActualizacion.push(promesaUpdate.promise);
+                    exports.infoByLogin(persona.login, Q, cfg).then(function (result) {
+                        var codplaza;
+                        if ((result !== null) && (typeof result.return !== 'undefined') && (result.return.length > 0)) {
+                            var msg = result.return[2].value;
+                            var valores = /(\d{2})\.-(.*)/g.exec(msg);
+                            if (valores !== null) {
+                                if (valores[1] === '00') {
+                                    codplaza = result.return[1].value;
+                                    if (codplaza !== persona.codplaza) {
+                                        var fila = {'login': persona.login, 'codplaza prev': persona.codplaza, 'codplaza desp': codplaza};
+                                        filas.push(fila);
+                                        persona.codplaza = codplaza;
+                                    } else {
+                                        console.log('No se modifica el código de plaza del usuario: ' + persona.login);
+                                    }
+                                    var telefono = result.return[7].value;
+                                    persona.telefono = telefono;
+                                } else if (valores[1] === '01') {                                    
+                                    codplaza = persona.codplaza;
+									var regCodPlaza = new RegExp(/X{3}\d{3}/i);
+                                   if (!regCodPlaza.test(persona.codplaza)) {
+										console.log('Usuario ' + persona.login + ' ya no está en gesper y eliminamos su código plaza ' + persona.codplaza);
+                                       persona.codplaza = '';
+                                   } else {
+										console.log("Usuario con código de plaza especial. No actualizado.");
+								   }
                                 }
-                                var telefono = result.return[7].value;
-                                persona.telefono = telefono;
                             }
                         }
-                    }
-                    persona.ultimoupdate = new Date();
-                    console.log(persona);
-                    persona.save(function (err) {
-                        if (err) {
-                            console.error('NO se ha podido actualizar el usuario ' + persona.login + '. Error: ' + err);
-                            promesaUpdate.reject(err);
-                        } else {
-                            console.log('Se ha actualizado el usuario ' + persona.login + ': ' + persona.codplaza);
-                            promesaUpdate.resolve(fila);
-                        }
+                        persona.ultimoupdate = new Date();
+                        console.log(persona);
+                        persona.save(function (err) {
+                            if (err) {
+                                console.error('NO se ha podido actualizar el usuario ' + persona.login + '. Error: ' + err);
+                                promesaUpdate.reject(err);
+                            } else {
+                                console.log('Se ha actualizado el usuario ' + persona.login + ': ' + persona.codplaza);
+                                if (persona.codplaza !== codplaza) {
+                                    Persona.count({'codplaza': codplaza}, function (err, count) {
+                                        if (err) {
+                                            promesaUpdate.reject(err);
+                                        } else {
+                                            if (count > 0) {
+                                                promesaUpdate.resolve(fila);
+                                            } else {
+                                                exports.registroPersonaWS(codplaza, models, Q,cfg).then(function (resultado) {
+                                                    fila.nuevoUsuario = resultado.login;
+                                                    promesaUpdate.resolve(fila);
+                                                }, function (err) {
+                                                    promesaUpdate.reject(err);
+                                                });
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    promesaUpdate.resolve(fila);
+                                }
+                            }
+                        });
+                    }, function (err) {
+                        console.error(err);
+                        res.status(500).end();
                     });
-                }, function (err) {
-                    console.error(err);
-                    res.status(500).end();
                 });
-            });
+            }
             Q.all(promesasActualizacion).then(function () {
                 res.json(filas);
             }, function (err) {

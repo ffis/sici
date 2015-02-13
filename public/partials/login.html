@@ -10,7 +10,7 @@
 			</label>
 			<div>
 				<button style="text-align: center;" class="topcoat-button full text-center">Entrar</button>
-			</div>
+			</div>		
 		</form>
 		<div ng-If="$root.loginCarm">
 			<p>Es necesario autenticarse vía servicio de autenticación CAS de la CARM. Para ello pulse en el botón de debajo, autentíquese y será redirigido otra vez a esta página. Pulse de nuevo en el botón y accederá al sistema.</p>
@@ -21,7 +21,11 @@
 			<div>
 				<button ng-click="login(credentials)" style="text-align: center" class="topcoat-button full text-center">Entrar</button>
 			</div>
-
+			<p><br/>
+				Si no es un usuario autorizado para autenticarse a través del servicio CAS de la CARM y 
+				dispone de una contraseña para el sistema SICI puede autenticarse desde 
+				<a href="" ng-click="$root.loginCarm=false; credentials.notcarmuser=true;">aqu&iacute;</a>
+			</p>
 		</div>
 		<p style="text-align:center" ng-if="mensaje" class="alert alert-danger">{{mensaje}}</p>
 		<!--[if lt IE 9]>
@@ -31,7 +35,7 @@
 		</p>
 		<![endif]-->
 	</div>
-	<div style="position:absolute; bottom:1em;right:1em; width:350px; height:350px;{{imagen}};background-repeat:no-repeat; background-size:contain; background-position:center center"></div>
+	<div style="position:absolute; bottom:1em;right:1em; width:20em; height:20em;{{imagen}};background-repeat:no-repeat; background-size:contain; background-position:center center"></div>
 	<h3>Sistema Integrado de Control de Indicadores</h3>
 </div>
 <div style="clear:both"></div>

@@ -44,10 +44,16 @@ function getPermisosByLoginPlaza(req, res, models ,Q ,login, cod_plaza)
 
 
 exports.delegarpermisosProcedimiento = function(models,Q){
-	return function(req,res){
+	return function(req,res){		
 		var proc = req.params.procedimiento;
-		console.log(req.user);
-		/**if (req.user.permisoscalculados.procedimientosescritura.indexOf(proc)!==-1 ){*/
+		if (!((req.user.permisoscalculados.grantoption ||
+			req.user.permisoscalculados.superuser) && req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura).indexOf(proc)) ){
+			console.error(err);
+			res.status(500);
+			res.end();
+			return;			
+		}
+		
 			var Permiso = models.permiso();
 			var Procedimiento = models.procedimiento();
 			var Jerarquia = models.jerarquia();
@@ -72,7 +78,7 @@ exports.delegarpermisosProcedimiento = function(models,Q){
 					ep.descripcion = 'Permisos delegados por ' + ep.cod_plaza_grantt;
 					ep.grantoption = false;
 
-					Permiso.find({'$or':[{'procedimientoescritura' : procedimiento.codigo},{'procedimientosdirectaescritura' : procedimiento.codigo}]},function(err,procs){
+					Permiso.find({'$or':[{'procedimientosescritura' : procedimiento.codigo},{'procedimientosdirectaescritura' : procedimiento.codigo}]},function(err,procs){
 						if (err) {
 								console.error("Imposible salvar nuevo permiso (5)"); console.error(err); res.status(500); res.end(); return;
 						}
@@ -105,17 +111,41 @@ exports.delegarpermisos = function(models,Q, recalculate)
 {
 	return function(req, res) {
 		var Permiso = models.permiso();
+		if (!(req.user.permisoscalculados.grantoption ||
+			req.user.permisoscalculados.superuser))
+		{
+			console.error(err);
+			res.status(500);
+			res.end();
+			return;
+		}
 		var promesa_permisos = getPermisosByLoginPlaza(req, res, models,Q,req.user.login,req.user.codplaza);
-		promesa_permisos.then(
+
+		promesa_permisos.then(			
 			function(permisos){
-				console.log("nump "+permisos.length);
+				var paux = [];				
 				var promesas_permisos = [];
+				var defer_permisos = [];
 				var promesas_recalculos = [];
+				
+				var a = function(err) {
+				}
+				
 				for(var i=0;i<permisos.length;i++)
 				{	
-					var p = JSON.parse(JSON.stringify(permisos[i]));	
+					var p = JSON.parse(JSON.stringify(permisos[i]));					
 					
-					delete p._id;		
+					if (paux.indexOf(p._id)!==-1) continue;										
+					else paux.push(p._id);
+					
+					console.log(p._id);
+					
+					var defer = Q.defer();
+					defer_permisos.push(defer)
+					promesas_permisos.push(defer.promise);										
+					
+					delete p._id;
+					
 					if (req.params.login && req.params.login != "-")
 						p.login=req.params.login
 					if (req.params.cod_plaza && req.params.cod_plaza != "-")
@@ -125,25 +155,30 @@ exports.delegarpermisos = function(models,Q, recalculate)
 					var op = new Permiso(p);														
 					op.grantoption = false;
 					
-					var defer = Q.defer();
-					promesas_permisos.push(defer.promise);
-										
-					op.save(function(err){
-						if (err) {
-							console.error("Imposible salvar nuevo permiso"); console.error(err); res.status(500); res.end(); return;
-							defer.reject(err);
-						} else {									
-							recalculate.softCalculatePermiso(Q, models, p).then(function(p){ 
-								p.save(function(error){
-									if (error) { console.error("Imposible salvar nuevo permiso"); console.error(err); res.status(500); res.end(); defer.reject(p); }
-									else defer.resolve(p);
-								});								
-							},function(err){
+					var fsave = function(op, defer) { 
+						return function(err)
+						{
+							if (err) {
+								console.error("Imposible salvar nuevo permiso"); console.error(err); res.status(500); res.end(); return;
 								defer.reject(err);
-							});							
-						}
-					});
+							} else {			
+								recalculate.softCalculatePermiso(Q, models, op).then(function(pe){ 
+									Permiso.update({"_id":pe._id},pe,function(error){ 								
+										if (error) { console.error("Imposible salvar nuevo permiso"); console.error(err); res.status(500); res.end(); defer.reject(pe); }
+										else {  defer.resolve(pe); }
+									});
+																	
+								},function(err){
+									defer.reject(err);
+								});							
+							}
+						};
+					};
+										
+					op.save(fsave(op,defer));
 				}
+				
+			
 				Q.all(promesas_permisos).then(function(permisos){
 					//console.log(permisos);
 					res.json(permisos);
@@ -184,6 +219,18 @@ exports.removePermisoProcedimiento = function(models, Q, recalculate) {
 			var idpermiso = req.params.idpermiso;
 			var idprocedimiento = req.params.idprocedimiento;
 
+			if (!
+				(req.user.permisoscalculados.grantoption ||
+				 req.user.permisoscalculados.superuser) 
+				 &&
+				 req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura).indexOf(idprocedimiento)!==-1
+				)
+			{				
+				res.status(500).send('No tiene permiso para realizar esta operación');
+				res.end();
+				return;
+			}			
+			
 			Permiso.findById(idpermiso,function(err,permiso){
 				console.log(permiso);
 				if (err) {
@@ -234,7 +281,6 @@ exports.removePermisoProcedimiento = function(models, Q, recalculate) {
 
 exports.removePermisoJerarquia = function(models, Q, recalculate) {
 	return function(req, res) {
-	
 		console.log("Eliminando jerarquia de permiso. Idjerarquia y permiso:");
 		console.log(req.params.idjerarquia);
 		console.log(req.params.idpermiso);
@@ -247,7 +293,18 @@ exports.removePermisoJerarquia = function(models, Q, recalculate) {
 			var idpermiso = req.params.idpermiso;
 			var idjerarquia = parseInt(req.params.idjerarquia);
 			
-			
+			if (!
+				(req.user.permisoscalculados.grantoption ||
+				 req.user.permisoscalculados.superuser) 
+				 &&
+				 req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura).indexOf(idjerarquia)!==-1
+				)
+			{
+				console.error('El usuario ha intentado realizar una operación sobre permisos que no le está permitida');
+				res.status(500);
+				res.end();
+				return;
+			}			
 		
 			Permiso.findById(idpermiso,function(err,permiso){
 	
@@ -433,6 +490,20 @@ exports.permisosDirectosList = function(models, Q){
 
 		if (typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))) {								
 				var idj = parseInt(req.params.idjerarquia);
+
+				if (!
+					(req.user.permisoscalculados.grantoption ||
+					 req.user.permisoscalculados.superuser) 
+					 &&
+					 req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura).indexOf(idj)!==-1
+					)
+				{
+					console.error('El usuario ha intentado realizar una operacion (permisosDirectosList) que no le está permitida');
+					res.status(500).send('No tiene permiso para operar sobre permisos');
+					res.end();
+					return;
+				}				
+				
 				var restriccion = {'jerarquiadirectalectura':idj};
 				Permiso.find(restriccion, function(err, permisos){
 					if (err) {console.error(restriccion); console.error(err); res.status(500); res.end(); return; }
@@ -455,7 +526,21 @@ exports.permisosDirectosProcedimientoList = function(models,Q){
 
 		if (typeof req.params.codigoprocedimiento !== 'undefined') {								
 				var idp = req.params.codigoprocedimiento;
-				var restriccion = {'procedimientodirectalectura':idp};
+
+				if (!
+					(req.user.permisoscalculados.grantoption ||
+					 req.user.permisoscalculados.superuser) 
+					 &&
+					 req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura).indexOf(idp)!==-1
+					)
+				{
+					console.error('El usuario ha intentado realizar una operacion (permisosDirectosProcedimientoList) que no le está permitida');
+					res.status(500).send('No tiene permiso para operar sobre permisos');
+					res.end();
+					return;
+				}				
+				
+				var restriccion = {'procedimientosdirectalectura':idp};
 				Permiso.find(restriccion, function(err, permisos){
 					if (err) {console.error(restriccion); console.error(err); res.status(500); res.end(); return; }
 					else res.json(permisos);
@@ -478,6 +563,20 @@ exports.permisosProcedimientoList = function(models,Q){
 		console.log("Buscando procedimiento "+req.params.codigoprocedimiento);
 		if (typeof req.params.codigoprocedimiento !== 'undefined') {								
 				var idp = req.params.codigoprocedimiento;
+				
+				if (!
+					(req.user.permisoscalculados.grantoption ||
+					 req.user.permisoscalculados.superuser) 
+					 &&
+					 req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura).indexOf(idp)!==-1
+					)
+				{
+					console.error('El usuario ha intentado realizar una operacion (permisosDirectosProcedimientoList) que no le está permitida');
+					res.status(500).send('No tiene permiso para operar sobre permisos');
+					res.end();
+					return;
+				}				
+				
 				var restriccion = {'procedimientoslectura':idp};
 				Permiso.find(restriccion, function(err, permisos){
 					if (err) {console.error(restriccion); console.error(err); res.status(500); res.end(); return; }
@@ -701,7 +800,7 @@ exports.create = function(models) {
 				if (req.body.procedimiento && req.body.procedimiento!="") {
 					permiso.procedimientosdirectalectura.push(req.body.procedimiento);
 					if (req.body.w_option)
-						permiso.procedimientodirectaescritura.push(req.body.procedimiento);
+						permiso.procedimientosdirectaescritura.push(req.body.procedimiento);
 				}else {
 					err = "Error. Identificador de procedimiento incorrecto";
 				}			

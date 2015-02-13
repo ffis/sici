@@ -1,20 +1,28 @@
 
-
 exports.hasChildred = function (models) {
     return function (req, res) {
         var Procedimiento = models.procedimiento();
         var codigo = req.params.codigo;
-        Procedimiento.count({"padre": codigo}, function (err, count) {
-            if (err) {
-                console.error(restriccion);
-                console.error(err);
-                res.status(500);
-                res.end();
-                return;
-            }
-            console.log('hasChildren :' + count);
-            res.json({'count': count});
-        });
+		if (req.user.permisoscalculados &&
+			(req.user.permisoscalculados.procedimientoslectura.indexOf(codigo)!==-1 || 			
+			req.user.permisoscalculados.superuser)) {
+			Procedimiento.count({"padre": codigo}, function (err, count) {
+				if (err) {
+					console.error(restriccion);
+					console.error(err);
+					res.status(500);
+					res.end();
+					return;
+				}
+				console.log('hasChildren :' + count);
+				res.json({'count': count});
+			});
+		} else {
+			console.error('No tiene permiso para consultar el número de hijos de este procedimiento');
+			res.status(500);
+			res.end();
+			return;
+		}
     };
 };
 
@@ -53,6 +61,13 @@ exports.setPeriodosCerrados = function (models) {
 
 exports.createProcedimiento = function (Q, models, recalculate) {
     return function (req, res) {
+		if (!(req.user.permisoscalculados && req.user.permisoscalculados.superuser)) 
+		{
+			res.status(500).send('Error. Solo el administrador puede crear procedimientos');
+            res.end();
+            return;
+		}
+	
         if (req.body.idjerarquia && !isNaN(parseInt(req.body.idjerarquia)) &&
                 req.body.denominacion &&
                 req.body.codigo && req.body.cod_plaza && parseInt(req.body.idjerarquia) > 0)
@@ -81,33 +96,103 @@ exports.createProcedimiento = function (Q, models, recalculate) {
                             res.end();
                             return;
                         } else {
-                            procedimiento.save(function (err) {
-                                if (err) {
-                                    console.error(err);
-                                    res.status(500).send('Error 57 guardando');
-                                    res.end();
-                                    return;
-                                } else {
-                                    recalculate.softCalculateProcedimiento(Q, models, procedimiento).then(function (procedimiento) {
-                                        recalculate.softCalculateProcedimientoCache(Q, models, procedimiento).then(function (procedimiento) {
-                                            procedimiento.save(function (err) {
-                                                if (err) {
-                                                    console.error(err);
-                                                    res.status(500).send('Error 67 guardando');
-                                                    res.end();
-                                                    return;
-                                                } else {
-                                                    res.json(procedimiento);
-                                                }
-                                            });
-                                        });
-                                    });
-                                }
-                            });
+						
+							var PlantillaAnualidad = models.plantillaanualidad();
+							var Periodo = models.periodo();							
+							var defer_periodos = Q.defer();
+							var defer_plantilla = Q.defer();
+							
+							Periodo.findOne({},function(err,periodos){
+								if (err) {
+									console.error(err);
+									res.status(500);
+									res.end();
+									defer_periodos.reject(err);
+									return;
+								} 			
+								defer_periodos.resolve(periodos);
+							});	
+							
+							PlantillaAnualidad.findOne({}, function(err, plantilla){
+								if (err) {
+									console.error(err);
+									res.status(500);
+									res.end();
+									defer_plantilla.reject(err);
+									return;
+								} 
+								defer_plantilla.resolve(plantilla);
+							});
+							
+							
+							Q.all([defer_periodos.promise, defer_plantilla.promise]).then(function(data){
+								var periodos = JSON.parse(JSON.stringify(data[0]));
+								delete periodos._id;
+								var plantilla = JSON.parse(JSON.stringify(data[1]));
+								delete plantilla._id;
+								
+								procedimiento.periodos = {};
+								for (var anualidad in periodos) {
+									if (isNaN(parseInt(anualidad.replace("a","")))) continue;										
+									procedimiento.periodos[anualidad]=JSON.parse(JSON.stringify(plantilla));
+									procedimiento.periodos[anualidad].periodoscerrados=periodos[anualidad];									
+								}
+								procedimiento.periodos['a2013'] = {
+									"plazo_maximo_resolver" : 0,
+									"plazo_maximo_responder" : null,
+									"plazo_CS_ANS_naturales" : null,
+									"pendientes_iniciales" : 0,
+									"total_resueltos" : [ 
+										0, 
+										0, 
+										0, 
+										0, 
+										0, 
+										0, 
+										0, 
+										0, 
+										0, 
+										0, 
+										0, 
+										0
+									],
+									"periodoscerrados" : periodos.a2013
+								};								
+
+								
+								procedimiento.save(function (err) {
+									if (err) {
+										console.error(err);
+										res.status(500).send('Error 57 guardando');
+										res.end();
+										return;
+									} else {										
+										recalculate.softCalculateProcedimiento(Q, models, procedimiento).then(function (procedimiento) {
+											recalculate.softCalculateProcedimientoCache(Q, models, procedimiento).then(function (procedimiento) {
+												procedimiento.save(function (err) {
+													if (err) {
+														console.error(err);
+														res.status(500).send('Error 133 guardando');
+														res.end();
+														return;
+													} else {
+														res.json(procedimiento);
+													}
+												});
+											});
+										});
+									}
+								});								
+							}, function(err){
+								console.error(err);
+								res.status(500).send('Error 147 guardando');
+								res.end();
+								return;							
+							});		
                         }
                     });
                 } else {
-                    res.status(500).send('Error 67 guardando');
+                    res.status(500).send('Error 154 guardando');
                     res.end();
                     return;
                 }
@@ -147,6 +232,7 @@ exports.procedimiento = function (models) {
 exports.deleteProcedimiento = function (Q, models, recalculate) {
     return function (req, res) {
         var Procedimiento = models.procedimiento();
+        var Crawled  = models.crawled();
         var restriccion = {};
         if (typeof req.params.codigo !== 'undefined')
             //restriccion.codigo = parseInt(req.params.codigo);
@@ -166,6 +252,11 @@ exports.deleteProcedimiento = function (Q, models, recalculate) {
             var puedeEscribirSiempre = req.user.permisoscalculados.superuser;
             if (puedeEscribirSiempre) {
                 original.eliminado = true;
+                if (!isNaN(parseInt(original.codigo)))
+                        Crawled.remove({id:parseInt(original.codigo)}, function(err)
+                        {
+                                if (err) { console.error(err); }
+                        });				
             }
             Procedimiento.count({"padre": original.codigo}, function (err, count) {
                 if (err) {
@@ -209,13 +300,18 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
     return function (req, res) {
         var Procedimiento = models.procedimiento();
         var Permiso = models.permiso();
+		var Periodos = models.periodo();
+		var Crawled = models.crawled();
+                var Persona = models.persona();
         var restriccion = {};
         if (typeof req.params.codigo !== 'undefined')
             //restriccion.codigo = parseInt(req.params.codigo);
             restriccion.codigo = req.params.codigo;
         //comprobar si tiene permiso el usuario actual
 
-
+		if (!req.user.permisoscalculados.procedimientosdirectaescritura)
+			req.user.permisoscalculados.procedimientosdirectaescritura = [];
+			
         var arrays = [
             'jerarquiaescritura',
             'jerarquialectura',
@@ -241,6 +337,18 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
         ];
 
 
+		var defer_periodos = Q.defer();
+		Periodos.findOne({},function(err,periodos){
+            if (err) {
+                console.error(err);
+                res.status(500);
+                res.end();
+				defer_periodos.reject(err);
+                return;
+            } 						
+			defer_periodos.resolve(periodos);
+		});
+		
 
         Procedimiento.findOne(restriccion, function (err, original) {
             if (err) {
@@ -250,7 +358,7 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
                 res.end();
                 return;
             }
-
+			
             if (typeof original === 'undefined' || original == null) {
                 res.status(500);
                 res.end('ERROR. imposible actualizar procedimiento ');
@@ -261,7 +369,8 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
                 return;
             }
 
-
+			original.markModified('periodos');
+			
             var procedimiento = req.body;
             //TODO: comprobar qué puede cambiar y qué no
 
@@ -279,180 +388,211 @@ exports.updateProcedimiento = function (Q, models, recalculate, persona) {
                 // Actualiza estado oculto o eliminado
                 if (original.oculto !== procedimiento.oculto) {
                     hayCambiarOcultoHijos = true;
+					if (!isNaN(parseInt(procedimiento.codigo)))
+						Crawled.update({id:parseInt(procedimiento.codigo)},{'$set':{'oculto':original.oculto}},{multi:false, upsert:false}, function(err)
+						{
+							if (err) { console.error(err); }
+						});
                 }
                 original.oculto = procedimiento.oculto;
             }
 
 
             //TODO: IMPEDIR EDICION DE ANUALIDADES MUY PRETÉRITAS		
-            var schema = models.getSchema('procedimiento');
+            var schema = models.getSchema('plantillaanualidad');
             var codplaza_changed = false;
-            for (var anualidad in schema.periodos) {
+			defer_periodos.promise.then(function(periodos){
+				periodos = JSON.parse(JSON.stringify(periodos));								
+				for (var anualidad in periodos) {
+					if (isNaN(parseInt(anualidad.replace("a",""))) || parseInt(anualidad.replace("a",""))==2013) continue;					
+
+					var periodoscerrados = original.periodos[anualidad].periodoscerrados;
+
+					if (puedeEscribirSiempre) {
+						/*
+						 for(var attr in schema){
+						 if (attr == 'codigo') continue;
+						 if (attr == 'periodos') continue;
+						 if (attr == 'idjerarquia') continue;
+						 if (attr == 'cod_plaza') continue;
+						 if (attr == 'fecha_creacion') continue;
+						 if (attr == 'fecha_fin') continue;
+						 if (attr == 'fecha_version') continue;
+						 if (attr == 'etiquetas') continue;
+						 if (attr == 'padre') continue;
+						 }*/
+						if (original.cod_plaza != procedimiento.cod_plaza) {
+							original.cod_plaza = procedimiento.cod_plaza;
+							codplaza_changed = true;
+						}
+						original.denominacion = procedimiento.denominacion;
+					}
 
 
-                var periodoscerrados = original.periodos[anualidad].periodoscerrados;
+					for (var attr in schema) {
+						if (attr == 'periodoscerrados')
+							continue;
+						if (typeof original.periodos[anualidad][attr] === 'object' && Array.isArray(original.periodos[anualidad][attr]))
+						{
+							for (var mes = 0, meses = periodoscerrados.length; mes < meses; mes++)
+							{
+								var val = periodoscerrados[mes];
+								if (!val || puedeEscribirSiempre) {//el periodo no está cerrado y se puede realizar la asignacion									
+									original.periodos[anualidad][attr][mes] =
+											procedimiento.periodos[anualidad][attr][mes] != null ?
+											parseInt(procedimiento.periodos[anualidad][attr][mes]) : null;
+								}
+							}
+						} else {
+							
+							original.periodos[anualidad][attr] =
+									procedimiento.periodos[anualidad][attr] != null ?
+									parseInt(procedimiento.periodos[anualidad][attr]) : null;
+						}
+					}
+				}
+								
+				original.periodos.a2013 = {
+					"plazo_maximo_resolver" : procedimiento.periodos.a2013.plazo_maximo_resolver,
+					"plazo_maximo_responder" : procedimiento.periodos.a2013.plazo_maximo_responder,
+					"plazo_CS_ANS_naturales" : procedimiento.periodos.a2013.plazo_CS_ANS_naturales,
+					"pendientes_iniciales" : procedimiento.periodos.a2013.pendientes_iniciales,
+					"periodoscerrados" : procedimiento.periodos.a2013.periodoscerrados
+				};				
 
-                if (puedeEscribirSiempre) {
-                    /*
-                     for(var attr in schema){
-                     if (attr == 'codigo') continue;
-                     if (attr == 'periodos') continue;
-                     if (attr == 'idjerarquia') continue;
-                     if (attr == 'cod_plaza') continue;
-                     if (attr == 'fecha_creacion') continue;
-                     if (attr == 'fecha_fin') continue;
-                     if (attr == 'fecha_version') continue;
-                     if (attr == 'etiquetas') continue;
-                     if (attr == 'padre') continue;
-                     }*/
-                    if (original.cod_plaza != procedimiento.cod_plaza) {
-                        original.cod_plaza = procedimiento.cod_plaza;
-                        codplaza_changed = true;
-                    }
-                    original.denominacion = procedimiento.denominacion;
-                }
+				if (! (Array.isArray(original.periodos.a2013.total_resueltos) && original.periodos.a2013.total_resueltos.length>0))
+					original.periodos.a2013.total_resueltos = [0,0,0,0,0,0,0,0,0,0,0,0];
+				
+				for(var mes = 0, meses = original.periodos.a2013.periodoscerrados.length; mes<meses; mes++) {
+					original.periodos.a2013.total_resueltos[mes] = parseInt(procedimiento.periodos.a2013.total_resueltos[mes]);
+				}
+				
+				recalculate.softCalculateProcedimiento(Q, models, original).then(function (original) {
+					recalculate.softCalculateProcedimientoCache(Q, models, original).then(function (original) {				
+						exports.saveVersion(models, Q, original).then(function () {
+							original.fecha_version = new Date();	
+							Procedimiento.update({codigo: original.codigo}, JSON.parse(JSON.stringify(original)), {multi: false, upsert: false}, function (err, coincidencias, elemento) {							
+								if (err) {
+									console.error(err);
+									res.status(500).send(JSON.stringify(err));
+									res.end();
+									return;
+								}
+								else {		
+									var promesa_proc = Q.defer();
+									var promesa_per = Q.defer();
 
-
-                for (var attr in schema.periodos[anualidad]) {
-                    if (attr == 'periodoscerrados')
-                        continue;
-                    if (typeof original.periodos[anualidad][attr] === 'object' && Array.isArray(original.periodos[anualidad][attr]))
-                    {
-                        for (var mes = 0, meses = periodoscerrados.length; mes < meses; mes++)
-                        {
-                            var val = periodoscerrados[mes];
-                            if (!val || puedeEscribirSiempre) {//el periodo no está cerrado y se puede realizar la asignacion
-                                original.periodos[anualidad][attr][mes] =
-                                        procedimiento.periodos[anualidad][attr][mes] != null ?
-                                        parseInt(procedimiento.periodos[anualidad][attr][mes]) : null;
-                            }
-                        }
-                    } else {
-                        console.log(attr + '=>' + procedimiento.periodos[anualidad][attr]);
-                        original.periodos[anualidad][attr] =
-                                procedimiento.periodos[anualidad][attr] != null ?
-                                parseInt(procedimiento.periodos[anualidad][attr]) : null;
-                    }
-                }
-
-            }
-
-
-            recalculate.softCalculateProcedimiento(Q, models, original).then(function (original) {
-                recalculate.softCalculateProcedimientoCache(Q, models, original).then(function (original) {
-                    exports.saveVersion(models, Q, original).then(function () {
-                        original.fecha_version = new Date();
-                        Procedimiento.update({codigo: original.codigo}, JSON.parse(JSON.stringify(original)), {multi: false, upsert: false}, function (err, coincidencias, elemento) {
-                            if (err) {
-                                console.error(err);
-                                res.status(500).send(JSON.stringify(err));
-                                res.end();
-                                return;
-                            }
-                            else {
-                                var promesa_proc = Q.defer();
-                                var promesa_per = Q.defer();
-
-                                if (codplaza_changed) {
-                                    Permiso.findOne(
-                                            {codplaza: original.cod_plaza},
-                                    function (err, permiso) {
-                                        if (err) {
-                                            console.error(err);
-                                            promesa_per.reject(err);
-                                        }
-                                        else if (permiso == null) {
-                                            // si no existe permiso asociado creamos uno para el camoto este.
-                                            var nuevopermiso = {
-                                                'codplaza': original.cod_plaza,
-                                                'login': null,
-                                                'jerarquialectura': [],
-                                                'jerarquiadirectalectura': [],
-                                                'jerarquiaescritura': [],
-                                                'jerarquiadirectaescritura': [],
-                                                'procedimientoslectura': [],
-                                                'procedimientosdirectalectura': [],
-                                                'procedimientosescritura': [],
-                                                'procedimientosdirectaescritura': [],
-                                                'superuser': 0,
-                                                'grantoption': 0,
-                                                'descripcion': 'Permiso otorgado por ' + req.user.login,
-                                                'caducidad': req.user.permisoscalculados.caducidad,
-                                                'cod_plaza_grantt': req.user.login
-                                            };
-                                            var p = new Permiso(nuevopermiso);
-                                            p.save(function (err) {
-                                                if (err)
-                                                    promesa_per.reject(err);
-                                                else
-                                                    promesa_proc.resolve();
-                                            });
-											persona.registroPersonaWS(original.cod_plaza,models, Q).then(function(data) {
-												Persona.update({'codplaza':original.cod_plaza},{$set:{'habilitado':true}},{multi:false, upsert:false}, function(err){
-													console.error('Error habilitando personas del codigo de plaza responsable');
-												});
-												console.log("El pavo no existía, lo ha buscado");
-											}, function(err) {
-												Persona.update({'codplaza':original.cod_plaza},{$set:{'habilitado':true}},{multi:false, upsert:false}, function(err){
-													console.error('Error habilitando personas del codigo de plaza responsable');
-												});
-												console.log("El pavo existía u ocurrió un error molón");
+									if (codplaza_changed) {
+										Permiso.findOne(
+												{codplaza: original.cod_plaza},
+										function (err, permiso) {
+											if (err) {
 												console.error(err);
+												promesa_per.reject(err);
+											}
+											else if (permiso == null) {
+												// si no existe permiso asociado creamos uno para el camoto este.
+												var nuevopermiso = {
+													'codplaza': original.cod_plaza,
+													'login': null,
+													'jerarquialectura': [],
+													'jerarquiadirectalectura': [],
+													'jerarquiaescritura': [],
+													'jerarquiadirectaescritura': [],
+													'procedimientoslectura': [],
+													'procedimientosdirectalectura': [],
+													'procedimientosescritura': [],
+													'procedimientosdirectaescritura': [],
+													'superuser': 0,
+													'grantoption': 0,
+													'descripcion': 'Permiso otorgado por ' + req.user.login,
+													'caducidad': req.user.permisoscalculados.caducidad,
+													'cod_plaza_grantt': req.user.login
+												};
+												var p = new Permiso(nuevopermiso);
+												p.save(function (err) {
+													if (err)
+														promesa_per.reject(err);
+													else
+														promesa_proc.resolve();
+												});
+												persona.registroPersonaWS(original.cod_plaza,models, Q).then(function(data) {
+													Persona.update({'codplaza':original.cod_plaza},{$set:{'habilitado':true}},{multi:false, upsert:false}, function(err){
+														console.error('Error habilitando personas del codigo de plaza responsable');
+													});
+													console.log("El pavo no existía, lo ha buscado");
+												}, function(err) {
+													Persona.update({'codplaza':original.cod_plaza},{$set:{'habilitado':true}},{multi:false, upsert:false}, function(err){
+														console.error('Error habilitando personas del codigo de plaza responsable');
+													});
+													console.log("El pavo existía u ocurrió un error molón");
+													console.error(err);
+												});
+												
+											} else
+												promesa_per.resolve();
+										}
+										);
+										promesa_per.promise.then(
+												function () {
+													recalculate.fullSyncpermiso(Q, models).then(function (data) {
+														promesa_proc.resolve();
+													});
+												},
+												function (err) {
+													promesa_proc.reject(err);
+												});
+									} else {
+										promesa_proc.resolve();
+									}
+
+									promesa_proc.promise.then(function () {
+										if (hayCambiarOcultoHijos) {
+											exports.ocultarHijos(original, models, Q).then(function () {
+												recalculate.fullSyncjerarquia(Q, models).then(function () {
+													res.json(original);
+												}, function (err) {
+													console.error(err);
+													res.send(500, JSON.stringify(err));
+												});
 											});
-											
-                                        } else
-                                            promesa_per.resolve();
-                                    }
-                                    );
-
-                                    promesa_per.promise.then(
-                                            function () {
-                                                recalculate.fullSyncpermiso(Q, models).then(function (data) {
-                                                    promesa_proc.resolve();
-                                                });
-                                            },
-                                            function (err) {
-                                                promesa_proc.reject(err);
-                                            });
-                                } else {
-                                    promesa_proc.resolve();
-                                }
-
-                                promesa_proc.promise.then(function () {
-                                    if (hayCambiarOcultoHijos) {
-                                        exports.ocultarHijos(original, models, Q).then(function () {
-                                            recalculate.fullSyncjerarquia(Q, models).then(function () {
-                                                res.json(original);
-                                            }, function (err) {
-                                                console.error(err);
-                                                res.send(500, JSON.stringify(err));
-                                            });
-                                        });
-                                    } else {
-                                        res.json(original);
-                                        console.log(JSON.stringify(elemento));
-                                        console.log(coincidencias);
-                                    }
-                                }, function (err) {
-                                    console.error(err);
-                                    res.status(500).send(JSON.stringify(err));
-                                    res.end();
-                                    return;
-                                });
-                            }
-                        });
-                    });
-                });
-            });
+										} else {
+											res.json(original);
+											console.log(JSON.stringify(elemento));
+											console.log(coincidencias);
+										}
+									}, function (err) {
+										console.error(err);
+										res.status(500).send(JSON.stringify(err));
+										res.end();
+										return;
+									});
+								}
+							});
+						});
+					});
+				});
+			
+			},function(err){				
+				console.error(err);
+				res.status(500).send(JSON.stringify(err));
+				res.end();
+				return;
+			});
+			
         });
     };
 };
 
 exports.ocultarHijos = function (procedimiento, models, Q) {
     var defer = Q.defer();
+	
     var Procedimiento = models.procedimiento();
     var promesas_procs = [];
     Procedimiento.find({padre: procedimiento.codigo}, function (err, procs) {
+        if (err){
+             defer.reject(err);
+        }
         procs.forEach(function (proc) {
             exports.saveVersion(models, Q, proc).then(function () {
                 var deferProc = Q.defer();
@@ -482,6 +622,14 @@ exports.ocultarHijos = function (procedimiento, models, Q) {
 exports.procedimientosByResponsable = function(models,Q)
 {
 	return function(req, res){
+		if (!(req.user.permisoscalculados && req.user.permisoscalculados.superuser)) {
+			var msg = 'Error de permisos.';
+			console.error(msg);
+			res.status(500).send(msg);
+			res.end();
+			return;
+		}
+		
 		var Procedimiento = models.procedimiento();
 		if (typeof req.params.codplaza !== 'undefined' && req.params.codplaza!="") {
 			var cod_plaza = req.params.codplaza;
@@ -523,63 +671,21 @@ exports.procedimientoList = function (models, Q) {
                         {'$and': [
                                 {'ancestros.id': {'$in': [parseInt(req.params.idjerarquia)]}},
                                 {'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}},
-                                {'$or': [
-                                        {'oculto': {$exists: false}},
-                                        {'$and': [
-                                                {'oculto': {$exists: true}},
-                                                {'oculto': false},
-                                            ]}
-                                    ]
-                                },
-                                {'$or': [
-                                        {'eliminado': {$exists: false}},
-                                        {'$and': [
-                                                {'eliminado': {$exists: true}},
-                                                {'eliminado': false},
-                                            ]}
-                                    ]
-                                }
+								{'oculto':{'$ne':true}},
+								{'eliminado':{'$ne':true}}
                             ]} :
                         {'$and': [
                                 {'idjerarquia': parseInt(req.params.idjerarquia)},
                                 {'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}},
-                                {'$or': [
-                                        {'oculto': {$exists: false}},
-                                        {'$and': [
-                                                {'oculto': {$exists: true}},
-                                                {'oculto': false}
-                                            ]}
-                                    ]
-                                },
-                                {'$or': [
-                                        {'eliminado': {$exists: false}},
-                                        {'$and': [
-                                                {'eliminado': {$exists: true}},
-                                                {'eliminado': false}
-                                            ]}
-                                    ]
-                                }
+								{'oculto':{'$ne':true}},
+								{'eliminado':{'$ne':true}}
                             ]}
                 )
                 :
                 {'$and': [
                         {'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}},
-                        {'$or': [
-                                {'oculto': {$exists: false}},
-                                {'$and': [
-                                        {'oculto': {$exists: true}},
-                                        {'oculto': false},
-                                    ]}
-                            ]
-                        },
-                        {'$or': [
-                                {'eliminado': {$exists: false}},
-                                {'$and': [
-                                        {'eliminado': {$exists: true}},
-                                        {'eliminado': false},
-                                    ]}
-                            ]
-                        }
+						{'oculto':{'$ne':true}},
+						{'eliminado':{'$ne':true}}
                     ]};
 
         var cb = function (err, data) {
@@ -589,10 +695,13 @@ exports.procedimientoList = function (models, Q) {
                 res.status(500);
                 res.end();
                 return;
-            }
+            }	
+			console.log(data.length);
             res.json(data);
+
         };
 
+		
         var query = Procedimiento.find(restriccion);
         if (typeof fields !== 'undefined') {
             query.select(fields);
@@ -625,7 +734,6 @@ exports.totalProcedimientos = function (models) {
                 res.status(500).end();
                 return;
             } else {
-                console.log(count);
                 res.json({count: count});
             }
         });
@@ -635,11 +743,11 @@ exports.totalProcedimientos = function (models) {
 exports.totalTramites = function (settings, models) {
     return function (req, res) {
         var Procedimiento = models.procedimiento();
+        var anualidad = req.params.anualidad ? parseInt(req.params.anualidad) : settings.anyo;
         Procedimiento.aggregate([
-            {$unwind: "$periodos.a2014.solicitados"},
             {$match: {idjerarquia: {$in: req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}},
             {'$group': {_id: '',
-                    suma: {$sum: '$periodos.a2014.solicitados'},
+                    suma: {$sum: '$periodos.a'+anualidad+'.totalsolicitados'},
                 }}
         ], function (err, result) {
             if (err) {
@@ -653,15 +761,17 @@ exports.totalTramites = function (settings, models) {
     };
 };
 
-exports.ratioResueltos = function (models) {
+exports.ratioResueltos = function (settings, models) {
     return function (req, res) {
         var Procedimiento = models.procedimiento();
+        var anualidad = req.params.anualidad ? parseInt(req.params.anualidad) : settings.anyo;
+
         Procedimiento.aggregate([
             {'$match': {idjerarquia: {$in: req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}},
-            {'$unwind': "$periodos.a2014.solicitados"},
+            {'$unwind': '$periodos.a'+anualidad+'.solicitados'},
             {'$group': {_id: '$_id',
-                    suma: {$sum: '$periodos.a2014.solicitados'},
-                    resueltos: {$first: '$periodos.a2014.total_resueltos'}}},
+                    suma: {$sum: '$periodos.a'+anualidad+'.solicitados'},
+                    resueltos: {$first: '$periodos.a'+anualidad+'.total_resueltos'}}},
             {$unwind: '$resueltos'},
             {'$group': {_id: '$_id',
                     suma: {$first: '$suma'},
@@ -679,7 +789,6 @@ exports.ratioResueltos = function (models) {
                 res.status(500).end();
                 return;
             } else {
-                console.log(result);
                 if (result.length == 0) {
                     res.json({'ratio': 0});
                 } else {
@@ -691,14 +800,16 @@ exports.ratioResueltos = function (models) {
     };
 };
 
-exports.procedimientosSinExpedientes = function (models) {
+exports.procedimientosSinExpedientes = function (settings, models) {
     return function (req, res) {
         var Procedimiento = models.procedimiento();
+        var anualidad = req.params.anualidad ? parseInt(req.params.anualidad) : settings.anyo;
+
         Procedimiento.aggregate([
             {$match: {idjerarquia: {$in: req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}},
-            {$unwind: "$periodos.a2014.solicitados"},
+            {$unwind: '$periodos.a'+anualidad+'.solicitados'},
             {$group: {_id: '$_id',
-                    suma: {$sum: '$periodos.a2014.solicitados'}}},
+                    suma: {$sum: '$periodos.a'+anualidad+'.solicitados'}}},
             {$match: {'suma': 0}},
             {$group: {_id: '',
                     total: {$sum: 1}}}
@@ -715,7 +826,7 @@ exports.procedimientosSinExpedientes = function (models) {
     };
 };
 
-exports.mediaMesTramites = function (models) {
+exports.mediaMesTramites = function (settings, models) {
     return function (req, res) {
         var anualidad = settings.anyo;
         var Procedimiento = models.procedimiento();
@@ -727,11 +838,9 @@ exports.mediaMesTramites = function (models) {
                 res.status(500).end();
                 return;
             } else {
-                console.log(count);
                 res.json({count: count});
             }
         });
     };
 };
-
 

@@ -1,5 +1,5 @@
 
-<div ng-controller="ActividadCtrl" class="row">
+<div class="row">
 	<div ng-class="{'col-lg-5': !oculto, 'hidden': oculto}" class="left animated">
 		<div class="panel panel-danger">
 			<div class="panel-heading">
@@ -119,6 +119,17 @@
 		<div>
 			{{filtrotxtprocedimiento.codigo}}
 		</div>
+                <div>
+                    <div class="btn-group">
+                        <button ng-class="{disabled: actualizando > 0}" class="btn btn-default" ng-click="descargarExcel()">
+                            <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>&nbsp;Descargar excel
+                        </button>&nbsp;&nbsp;
+						<a class="btn btn-default" role="button" href="/resumenorganica/{{idjerarquia}}" ng-if="idjerarquia && !seleccionado">Ver resumen</a>
+						<a class="btn btn-default" role="button" href="/resumenorganica/{{seleccionado.id}}" ng-if="seleccionado && seleccionado.id">Ver resumen</a>
+                        <p ng-if="actualizando > 0">Generando informe...</p>
+                    </div>
+                    <div class="alert {{respuesta.clase}}" role="alert">{{respuesta.mensaje}}</div>
+                </div>
 		<div ng-if="procedimientosfiltrados.length" class="table-responsive">
 			<table class="table table-striped table-bordered table-condensed table-hover" id="procedimientostable">
 				<thead>

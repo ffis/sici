@@ -1,8 +1,4 @@
-
-/*
- * GET home page.
- */
-
 exports.index = function(req, res){
-	res.sendfile( 'index.html', {root: __dirname +'/../public'});
+	"use strict";
+	res.sendFile( "index.html", {root: __dirname + "/../public"});
 };

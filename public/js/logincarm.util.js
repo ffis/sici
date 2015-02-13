@@ -83,40 +83,51 @@ angular.module('sici.login.util', ['ngResource'])
 		  return {
 		  	carmlogin: true,
 			login: function (credentials) {
-				var urlconsulta = '/SICI_SSO/LoginSSO';
-				var urllogin = '/SICI_SSO/';
-				
-				var deferred = $q.defer()
-				$http.get(urlconsulta).success(
-					function(data, status, headers, config){
-						if (typeof data.t === 'undefined') {								
-							$log.info('URL sesión no iniciada');
-							var full = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
-							window.location.href=full+urllogin;
-						}else{
-							
-							/** hacemos un post a la dirección del login. Esperamos respuesta. Si statusCode=401 hay error de autenticación **/				
-							$http.post('/authenticate', data)
-								.success(function (data, status, headers, config) {
-									$window.localStorage.token = data.token;
-									$log.info('Contraseña válida');
-									Session.create(data.profile);
-									deferred.resolve(data.profile);
-								}).error(function(data, status, headers, config){
-									$log.info('Contraseña no válida');
-									delete $window.localStorage.token;
-									deferred.reject();
-								});
+				if (!!credentials.notcarmuser){
+					console.log(credentials);
+					return $http.post('/authenticate', credentials)
+					.success(function (data, status, headers, config) {
+						$window.localStorage.token = data.token;
+						$log.info('Contraseña válida');
+						Session.create(data.profile);
+					}).error(function(data, status, headers, config){
+						$log.info('Contraseña no válida');
+						delete $window.localStorage.token;
+					});				
+				} else  {
+					var urlconsulta = '/SICI_SSO/LoginSSO';
+					var urllogin = '/SICI_SSO/';
+					
+					var deferred = $q.defer()
+					$http.get(urlconsulta).success(
+						function(data, status, headers, config){
+							if (typeof data.t === 'undefined') {								
+								$log.info('URL sesión no iniciada');
+								var full = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+								window.location.href=full+urllogin;
+							}else{
+								
+								/** hacemos un post a la dirección del login. Esperamos respuesta. Si statusCode=401 hay error de autenticación **/				
+								$http.post('/authenticate', data)
+									.success(function (data, status, headers, config) {
+										$window.localStorage.token = data.token;
+										$log.info('Contraseña válida');
+										Session.create(data.profile);
+										deferred.resolve(data.profile);
+									}).error(function(data, status, headers, config){
+										$log.info('Contraseña no válida');
+										delete $window.localStorage.token;
+										deferred.reject();
+									});
+							}
 						}
-					}
-				).error(function(data, status, headers, config){
-					$log.info('URL sesión no iniciada');
-					alert('He fallado '+ JSON.stringify(data));
-					deferred.reject();
-				});
-				return deferred.promise;
-				
-				
+					).error(function(data, status, headers, config){
+						$log.info('URL sesión no iniciada');
+						alert('He fallado '+ JSON.stringify(data));
+						deferred.reject();
+					});
+					return deferred.promise;
+				}
 			},
 			user: function(){
 			    return Session;

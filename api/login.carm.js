@@ -1,12 +1,15 @@
-var request = require("request");
-
+var request = require('request');
 
 exports.uncrypt = function(urlbasedecrypt){
-	return function(req,res,next)
+	'use strict';
+	return function(req, res, next)
 	{//espera en body un objeto json {t:sesionencriptada}
 
+		//console.log(req.body);
+		if (typeof req.body.notcarmuser !== 'undefined' && req.body.notcarmuser) { next(); return; }
+
 		var buffer = req.body.t,
-			url = urlbasedecrypt+buffer;
+			url = urlbasedecrypt + buffer;
 
 		request(url, function(err, response, txt) {
 			if (err){
@@ -21,7 +24,7 @@ exports.uncrypt = function(urlbasedecrypt){
 					req.body.password = 'password';
 					next();
 				}catch(exc){
-					console.error('Error parseando JSON token-sesión '+txt);
+					console.error('Error parseando JSON token-sesión ' + txt);
 					console.error('Wrong token password');
 					res.status(401).send('Wrong token password');
 				}
@@ -30,5 +33,5 @@ exports.uncrypt = function(urlbasedecrypt){
 				res.status(401).send('Wrong token password');
 			}
 		});
-	}
-}
+	};
+};

@@ -1,10 +1,8 @@
 /*!
- * angular-translate - v2.4.1 - 2014-10-03
- * http://github.com/PascalPrecht/angular-translate
+ * angular-translate - v2.4.2 - 2014-10-21
+ * http://github.com/angular-translate/angular-translate
  * Copyright (c) 2014 ; Licensed MIT
  */
-
-
 angular.module('pascalprecht.translate', ['ng']).run([
   '$translate',
   function ($translate) {
@@ -28,7 +26,7 @@ angular.module('pascalprecht.translate').provider('$translate', [
   '$STORAGE_KEY',
   function ($STORAGE_KEY) {
     var $translationTable = {}, $preferredLanguage, $availableLanguageKeys = [], $languageKeyAliases, $fallbackLanguage, $fallbackWasString, $uses, $nextLang, $storageFactory, $storageKey = $STORAGE_KEY, $storagePrefix, $missingTranslationHandlerFactory, $interpolationFactory, $interpolatorFactories = [], $interpolationSanitizationStrategy = false, $loaderFactory, $cloakClassName = 'translate-cloak', $loaderOptions, $notFoundIndicatorLeft, $notFoundIndicatorRight, $postCompilingEnabled = false, NESTED_OBJECT_DELIMITER = '.', loaderCache;
-    var version = '2.4.1';
+    var version = '2.4.2';
     var getLocale = function () {
       var nav = window.navigator;
       return ((angular.isArray(nav.languages) ? nav.languages[0] : nav.language || nav.browserLanguage || nav.systemLanguage || nav.userLanguage) || '').split('-').join('_');
@@ -697,11 +695,9 @@ angular.module('pascalprecht.translate').provider('$translate', [
           return deferred.promise;
         };
         $translate.instant = function (translationId, interpolateParams, interpolationId) {
-          
           if (translationId === null || angular.isUndefined(translationId)) {
             return translationId;
           }
-
           if (angular.isArray(translationId)) {
             var results = {};
             for (var i = 0, c = translationId.length; i < c; i++) {
@@ -709,7 +705,6 @@ angular.module('pascalprecht.translate').provider('$translate', [
             }
             return results;
           }
-
           if (angular.isString(translationId) && translationId.length < 1) {
             return translationId;
           }
@@ -928,12 +923,23 @@ angular.module('pascalprecht.translate').directive('translateCloak', [
   function ($rootScope, $translate) {
     return {
       compile: function (tElement) {
-        var removeListener = $rootScope.$on('$translateChangeEnd', function () {
+        var applyCloak = function () {
+            tElement.addClass($translate.cloakClassName());
+          }, removeCloak = function () {
             tElement.removeClass($translate.cloakClassName());
+          }, removeListener = $rootScope.$on('$translateChangeEnd', function () {
+            removeCloak();
             removeListener();
             removeListener = null;
           });
-        tElement.addClass($translate.cloakClassName());
+        applyCloak();
+        return function linkFn(scope, iElement, iAttr) {
+          if (iAttr.translateCloak && iAttr.translateCloak.length) {
+            iAttr.$observe('translateCloak', function (translationId) {
+              $translate(translationId).then(removeCloak, applyCloak);
+            });
+          }
+        };
       }
     };
   }

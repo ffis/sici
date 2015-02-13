@@ -12,16 +12,10 @@
 				</div>
 			</a>
 		</div>
-		<!--div class="row">
-			<div ng-repeat="mes in meses" class="col-lg-1 col-md-2 col-sm-2 mes">
-				<span easypiechart="easypiechart" options="options[$index]" percent="$index &lt;= mesActual ? percent[$index] :0" class="chart">
-					<span class="percent">{{$index <= mesActual ? percent[$index] :0}}</span>
-				</span>
-				<div class="text-center">{{mes}}</div>
-			</div>
-		</div-->
-		<div style="margin-top:1em" class="row">
-			<div class="col-md-6 col-sm-6">
+		<div style="margin-top:1em" class="row" >
+			<div ng-If="pendientes.length>0" ng-class="{
+			'col-md-6' : inconsistencias.length>0 && pendientes.length>0, 'col-sm-6' : inconsistencias.length>0 && pendientes.length>0,
+			'col-md-12' : inconsistencias.length==0, 'col-sm-12' : inconsistencias.length==0 }">
 				<div class="portlet box yellow">
 					<div class="portlet-title">
 						<div class="caption">
@@ -41,7 +35,9 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-md-6 col-sm-6">
+			<div ng-If="inconsistencias.length>0" ng-class="{
+			'col-md-6' : inconsistencias.length>0 && pendientes.length>0, 'col-sm-6' : inconsistencias.length>0 && pendientes.length>0,
+			'col-md-12' : pendientes.length==0, 'col-sm-12' : pendientes.length==0 }">
 				<div class="portlet box red">
 					<div class="portlet-title">
 						<div class="caption">

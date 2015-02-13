@@ -29,7 +29,7 @@
 						</thead>
 						<tfoot>
 							<tr>
-								<th>Total<span ng-click="exportXLS($index)" class="pull-right glyphicon glyphicon-floppy-disk">
+								<th>Total<span ng-click="$root.exportXLS('tabladatos'+$index, 'estadisticas')" class="pull-right glyphicon glyphicon-floppy-disk">
 								</span>
 							</th>
 							<td class="numberCell">{{graph.sum}}</td>
@@ -80,9 +80,14 @@
 				<form class="form-horizontal">
 					<div class="form-group">
 						<label class="control-label col-md-3">Clave de agrupación:</label>
-						<div class="col-md-7">
+						<div class="col-md-5">
 							<select ng-model="campo"  class="form-control">
 								<option ng-repeat="o in campos" ng-value="o" ng-selected="o==campo">{{o|translate}}</option>
+							</select>
+						</div>
+						<div class="col-md-2">
+							<select ng-model="anualidad"  class="form-control">
+								<option ng-repeat="a in anualidades" ng-value="a" ng-selected="a==anualidad">{{a}}</option>
 							</select>
 						</div>
 						<div class="col-md-2">
