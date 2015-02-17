@@ -8,7 +8,7 @@
 			$window.document.title = 'SICI: Actividad';
 			$scope.arbol = Arbol.query(function(){ $scope.setJerarquiaById($scope.idjerarquia); });
 
-			$scope.idjerarquia = ($routeParams.idjerarquia) ? $routeParams.idjerarquia : false;
+			$scope.idjerarquia = ($routeParams.idjerarquia) ? parseInt( $routeParams.idjerarquia ) : false;
 			$scope.camposfiltros = ['cod_plaza'];
 			$scope.filtros = {};
 			$scope.filtro = {};
@@ -70,6 +70,10 @@
 					if (setJ( $scope.arbol[idx], idj)){ break; }
 				}
 			};
+
+			if ($scope.idjerarquia){
+				$timeout(function() { $scope.setJerarquiaById($scope.idjerarquia); }, 100);
+			}
 
 			$scope.oculto = false;
 			$scope.procedimientos = [];
