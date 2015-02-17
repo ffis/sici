@@ -130,8 +130,8 @@ exports.mapReducePeriodos = function (Q, models, idjerarquia) {
 				}
 			}
 			for(var mes = 0; mes < 12; mes++){
-				sumas.t_medio_naturales[mes] = (sumas.t_medio_naturales[mes].count === 0 ) ? 0 : sumas.t_medio_naturales[mes].value / sumas.t_medio_naturales[mes].count;
-				sumas.t_medio_habiles[mes] = (sumas.t_medio_habiles[mes].count === 0 ) ? 0 : sumas.t_medio_habiles[mes].value / sumas.t_medio_habiles[mes].count;
+				sumas.t_medio_naturales[mes] = (sumas.t_medio_naturales[mes].count === 0 ) ? 0 : (sumas.t_medio_naturales[mes].value / sumas.t_medio_naturales[mes].count).toFixed(2);
+				sumas.t_medio_habiles[mes] = (sumas.t_medio_habiles[mes].count === 0 ) ? 0 : (sumas.t_medio_habiles[mes].value / sumas.t_medio_habiles[mes].count).toFixed(2);
 			}
 			return sumas;
 		};
