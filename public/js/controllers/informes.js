@@ -88,7 +88,7 @@
 					if (cached && cached._id && cached._id.idjerarquia===nodoid && cached._id.anualidad === anualidad){
 						return cached;
 					}
-					for(var i = 0, j = $scope.stats.length; i<j; i++){
+					for(var i = 0, j = $scope.stats.length; i < j; i++){
 						if ($scope.stats[i]._id.idjerarquia === nodoid && $scope.stats[i]._id.anualidad === anualidad){
 							cached = $scope.stats[i];
 							return cached;
@@ -107,7 +107,6 @@
 				$scope.oculto = false;
 				$scope.columnasocultas = true;
 				$scope.campos = [
-					//'t_medio_habiles', 't_medio_naturales',
 					'en_plazo', 'fuera_plazo',
 					'resueltos_desistimiento_renuncia_caducidad', 'resueltos_prescripcion',
 					'resueltos_1', 'resueltos_5', 'resueltos_10', 'resueltos_15', 'resueltos_30', 'resueltos_45', 'resueltos_mas_45',

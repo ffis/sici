@@ -185,6 +185,24 @@
 					<td ng-hide="columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></td>                    
 				</tr>
 				<tr>
+					<th>{{'t_medio_habiles' | translate }}</th>
+					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{fnGetStatsNode(seleccionado.id, 2014).value['t_medio_habiles_anual'].avg | numberFormat}}</td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
+					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{fnGetStatsNode(nodo.id, 2014).value['t_medio_habiles_anual'].avg | numberFormat}}</td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==nodo.id}"></td>
+					<td ng-hide="columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></td>                    
+				</tr>
+				<tr>
+					<th>{{'t_medio_naturales' | translate }}</th>
+					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{fnGetStatsNode(seleccionado.id, 2014).value['t_medio_naturales_anual'].avg | numberFormat}}</td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
+					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{fnGetStatsNode(nodo.id, 2014).value['t_medio_naturales_anual'].avg | numberFormat}}</td>
+					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==nodo.id}"></td>
+					<td ng-hide="columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></td>                    
+				</tr>
+				<tr>
 					<th>Pendientes (a final de periodo= ultimos pendientes)</th>
 					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{fnGetStatsNode(seleccionado.id, 2014).value.pendientes[11]| numberFormat}}</td>
 					<td ng-hide="columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
@@ -228,7 +246,7 @@
 						<th>Resueltos totales</th>
 						<td ng-repeat="valor in fnGetStatsNode(detallado.id, 2014, campo).value['total_resueltos'] track by $index" style="text-align:right">{{ valor | numberFormat}}</td>
 					</tr>
-					<tr ng-repeat="campo in campos">
+					<tr ng-repeat="campo in campos.concat(['t_medio_habiles','t_medio_naturales'])">
 						<th>{{campo | translate}}</th>
 						<td ng-repeat="valor in fnGetStatsNode(detallado.id, 2014, campo).value[campo] track by $index" style="text-align:right">{{ valor | numberFormat}}</td>
 					</tr>

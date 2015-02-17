@@ -129,10 +129,20 @@ exports.mapReducePeriodos = function (Q, models, idjerarquia) {
 					}
 				}
 			}
+			sumas.t_medio_naturales_anual = { count: 0, value: 0, avg: 0 };
+			sumas.t_medio_habiles_anual = { count: 0, value: 0, avg: 0 };
 			for(var mes = 0; mes < 12; mes++){
+				sumas.t_medio_naturales_anual.count += sumas.t_medio_habiles[mes].count;
+				sumas.t_medio_naturales_anual.value += sumas.t_medio_habiles[mes].value;
+				sumas.t_medio_habiles_anual.count += sumas.t_medio_habiles[mes].count;
+				sumas.t_medio_habiles_anual.value += sumas.t_medio_habiles[mes].value;
+
 				sumas.t_medio_naturales[mes] = (sumas.t_medio_naturales[mes].count === 0 ) ? 0 : parseFloat( (sumas.t_medio_naturales[mes].value / sumas.t_medio_naturales[mes].count).toFixed(2) );
 				sumas.t_medio_habiles[mes] = (sumas.t_medio_habiles[mes].count === 0 ) ? 0 : parseFloat( (sumas.t_medio_habiles[mes].value / sumas.t_medio_habiles[mes].count).toFixed(2) );
 			}
+			sumas.t_medio_naturales_anual.avg = (sumas.t_medio_naturales_anual.count === 0 ) ? 0 : parseFloat( (sumas.t_medio_naturales_anual.value / sumas.t_medio_naturales_anual.count).toFixed(2) );
+			sumas.t_medio_habiles_anual.avg = (sumas.t_medio_habiles_anual.count === 0 ) ? 0 : parseFloat( (sumas.t_medio_habiles_anual.value / sumas.t_medio_habiles_anual.count).toFixed(2) );
+
 			return sumas;
 		};
 		//reduce phase

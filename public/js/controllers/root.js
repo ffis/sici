@@ -64,9 +64,8 @@
 		};
 
 		$rootScope.exportXLS = function(idx, nombre){
-			var blob = new Blob(['<meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8"><table width="100%">' + document.getElementById(idx).innerHTML + '</table>'], {
-				type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8'
-			});
+			var blob = new Blob(['<meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8"><table width="100%">' + document.getElementById(idx).innerHTML + '</table>'],
+				{ type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8' });
 			saveAs(blob, nombre + '.xls');
 		};
 
