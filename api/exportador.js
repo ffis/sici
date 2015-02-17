@@ -132,8 +132,8 @@ exports.mapReducePeriodos = function (Q, models, idjerarquia) {
 			sumas.t_medio_naturales_anual = { count: 0, value: 0, avg: 0 };
 			sumas.t_medio_habiles_anual = { count: 0, value: 0, avg: 0 };
 			for(var mes = 0; mes < 12; mes++){
-				sumas.t_medio_naturales_anual.count += sumas.t_medio_habiles[mes].count;
-				sumas.t_medio_naturales_anual.value += sumas.t_medio_habiles[mes].value;
+				sumas.t_medio_naturales_anual.count += sumas.t_medio_naturales[mes].count;
+				sumas.t_medio_naturales_anual.value += sumas.t_medio_naturales[mes].value;
 				sumas.t_medio_habiles_anual.count += sumas.t_medio_habiles[mes].count;
 				sumas.t_medio_habiles_anual.value += sumas.t_medio_habiles[mes].value;
 
