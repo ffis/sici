@@ -392,8 +392,7 @@
 				});
 			}, function (err) {
 				console.error(err);
-				res.status(500);
-				res.end();
+				res.status(500).end();
 				return;
 			});
 		};
@@ -433,32 +432,23 @@
 					var pos = 1;
 					for (var i = 0; i < datosBasicos.length; i++) {
 						var value = proc[datosBasicos[i]];
-						var cellValue = {v: (value === null || typeof value === 'undefined') ? '' : value, t: 's'};
-						var cellValueRef = XLSX.utils.encode_cell({c: 4, r: pos});
-						ws[cellValueRef] = cellValue;
-						cellValue = {v: datosBasicosNombre[i], t: 's'};
-						cellValueRef = XLSX.utils.encode_cell({c: 3, r: pos});
-						ws[cellValueRef] = cellValue;
+
+						ws[ XLSX.utils.encode_cell({c: 4, r: pos}) ] = {v: (value === null || typeof value === 'undefined') ? '' : value, t: 's'};
+						ws[ XLSX.utils.encode_cell({c: 3, r: pos}) ] = {v: datosBasicosNombre[i], t: 's'};
 						pos++;
 					}
 					for (var i = 0; i < datosFechas.length; i++) {
 						var value = proc[datosFechas[i]];
-						var cellValue = {v: (value === null || typeof value === 'undefined') ? '' : value, t: 'd'};
-						var cellValueRef = XLSX.utils.encode_cell({c: 4, r: pos});
-						ws[cellValueRef] = cellValue;
-						cellValue = {v: datosFechasNombre[i], t: 's'};
-						cellValueRef = XLSX.utils.encode_cell({c: 3, r: pos});
-						ws[cellValueRef] = cellValue;
+
+						ws[ XLSX.utils.encode_cell({c: 4, r: pos}) ] = {v: (value === null || typeof value === 'undefined') ? '' : value, t: 'd'};
+						ws[ XLSX.utils.encode_cell({c: 3, r: pos}) ] = {v: datosFechasNombre[i], t: 's'};
 						pos++;
 					}
 					for (var i = 0; i < datosBasicosAnualidad.length; i++) {
 						var value = proc.periodos[req.params.year][datosBasicosAnualidad[i]];
-						var cellValue = {v: (value === null || typeof value === 'undefined') ? '' : value, t: 'n'};
-						var cellValueRef = XLSX.utils.encode_cell({c: 4, r: pos});
-						ws[cellValueRef] = cellValue;
-						cellValue = {v: datosBasicosAnualidadNombre[i], t: 's'};
-						cellValueRef = XLSX.utils.encode_cell({c: 3, r: pos});
-						ws[cellValueRef] = cellValue;
+
+						ws[ XLSX.utils.encode_cell({c: 4, r: pos}) ] = {v: (value === null || typeof value === 'undefined') ? '' : value, t: 'n'};
+						ws[ XLSX.utils.encode_cell({c: 3, r: pos}) ] = {v: datosBasicosAnualidadNombre[i], t: 's'};
 						pos++;
 					}
 					var padreDefer = Q.defer();
@@ -467,12 +457,8 @@
 							if (err) {
 								padreDefer.reject(err);
 							} else {
-								var cellValue = {v: '[' + padre.codigo + '] ' + padre.denominacion, t: 's'};
-								var cellValueRef = XLSX.utils.encode_cell({c: 4, r: pos});
-								ws[cellValueRef] = cellValue;
-								cellValue = {v: 'Padre', t: 's'};
-								cellValueRef = XLSX.utils.encode_cell({c: 3, r: pos});
-								ws[cellValueRef] = cellValue;
+								ws[ XLSX.utils.encode_cell({c: 4, r: pos}) ] = {v: '[' + padre.codigo + '] ' + padre.denominacion, t: 's'};
+								ws[ XLSX.utils.encode_cell({c: 3, r: pos}) ] = {v: 'Padre', t: 's'};
 								padreDefer.resolve();
 							}
 						});
