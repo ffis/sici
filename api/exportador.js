@@ -209,8 +209,8 @@
 			'resueltos_45', 'resueltos_mas_45', 'resueltos_desistimiento_renuncia_caducidad', 'resueltos_prescripcion', 'en_plazo', 
 			'total_resueltos', 'fuera_plazo', 'pendientes'];
 
-		
-		Jerarquia.find({ancestrodirecto:jerarquia.id},{id:true,_id:false,nombre:true,numProcedimientos:true,nombrelargo:true},function(err, hijos){
+
+		Jerarquia.find({ancestrodirecto:jerarquia.id}, {id: true, _id: false, nombre:true, numProcedimientos: true, nombrelargo: true},function(err, hijos){
 			if (err)
 				defer_descendientes.reject(err);
 			else {
@@ -219,7 +219,7 @@
 		});
 
 		Q.all([defer_descendientes.promise, exports.mapReducePeriodos(Q, models)]).then(
-			function(all_data) {		
+			function(all_data) {
 				var results = all_data[1];
 				var hijos = all_data[0];
 				hijos = ([ {nombrelargo:jerarquia.nombrelargo, nombre:jerarquia.nombre, id:jerarquia.id} ]).concat(hijos);
@@ -249,21 +249,21 @@
 				var cellValue;
 				var cellValueRef;
 
-				for(var i=0,j=hijos.length,k=0;i<j;i++)
+				for(var i=0, j = hijos.length, k = 0; i < j; i++)
 				{
 					var h = hijos[i];
 
-					if (typeof periodos[ihijos[i]] === 'undefined') continue;
+					if (typeof periodos[ihijos[i]] === 'undefined'){ continue; }
 
-					cellValue = {v:h.nombrelargo, t:'s'};
-					cellValueRef = XLSX.utils.encode_cell({c: ic+k, r: rowhead});
+					cellValue = {v: h.nombrelargo, t: 's'};
+					cellValueRef = XLSX.utils.encode_cell({c: ic + k, r: rowhead});
 					ws[cellValueRef] = cellValue;
 					k++;
 				}
 				max_c = ic + k;
 				ic = columnhead;
 				ir = rowhead + 1;
-				if (typeof periodos[jerarquia.id] === 'undefined'){ 
+				if (typeof periodos[jerarquia.id] === 'undefined'){
 					periodos[jerarquia.id] = {};
 				}
 
@@ -285,17 +285,16 @@
 				// PARA CADA HIJO UNA COLUMNA
 				for(var i = 0, l = hijos.length; i < l; i++)
 				{
-					var ir = rowhead+1;
+					var ir = rowhead + 1;
 					if (typeof periodos[ihijos[i]] === 'undefined')
 					{
 						continue;
 					}
 					for(var anualidad = 2014; typeof periodos[ihijos[i]][anualidad] !== 'undefined'; anualidad++)
 					{
-
 						/*cellValue = {v: anualidad, t:'n'};
-						cellValueRef = XLSX.utils.encode_cell({c: ic, r: ir});	
-						ws[cellValueRef] = cellValue;		*/			
+						cellValueRef = XLSX.utils.encode_cell({c: ic, r: ir});
+						ws[cellValueRef] = cellValue;		*/
 						ir++;
 						for(var ind=0, l2 = indicadoresDatabase.length; ind < l2; ind++)
 						{
@@ -310,8 +309,8 @@
 					}
 					ic++;
 				}
-				var range = {s: {c: 0, r: 0}, e: {c: max_c, r: max_r}};
-				ws['!ref'] = XLSX.utils.encode_range(range);
+
+				ws['!ref'] = XLSX.utils.encode_range({s: {c: 0, r: 0}, e: {c: max_c, r: max_r}});
 				defer.resolve(ws);
 			},
 			function(err) {
@@ -348,12 +347,11 @@
 				exports.mapReducePeriodos(Q, models, parseInt(req.params.jerarquia)).then(function (periodos) {
 					for (var anualidad = 2013; anualidad <= d.getFullYear(); anualidad++) {
 						var ws = {};
-						var cellValue = {v: denominacion, t: 's'};
-						var cellValueRef = XLSX.utils.encode_cell({c: 4, r: 5});
-						ws[cellValueRef] = cellValue;
+
+						ws[ XLSX.utils.encode_cell({c: 4, r: 5}) ] = {v: denominacion, t: 's'};
 						exports.completarTabla(periodos[anualidad], ws);
-						var range = {s: {c: 0, r: 0}, e: {c: 20, r: 40}};
-						ws['!ref'] = XLSX.utils.encode_range(range);
+
+						ws['!ref'] = XLSX.utils.encode_range({s: {c: 0, r: 0}, e: {c: 20, r: 40}});
 						var wsName = '' + anualidad;
 						wb.SheetNames.push(wsName);
 						wb.Sheets[wsName] = ws;
@@ -361,8 +359,7 @@
 					deferSheets[0].resolve();
 				}, function (err) {
 					console.error('Error al hacer el map reduce ' + err);
-					res.status(500);
-					res.end();
+					res.status(500).end();
 					deferSheets[0].reject();
 				});
 
@@ -374,7 +371,6 @@
 						deferSheets[1].resolve();
 					}, function(err){
 						console.error('Error al hacer el map reduce ' + err);
-						res.status(500).end();
 						deferSheets[1].reject();
 					}
 				);
@@ -467,8 +463,8 @@
 					}
 					exports.completarTabla(proc.periodos[req.params.year], ws);
 					padreDefer.promise.then(function () {
-						var range = {s: {c: 0, r: 0}, e: {c: 20, r: 40}};
-						ws['!ref'] = XLSX.utils.encode_range(range);
+
+						ws['!ref'] = XLSX.utils.encode_range( {s: {c: 0, r: 0}, e: {c: 20, r: 40}} );
 						wb.SheetNames.push('Procedimiento');
 						wb.Sheets['Procedimiento'] = ws;
 						var time = new Date().getTime();
