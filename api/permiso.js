@@ -120,7 +120,7 @@ exports.delegarpermisos = function(models,Q, recalculate)
 			return;
 		}
 		var promesa_permisos = getPermisosByLoginPlaza(req, res, models,Q,req.user.login,req.user.codplaza);
-
+		
 		promesa_permisos.then(			
 			function(permisos){
 				var paux = [];				
@@ -138,7 +138,7 @@ exports.delegarpermisos = function(models,Q, recalculate)
 					if (paux.indexOf(p._id)!==-1) continue;										
 					else paux.push(p._id);
 					
-					console.log(p._id);
+					
 					
 					var defer = Q.defer();
 					defer_permisos.push(defer)
@@ -152,8 +152,9 @@ exports.delegarpermisos = function(models,Q, recalculate)
 						p.codplaza = req.params.cod_plaza;
 					p.cod_plaza_grantt = (permisos[i].codplaza?permisos[i].codplaza:permisos[i].login);
 										
-					var op = new Permiso(p);														
-					op.grantoption = false;
+					/*var op = new Permiso(p);					
+					op.grantoption = false; 
+					
 					
 					var fsave = function(op, defer) { 
 						return function(err)
@@ -173,14 +174,47 @@ exports.delegarpermisos = function(models,Q, recalculate)
 								});							
 							}
 						};
-					};
+					}; 
 										
-					op.save(fsave(op,defer));
+					op.save(fsave(op,defer)); */
+					
+					p.grantoption = false;
+					var minidefer = Q.defer();
+					
+					var fsave = function(op, defer) { 
+						return function(err, p)
+						{
+							if (err) {
+								console.error("Imposible salvar nuevo permiso"); console.error(err); console.error(p); res.status(500); res.end(); return;
+								defer.reject(err);
+							} else {			
+								
+								recalculate.softCalculatePermiso(Q, models, p).then(function(pe){ 
+								
+									defer.resolve(pe);
+								},function(err){
+									defer.reject(err);
+								});							
+							}
+						};
+					};
+					
+					op = new Permiso(p);
+					op.save(fsave(op, minidefer));
+					
+					minidefer.promise.then(function(p){
+						
+						p.save(function(error, pe){ 								
+							if (error) { console.error("Imposible salvar nuevo permiso"); console.error(err); res.status(500); res.end(); defer.reject(pe); }
+							else { defer.resolve(pe); }
+						});						
+					},function(err) {
+						defer.reject(err);
+					});
 				}
 				
 			
 				Q.all(promesas_permisos).then(function(permisos){
-					//console.log(permisos);
 					res.json(permisos);
 				}, function(err){
 					console.error("Problemas modificando permisos...");

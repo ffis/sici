@@ -85,13 +85,21 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 				if ($rootScope.permisoscalculados.procedimientosescritura.indexOf($scope.procedimiento_seleccionado.codigo)>=0)
 					permisos_delegados = PermisosDelegarSeleccionado.query({'login':login,'cod_plaza':cod_plaza,'procedimiento':$scope.procedimiento_seleccionado.codigo},function(){
 						alert('Permiso delegado correctamente');
-					});
+						if ($scope.seleccionado_organica)
+							$scope.setSeleccionado($scope.seleccionado);
+						else if ($scope.procedimiento_seleccionado)
+							$scope.setProcSeleccionado($scope.procedimiento_seleccionado);						
+							});
 				else alert('No tiene permiso sobre el procedimiento');
 			} else { 
 				if ($rootScope.permisoscalculados.jerarquialectura.indexOf($scope.seleccionado.id)>=0 || 
 					$rootScope.permisoscalculados.jerarquiaescritura.indexOf($scope.seleccionado.id)>=0)
 					permisos_delegados = PermisosDelegar.query({'login':login,'cod_plaza':cod_plaza},function(){
 						alert('Permiso delegado correctamente');
+						if ($scope.seleccionado_organica)
+							$scope.setSeleccionado($scope.seleccionado);
+						else if ($scope.procedimiento_seleccionado)
+							$scope.setProcSeleccionado($scope.procedimiento_seleccionado);												
 					});
 				else alert('No tiene permiso sobre el nodo de la orgánica');
 			}
