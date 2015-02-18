@@ -512,47 +512,376 @@
 					}
 				};
 			};
+			var hojaUsuarios = function (Q, personas){
+				var defer = Q.defer();
+
+				var ws = {};
+				ws[XLSX.utils.encode_cell({c: 0, r: 0})] = {v: 'Nombre', t: 's'};
+				ws[XLSX.utils.encode_cell({c: 1, r: 0})] = {v: 'Apellidos', t: 's'};
+				ws[XLSX.utils.encode_cell({c: 2, r: 0})] = {v: 'Login', t: 's'};
+				ws[XLSX.utils.encode_cell({c: 3, r: 0})] = {v: 'Código plaza', t: 's'};
+				ws[XLSX.utils.encode_cell({c: 4, r: 0})] = {v: 'Habilitado', t: 's'};
+				for (var i = 1, j = personas.length ; i <= j; i++) {
+					var persona = personas[i - 1];
+					ws[ XLSX.utils.encode_cell({c: 0, r: i}) ] = {v: persona.nombre, t: 's'};
+					ws[ XLSX.utils.encode_cell({c: 1, r: i}) ] = {v: persona.apellidos, t: 's'};
+					ws[ XLSX.utils.encode_cell({c: 2, r: i}) ] = {v: persona.login, t: 's'};
+					ws[ XLSX.utils.encode_cell({c: 3, r: i}) ] = {v: persona.codplaza, t: 's'};
+					ws[ XLSX.utils.encode_cell({c: 4, r: i}) ] = {v: persona.habilitado ? 1 : 0, t: 'n'};
+				}
+
+				ws['!ref'] = XLSX.utils.encode_range( {s: {c: 0, r: 0}, e: {c: 5, r: personas.length + 1}} );
+
+				defer.resolve({'wsName': 'Usuarios', 'sheet': ws});
+
+				return defer.promise;
+			};
+			// Genera hoja de permisos
+			var hojaPermisos = function(Q, Permiso, jerarquiasById, personasByCodPlaza, personasByLogin)
+			{
+				var deferPermiso = Q.defer();
+				Permiso.find({}, {login: true, codplaza: true, jerarquiadirectalectura: true, jerarquiadirectaescritura: true}, function (err, data) {
+					if (err) {
+						deferPermiso.reject(err);
+					} else {
+						var ws = {};
+						var i = 0, pos = 1;
+
+						ws[ XLSX.utils.encode_cell({c: 0, r: 0}) ] = {v: 'Login', t: 's'};
+						ws[ XLSX.utils.encode_cell({c: 1, r: 0}) ] = {v: 'Código plaza', t: 's'};
+						ws[ XLSX.utils.encode_cell({c: 2, r: 0}) ] = {v: 'Id Jerarquía', t: 's'};
+						ws[ XLSX.utils.encode_cell({c: 3, r: 0}) ] = {v: 'Jerarquía', t: 's'};
+						ws[ XLSX.utils.encode_cell({c: 4, r: 0}) ] = {v: 'Nivel de jerarquía', t: 's'};
+						ws[ XLSX.utils.encode_cell({c: 5, r: 0}) ] = {v: 'Escritura', t: 's'};
+						ws[ XLSX.utils.encode_cell({c: 6, r: 0}) ] = {v: 'Lectura', t: 's'};
+						ws[ XLSX.utils.encode_cell({c: 7, r: 0}) ] = {v: 'Habilitado', t: 's'};
+						ws[ XLSX.utils.encode_cell({c: 8, r: 0}) ] = {v: 'Correo', t: 's'};
+
+						while (i < data.length) {
+							var permiso = data[i];
+							var cellLogin = {v: typeof permiso.login === 'undefined' || permiso.login === null ? '-' : permiso.login, t: 's'};
+							var cellPlaza = {v: typeof permiso.codplaza === 'undefined' || permiso.codplaza === null ? '-' : permiso.codplaza, t: 's'};
+
+							for (var j = 0; j < permiso.jerarquiadirectaescritura.length; j++) {
+								var jerarquia = permiso.jerarquiadirectaescritura[j];
+
+								ws[ XLSX.utils.encode_cell({c: 0, r: pos}) ] = cellLogin;
+								ws[ XLSX.utils.encode_cell({c: 1, r: pos}) ] = cellPlaza;
+								ws[ XLSX.utils.encode_cell({c: 2, r: pos}) ] = {v: jerarquia, t: 'n'};
+								ws[ XLSX.utils.encode_cell({c: 3, r: pos}) ] = {v: jerarquiasById[ jerarquia ] ? jerarquiasById[ jerarquia ].nombrelargo : '', t: 's'};
+								ws[ XLSX.utils.encode_cell({c: 4, r: pos}) ] = {v: jerarquiasById[ jerarquia ] ? jerarquiasById[ jerarquia ].ancestros.length : '', t: 'n'};
+								ws[ XLSX.utils.encode_cell({c: 5, r: pos}) ] = {v: 'SÍ', t: 's'};
+								ws[ XLSX.utils.encode_cell({c: 6, r: pos}) ] = {v: 'SÍ', t: 's'};
+								if (permiso.codplaza){
+									ws[ XLSX.utils.encode_cell({c: 7, r: pos}) ] = {v: personasByCodPlaza[ permiso.codplaza ] && personasByCodPlaza[ permiso.codplaza ].habilitado ? 1 : 0, t: 'n'};
+									ws[ XLSX.utils.encode_cell({c: 8, r: pos}) ] = {v: personasByCodPlaza[ permiso.codplaza ] ? personasByCodPlaza[ permiso.codplaza ].login + '@carm.es' : (!personasByLogin[ permiso.login ] ? '-' : (permiso.login + '@carm.es')), t: 's'};
+								}else if (permiso.login){
+									ws[ XLSX.utils.encode_cell({c: 7, r: pos}) ] = {v: personasByLogin[ permiso.login ] && personasByLogin[ permiso.login ].habilitado ? 1 : 0, t: 'n'};
+									ws[ XLSX.utils.encode_cell({c: 8, r: pos}) ] = {v: personasByLogin[ permiso.login ] ? permiso.login + '@carm.es' : '', t: 's'};
+								}
+
+								pos++;
+							}
+
+							for (var j = 0; j < permiso.jerarquiadirectalectura.length; j++) {
+								var jerarquiaLectura = permiso.jerarquiadirectalectura[j];
+								if (permiso.jerarquiadirectaescritura.indexOf(jerarquiaLectura) === -1) {
+
+									ws[ XLSX.utils.encode_cell({c: 0, r: pos}) ] = cellLogin;
+									ws[ XLSX.utils.encode_cell({c: 1, r: pos}) ] = cellPlaza;
+									ws[ XLSX.utils.encode_cell({c: 2, r: pos}) ] = {v: jerarquiaLectura, t: 'n'};
+									ws[ XLSX.utils.encode_cell({c: 3, r: pos}) ] = {v: jerarquiasById[ jerarquia ] ? jerarquiasById[ jerarquiaLectura ].nombrelargo : '', t: 's'};
+									ws[ XLSX.utils.encode_cell({c: 4, r: pos}) ] = {v: jerarquiasById[ jerarquia ] ? jerarquiasById[ jerarquiaLectura ].ancestros.length : '', t: 'n'};
+									ws[ XLSX.utils.encode_cell({c: 5, r: pos}) ] = {v: 'NO', t: 's'};
+									ws[ XLSX.utils.encode_cell({c: 6, r: pos}) ] = {v: 'SÍ', t: 's'};
+									if (permiso.codplaza){
+										ws[ XLSX.utils.encode_cell({c: 7, r: pos}) ] = {v: personasByCodPlaza[ permiso.codplaza ] && personasByCodPlaza[ permiso.codplaza ].habilitado ? 1 : 0, t: 'n'};
+										ws[ XLSX.utils.encode_cell({c: 8, r: pos}) ] = {v: personasByCodPlaza[ permiso.codplaza ] ? personasByCodPlaza[ permiso.codplaza ].login + '@carm.es' : (!permiso.login ? '-' : (permiso.login + '@carm.es')), t: 's'};
+									}else if (permiso.login){
+										ws[ XLSX.utils.encode_cell({c: 7, r: pos}) ] = {v: personasByLogin[ permiso.login ] && personasByLogin[ permiso.login ].habilitado ? 1 : 0, t: 'n'};
+										ws[ XLSX.utils.encode_cell({c: 8, r: pos}) ] = {v: personasByLogin[ permiso.login ] ? permiso.login + '@carm.es' : '', t: 's'};
+									}
+
+									pos++;
+								}
+							}
+							i++;
+						}
+
+						ws['!ref'] = XLSX.utils.encode_range({s: {c: 0, r: 0}, e: {c: 8, r: pos}});
+						deferPermiso.resolve({'wsName': 'Permisos', 'sheet': ws});
+					}
+				});
+				return deferPermiso.promise;
+			};
+
 			var year = req.params.year;
 			var Persona = models.persona();
 			var Procedimiento = models.procedimiento();
 			var Jerarquia = models.jerarquia();
 			var Permiso = models.permiso();
-			var promesasExcel = [];
 
-			var deferPersona = Q.defer();
-			var deferPermiso = Q.defer();
-			var deferBD = Q.defer();
-			var deferBDOcultos = Q.defer();
+			var jerarquiasById = {};
+			var personasByCodPlaza = {}, personasByLogin = {};
 
-			promesasExcel.push(deferPersona.promise);
-			promesasExcel.push(deferPermiso.promise);
-			promesasExcel.push(deferBD.promise);
-			promesasExcel.push(deferBDOcultos.promise);
 
-			// Genera hoja de usuarios
-			Persona.find({}, {codplaza: true, login: true, nombre: true, apellidos: true, habilitado: true}, function (err, data) {
-				if (err) {
-					deferPersona.reject(err);
-				} else {
-					var ws = {};
-					ws[XLSX.utils.encode_cell({c: 0, r: 0})] = {v: 'Nombre', t: 's'};
-					ws[XLSX.utils.encode_cell({c: 1, r: 0})] = {v: 'Apellidos', t: 's'};
-					ws[XLSX.utils.encode_cell({c: 2, r: 0})] = {v: 'Login', t: 's'};
-					ws[XLSX.utils.encode_cell({c: 3, r: 0})] = {v: 'Código plaza', t: 's'};
-					ws[XLSX.utils.encode_cell({c: 4, r: 0})] = {v: 'Habilitado', t: 's'};
-					for (var i = 1, j = data.length ; i <= j; i++) {
-						var persona = data[i - 1];
-						ws[ XLSX.utils.encode_cell({c: 0, r: i}) ] = {v: persona.nombre, t: 's'};
-						ws[ XLSX.utils.encode_cell({c: 1, r: i}) ] = {v: persona.apellidos, t: 's'};
-						ws[ XLSX.utils.encode_cell({c: 2, r: i}) ] = {v: persona.login, t: 's'};
-						ws[ XLSX.utils.encode_cell({c: 3, r: i}) ] = {v: persona.codplaza, t: 's'};
-						ws[ XLSX.utils.encode_cell({c: 4, r: i}) ] = {v: persona.habilitado ? 1 : 0, t: 'n'};
-					}
+			var promesaCacheJerarquia = Q.defer();
+			var promesaCachePersonas = Q.defer();
 
-					ws['!ref'] = XLSX.utils.encode_range( {s: {c: 0, r: 0}, e: {c: 5, r: data.length + 1}} );
-					deferPersona.resolve({'wsName': 'Usuarios', 'sheet': ws});
+
+			Jerarquia.find({}, {'id': true, 'nombrelargo': true, 'ancestros.id': true}, function(err, jerarquias){
+				if (err){
+					promesaCacheJerarquia.reject(err);
+				}else{
+					jerarquias.forEach(function(jer){
+						jerarquiasById[ jer.id ] = jer;
+					});
+					promesaCacheJerarquia.resolve();
 				}
 			});
+
+			var personas = [];
+			Persona.find({}, {codplaza: true, login: true, nombre: true, apellidos: true, habilitado: true}, function (err, p) {
+				if (err) {
+					promesaCachePersonas.reject(err);
+				} else {
+					personas = p;
+					personas.forEach(function(persona){
+						if (persona.codplaza && persona.codplaza.trim() !== ''){
+							personasByCodPlaza[ persona.codplaza ] = persona;
+						}
+						if (persona.login && persona.login.trim() !== ''){
+							personasByLogin[ persona.login ] = persona;
+						}
+
+					});
+					promesaCachePersonas.resolve();
+				}
+			});
+
+			Q.all([ promesaCacheJerarquia.promise, promesaCachePersonas.promise ]). then( function()
+			{
+				var promesasExcel = [];
+
+
+				var deferBD = Q.defer();
+				var deferBDOcultos = Q.defer();
+
+				promesasExcel.push(deferBD.promise);
+				promesasExcel.push(deferBDOcultos.promise);
+
+				// Genera hoja de usuarios
+				promesasExcel.push( hojaUsuarios(Q, personas) );
+				promesasExcel.push( hojaPermisos(Q, Permiso, jerarquiasById, personasByCodPlaza, personasByLogin) );
+
+
+				// Genera hoja General
+				Procedimiento.find({'$or': [{'oculto': {$exists: false}}, {'$and': [{'oculto': {$exists: true}}, {'oculto': false}]}]}, {codigo: true, denominacion: true, idjerarquia: true, responsables: true, 'cod_plaza': true, periodos: true, ancestros: true}, function (err, procedimientos) {
+					if (err) {
+						console.error(err);
+						deferBD.reject(err);
+					} else {
+						exports.rellenarProcedimientos(procedimientos, year, Q, models, personasByCodPlaza).then(function (ws) {
+							deferBD.resolve({'wsName': 'BD', 'sheet': ws});
+						}, function (erro) {
+							console.error(erro);
+							deferBD.reject(erro);
+						});
+					}
+				});
+
+				// Genera hoja General Ocultos
+				Procedimiento.find({'$and': [{'oculto': {$exists: true}}, {'oculto': true}]}, {codigo: true, denominacion: true, idjerarquia: true, responsables: true, 'cod_plaza': true, periodos: true, ancestros: true}, function (err, procedimientos) {
+					if (err) {
+						console.error(err);
+						deferBDOcultos.reject(err);
+					} else {
+						exports.rellenarProcedimientos(procedimientos, year, Q, models, personasByCodPlaza).then(function (ws) {
+							deferBDOcultos.resolve({'wsName': 'BD Ocultos', 'sheet': ws});
+						}, function (erro) {
+							console.error(erro);
+							deferBDOcultos.reject(err);
+						});
+					}
+				});
+
+				Q.all(promesasExcel).then(function (wss) {
+					var wb = new Workbook();
+					wss.forEach(function (ws) {
+						wb.SheetNames.push(ws.wsName);
+						wb.Sheets[ws.wsName] = ws.sheet;
+					});
+					var time = new Date().getTime();
+					var path = app.get('prefixtmp');
+					XLSX.writeFile(wb, path + time + '.xlsx');
+					res.json({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});
+				}, function (err) {
+					console.error(err);
+					res.status(500).end();
+				});
+			});
+		};
+	};
+
+
+	exports.rellenarProcedimientos = function (procedimientos, year, Q, models, personasByCodPlaza) {
+
+		var deferProc = Q.defer();
+		var indicadoresDatabase = ['solicitados', 'iniciados', 'resueltos_1', 'resueltos_5', 'resueltos_10', 'resueltos_15', 'resueltos_30',
+			'resueltos_45', 'resueltos_mas_45', 'resueltos_desistimiento_renuncia_caducidad', 'resueltos_prescripcion', 't_medio_naturales', 't_medio_habiles',
+			'en_plazo', 'quejas', 'recursos'];
+		var indicadores = ['Solicitados', 'Iniciados', 'Resueltos < 1', 'Resueltos 1 < 5', 'Resueltos 5 < 10', 'Resueltos 10 < 15', 'Resueltos 15 < 30',
+			'Resueltos 30 < 45', 'Resueltos > 45', 'Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)', 'Resueltos por Prescripción/Caducidad (Resp. Admón.)',
+			'Tiempo medio en días naturales', 'Tiempo medio en días hábiles descontando Tiempo de suspensiones', 'En plazo', 'Quejas presentadas en el mes',
+			'Recursos presentados en el mes'];
+		var meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+		var precabeceras = ['Código', 'Denominación del procedimiento', 'Código Nivel 1', 'Denominación Nivel 1', 'Código Nivel 2', 'Denominación Nivel 2', 'Código Nivel 3', 'Denominación Nivel 3',
+			'Código plaza responsable', 'Login responsable', 'Nombre responsable', 'Correo-e responsable', 'Teléfono responsable',
+			'Plazo máximo legal para resolver (dias naturales)', 'Plazo máximo legal para resolver (dias hábiles)', 'Plazo CS /ANS (días naturales)',
+			'Plazo CS /ANS (días hábiles)', 'Pendientes iniciales (a 31-12)'];
+
+		var lastyear = parseInt(year.substring(1, 5)) - 1,
+			lastyearstr = 'a' + lastyear,
+			ws = {}, pos = 1;
+			//coordenadasmerges = [];
+
+		for (var i = 0; i < precabeceras.length; i++) {
+			ws[ XLSX.utils.encode_cell({c: pos++, r: 1}) ] = { v: precabeceras[i], t: 's'};
+		}
+
+		ws[ XLSX.utils.encode_cell({c: pos + 6, r: 0}) ] = {v: 'RESUELTOS EN LOS MESES DE ' + lastyear, t: 's'};
+
+		for (var i = 0; i < meses.length; i++) {
+			ws[ XLSX.utils.encode_cell({c: pos++, r: 1}) ] = {v: meses[i], t: 's'};
+		}
+
+		for (var i = 0; i < meses.length; i++) {
+//			coordenadasmerges.push( XLSX.utils.encode_range( {s: {c: pos + 6, r: 0}, e: {c: pos + 6 + indicadores.length-1, r: 0} } ) );
+			ws[ XLSX.utils.encode_cell({c: pos + 6, r: 0}) ] = {v: meses[i], t: 's'};
+			for (var j = 0; j < indicadores.length; j++) {
+				ws[ XLSX.utils.encode_cell({c: pos++, r: 1}) ] = {v: indicadores[j], t: 's'};
+			}
+		}
+
+//		ws['!merges'] = coordenadasmerges;
+
+		var dim = pos;
+		for (var i = 0; i < procedimientos.length; i++) {
+			pos = 1;
+			var procedimiento = procedimientos[i];
+
+			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: procedimiento.codigo, t: 's'};
+			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: procedimiento.denominacion, t: 's'};
+
+			if ((typeof procedimiento.ancestros !== 'undefined') && (procedimiento.ancestros.length > 1)) {
+				if (procedimiento.ancestros.length === 4) {
+					for (var j = 0; j < 3; j++) {
+
+						ws[ XLSX.utils.encode_cell({c: pos, r: i + 2}) ] = {v: procedimiento.ancestros[j].id, t: 'n'};
+						ws[ XLSX.utils.encode_cell({c: pos + 1, r: i + 2}) ] = {v: procedimiento.ancestros[j].nombrelargo, t: 's'};
+
+						pos += 2;
+					}
+				} else if (procedimiento.ancestros.length === 3) {
+
+					ws[ XLSX.utils.encode_cell({c: pos, r: i + 2}) ] = {v: procedimiento.ancestros[0].id, t: 'n'};
+					ws[ XLSX.utils.encode_cell({c: pos + 1, r: i + 2}) ] = {v: procedimiento.ancestros[0].nombrelargo, t: 's'};
+					ws[ XLSX.utils.encode_cell({c: pos + 4, r: i + 2}) ] = {v: procedimiento.ancestros[1].id, t: 'n'};
+					ws[ XLSX.utils.encode_cell({c: pos + 5, r: i + 2}) ] = {v: procedimiento.ancestros[1].nombrelargo, t: 's'};
+
+					pos += 6;
+				} else if (procedimiento.ancestros.length === 2) {
+
+					ws[ XLSX.utils.encode_cell({c: pos + 4, r: i + 2}) ] = {v: procedimiento.ancestros[0].id, t: 'n'};
+					ws[ XLSX.utils.encode_cell({c: pos + 5, r: i + 2}) ] = {v: procedimiento.ancestros[0].nombrelargo, t: 's'};
+					pos += 6;
+				}
+			} else {
+				pos += 6;
+			}
+
+			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: procedimiento.cod_plaza, t: 's'};
+
+			var persona = personasByCodPlaza[ procedimiento.cod_plaza ];
+			if (typeof persona === 'undefined') {
+				ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: 'Persona no encontrada', t: 's'};
+				pos += 3;
+			} else {
+				ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: persona.login, t: 's'};
+				ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: persona.apellidos + ', ' + persona.nombre, t: 's'};
+				ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: persona.login + '@carm.es', t: 's'};
+				ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: persona.telefono, t: 's'};
+			}
+
+			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[year].plazo_maximo_resolver === 'undefined' || procedimiento.periodos[year].plazo_maximo_resolver === null) ? '' : procedimiento.periodos[year].plazo_maximo_resolver), t: 'n'};
+			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[year].plazo_maximo_responder === 'undefined' || procedimiento.periodos[year].plazo_maximo_responder === null) ? '' : procedimiento.periodos[year].plazo_maximo_responder), t: 'n'};
+			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[year].plazo_CS_ANS_naturales === 'undefined' || procedimiento.periodos[year].plazo_CS_ANS_naturales === null) ? '' : procedimiento.periodos[year].plazo_CS_ANS_naturales), t: 'n'};
+			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[year].plazo_CS_ANS_habiles === 'undefined' || procedimiento.periodos[year].plazo_CS_ANS_habiles === null) ? '' : procedimiento.periodos[year].plazo_CS_ANS_habiles), t: 'n'};
+			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[year].pendientes_iniciales === 'undefined' || procedimiento.periodos[year].pendientes_iniciales === null) ? '' : procedimiento.periodos[year].pendientes_iniciales), t: 'n'};
+			for (var mes = 0; mes < meses.length; mes++) {
+				if (typeof procedimiento.periodos[lastyearstr] !== 'undefined' && typeof procedimiento.periodos[lastyearstr].total_resueltos !== 'undefined') {
+					ws[ XLSX.utils.encode_cell({c: pos, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[lastyearstr].total_resueltos[mes] === 'undefined') ? '' : procedimiento.periodos[lastyearstr].total_resueltos[mes]), t: 'n'};
+				}
+				pos++;
+			}
+			for (var mes = 0; mes < meses.length; mes++) {
+				for (var ind = 0; ind < indicadoresDatabase.length; ind++) {
+					if (typeof procedimiento.periodos[year][indicadoresDatabase[ind]] !== 'undefined') {
+						ws[ XLSX.utils.encode_cell({c: pos, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[year][indicadoresDatabase[ind]][mes] === 'undefined') ? '' : procedimiento.periodos[year][indicadoresDatabase[ind]][mes]), t: 'n'};
+					}
+					pos++;
+				}
+			}
+		}
+
+		var range = {s: {c: 0, r: 0}, e: {c: dim + 1, r: procedimientos.length + 1}};
+		ws['!ref'] = XLSX.utils.encode_range(range);
+		deferProc.resolve(ws);
+
+		return deferProc.promise;
+	};
+
+
+	exports.download = function(app, cfg, fs, md5, path){
+		return function (req, res) {
+			var filename = req.params.token + '.xlsx', ruta = app.get('prefixtmp'), rutaefectiva = path.resolve(ruta, filename);
+			if (md5(cfg.downloadhashprefix + req.params.token) === req.params.hash) {
+				fs.exists(ruta + filename, function (exists) {
+					if (exists) {
+						if (path.dirname(rutaefectiva) + path.sep === ruta) {
+							res.download(ruta + filename, filename, function (err) {
+								if (err) {
+									console.error(err);
+								} else {
+									console.log('Fichero ' + ruta + filename + '.xlsx descargado');
+									fs.unlink(ruta + filename, function (err) {
+										if (err) {
+											console.error('No se ha podido borrar el fichero ' + ruta + filename);
+										} else {
+											console.log('Fichero ' + ruta + filename + ' borrado');
+										}
+									});
+								}
+							});
+						} else {
+							console.error('Acceso denegado:' + ruta + filename);
+							res.status(404).send('Acceso denegado');
+						}
+					} else {
+						console.error('Fichero no válido' + ruta + filename);
+						res.status(404).send('Fichero no válido');
+					}
+				});
+			} else {
+				res.status(404).send('Hash no válido');
+			}
+		};
+	};
+
+})(exports);
+
+
+		
 	//        var procedimientos;
 			// Genera hoja de procedimientos
 	//        Procedimiento.find({'$or': [{'oculto': {$exists: false}},{'$and': [{'oculto': {$exists: true}},{'oculto': false}]}]}, {codigo: true, denominacion: true, idjerarquia: true, responsables: true, cod_plaza: true, periodos: true, ancestros: true}, function (err, procedimientos) {
@@ -665,297 +994,3 @@
 	//                });
 	//            }
 	//        });
-
-			// Genera hoja de permisos
-			Permiso.find({}, {login: true, codplaza: true, jerarquiadirectalectura: true, jerarquiadirectaescritura: true}, function (err, data) {
-				if (err) {
-					deferPermiso.reject(err);
-				} else {
-
-					var jerarquiasById = {};
-					Jerarquia.find({},{'id':true, 'nombrelargo': true, 'ancestros': true}, function(err, jerarquias){
-						if (err){
-								deferPermiso.reject(err);
-						}else{
-							jerarquias.forEach(function(jer){
-								jerarquiasById[ jer.id ] = jer;
-							});
-
-							var ws = {};
-							var i = 0, pos = 1;
-
-							ws[ XLSX.utils.encode_cell({c: 0, r: 0}) ] = {v: 'Login', t: 's'};
-							ws[ XLSX.utils.encode_cell({c: 1, r: 0}) ] = {v: 'Código plaza', t: 's'};
-							ws[ XLSX.utils.encode_cell({c: 2, r: 0}) ] = {v: 'Id Jerarquía', t: 's'};
-							ws[ XLSX.utils.encode_cell({c: 3, r: 0}) ] = {v: 'Jerarquía', t: 's'};
-							ws[ XLSX.utils.encode_cell({c: 4, r: 0}) ] = {v: 'Nivel de jerarquía', t: 's'};
-							ws[ XLSX.utils.encode_cell({c: 5, r: 0}) ] = {v: 'Escritura', t: 's'};
-							ws[ XLSX.utils.encode_cell({c: 6, r: 0}) ] = {v: 'Lectura', t: 's'};
-
-							while (i < data.length) {
-								var permiso = data[i];
-								var cellLogin = {v: typeof permiso.login === 'undefined' || permiso.login === null ? '-' : permiso.login, t: 's'};
-								var cellPlaza = {v: typeof permiso.codplaza === 'undefined' || permiso.codplaza === null ? '-' : permiso.codplaza, t: 's'};
-
-								for (var j = 0; j < permiso.jerarquiadirectaescritura.length; j++) {
-									var jerarquia = permiso.jerarquiadirectaescritura[j];
-
-									ws[ XLSX.utils.encode_cell({c: 0, r: pos}) ] = cellLogin;
-									ws[ XLSX.utils.encode_cell({c: 1, r: pos}) ] = cellPlaza;
-									ws[ XLSX.utils.encode_cell({c: 2, r: pos}) ] = {v: jerarquia, t: 'n'};
-									ws[ XLSX.utils.encode_cell({c: 3, r: pos}) ] = {v: jerarquiasById[ jerarquia ] ? jerarquiasById[ jerarquia ].nombrelargo : '' , t: 's'};
-									ws[ XLSX.utils.encode_cell({c: 4, r: pos}) ] = {v: jerarquiasById[ jerarquia ] ? jerarquiasById[ jerarquia ].ancestros.length : '', t: 'n'};
-									ws[ XLSX.utils.encode_cell({c: 5, r: pos}) ] = {v: 'SÍ', t: 's'};
-									ws[ XLSX.utils.encode_cell({c: 6, r: pos}) ] = {v: 'SÍ', t: 's'};
-
-									pos++;
-								}
-
-								for (var j = 0; j < permiso.jerarquiadirectalectura.length; j++) {
-									var jerarquiaLectura = permiso.jerarquiadirectalectura[j];
-									if (permiso.jerarquiadirectaescritura.indexOf(jerarquiaLectura) === -1) {
-
-										ws[ XLSX.utils.encode_cell({c: 0, r: pos}) ] = cellLogin;
-										ws[ XLSX.utils.encode_cell({c: 1, r: pos}) ] = cellPlaza;
-										ws[ XLSX.utils.encode_cell({c: 2, r: pos}) ] = {v: jerarquiaLectura, t: 'n'};
-										ws[ XLSX.utils.encode_cell({c: 3, r: pos}) ] = {v: jerarquiasById[ jerarquia ] ? jerarquiasById[ jerarquiaLectura ].nombrelargo : '' , t: 's'};
-										ws[ XLSX.utils.encode_cell({c: 4, r: pos}) ] = {v: jerarquiasById[ jerarquia ] ? jerarquiasById[ jerarquiaLectura ].ancestros.length : '', t: 'n'};
-										ws[ XLSX.utils.encode_cell({c: 5, r: pos}) ] = {v: 'NO', t: 's'};
-										ws[ XLSX.utils.encode_cell({c: 6, r: pos}) ] = {v: 'SÍ', t: 's'};
-
-										pos++;
-									}
-								}
-								i++;
-							}
-
-							ws['!ref'] = XLSX.utils.encode_range({s: {c: 0, r: 0}, e: {c: 6, r: pos}});
-							deferPermiso.resolve({'wsName': 'Permisos', 'sheet': ws});
-						}
-					});
-				}
-			});
-
-			// Genera hoja General
-			Procedimiento.find({'$or': [{'oculto': {$exists: false}}, {'$and': [{'oculto': {$exists: true}}, {'oculto': false}]}]}, {codigo: true, denominacion: true, idjerarquia: true, responsables: true, cod_plaza: true, periodos: true, ancestros: true}, function (err, procedimientos) {
-				if (err) {
-					console.error(err);
-					res.status(500).end();
-					deferBD.reject(err);
-				} else {
-					exports.rellenarProcedimientos(procedimientos, year, Q, models).then(function (ws) {
-						deferBD.resolve({'wsName': 'BD', 'sheet': ws});
-					}, function (err) {
-						console.error(err);
-						res.status(500).end();
-						deferBD.reject(err);
-					});
-				}
-			});
-
-			// Genera hoja General Ocultos
-			Procedimiento.find({'$and': [{'oculto': {$exists: true}}, {'oculto': true}]}, {codigo: true, denominacion: true, idjerarquia: true, responsables: true, cod_plaza: true, periodos: true, ancestros: true}, function (err, procedimientos) {
-				if (err) {
-					console.error(err);
-					res.status(500).end();
-					deferBDOcultos.reject(err);
-				} else {
-					exports.rellenarProcedimientos(procedimientos, year, Q, models).then(function (ws) {
-						deferBDOcultos.resolve({'wsName': 'BD Ocultos', 'sheet': ws});
-					}, function (erro) {
-						console.error(erro);
-						res.status(500).end();
-						deferBDOcultos.reject(err);
-					});
-				}
-			});
-
-			Q.all(promesasExcel).then(function (wss) {
-				var wb = new Workbook();
-				wss.forEach(function (ws) {
-					wb.SheetNames.push(ws.wsName);
-					wb.Sheets[ws.wsName] = ws.sheet;
-				});
-				var time = new Date().getTime();
-				var path = app.get('prefixtmp');
-				XLSX.writeFile(wb, path + time + '.xlsx');
-				res.json({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});
-			}, function (err) {
-				console.error(err);
-				res.status(500).end();
-			});
-		};
-	};
-
-	var cbLogin = function (deferLogin, r, c, ws) {
-		return function (err, persona) {
-			if (err) {
-				deferLogin.reject(err);
-			} else {
-				if (persona === null) {
-					ws[  XLSX.utils.encode_cell({c: c, r: r}) ] = {v: 'Persona no encontrada', t: 's'};
-				} else {
-					ws[ XLSX.utils.encode_cell({c: c, r: r}) ] = {v: persona.login, t: 's'};
-					ws[ XLSX.utils.encode_cell({c: c + 1, r: r}) ] = {v: persona.apellidos + ', ' + persona.nombre, t: 's'};
-					ws[ XLSX.utils.encode_cell({c: c + 2, r: r}) ] = {v: persona.login + '@carm.es', t: 's'};
-					ws[ XLSX.utils.encode_cell({c: c + 3, r: r}) ] = {v: persona.telefono, t: 's'};
-				}
-				deferLogin.resolve();
-			}
-		};
-	};
-
-	exports.rellenarProcedimientos = function (procedimientos, year, Q, models) {
-		var Persona = models.persona();
-		var deferProc = Q.defer();
-		var indicadoresDatabase = ['solicitados', 'iniciados', 'resueltos_1', 'resueltos_5', 'resueltos_10', 'resueltos_15', 'resueltos_30',
-			'resueltos_45', 'resueltos_mas_45', 'resueltos_desistimiento_renuncia_caducidad', 'resueltos_prescripcion', 't_medio_naturales', 't_medio_habiles',
-			'en_plazo', 'quejas', 'recursos'];
-		var indicadores = ['Solicitados', 'Iniciados', 'Resueltos < 1', 'Resueltos 1 < 5', 'Resueltos 5 < 10', 'Resueltos 10 < 15', 'Resueltos 15 < 30',
-			'Resueltos 30 < 45', 'Resueltos > 45', 'Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)', 'Resueltos por Prescripción/Caducidad (Resp. Admón.)',
-			'Tiempo medio en días naturales', 'Tiempo medio en días hábiles descontando Tiempo de suspensiones', 'En plazo', 'Quejas presentadas en el mes',
-			'Recursos presentados en el mes'];
-		var meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-		var precabeceras = ['Código', 'Denominación del procedimiento', 'Código Nivel 1', 'Denominación Nivel 1', 'Código Nivel 2', 'Denominación Nivel 2', 'Código Nivel 3', 'Denominación Nivel 3',
-			'Código plaza responsable', 'Login responsable', 'Nombre responsable', 'Correo-e responsable', 'Teléfono responsable',
-			'Plazo máximo legal para resolver (dias naturales)', 'Plazo máximo legal para resolver (dias hábiles)', 'Plazo CS /ANS (días naturales)',
-			'Plazo CS /ANS (días hábiles)', 'Pendientes iniciales (a 31-12)'];
-
-		var lastyear = parseInt(year.substring(1, 5)) - 1,
-			lastyearstr = 'a' + lastyear,
-			ws = {}, pos = 1,
-			coordenadasmerges = [];
-
-		for (var i = 0; i < precabeceras.length; i++) {
-			ws[ XLSX.utils.encode_cell({c: pos++, r: 1}) ] = { v: precabeceras[i], t: 's'};
-		}
-
-		ws[ XLSX.utils.encode_cell({c: pos + 6, r: 0}) ] = {v: 'RESUELTOS EN LOS MESES DE ' + lastyear, t: 's'};
-
-		for (var i = 0; i < meses.length; i++) {
-			ws[ XLSX.utils.encode_cell({c: pos++, r: 1}) ] = {v: meses[i], t: 's'};
-		}
-
-		for (var i = 0; i < meses.length; i++) {
-			coordenadasmerges.push( XLSX.utils.encode_range( {s: {c: pos + 6, r: 0}, e: {c: pos + 6 + indicadores.length-1, r: 0} } ) );
-			ws[ XLSX.utils.encode_cell({c: pos + 6, r: 0}) ] = {v: meses[i], t: 's'};
-			for (var j = 0; j < indicadores.length; j++) {
-				ws[ XLSX.utils.encode_cell({c: pos++, r: 1}) ] = {v: indicadores[j], t: 's'};
-			}
-		}
-
-//		ws['!merges'] = coordenadasmerges;
-
-		var dim = pos;
-		var promesasLogins = [];
-		for (var i = 0; i < procedimientos.length; i++) {
-			pos = 1;
-			var procedimiento = procedimientos[i];
-
-			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: procedimiento.codigo, t: 's'};
-			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: procedimiento.denominacion, t: 's'};
-
-			if ((typeof procedimiento.ancestros !== 'undefined') && (procedimiento.ancestros.length > 1)) {
-				if (procedimiento.ancestros.length === 4) {
-					for (var j = 0; j < 3; j++) {
-
-						ws[ XLSX.utils.encode_cell({c: pos, r: i + 2}) ] = {v: procedimiento.ancestros[j].id, t: 'n'};
-						ws[ XLSX.utils.encode_cell({c: pos + 1, r: i + 2}) ] = {v: procedimiento.ancestros[j].nombrelargo, t: 's'};
-
-						pos += 2;
-					}
-				} else if (procedimiento.ancestros.length === 3) {
-
-					ws[ XLSX.utils.encode_cell({c: pos, r: i + 2}) ] = {v: procedimiento.ancestros[0].id, t: 'n'};
-					ws[ XLSX.utils.encode_cell({c: pos + 1, r: i + 2}) ] = {v: procedimiento.ancestros[0].nombrelargo, t: 's'};
-					ws[ XLSX.utils.encode_cell({c: pos + 4, r: i + 2}) ] = {v: procedimiento.ancestros[1].id, t: 'n'};
-					ws[ XLSX.utils.encode_cell({c: pos + 5, r: i + 2}) ] = {v: procedimiento.ancestros[1].nombrelargo, t: 's'};
-
-					pos += 6;
-				} else if (procedimiento.ancestros.length === 2) {
-
-					ws[ XLSX.utils.encode_cell({c: pos + 4, r: i + 2}) ] = {v: procedimiento.ancestros[0].id, t: 'n'};
-					ws[ XLSX.utils.encode_cell({c: pos + 5, r: i + 2}) ] = {v: procedimiento.ancestros[0].nombrelargo, t: 's'};
-					pos += 6;
-				}
-			} else {
-				pos += 6;
-			}
-
-			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: procedimiento.cod_plaza, t: 's'};
-
-			var deferLogin = Q.defer();
-			promesasLogins.push(deferLogin.promise);
-			Persona.findOne({'codplaza': procedimiento.cod_plaza}, cbLogin(deferLogin, i + 2, pos, ws));
-			pos += 4;
-
-
-			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[year].plazo_maximo_resolver === 'undefined' || procedimiento.periodos[year].plazo_maximo_resolver === null) ? '' : procedimiento.periodos[year].plazo_maximo_resolver), t: 'n'};
-			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[year].plazo_maximo_responder === 'undefined' || procedimiento.periodos[year].plazo_maximo_responder === null) ? '' : procedimiento.periodos[year].plazo_maximo_responder), t: 'n'};
-			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[year].plazo_CS_ANS_naturales === 'undefined' || procedimiento.periodos[year].plazo_CS_ANS_naturales === null) ? '' : procedimiento.periodos[year].plazo_CS_ANS_naturales), t: 'n'};
-			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[year].plazo_CS_ANS_habiles === 'undefined' || procedimiento.periodos[year].plazo_CS_ANS_habiles === null) ? '' : procedimiento.periodos[year].plazo_CS_ANS_habiles), t: 'n'};
-			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[year].pendientes_iniciales === 'undefined' || procedimiento.periodos[year].pendientes_iniciales === null) ? '' : procedimiento.periodos[year].pendientes_iniciales), t: 'n'};
-			for (var mes = 0; mes < meses.length; mes++) {
-				if (typeof procedimiento.periodos[lastyearstr] !== 'undefined' && typeof procedimiento.periodos[lastyearstr].total_resueltos !== 'undefined') {
-					ws[ XLSX.utils.encode_cell({c: pos, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[lastyearstr].total_resueltos[mes] === 'undefined') ? '' : procedimiento.periodos[lastyearstr].total_resueltos[mes]), t: 'n'};
-				}
-				pos++;
-			}
-			for (var mes = 0; mes < meses.length; mes++) {
-				for (var ind = 0; ind < indicadoresDatabase.length; ind++) {
-					if (typeof procedimiento.periodos[year][indicadoresDatabase[ind]] !== 'undefined') {
-						ws[ XLSX.utils.encode_cell({c: pos, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[year][indicadoresDatabase[ind]][mes] === 'undefined') ? '' : procedimiento.periodos[year][indicadoresDatabase[ind]][mes]), t: 'n'};
-					}
-					pos++;
-				}
-			}
-		}
-
-		Q.all(promesasLogins).then(function () {
-			var range = {s: {c: 0, r: 0}, e: {c: dim + 1, r: procedimientos.length + 1}};
-			ws['!ref'] = XLSX.utils.encode_range(range);
-			deferProc.resolve(ws);
-		}, function (err) {
-			deferProc.reject(err);
-		});
-		return deferProc.promise;
-	};
-
-
-	exports.download = function(app, cfg, fs, md5, path){
-		return function (req, res) {
-			var filename = req.params.token + '.xlsx', ruta = app.get('prefixtmp'), rutaefectiva = path.resolve(ruta, filename);
-			if (md5(cfg.downloadhashprefix + req.params.token) === req.params.hash) {
-				fs.exists(ruta + filename, function (exists) {
-					if (exists) {
-						if (path.dirname(rutaefectiva) + path.sep === ruta) {
-							res.download(ruta + filename, filename, function (err) {
-								if (err) {
-									console.error(err);
-								} else {
-									console.log('Fichero ' + ruta + filename + '.xlsx descargado');
-									fs.unlink(ruta + filename, function (err) {
-										if (err) {
-											console.error('No se ha podido borrar el fichero ' + ruta + filename);
-										} else {
-											console.log('Fichero ' + ruta + filename + ' borrado');
-										}
-									});
-								}
-							});
-						} else {
-							console.error('Acceso denegado:' + ruta + filename);
-							res.status(404).send('Acceso denegado');
-						}
-					} else {
-						console.error('Fichero no válido' + ruta + filename);
-						res.status(404).send('Fichero no válido');
-					}
-				});
-			} else {
-				res.status(404).send('Hash no válido');
-			}
-		};
-	};
-
-})(exports);
