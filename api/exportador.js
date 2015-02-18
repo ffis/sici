@@ -498,20 +498,7 @@
 				res.status(500).end();
 				return;
 			}
-			var estableceNombreYNivelJerarquia = function (deferNombreJerarquia, r, c, ws) {
-				return function (err, jerarquia) {
-					if (err) {
-						deferNombreJerarquia.reject(err);
-					} else {
-						var value = 'No encontrado';
-						if (jerarquia) {
-							value = jerarquia.nombrelargo;
-						}
-						ws[ XLSX.utils.encode_cell({c: c, r: r}) ] = { v: value, t: 's' };
-						deferNombreJerarquia.resolve();
-					}
-				};
-			};
+
 			var hojaUsuarios = function (Q, personas){
 				var defer = Q.defer();
 
@@ -629,7 +616,7 @@
 			var promesaCachePersonas = Q.defer();
 
 
-			Jerarquia.find({}, {'id': true, 'nombrelargo': true, 'ancestros.id': true}, function(err, jerarquias){
+			Jerarquia.find({}, {'id': true, 'nombrelargo': true, 'ancestros': true}, function(err, jerarquias){
 				if (err){
 					promesaCacheJerarquia.reject(err);
 				}else{
