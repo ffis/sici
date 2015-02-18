@@ -107,7 +107,9 @@
 				$scope.periodosOk = function(anualidad, procedimiento)
 				{
 					if (!procedimiento || !anualidad || !procedimiento.periodos){ return false; }
-					return procedimiento.periodos[anualidad].plazo_CS_ANS_habiles || procedimiento.periodos[anualidad].plazo_CS_ANS_naturales;
+					return (procedimiento.periodos[anualidad].plazo_CS_ANS_habiles || procedimiento.periodos[anualidad].plazo_CS_ANS_naturales) 
+						&& (procedimiento.periodos[anualidad].plazo_maximo_resolver || procedimiento.periodos[anualidad].plazo_maximo_responder);
+					;
 				};
 
 				$scope.deletePadre = function () {
