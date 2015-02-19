@@ -44,7 +44,6 @@
 						{
 							console.error('El procedimiento ' + procedimientos[i].codigo + ' no tiene anualidad ' + anualidad);
 							continue;
-
 						}
 						var key = { anualidad: anualidad, idjerarquia: procedimientos[i].ancestros[i2].id };
 						var keyStr = JSON.stringify(key);
@@ -59,23 +58,14 @@
 			var fnReduce = function(key, values){
 				var sumas = {};
 				var attrs = [
-					'total_resueltos',
-					'solicitados',
+					'total_resueltos', 'solicitados',
 					'iniciados',
-					'resueltos_1',
-					'resueltos_5',
-					'resueltos_10',
-					'resueltos_15',
-					'resueltos_30',
-					'resueltos_45',
-					'resueltos_mas_45',
+					'resueltos_1', 'resueltos_5', 'resueltos_10', 'resueltos_15',
+					'resueltos_30', 'resueltos_45', 'resueltos_mas_45',
 					'resueltos_desistimiento_renuncia_caducidad',
 					'resueltos_prescripcion',
-					'en_plazo',
-					'quejas',
-					'recursos',
-					'fuera_plazo',
-					'pendientes'
+					'en_plazo', 'quejas', 'recursos',
+					'fuera_plazo', 'pendientes'
 				];
 
 				attrs.forEach(function (attr) {
@@ -108,7 +98,7 @@
 						sumas.numProcedimientosConSolicitudes++;
 						sumas.totalsolicitudes += values[i].totalsolicitudes;
 					}
-					if (key.anualidad>2013){
+					if (key.anualidad > 2013){
 						for(var mes = 0; mes < 12; mes++){
 							if (values[i].total_resueltos[mes] > 0)
 							{
@@ -168,28 +158,24 @@
 
 
 	exports.completarTabla = function (periodo, ws) {
-		var meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-		var indicadores = ["Solicitados", "Iniciados", "Quejas presentadas en el mes", "Recursos presentados en el mes", "Resueltos < 1", "Resueltos 1 < 5",
-			"Resueltos 5 < 10", "Resueltos 10 < 15", "Resueltos 15 < 30", "Resueltos 30 < 45", "Resueltos > 45",
-			"Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)", "Resueltos por Prescripción/Caducidad (Resp. Admón.)",
-			"En plazo", "Tiempo medio en días hábiles descontando Tiempo de suspensiones", "Tiempo medio en días naturales",
-			"Resueltos totales", "Fuera de plazo", "Pendientes"];
-		var indicadoresDatabase = ["solicitados", "iniciados", "quejas", "recursos", "resueltos_1", "resueltos_5", "resueltos_10", "resueltos_15", "resueltos_30",
-			"resueltos_45", "resueltos_mas_45", "resueltos_desistimiento_renuncia_caducidad", "resueltos_prescripcion", "en_plazo", "t_medio_habiles", "t_medio_naturales",
-			"total_resueltos", "fuera_plazo", "pendientes"];
+		var meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+		var indicadores = ['Solicitados', 'Iniciados', 'Quejas presentadas en el mes', 'Recursos presentados en el mes', 'Resueltos < 1', 'Resueltos 1 < 5',
+			'Resueltos 5 < 10', 'Resueltos 10 < 15', 'Resueltos 15 < 30', 'Resueltos 30 < 45', 'Resueltos > 45',
+			'Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)', 'Resueltos por Prescripción/Caducidad (Resp. Admón.)',
+			'En plazo', 'Tiempo medio en días hábiles descontando Tiempo de suspensiones', 'Tiempo medio en días naturales',
+			'Resueltos totales', 'Fuera de plazo', 'Pendientes'];
+		var indicadoresDatabase = ['solicitados', 'iniciados', 'quejas', 'recursos', 'resueltos_1', 'resueltos_5', 'resueltos_10', 'resueltos_15', 'resueltos_30',
+			'resueltos_45', 'resueltos_mas_45', 'resueltos_desistimiento_renuncia_caducidad', 'resueltos_prescripcion', 'en_plazo', 't_medio_habiles', 't_medio_naturales',
+			'total_resueltos', 'fuera_plazo', 'pendientes'];
 		for (var mes = 0; mes < 12; mes++) {
 			var cellValue = {v: meses[mes], t: 's'};
 			var cellValueRef = XLSX.utils.encode_cell({c: 4 + mes, r: 16});
 			ws[cellValueRef] = cellValue;
 		}
 		for (var i = 0; i < indicadoresDatabase.length; i++) {
-			var cellValue = {v: indicadores[i], t: 's'};
-			var cellValueRef = XLSX.utils.encode_cell({c: 3, r: 17 + i});
-			ws[cellValueRef] = cellValue;
+			ws[ XLSX.utils.encode_cell({c: 3, r: 17 + i}) ] = {v: indicadores[i], t: 's'};
 			for (var mes = 0; mes < 12; mes++) {
-				var cellValue = {v: periodo[indicadoresDatabase[i]] ? periodo[indicadoresDatabase[i]][mes] : 0, t: 'n'};
-				var cellValueRef = XLSX.utils.encode_cell({c: 4 + mes, r: 17 + i});
-				ws[cellValueRef] = cellValue;
+				ws[ XLSX.utils.encode_cell({c: 4 + mes, r: 17 + i}) ] = {v: periodo[indicadoresDatabase[i]] ? periodo[indicadoresDatabase[i]][mes] : 0, t: 'n'};
 			}
 		}
 		return ws;
@@ -210,7 +196,7 @@
 			'total_resueltos', 'fuera_plazo', 'pendientes'];
 
 
-		Jerarquia.find({ancestrodirecto:jerarquia.id}, {id: true, _id: false, nombre:true, numProcedimientos: true, nombrelargo: true},function(err, hijos){
+		Jerarquia.find({ancestrodirecto:jerarquia.id}, {id: true, _id: false, nombre:true, numProcedimientos: true, nombrelargo: true}, function(err, hijos){
 			if (err)
 				defer_descendientes.reject(err);
 			else {
@@ -220,9 +206,8 @@
 
 		Q.all([defer_descendientes.promise, exports.mapReducePeriodos(Q, models)]).then(
 			function(all_data) {
-				var results = all_data[1];
-				var hijos = all_data[0];
-				hijos = ([ {nombrelargo:jerarquia.nombrelargo, nombre:jerarquia.nombre, id:jerarquia.id} ]).concat(hijos);
+				var hijos = all_data[0], results = all_data[1];
+				hijos = ([ {nombrelargo: jerarquia.nombrelargo, nombre: jerarquia.nombre, id: jerarquia.id} ]).concat(hijos);
 				var ihijos = [];
 
 				hijos.forEach(function(hijo){ihijos.push(hijo.id)});
@@ -232,17 +217,17 @@
 				results.forEach(function (result) {
 					if (ihijos.indexOf(result._id.idjerarquia)!==-1) {
 						var idjerarquia = result._id.idjerarquia;
-						if (typeof periodos[idjerarquia] === 'undefined') 
+						if (typeof periodos[idjerarquia] === 'undefined')
 						{
-							periodos[idjerarquia] = {};					
+							periodos[idjerarquia] = {};
 						}
-						periodos[idjerarquia][parseInt(result._id.anualidad)] = result.value;					
+						periodos[idjerarquia][parseInt(result._id.anualidad)] = result.value;
 					}
 				});
 				var rowhead = 4;
 				var columnhead = 4;
-				var ws = {};			
-				var ic = columnhead + 1;	
+				var ws = {};
+				var ic = columnhead + 1;
 				var max_r = ir;
 				var max_c = ic;
 				// linea de cabecera
@@ -331,7 +316,7 @@
 			var deferNombre = Q.defer();
 			var deferSheets = [Q.defer(), Q.defer()];
 			var jerarquia;
-			Jerarquia.findOne({'id': req.params.jerarquia}, function (err, data) {
+			Jerarquia.findOne({'id': parseInt(req.params.jerarquia)}, function (err, data) {
 				if (err) {
 					console.error('No se ha definido el parámetro "jerarquia"');
 					res.status(500).end();
@@ -349,9 +334,10 @@
 						var ws = {};
 
 						ws[ XLSX.utils.encode_cell({c: 4, r: 5}) ] = {v: denominacion, t: 's'};
+						ws['!ref'] = XLSX.utils.encode_range({s: {c: 0, r: 0}, e: {c: 20, r: 40}});
+						/* TODO: revisar ese rango */
 						exports.completarTabla(periodos[anualidad], ws);
 
-						ws['!ref'] = XLSX.utils.encode_range({s: {c: 0, r: 0}, e: {c: 20, r: 40}});
 						var wsName = '' + anualidad;
 						wb.SheetNames.push(wsName);
 						wb.Sheets[wsName] = ws;
@@ -785,7 +771,7 @@
 
 			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: procedimiento.cod_plaza, t: 's'};
 
-			var persona = personasByCodPlaza[ procedimiento.cod_plaza ];
+			var persona = procedimiento.cod_plaza !== null && procedimiento.cod_plaza !== '' ? personasByCodPlaza[ procedimiento.cod_plaza ] : undefined;
 			if (typeof persona === 'undefined') {
 				ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: 'Persona no encontrada', t: 's'};
 				pos += 3;
