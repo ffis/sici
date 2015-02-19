@@ -85,7 +85,7 @@
 
 				var cached = null;
 				$scope.fnGetStatsNode = function(nodoid, anualidad){
-					if (cached && cached._id && cached._id.idjerarquia===nodoid && cached._id.anualidad === anualidad){
+					if (cached && cached._id && cached._id.idjerarquia === nodoid && cached._id.anualidad === anualidad){
 						return cached;
 					}
 					for(var i = 0, j = $scope.stats.length; i < j; i++){
