@@ -509,7 +509,7 @@
 			var hojaPermisos = function(Q, Permiso, jerarquiasById, personasByCodPlaza, personasByLogin)
 			{
 				var deferPermiso = Q.defer();
-				Permiso.find({}, {login: true, codplaza: true, jerarquiadirectalectura: true, jerarquiadirectaescritura: true}, function (err, data) {
+				Permiso.find({}, function (err, data) {
 					if (err) {
 						deferPermiso.reject(err);
 					} else {
@@ -523,13 +523,23 @@
 						ws[ XLSX.utils.encode_cell({c: 4, r: 0}) ] = {v: 'Nivel de jerarquía', t: 's'};
 						ws[ XLSX.utils.encode_cell({c: 5, r: 0}) ] = {v: 'Escritura', t: 's'};
 						ws[ XLSX.utils.encode_cell({c: 6, r: 0}) ] = {v: 'Lectura', t: 's'};
-						ws[ XLSX.utils.encode_cell({c: 7, r: 0}) ] = {v: 'Habilitado', t: 's'};
-						ws[ XLSX.utils.encode_cell({c: 8, r: 0}) ] = {v: 'Correo', t: 's'};
+						ws[ XLSX.utils.encode_cell({c: 7, r: 0}) ] = {v: 'Administrador', t: 's'};
+						ws[ XLSX.utils.encode_cell({c: 8, r: 0}) ] = {v: 'Puede dar permisos', t: 's'};
+						ws[ XLSX.utils.encode_cell({c: 9, r: 0}) ] = {v: 'Descripción', t: 's'};
+						ws[ XLSX.utils.encode_cell({c: 10, r: 0}) ] = {v: 'Recibió permisos de', t: 's'};
+						ws[ XLSX.utils.encode_cell({c: 11, r: 0}) ] = {v: 'Habilitado', t: 's'};
+						ws[ XLSX.utils.encode_cell({c: 12, r: 0}) ] = {v: 'Correo', t: 's'};
+
 
 						while (i < data.length) {
 							var permiso = data[i];
 							var cellLogin = {v: typeof permiso.login === 'undefined' || permiso.login === null ? '-' : permiso.login, t: 's'};
 							var cellPlaza = {v: typeof permiso.codplaza === 'undefined' || permiso.codplaza === null ? '-' : permiso.codplaza, t: 's'};
+
+							var cellAdministrador = {v: typeof permiso.superuser === 'undefined' || permiso.superuser < 1 ? 'NO' : 'SÍ', t: 's'};
+							var cellGrantoption = {v: typeof permiso.grantoption === 'undefined' || !permiso.grantoption ? 'NO' : 'SÍ', t: 's'};
+							var cellDescripcion = {v: typeof permiso.descripcion === 'undefined'|| permiso.descripcion === null  ? '' : permiso.descripcion, t: 's'};
+							var cellcodPlazaGrantt = {v: typeof permiso.cod_plaza_grantt === 'undefined' || permiso.cod_plaza_grantt === null ? '-' : permiso.cod_plaza_grantt, t: 's'};
 
 							for (var j = 0; j < permiso.jerarquiadirectaescritura.length; j++) {
 								var jerarquia = permiso.jerarquiadirectaescritura[j];
@@ -541,12 +551,16 @@
 								ws[ XLSX.utils.encode_cell({c: 4, r: pos}) ] = {v: jerarquiasById[ jerarquia ] ? jerarquiasById[ jerarquia ].ancestros.length : '', t: 'n'};
 								ws[ XLSX.utils.encode_cell({c: 5, r: pos}) ] = {v: 'SÍ', t: 's'};
 								ws[ XLSX.utils.encode_cell({c: 6, r: pos}) ] = {v: 'SÍ', t: 's'};
+								ws[ XLSX.utils.encode_cell({c: 7, r: pos}) ] = cellAdministrador;
+								ws[ XLSX.utils.encode_cell({c: 8, r: pos}) ] = cellGrantoption;
+								ws[ XLSX.utils.encode_cell({c: 9, r: pos}) ] = cellDescripcion;
+								ws[ XLSX.utils.encode_cell({c: 10, r: pos}) ] = cellcodPlazaGrantt;
 								if (permiso.codplaza){
-									ws[ XLSX.utils.encode_cell({c: 7, r: pos}) ] = {v: personasByCodPlaza[ permiso.codplaza ] && personasByCodPlaza[ permiso.codplaza ].habilitado ? 1 : 0, t: 'n'};
-									ws[ XLSX.utils.encode_cell({c: 8, r: pos}) ] = {v: personasByCodPlaza[ permiso.codplaza ] ? personasByCodPlaza[ permiso.codplaza ].login + '@carm.es' : (!personasByLogin[ permiso.login ] ? '-' : (permiso.login + '@carm.es')), t: 's'};
+									ws[ XLSX.utils.encode_cell({c: 11, r: pos}) ] = {v: personasByCodPlaza[ permiso.codplaza ] && personasByCodPlaza[ permiso.codplaza ].habilitado ? 1 : 0, t: 'n'};
+									ws[ XLSX.utils.encode_cell({c: 12, r: pos}) ] = {v: personasByCodPlaza[ permiso.codplaza ] ? personasByCodPlaza[ permiso.codplaza ].login + '@carm.es' : (!personasByLogin[ permiso.login ] ? '-' : (permiso.login + '@carm.es')), t: 's'};
 								}else if (permiso.login){
-									ws[ XLSX.utils.encode_cell({c: 7, r: pos}) ] = {v: personasByLogin[ permiso.login ] && personasByLogin[ permiso.login ].habilitado ? 1 : 0, t: 'n'};
-									ws[ XLSX.utils.encode_cell({c: 8, r: pos}) ] = {v: personasByLogin[ permiso.login ] ? permiso.login + '@carm.es' : '', t: 's'};
+									ws[ XLSX.utils.encode_cell({c: 11, r: pos}) ] = {v: personasByLogin[ permiso.login ] && personasByLogin[ permiso.login ].habilitado ? 1 : 0, t: 'n'};
+									ws[ XLSX.utils.encode_cell({c: 12, r: pos}) ] = {v: personasByLogin[ permiso.login ] ? permiso.login + '@carm.es' : '', t: 's'};
 								}
 
 								pos++;
@@ -563,12 +577,16 @@
 									ws[ XLSX.utils.encode_cell({c: 4, r: pos}) ] = {v: jerarquiasById[ jerarquia ] ? jerarquiasById[ jerarquiaLectura ].ancestros.length : '', t: 'n'};
 									ws[ XLSX.utils.encode_cell({c: 5, r: pos}) ] = {v: 'NO', t: 's'};
 									ws[ XLSX.utils.encode_cell({c: 6, r: pos}) ] = {v: 'SÍ', t: 's'};
+									ws[ XLSX.utils.encode_cell({c: 7, r: pos}) ] = cellAdministrador;
+									ws[ XLSX.utils.encode_cell({c: 8, r: pos}) ] = cellGrantoption;
+									ws[ XLSX.utils.encode_cell({c: 9, r: pos}) ] = cellDescripcion;
+									ws[ XLSX.utils.encode_cell({c: 10, r: pos}) ] = cellcodPlazaGrantt;
 									if (permiso.codplaza){
-										ws[ XLSX.utils.encode_cell({c: 7, r: pos}) ] = {v: personasByCodPlaza[ permiso.codplaza ] && personasByCodPlaza[ permiso.codplaza ].habilitado ? 1 : 0, t: 'n'};
-										ws[ XLSX.utils.encode_cell({c: 8, r: pos}) ] = {v: personasByCodPlaza[ permiso.codplaza ] ? personasByCodPlaza[ permiso.codplaza ].login + '@carm.es' : (!permiso.login ? '-' : (permiso.login + '@carm.es')), t: 's'};
+										ws[ XLSX.utils.encode_cell({c: 11, r: pos}) ] = {v: personasByCodPlaza[ permiso.codplaza ] && personasByCodPlaza[ permiso.codplaza ].habilitado ? 1 : 0, t: 'n'};
+										ws[ XLSX.utils.encode_cell({c: 12, r: pos}) ] = {v: personasByCodPlaza[ permiso.codplaza ] ? personasByCodPlaza[ permiso.codplaza ].login + '@carm.es' : (!permiso.login ? '-' : (permiso.login + '@carm.es')), t: 's'};
 									}else if (permiso.login){
-										ws[ XLSX.utils.encode_cell({c: 7, r: pos}) ] = {v: personasByLogin[ permiso.login ] && personasByLogin[ permiso.login ].habilitado ? 1 : 0, t: 'n'};
-										ws[ XLSX.utils.encode_cell({c: 8, r: pos}) ] = {v: personasByLogin[ permiso.login ] ? permiso.login + '@carm.es' : '', t: 's'};
+										ws[ XLSX.utils.encode_cell({c: 11, r: pos}) ] = {v: personasByLogin[ permiso.login ] && personasByLogin[ permiso.login ].habilitado ? 1 : 0, t: 'n'};
+										ws[ XLSX.utils.encode_cell({c: 12, r: pos}) ] = {v: personasByLogin[ permiso.login ] ? permiso.login + '@carm.es' : '', t: 's'};
 									}
 
 									pos++;
@@ -577,7 +595,7 @@
 							i++;
 						}
 
-						ws['!ref'] = XLSX.utils.encode_range({s: {c: 0, r: 0}, e: {c: 8, r: pos}});
+						ws['!ref'] = XLSX.utils.encode_range({s: {c: 0, r: 0}, e: {c: 13, r: pos}});
 						deferPermiso.resolve({'wsName': 'Permisos', 'sheet': ws});
 					}
 				});
