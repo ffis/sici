@@ -9,7 +9,7 @@
                 $scope.respuestas = [];
                 $scope.funcionalidades = [
                     {label: 'Procedimientos', fn: [{label: 'Recalcular caché', cmd: '/api/v1/restricted/fprocedimiento'}]},
-                    {label: 'Jerarquia', fn: [{label: 'Recalcular', cmd: '/api/v1/restricted/jerarquia'}]},
+                    {label: 'Jerarquia', fn: [{label: 'Recalcular', cmd: '/api/v1/restricted/fjerarquia'}]},
                     {label: 'Permisos', fn: [{label: 'Recalcular', cmd: '/api/v1/restricted/fpermiso'}]},
                     {label: 'Personas', fn: [{label: 'Recalcular', cmd: '/api/v1/restricted/excelgesper'}]}
                 ];
