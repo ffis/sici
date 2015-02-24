@@ -5,14 +5,14 @@
 
 	module.exports = function profiler(){
 		return function(req, res, next){
-			var end = res.end,
-				previousinvoke = new memwatch.HeapDiff();
+			var end = res.end, previousinvoke = new memwatch.HeapDiff();
 
 			// state snapshot
-				if (typeof gc === 'function') {
-					gc();
-				}else if (global && global.gc){ global.gc(); }
-
+			if (typeof gc === 'function') {
+				gc();
+			}else if (global && global.gc){
+				global.gc();
+			}
 
 			// proxy res.end()
 			res.end = function(data, encoding){

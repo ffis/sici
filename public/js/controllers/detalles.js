@@ -186,7 +186,8 @@
 					$rootScope.procedimiento = $scope.procedimientoSeleccionado.codigo;
 					$scope.anualidad = '000000';
 
-					$scope.procedimientosPadre = ProcedimientoList.query({'idjerarquia': $scope.procedimientoSeleccionado.idjerarquia, 'recursivo': false});
+					//$scope.procedimientosPadre = ProcedimientoList.query({'idjerarquia': $scope.procedimientoSeleccionado.idjerarquia, 'recursivo': false});
+					$scope.procedimientosPadre = [];
 
 					$scope.mostrarAutocompletePadre = false;
 					if ($scope.procedimientoSeleccionado.padre) {
@@ -209,6 +210,7 @@
 					}
 
 					$rootScope.W($scope.procedimientoSeleccionado).then(function (val) {
+						$scope.procedimientosPadre = ProcedimientoList.query({'idjerarquia': 1, 'recursivo': true, 'fields': 'codigo denominacion' });
 						if (val){
 							ProcedimientoHasChildren.query({'codigo': $scope.procedimientoSeleccionado.codigo}, function (data) {
 								$scope.tieneHijos = data.count;

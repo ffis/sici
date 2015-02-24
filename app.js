@@ -189,12 +189,12 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 
 	app.get('/api/v1/public/procedimiento', procedimiento.procedimiento(models));
 	app.get('/api/v1/public/procedimiento/:codigo', procedimiento.procedimiento(models));
-	app.get('/api/v1/public/procedimientosByResponsable/:codplaza', procedimiento.procedimientosByResponsable(models, Q));
+	app.get('/api/v1/public/procedimientosByResponsable/:codplaza', procedimiento.procedimientosByResponsable(models));
 	app.get('/api/v1/public/procedimientoCount', procedimiento.totalProcedimientos(models));
 	app.get('/api/v1/public/procedimientoHasChildren/:codigo', procedimiento.hasChildred(models));
 
 
-	app.get('/api/v1/public/procedimientoList/:idjerarquia', procedimiento.procedimientoList(models, Q));
+	app.get('/api/v1/public/procedimientoList/:idjerarquia', procedimiento.procedimientoList(models));
 	app.get('/api/v1/public/procedimientoList/:idjerarquia/:recursivo', procedimiento.procedimientoList(models, Q));
 	app.get('/api/v1/public/procedimientosSinExpedientes', procedimiento.procedimientosSinExpedientes(cfg, models));
 	app.get('/api/v1/public/procedimientosSinExpedientes/:anualidad', procedimiento.procedimientosSinExpedientes(cfg, models));
