@@ -37,10 +37,14 @@ var os = require('os'),
 	app = module.exports = express()
 ;
 
+function setProgressMessage(msg){
+	process.stdout.write('                                                                                                                                            ' + "\r");
+	process.stdout.write( msg + "\r");
+}
 
 app.set('mongosrv', process.env.MONGOSVR || 'mongodb://mongosvr/sici');
 
-
+console.log('Estableciendo conexión a ' + app.get('mongosrv'));
 //Inicialización mongoose
 mongoose.connect(app.get('mongosrv'));
 models.init(mongoose);
@@ -52,6 +56,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	if (err){
 		throw err;
 	}
+	console.log('Cargada configuración de forma exitosa');
 
 	var tmpdirectory = path.join(__dirname, 'tmp') + path.sep;
 	var cfg = cfgs[0];
@@ -67,6 +72,8 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.use('/api', expressJwt({secret: cfg.secret}));
 	app.use('/api', login.setpermisoscalculados({models: models}));
 	app.use('/api', api.log(models));
+
+	setProgressMessage('Estableciendo rutas: restricciones permisos 1/2');
 
 	app.use('/api/v1/public/updateByFile', multer({ dest: path.join( __dirname, 'tmp') + path.sep}));
 
@@ -98,9 +105,12 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 		else{ res.status(403).json({error: 'Unathorized'}); }
 	});
 
+	setProgressMessage('Estableciendo rutas: restricciones permisos 2/2');
+
 	/* funcionalidad bots */
 	app.get('/bot/personas/actualizarGesper', persona.updateCodPlazaByLogin(models, Q, cfg));
 
+	setProgressMessage('Estableciendo rutas: rutas superuser');
 	/* funcionalidad superuser */
 	app.get('/api/v1/restricted/mapReducePeriodos', function(req, res){ exportador.mapReducePeriodos(Q, models).then(function(r){ res.json(r); }); });
 
@@ -133,6 +143,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.get('/api/v1/restricted/excelgesper', persona.importarGesper(models, Q));
 
 	/* funcionalidad grantuser */
+	setProgressMessage('Estableciendo rutas: rutas grantuser');
 	app.get('/api/v1/private/permisosList', permiso.permisosList(models, Q));
 	app.get('/api/v1/private/permisosList/:idjerarquia/:recursivo', permiso.permisosList(models, Q));
 
@@ -158,7 +169,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 
 
 	/* funcionalidad user */
-
+	setProgressMessage('Estableciendo rutas: rutas user');
 	app.post('/api/v1/public/updateByFile', upload.update(), csvsici.parse(models));
 	app.post('/api/v1/public/updateByFileIE', upload.update(), csvsici.parse(models));
 	app.get('/api/v1/public/aggregate/:anualidad/:campo', api.aggregate(cfg, models));
@@ -220,14 +231,17 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.get('/download/:token/:hash', exportador.download(app, cfg, fs, md5, path));
 
 	if (os.platform() === 'linux'){
+		setProgressMessage('Estableciendo rutas: memory');
 		var memwatch = require('memwatch');
-		var previousinvoke = new memwatch.HeapDiff();
-		app.get('/memory', function(req, res){
-			if (global && global.gc){ global.gc(); }
-			var diff = previousinvoke.end();
-			previousinvoke = new memwatch.HeapDiff();
-			diff.change.details.sort(function(a, b){ return (b.size_bytes - a.size_bytes); });
-			res.json(diff);
+		process.nextTick(function(){
+			var previousinvoke = new memwatch.HeapDiff();
+			app.get('/memory', function(req, res){
+				if (global && global.gc){ global.gc(); }
+				var diff = previousinvoke.end();
+				previousinvoke = new memwatch.HeapDiff();
+				diff.change.details.sort(function(a, b){ return (b.size_bytes - a.size_bytes); });
+				res.json(diff);
+			});
 		});
 	}
 
@@ -235,9 +249,11 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.get('/', routes.index);
 	app.get('*', routes.index);//devolver el index.html del raiz
 
+	console.log('Establecidas las rutas.                                                                         ');
+
 	var server = http.createServer(app);
 	server.listen(app.get('port'), function () {
 		require('./api/socketioconsole')(server);
-		console.log('Express server listening on port ' + app.get('port'));
+		console.log('Servidor escuchando en puerto ' + app.get('port'));
 	});
 });
