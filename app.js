@@ -125,6 +125,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.delete('/api/v1/public/procedimiento/:codigo', procedimiento.deleteProcedimiento(Q, models, recalculate));
 
 	app.get('/api/v1/restricted/reglasinconsistencias', reglainconsistencia.getReglaInconsistencia(models));
+	app.get('/api/v1/restricted/reglasinconsistencias/:id', reglainconsistencia.getReglaInconsistencia(models));
 	app.post('/api/v1/restricted/reglasinconsistencias', reglainconsistencia.newReglaInconsistencia(models));
 	app.put('/api/v1/restricted/reglasinconsistencias/:id', reglainconsistencia.updateReglaInconsistencia(models));
 	app.delete('/api/v1/restricted/reglasinconsistencias/:id', reglainconsistencia.removeReglaInconsistencia(models));
