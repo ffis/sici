@@ -37,10 +37,14 @@ var os = require('os'),
 	app = module.exports = express()
 ;
 
+function setProgressMessage(msg){
+	process.stdout.write('                                                                                                                                            ' + "\r");
+	process.stdout.write( msg + "\r");
+}
 
 app.set('mongosrv', process.env.MONGOSVR || 'mongodb://mongosvr/sici');
 
-
+console.log('Estableciendo conexión a ' + app.get('mongosrv'));
 //Inicialización mongoose
 mongoose.connect(app.get('mongosrv'));
 models.init(mongoose);
@@ -52,6 +56,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	if (err){
 		throw err;
 	}
+	console.log('Cargada configuración de forma exitosa');
 
 	var tmpdirectory = path.join(__dirname, 'tmp') + path.sep;
 	var cfg = cfgs[0];
@@ -67,6 +72,8 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.use('/api', expressJwt({secret: cfg.secret}));
 	app.use('/api', login.setpermisoscalculados({models: models}));
 	app.use('/api', api.log(models));
+
+	setProgressMessage('Estableciendo rutas: restricciones permisos 1/2');
 
 	app.use('/api/v1/public/updateByFile', multer({ dest: path.join( __dirname, 'tmp') + path.sep}));
 
@@ -98,9 +105,12 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 		else{ res.status(403).json({error: 'Unathorized'}); }
 	});
 
+	setProgressMessage('Estableciendo rutas: restricciones permisos 2/2');
+
 	/* funcionalidad bots */
 	app.get('/bot/personas/actualizarGesper', persona.updateCodPlazaByLogin(models, Q, cfg));
 
+	setProgressMessage('Estableciendo rutas: rutas superuser');
 	/* funcionalidad superuser */
 	
 	app.get('/api/v1/restricted/fprocedimiento', recalculate.fprocedimiento(Q, models, procedimiento));
@@ -124,6 +134,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.delete('/api/v1/public/procedimiento/:codigo', procedimiento.deleteProcedimiento(Q, models, recalculate));
 
 	app.get('/api/v1/restricted/reglasinconsistencias', reglainconsistencia.getReglaInconsistencia(models));
+	app.get('/api/v1/restricted/reglasinconsistencias/:id', reglainconsistencia.getReglaInconsistencia(models));
 	app.post('/api/v1/restricted/reglasinconsistencias', reglainconsistencia.newReglaInconsistencia(models));
 	app.put('/api/v1/restricted/reglasinconsistencias/:id', reglainconsistencia.updateReglaInconsistencia(models));
 	app.delete('/api/v1/restricted/reglasinconsistencias/:id', reglainconsistencia.removeReglaInconsistencia(models));
@@ -131,11 +142,12 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.get('/api/v1/restricted/excelgesper', persona.importarGesper(models, Q));
 
 	/* funcionalidad grantuser */
+	setProgressMessage('Estableciendo rutas: rutas grantuser');
 	app.get('/api/v1/private/permisosList', permiso.permisosList(models, Q));
 	app.get('/api/v1/private/permisosList/:idjerarquia/:recursivo', permiso.permisosList(models, Q));
 
-	app.get('/api/v1/private/permisosDirectosProcedimientoList/:codigoprocedimiento', permiso.permisosDirectosProcedimientoList(models, Q));
-	app.get('/api/v1/private/permisosProcedimientoList/:codigoprocedimiento', permiso.permisosProcedimientoList(models, Q));
+	app.get('/api/v1/private/permisosDirectosProcedimientoList/:codigoprocedimiento', permiso.permisosDirectosProcedimientoList(models));
+	app.get('/api/v1/private/permisosProcedimientoList/:codigoprocedimiento', permiso.permisosProcedimientoList(models));
 
 	app.put('/api/v1/private/permisos/:id', permiso.update(models, recalculate, Q));
 	app.get('/api/v1/private/permisos/:id', permiso.get(models));
@@ -152,11 +164,11 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.get('/api/v1/private/permisos/delete-jerarquia/:idpermiso/:idjerarquia', permiso.removePermisoJerarquia(models, Q, recalculate));
 	app.get('/api/v1/private/permisos/delete-procedimiento/:idpermiso/:idprocedimiento', permiso.removePermisoJerarquia(models, Q, recalculate));
 	app.get('/api/v1/private/permisosdelegar/:login/:cod_plaza', permiso.delegarpermisos(models, Q, recalculate));
-	app.get('/api/v1/private/permisosdelegar/:login/:cod_plaza/:procedimiento', permiso.delegarpermisosProcedimiento(models, Q));
+	app.get('/api/v1/private/permisosdelegar/:login/:cod_plaza/:procedimiento', permiso.delegarpermisosProcedimiento(models));
 
 
 	/* funcionalidad user */
-
+	setProgressMessage('Estableciendo rutas: rutas user');
 	app.get('/api/v1/public/mapReducePeriodos', function(req, res){ exportador.mapReducePeriodos(Q, models, null, req.permisoscalculados).then(function(r){ res.json(r); }); });
 	app.post('/api/v1/public/updateByFile', upload.update(), csvsici.parse(models));
 	app.post('/api/v1/public/updateByFileIE', upload.update(), csvsici.parse(models));
@@ -189,12 +201,12 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 
 	app.get('/api/v1/public/procedimiento', procedimiento.procedimiento(models));
 	app.get('/api/v1/public/procedimiento/:codigo', procedimiento.procedimiento(models));
-	app.get('/api/v1/public/procedimientosByResponsable/:codplaza', procedimiento.procedimientosByResponsable(models, Q));
+	app.get('/api/v1/public/procedimientosByResponsable/:codplaza', procedimiento.procedimientosByResponsable(models));
 	app.get('/api/v1/public/procedimientoCount', procedimiento.totalProcedimientos(models));
 	app.get('/api/v1/public/procedimientoHasChildren/:codigo', procedimiento.hasChildred(models));
 
 
-	app.get('/api/v1/public/procedimientoList/:idjerarquia', procedimiento.procedimientoList(models, Q));
+	app.get('/api/v1/public/procedimientoList/:idjerarquia', procedimiento.procedimientoList(models));
 	app.get('/api/v1/public/procedimientoList/:idjerarquia/:recursivo', procedimiento.procedimientoList(models, Q));
 	app.get('/api/v1/public/procedimientosSinExpedientes', procedimiento.procedimientosSinExpedientes(cfg, models));
 	app.get('/api/v1/public/procedimientosSinExpedientes/:anualidad', procedimiento.procedimientosSinExpedientes(cfg, models));
@@ -219,14 +231,17 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.get('/download/:token/:hash', exportador.download(app, cfg, fs, md5, path));
 
 	if (os.platform() === 'linux'){
+		setProgressMessage('Estableciendo rutas: memory');
 		var memwatch = require('memwatch');
-		var previousinvoke = new memwatch.HeapDiff();
-		app.get('/memory', function(req, res){
-			if (global && global.gc){ global.gc(); }
-			var diff = previousinvoke.end();
-			previousinvoke = new memwatch.HeapDiff();
-			diff.change.details.sort(function(a, b){ return (b.size_bytes - a.size_bytes); });
-			res.json(diff);
+		process.nextTick(function(){
+			var previousinvoke = new memwatch.HeapDiff();
+			app.get('/memory', function(req, res){
+				if (global && global.gc){ global.gc(); }
+				var diff = previousinvoke.end();
+				previousinvoke = new memwatch.HeapDiff();
+				diff.change.details.sort(function(a, b){ return (b.size_bytes - a.size_bytes); });
+				res.json(diff);
+			});
 		});
 	}
 
@@ -234,9 +249,11 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.get('/', routes.index);
 	app.get('*', routes.index);//devolver el index.html del raiz
 
+	console.log('Establecidas las rutas.                                                                         ');
+
 	var server = http.createServer(app);
 	server.listen(app.get('port'), function () {
 		require('./api/socketioconsole')(server);
-		console.log('Express server listening on port ' + app.get('port'));
+		console.log('Servidor escuchando en puerto ' + app.get('port'));
 	});
 });
