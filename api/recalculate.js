@@ -2,14 +2,13 @@
 
 function parseStr2Int(str) {
     var valor = parseInt(str);
-    if (isNaN(valor))
+    if (isNaN(valor)){
         valor = 0;
+    }
     return valor;
 }
 
-/*
- 
- */
+
 exports.softCalculatePermiso = function (Q, models, permiso) {
     var Jerarquia = models.jerarquia();
     var Procedimiento = models.procedimiento();
@@ -315,7 +314,8 @@ exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
         if (typeof procedimiento.periodos[ periodo ].resueltos_1 == 'undefined')
             continue;
 
-        //nuevos campos
+        //nuevos campos, calculados
+        procedimiento.periodos[ periodo ].actualizado = [];
         procedimiento.periodos[ periodo ].total_resueltos = [];
         procedimiento.periodos[ periodo ].fuera_plazo = [];
         procedimiento.periodos[ periodo ].pendientes = [];
@@ -335,7 +335,7 @@ exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
 				pi -= procedimiento.periodos[sant].total_resueltos[mes];
 			procedimiento.periodos[ periodo ].pendientes_iniciales = pi;
 		}
-		
+
         var pendientes = parseStr2Int(procedimiento.periodos[ periodo ].pendientes_iniciales);
         var solicitudesprevias = parseStr2Int(procedimiento.periodos[ periodo ].solicitados);
         var totalsolicitudes = 0;	
@@ -357,6 +357,8 @@ exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
             totalsolicitudes += solicitudes;
             pendientes = pendientes + solicitudes - totalresueltos;
 
+            procedimiento.periodos[ periodo ].actualizado.push( (solicitudes + totalresueltos) > 0 ? 1 :0 );
+
             procedimiento.periodos[ periodo ].total_resueltos.push(totalresueltos);
             procedimiento.periodos[ periodo ].fuera_plazo.push(fueradeplazo);
             procedimiento.periodos[ periodo ].pendientes.push(pendientes);
@@ -366,15 +368,15 @@ exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
             procedimiento.periodos[ periodo ].Incidencias['Hay quejas presentadas'].push(procedimiento.periodos[ periodo ].quejas[mes]);
             procedimiento.periodos[ periodo ].Incidencias['Hay expedientes prescritos/caducados'].push(procedimiento.periodos[ periodo ].resueltos_prescripcion[mes]);
             procedimiento.periodos[ periodo ].Incidencias['Las solicitudes aumentan al menos 20%'].push((solicitudes > solicitudesprevias * 1.2) ? solicitudes - solicitudesprevias : 0);
-            solicitudesprevias = solicitudes;			
-        }		
+            solicitudesprevias = solicitudes;
+        }
         procedimiento.periodos[ periodo ].totalsolicitudes = totalsolicitudes;
     }
     deferred.resolve(procedimiento);
-    console.log("softCalculatedProcedimiento "+procedimiento.codigo);
+    console.log('softCalculatedProcedimiento: ' + procedimiento.codigo);
 
     return deferred.promise;
-}
+};
 
 exports.fullSyncprocedimiento = function (Q, models, fnprocedimiento) {
     var deferred = Q.defer(),
@@ -415,7 +417,7 @@ exports.fullSyncprocedimiento = function (Q, models, fnprocedimiento) {
                     }, function (err) {
                         informes.push({codigo: proccodigo, status: 500});
                         promise.reject(err);
-                    })
+                    });
                 }, function (err) {
                     informes.push({codigo: proccodigo, status: 500});
                     promise.reject(err);
@@ -429,10 +431,10 @@ exports.fullSyncprocedimiento = function (Q, models, fnprocedimiento) {
             deferred.resolve(informes);
         }, function (err) {
             deferred.reject(err);
-        })
+        });
     });
     return deferred.promise;
-}
+};
 
 exports.fullSyncpermiso = function (Q, models) {
     var deferred = Q.defer();
@@ -480,10 +482,10 @@ exports.fullSyncpermiso = function (Q, models) {
             deferred.resolve(informes);
         }, function (err) {
             deferred.reject(err);
-        })
+        });
     });
     return deferred.promise;
-}
+};
 
 exports.fullSyncjerarquia = function (Q, models) {
     //debe recalcular ancestros y descendientes a partir de ancestrodirecto
@@ -648,7 +650,7 @@ exports.fprocedimiento = function (Q, models, fnprocedimiento) {
             res.send(401, 'Carece de permisos');
         }
     };
-}
+};
 
 exports.fjerarquia = function (Q, models) {
     return function (req, res) {
@@ -664,7 +666,7 @@ exports.fjerarquia = function (Q, models) {
             res.send(401, 'Carece de permisos');
         }
     };
-}
+};
 
 exports.fpermiso = function (Q, models) {
     return function (req, res) {
@@ -682,5 +684,4 @@ exports.fpermiso = function (Q, models) {
             res.send(401, 'Carece de permisos');
         }
     };
-}
-
+};
