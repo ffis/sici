@@ -1,8 +1,8 @@
 (function(angular, $){
 	'use strict';
 	angular.module('sici')
-		.controller('InformesCtrl', ['$rootScope', '$scope', '$window', '$http', '$timeout', '$log', 'ExportarInforme', 'PeriodosStats', 'Arbol',
-			function ($rootScope, $scope, $window, $http, $timeout, $log, ExportarInforme, PeriodosStats, Arbol) {
+		.controller('InformesCtrl', ['$rootScope', '$scope', '$window', '$http', '$timeout', '$log', 'ExportarInforme', 'PeriodosStats', 'Arbol','$q',
+			function ($rootScope, $scope, $window, $http, $timeout, $log, ExportarInforme, PeriodosStats, Arbol, $q) {
 
 				$rootScope.nav = 'recalculate';
 				$scope.actualizando = 0;
@@ -14,6 +14,45 @@
 					{label: 'Informe resumen', selectanyo: false, fn: [{label: 'Generar Resumen', cmd: 'periodosStats', anyo: true}]}
 				];
 
+				$scope.pjerarquia = $q.defer();
+
+				$q.all([$rootScope.jerarquialectura(), $rootScope.jerarquiaescritura()], $rootScope.superuser).then(
+					function(data) {
+
+						if (data[2]!== 'undefined' && data[2]>0) 
+							return;
+						
+						$scope.jerarquia = data[0].concat(data[1]);
+						$scope.pjerarquia.resolve($scope.jerarquia);
+						/*$scope.filtrojerarquia*/
+					}, function(err){
+						$window.console.error(err);
+					}
+				);
+
+
+				$scope.fj = function(item) {
+					if ($scope.jerarquia.indexOf(item.id) !== -1 ){ return true;	}
+					if (item.nodes){
+						for(var i = 0; i < item.nodes.length; i++){
+							if ($scope.filtrojerarquia(item.nodes[i])){
+								return true;
+							}
+						}
+					}
+					return false;
+				};
+
+				$scope.filtrojerarquia = function(item) {
+					var def = $q.defer();
+					$scope.pjerarquia.promise.then( function(){
+						def.resolve($scope.fj(item));
+						$scope.filtrojerarquia = $scope.fj;
+					}, function(err){ def.reject(err); });
+					return def.promise;
+				};				
+				
+
 				var maxAnyo = new Date().getFullYear();
 
 				for(var anyo = 2014; anyo <= maxAnyo; anyo++){
@@ -21,6 +60,8 @@
 				}
 				$scope.anyoSelected = $scope.anyos[ $scope.anyos.length - 1 ];
 				$scope.clasefuncionalidades = 'col-md-' + (12 / $scope.funcionalidades.length).toFixed(0);
+
+				
 
 				$scope.invoke = function (cmd, anyoSelected) {
 					if ($scope.actualizando) {

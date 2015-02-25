@@ -102,8 +102,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.get('/bot/personas/actualizarGesper', persona.updateCodPlazaByLogin(models, Q, cfg));
 
 	/* funcionalidad superuser */
-	app.get('/api/v1/restricted/mapReducePeriodos', function(req, res){ exportador.mapReducePeriodos(Q, models).then(function(r){ res.json(r); }); });
-
+	
 	app.get('/api/v1/restricted/fprocedimiento', recalculate.fprocedimiento(Q, models, procedimiento));
 	app.get('/api/v1/restricted/fjerarquia', recalculate.fjerarquia(Q, models));
 	app.get('/api/v1/restricted/fpermiso', recalculate.fpermiso(Q, models));
@@ -158,6 +157,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 
 	/* funcionalidad user */
 
+	app.get('/api/v1/public/mapReducePeriodos', function(req, res){ exportador.mapReducePeriodos(Q, models, null, req.permisoscalculados).then(function(r){ res.json(r); }); });
 	app.post('/api/v1/public/updateByFile', upload.update(), csvsici.parse(models));
 	app.post('/api/v1/public/updateByFileIE', upload.update(), csvsici.parse(models));
 	app.get('/api/v1/public/aggregate/:anualidad/:campo', api.aggregate(cfg, models));

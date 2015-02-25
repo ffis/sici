@@ -46,7 +46,7 @@
 				console.error('Invocación inválida para la recuperación de datos estadísticos de un nodo de e. orgánica'); res.status(500); res.end(); return;
 			} else {
 				var idjerarquia = parseInt(req.params.idjerarquia);
-				exportador.mapReducePeriodos(Q, models, idjerarquia).then(
+				exportador.mapReducePeriodos(Q, models, idjerarquia, req.permisoscalculados).then(
 					function(data){
 						res.json(data);
 					}

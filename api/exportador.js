@@ -14,21 +14,31 @@
 		this.Sheets = {};
 	}
 
-	exports.mapReducePeriodos = function (Q, models, idjerarquia) {
+	exports.mapReducePeriodos = function (Q, models, idjerarquia, permisoscalculados ) {
 		/* TODO: replace this shit of code. MapReduce sucks! */
 		var Procedimiento = models.procedimiento();
 		var deferMR = Q.defer();
 		var restriccion = {};
-		if (typeof idjerarquia !== 'undefined'){
+		if (typeof idjerarquia !== 'undefined' && idjerarquia!=null){
 			restriccion['ancestros.id'] = idjerarquia;
 		}
 		restriccion.oculto = {'$ne': true};
 		restriccion.eliminado = {'$ne': true};
+		if (typeof permisoscalculados !== 'undefined' && permisoscalculados && !permisoscalculados.superuser)
+		{
+			if (typeof permisoscalculados.procedimientosdirectalectura === 'undefined')
+					permisoscalculados.procedimientoslectura = [];
+			if (typeof permisoscalculados.procedimientosdirectalectura === 'undefined')
+					permisoscalculados.procedimientosdirectalectura = [];
+			restriccion.codigo = { '$in': permisoscalculados.procedimientosdirectalectura.concat(permisoscalculados.procecedimientoslectura) }
+		}
+
 
 		Procedimiento.find(restriccion, {'ancestros.id': 1, 'periodos': 1}, function(error, procedimientos){
 			if (error){
 				deferMR.reject(error);
 			}
+
 
 			var returnValue = { };
 			var d = new Date();
@@ -54,6 +64,8 @@
 					}
 				}
 			}
+
+
 
 			var fnReduce = function(key, values){
 				var sumas = {};
@@ -140,7 +152,7 @@
 			}
 
 
-			if (typeof idjerarquia === 'undefined'){
+			if (typeof idjerarquia === 'undefined' || idjerarquia==null  ){
 				deferMR.resolve(results);
 			}else{
 				var periodos = {};
@@ -182,7 +194,7 @@
 	};
 
 
-	exports.tablaResultadosJerarquiaDesglosado = function(Q, models, jerarquia) {
+	exports.tablaResultadosJerarquiaDesglosado = function(Q, models, jerarquia, permisoscalculados) {
 		var defer = Q.defer();
 		var defer_descendientes = Q.defer();
 		var Jerarquia = models.jerarquia();
@@ -204,7 +216,9 @@
 			}
 		});
 
-		Q.all([defer_descendientes.promise, exports.mapReducePeriodos(Q, models)]).then(
+		
+
+		Q.all([defer_descendientes.promise, exports.mapReducePeriodos(Q, models, null, permisoscalculados)]).then(
 			function(all_data) {
 				var hijos = all_data[0], results = all_data[1];
 				hijos = ([ {nombrelargo: jerarquia.nombrelargo, nombre: jerarquia.nombre, id: jerarquia.id} ]).concat(hijos);
@@ -329,7 +343,7 @@
 			deferNombre.promise.then(function (denominacion) {
 				var d = new Date();
 				var wb = new Workbook();
-				exports.mapReducePeriodos(Q, models, parseInt(req.params.jerarquia)).then(function (periodos) {
+				exports.mapReducePeriodos(Q, models, parseInt(req.params.jerarquia), req.user.permisoscalculados).then(function (periodos) {
 					for (var anualidad = 2013; anualidad <= d.getFullYear(); anualidad++) {
 						var ws = {};
 
@@ -349,7 +363,7 @@
 					deferSheets[0].reject();
 				});
 
-				exports.tablaResultadosJerarquiaDesglosado(Q, models, jerarquia).then(
+				exports.tablaResultadosJerarquiaDesglosado(Q, models, jerarquia, req.user.permisoscalculados).then(
 					function(ws2){
 						var wsName = 'resumen descendientes';
 						wb.SheetNames.push(wsName);
@@ -509,7 +523,17 @@
 			var hojaPermisos = function(Q, Permiso, jerarquiasById, personasByCodPlaza, personasByLogin)
 			{
 				var deferPermiso = Q.defer();
-				Permiso.find({}, function (err, data) {
+				var restriccion_permisos = {};				
+				
+				if (!req.user.permisoscalculados.superuser){
+					restriccion_permisos['$and'] = [];
+					restriccion_permisos['$and'].push({ 'jerarquialectura' : {'$in' : req.user.permisoscalculados.jerarquialectura }});
+					var aux = {};					
+					restriccion_permisos['$and'].push(aux);
+					aux[ 'jerarquialectura.'+ req.user.permisoscalculados.jerarquialectura.length ] = {'$exists' : false};
+				}
+
+				Permiso.find(restriccion_permisos, function (err, data) {
 					if (err) {
 						deferPermiso.reject(err);
 					} else {
@@ -596,6 +620,7 @@
 						}
 
 						ws['!ref'] = XLSX.utils.encode_range({s: {c: 0, r: 0}, e: {c: 13, r: pos}});
+
 						deferPermiso.resolve({'wsName': 'Permisos', 'sheet': ws});
 					}
 				});
@@ -615,6 +640,9 @@
 			var promesaCacheJerarquia = Q.defer();
 			var promesaCachePersonas = Q.defer();
 
+			var restriccionJerarquia = {};
+
+
 
 			Jerarquia.find({}, {'id': true, 'nombrelargo': true, 'ancestros': true}, function(err, jerarquias){
 				if (err){
@@ -628,23 +656,28 @@
 			});
 
 			var personas = [];
-			Persona.find({}, {codplaza: true, login: true, nombre: true, apellidos: true, habilitado: true}, function (err, p) {
-				if (err) {
-					promesaCachePersonas.reject(err);
-				} else {
-					personas = p;
-					personas.forEach(function(persona){
-						if (persona.codplaza && persona.codplaza.trim() !== ''){
-							personasByCodPlaza[ persona.codplaza ] = persona;
-						}
-						if (persona.login && persona.login.trim() !== ''){
-							personasByLogin[ persona.login ] = persona;
-						}
+			/*** los datos sobre solo están disponibles para superuser **/
+			if (req.user.permisoscalculados.superuser){				
+				Persona.find({}, {codplaza: true, login: true, nombre: true, apellidos: true, habilitado: true}, function (err, p) {
+					if (err) {
+						promesaCachePersonas.reject(err);
+					} else {
+						personas = p;
+						personas.forEach(function(persona){
+							if (persona.codplaza && persona.codplaza.trim() !== ''){
+								personasByCodPlaza[ persona.codplaza ] = persona;
+							}
+							if (persona.login && persona.login.trim() !== ''){
+								personasByLogin[ persona.login ] = persona;
+							}
 
-					});
-					promesaCachePersonas.resolve();
-				}
-			});
+						});
+						promesaCachePersonas.resolve();
+					}
+				});
+			} else { 
+				promesaCachePersonas.resolve(); 
+			}
 
 			Q.all([ promesaCacheJerarquia.promise, promesaCachePersonas.promise ]). then( function()
 			{
@@ -653,17 +686,33 @@
 
 				var deferBD = Q.defer();
 				var deferBDOcultos = Q.defer();
-
 				promesasExcel.push(deferBD.promise);
 				promesasExcel.push(deferBDOcultos.promise);
-
-				// Genera hoja de usuarios
-				promesasExcel.push( hojaUsuarios(Q, personas) );
-				promesasExcel.push( hojaPermisos(Q, Permiso, jerarquiasById, personasByCodPlaza, personasByLogin) );
-
-
-				// Genera hoja General
-				Procedimiento.find({'$or': [{'oculto': {$exists: false}}, {'$and': [{'oculto': {$exists: true}}, {'oculto': false}]}]}, {codigo: true, denominacion: true, idjerarquia: true, responsables: true, 'cod_plaza': true, periodos: true, ancestros: true}, function (err, procedimientos) {
+				// Genera hoja de usuarios (SOLO PARA SUPERUSER)
+				if (req.user.permisoscalculados.superuser){
+					promesasExcel.push( hojaUsuarios(Q, personas) );
+				} 
+				// Genera la hoja de permisos (SOLO PARA SUPERUSER Y GRANT)
+				if (req.user.permisoscalculados.grantoption || req.user.permisoscalculados.superuser){
+					promesasExcel.push( hojaPermisos(Q, Permiso, jerarquiasById, personasByCodPlaza, personasByLogin, req.user.permisoscalculados) );
+				}
+				var restriccion_procedimientos = {'$or': [{'oculto': {$exists: false}}, {'$and': [{'oculto': {$exists: true}}, {'oculto': false}]}]};
+				if (!req.user.permisoscalculados.superuser) {
+					var pids = [];
+					pids = pids
+							.concat(Array.isArray(req.user.permisoscalculados.procedimientosdirectalectura)?req.user.permisoscalculados.procedimientosdirectalectura:[])
+							.concat(Array.isArray(req.user.permisoscalculados.procedimientoslectura)?req.user.permisoscalculados.procedimientoslectura:[])
+							.concat(Array.isArray(req.user.permisoscalculados.procedimientosdirectaescritura)?req.user.permisoscalculados.procedimientosdirectaescritura:[])
+							.concat(Array.isArray(req.user.permisoscalculados.procedimientosescritura)?req.user.permisoscalculados.procedimientosescritura:[]);
+					var r = { '$and' : [
+								restriccion_procedimientos,
+								{'codigo' : {'$in':pids}}
+								]
+							};
+					restriccion_procedimientos = r;
+				}				
+				// Genera hoja General (PARA TODOS)
+				Procedimiento.find(restriccion_procedimientos, {codigo: true, denominacion: true, idjerarquia: true, responsables: true, 'cod_plaza': true, periodos: true, ancestros: true}, function (err, procedimientos) {
 					if (err) {
 						console.error(err);
 						deferBD.reject(err);
@@ -676,27 +725,32 @@
 						});
 					}
 				});
-
-				// Genera hoja General Ocultos
-				Procedimiento.find({'$and': [{'oculto': {$exists: true}}, {'oculto': true}]}, {codigo: true, denominacion: true, idjerarquia: true, responsables: true, 'cod_plaza': true, periodos: true, ancestros: true}, function (err, procedimientos) {
-					if (err) {
-						console.error(err);
-						deferBDOcultos.reject(err);
-					} else {
-						exports.rellenarProcedimientos(procedimientos, year, Q, models, personasByCodPlaza).then(function (ws) {
-							deferBDOcultos.resolve({'wsName': 'BD Ocultos', 'sheet': ws});
-						}, function (erro) {
-							console.error(erro);
+				// Genera hoja General Ocultos (SOLO SUPERUSER)
+				if (req.user.permisoscalculados.superuser){
+					Procedimiento.find({'$and': [{'oculto': {$exists: true}}, {'oculto': true}]}, {codigo: true, denominacion: true, idjerarquia: true, responsables: true, 'cod_plaza': true, periodos: true, ancestros: true}, function (err, procedimientos) {
+						if (err) {
+							console.error(err);
 							deferBDOcultos.reject(err);
-						});
-					}
-				});
-
+						} else {
+							exports.rellenarProcedimientos(procedimientos, year, Q, models, personasByCodPlaza).then(function (ws) {
+								deferBDOcultos.resolve({'wsName': 'BD Ocultos', 'sheet': ws});
+							}, function (erro) {
+								console.error(erro);
+								deferBDOcultos.reject(err);
+							});
+						}
+					});
+				} else {
+					deferBDOcultos.resolve();
+				}				
 				Q.all(promesasExcel).then(function (wss) {
+
 					var wb = new Workbook();
 					wss.forEach(function (ws) {
-						wb.SheetNames.push(ws.wsName);
-						wb.Sheets[ws.wsName] = ws.sheet;
+						if (typeof ws !== undefined && ws != null) {							
+							wb.SheetNames.push(ws.wsName);
+							wb.Sheets[ws.wsName] = ws.sheet;
+						}
 					});
 					var time = new Date().getTime();
 					var path = app.get('prefixtmp');
