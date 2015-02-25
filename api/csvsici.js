@@ -18,7 +18,7 @@
 			var avisos = [];
 			var input = fs.createReadStream(req.files.file.path);
 			var numlinea = 0;
-			var login_importador = req.user.login;
+			var loginImportador = req.user.login;
 
 			function getStatus(){
 				return 'Línea ' + numlinea + ': ';
@@ -147,7 +147,7 @@
 					output: output,
 					avisos: avisos,
 					errores: errores,
-					login_importador: login_importador,
+					login_importador: loginImportador,
 					estado: estado,
 					mostrable: true
 				};
