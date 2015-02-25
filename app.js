@@ -147,8 +147,8 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.get('/api/v1/private/permisosList', permiso.permisosList(models, Q));
 	app.get('/api/v1/private/permisosList/:idjerarquia/:recursivo', permiso.permisosList(models, Q));
 
-	app.get('/api/v1/private/permisosDirectosProcedimientoList/:codigoprocedimiento', permiso.permisosDirectosProcedimientoList(models, Q));
-	app.get('/api/v1/private/permisosProcedimientoList/:codigoprocedimiento', permiso.permisosProcedimientoList(models, Q));
+	app.get('/api/v1/private/permisosDirectosProcedimientoList/:codigoprocedimiento', permiso.permisosDirectosProcedimientoList(models));
+	app.get('/api/v1/private/permisosProcedimientoList/:codigoprocedimiento', permiso.permisosProcedimientoList(models));
 
 	app.put('/api/v1/private/permisos/:id', permiso.update(models, recalculate, Q));
 	app.get('/api/v1/private/permisos/:id', permiso.get(models));
@@ -165,7 +165,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.get('/api/v1/private/permisos/delete-jerarquia/:idpermiso/:idjerarquia', permiso.removePermisoJerarquia(models, Q, recalculate));
 	app.get('/api/v1/private/permisos/delete-procedimiento/:idpermiso/:idprocedimiento', permiso.removePermisoJerarquia(models, Q, recalculate));
 	app.get('/api/v1/private/permisosdelegar/:login/:cod_plaza', permiso.delegarpermisos(models, Q, recalculate));
-	app.get('/api/v1/private/permisosdelegar/:login/:cod_plaza/:procedimiento', permiso.delegarpermisosProcedimiento(models, Q));
+	app.get('/api/v1/private/permisosdelegar/:login/:cod_plaza/:procedimiento', permiso.delegarpermisosProcedimiento(models));
 
 
 	/* funcionalidad user */
