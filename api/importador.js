@@ -308,11 +308,11 @@
 			var restriccion = {id: id, jerarquia: { '$exists': true}};
 
 			Crawled.find(restriccion, function(err, data){
-			if (err){
-				console.error(err);
-			}
+				if (err){
+					console.error(err);
+				}
 
-			//if (true){
+				//if (true){
 
 				var deferred = Q.defer();
 				var cb = function(df) {
@@ -323,7 +323,7 @@
 						}
 						var datos = {};
 
-						$('.campoProcedimiento').each(function(index, campoProcedimiento) {
+						$('.campoProcedimiento').each(function(indx, campoProcedimiento) {
 							var campo = $(campoProcedimiento).text();
 							campo = campo.replace('.', '_');
 							datos[campo] = $(campoProcedimiento).next().text();
@@ -338,7 +338,6 @@
 
 						var completo = $('.procedimiento').text();
 
-						var Crawled = models.crawled();
 						Crawled.update({id: id}, { id: id, any: datos, jerarquia: jerarquia, completo: completo}, { upsert: true }, function(e){
 								if (e){
 									console.error(e);
@@ -358,9 +357,9 @@
 						res.json(v);
 					});
 				}
-			/*}else{
-				res.json(data);
-			}*/
+				/*}else{
+					res.json(data);
+				}*/
 			});
 		};
 	};

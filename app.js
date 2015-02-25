@@ -112,7 +112,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 
 	setProgressMessage('Estableciendo rutas: rutas superuser');
 	/* funcionalidad superuser */
-	
+
 	app.get('/api/v1/restricted/fprocedimiento', recalculate.fprocedimiento(Q, models, procedimiento));
 	app.get('/api/v1/restricted/fjerarquia', recalculate.fjerarquia(Q, models));
 	app.get('/api/v1/restricted/fpermiso', recalculate.fpermiso(Q, models));
