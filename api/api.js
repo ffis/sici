@@ -85,7 +85,15 @@ module.exports.raw = function(models){
 			console.error(modelname + ' doesn\'t exists in model'); res.status(500).end(); return ;
 		}
 		var Loader = models[modelname]();
-		var query = Loader.find({'oculto': {'$ne': true}, 'eliminado': {'$ne': true}});
+		var restricciones = {'oculto': {'$ne': true}, 'eliminado': {'$ne': true}};
+		if (modelname === 'crawled'){
+			var ids = [];
+			for(var i in req.user.permisoscalculados.procedimientoslectura){
+				ids.push( parseInt( req.user.permisoscalculados.procedimientoslectura[i] ) );
+			}
+			restricciones.id = { '$in': ids };
+		}
+		var query = Loader.find(restricciones);
 
 		if (typeof fields !== 'undefined'){
 			query.select(fields);

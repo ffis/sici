@@ -1398,3 +1398,6 @@ Portlets
   color: #daf7d6;
 }
 
+.feedback-btn.feedback-btn-small.feedback-btn-inverse{
+  display:none;
+}

@@ -11,6 +11,17 @@
 		historico: {},
 		//periodo: { a2013:[Number], a2014:[Number], a2015:[Number] },
 		periodo: {},
+		feedback: {
+			'usr': String,
+			'fecha': Date,
+			'url': String,
+			'comentario': String,
+			'contacto': String,
+			'captura': String,
+			'estado': String,
+			'tipo': String,
+			'destinatario': String
+		},
 		persona: {
 			'codplaza': String,
 			'login': String,

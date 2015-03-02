@@ -14,7 +14,7 @@
 		<link rel="stylesheet" href="/bower_components/angular-bootstrap-colorpicker/css/colorpicker.css">
 		<link rel="stylesheet" href="/bower_components/angularjs-toaster/toaster.css">
 		<link rel="stylesheet" href="/css/font-awesome-4.2.0/css/font-awesome.min.css">
-
+		<link rel="stylesheet" href="/js/lib/feedback.css">
 	</head>
 	<body>
 		<div role="navigation" ng-controller="AppCtrl" class="navbar navbar-default navbar-fixed-top">
@@ -31,22 +31,49 @@
 			</div>
 			<div class="collapse navbar-collapse navbar-ex1-collapse">
 				<ul class="nav navbar-nav"  ng-if="logeado">
-					<li ng-class="{active:$root.nav==navg.id}" ng-repeat="navg in $root.navegabilidad">
-						<a href="{{navg.id}}">{{navg.caption}}</a>
+					<li ng-class="{active:$root.nav==navg.id, dropdown: navg.sub.length > 0 }" ng-repeat="navg in $root.navegabilidad">
+						<!-- /* TODO: remove this crap */ -->
+						<a ng-If="navg.sub.length > 0" ng-class="{'dropdown-toggle': navg.sub.length > 0 }" data-toggle="dropdown">{{navg.caption}}  <span class="caret" ng-If="navg.sub.length > 0"></span></a>
+						<a ng-If="!(navg.sub.length > 0)" href="{{navg.id}}" ng-class="{'dropdown-toggle': navg.sub.length > 0 }" data-toggle="dropdown">{{navg.caption}}  <span class="caret" ng-If="navg.sub.length > 0"></span></a>
+						<ul class="dropdown-menu" role="menu" ng-If="navg.sub.length > 0">
+							<li ng-repeat="navg2 in navg.sub">
+								<a href="{{navg2.id}}">{{navg2.caption}}</a>
+							</li>
+						</ul>
+					</li>
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown"> Ayuda <span class="caret"></span></a>
+						<ul class="dropdown-menu" role="menu">
+							<li>
+								<a href="http://intranet.carm.es/web/integra.servlets.Blob?ARCHIVO=GU%CDA%20R%C1PIDA.pdf&TABLA=ARCHIVOS&CAMPOCLAVE=IDARCHIVO&VALORCLAVE=103830&CAMPOIMAGEN=ARCHIVO&IDTIPO=60">
+								<i class="fa fa-book fa-fw"></i> Manual de uso</a>
+							</li>
+							<li>
+								<button class="col-xs-12" ng-click="$root.report()"><i class="fa fa-bug fa-fw"></i> Notificar un fallo</button>
+							</li>
+						</ul>
 					</li>
 					<li ng-class="{active:$root.nav=='grant'}" ng-if="$root.permisoscalculados.grantoption && !$root.permisoscalculados.superuser">
 						<a href="permisos">Administrar permisos</a>
 					</li>
 					<li class="dropdown" ng-If="$root.permisoscalculados.superuser" >
 			          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Administrar <span class="caret"></span></a>
-			          <ul class="dropdown-menu" role="menu">
-						<li ng-class="{active:$root.nav==navg.id}" ng-repeat="navg in $root.navegabilidadSuper">
-							<a href="{{navg.id}}">{{navg.caption}}</a>
-						</li>
+			          	<ul class="dropdown-menu" role="menu">
+							<li ng-class="{active:$root.nav==navg.id}" ng-repeat="navg in $root.navegabilidadSuper">
+								<a href="{{navg.id}}">{{navg.caption}}</a>
+							</li>
 						</ul>
 					</li>
 					<li class="hidden-xs hidden-sm">
 						<input type="text" class="form-control" ng-blur="$root.irProcedimiento()" ng-model="$root.procedimiento" length="7" placeholder="ID" style="width:4em" />
+					</li>
+					<li ng-class="{active:$root.nav==navg.id, dropdown: navg.sub }" ng-repeat="navg in $root.navegabilidadLast">
+						<a href="{{navg.id}}">{{navg.caption}}  <span class="caret" ng-If="navg.sub.length > 0"></span></a>
+						<ul class="dropdown-menu" role="menu" ng-If="navg.sub.length > 0">
+							<li ng-repeat="navg2 in navg.sub">
+								<a href="{{navg2.id}}">{{navg2.caption}}</a>
+							</li>
+						</ul>
 					</li>
 				</ul>
 			</div>
@@ -56,29 +83,29 @@
 			<toaster-container></toaster-container>
 		</div>
 		<script>
-		//IE sucks
-			if (typeof console === 'undefined' || typeof console.log === 'undefined') { console = { log: function(){}, error: function(){} } };
+			//IE sucks
+			if (typeof console === 'undefined' || typeof console.log === 'undefined') { console = { log: function(){}, error: function(){} }; };
 		</script>
 
 		<!--[if lt IE 9]>
 		  <script src="/js/lib/es5.js"></script>
 		  <script src="/js/lib/jquery/jquery-1.11.1.min.js"></script>
-		  <script>angularFileUploadLoaded=false;ie8=true;</script>
+		  <script>var angularFileUploadLoaded=false;var ie8=true;</script>
 		<![endif]-->
 
 		<!--[if (gte IE 9) | (!IE)]><!-->  
-			<script>angularFileUploadLoaded=true;</script>
-			<script>
-			    //optional need to be loaded before angular-file-upload-shim(.min).js
-			    FileAPI = {
-			        jsUrl: '/js/lib/fileapi/FileAPI.min.js',
-			        flashUrl: '/js/lib/fileapi/FileAPI.flash.swf',
-			        //forceLoad: true, html5: false //to debug flash in HTML5 browsers
-			    }
-				ie8=false;
-		  </script>
-		  <script src="/js/lib/jquery/jquery-2.0.3.min.js"></script>
-		  <script src="/bower_components/ng-file-upload/angular-file-upload-shim.js"></script>
+		<script>var angularFileUploadLoaded = true;</script>
+		<script>
+			//optional need to be loaded before angular-file-upload-shim(.min).js
+			FileAPI = {
+				jsUrl: '/js/lib/fileapi/FileAPI.min.js',
+				flashUrl: '/js/lib/fileapi/FileAPI.flash.swf'
+				//forceLoad: true, html5: false //to debug flash in HTML5 browsers
+			};
+			var ie8 = false;
+		</script>
+		<script src="/js/lib/jquery/jquery-2.0.3.min.js"></script>
+		<script src="/bower_components/ng-file-upload/angular-file-upload-shim.js"></script>
 		<!--<![endif]--> 
 		
 		<script src="/js/lib/FileSaver.js"></script>
@@ -101,6 +128,7 @@
 		<script src="/bower_components/angularjs-toaster/toaster.js"></script>
 		<script src="/bower_components/d3/d3.js"></script>
 		<script src="/bower_components/nvd3/nv.d3.js"></script>
+		<script src="/js/lib/feedback.js"></script>
 		
 		<script src="/tipologin.js"></script>
 		<script src="/js/app.js"></script>
@@ -129,7 +157,7 @@
 		<script src="/js/controllers/testexpediente.js"></script>
 		<script src="/js/controllers/detallesorganica.js"></script>
 		<script src="/js/controllers/debug.js"></script>
-		
+
 		<script src="/bower_components/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.js"></script>
 		<script src="/bower_components/angularjs-nvd3-directives/dist/angularjs-nvd3-directives.js"></script>
 		<script src="/bower_components/jquery.easy-pie-chart/dist/angular.easypiechart.js"></script>
@@ -141,4 +169,3 @@
 		<script src="//cdnjs.cloudflare.com/ajax/libs/angular-filter/0.1.1/angular-filter.js"></script>
 	</body>
 </html>
-

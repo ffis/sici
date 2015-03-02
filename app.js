@@ -33,6 +33,7 @@ var os = require('os'),
 	logincarm = require('./api/login.carm'),
 	exportador = require('./api/exportador'),
 	csvsici = require('./api/csvsici'),
+	feedback = require('./api/feedback'),
 	/* app */
 	app = module.exports = express()
 ;
@@ -68,7 +69,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 
 	mongoose.set('debug', false);
 
-	app.use(bodyParser.json());
+	app.use(bodyParser.json({limit: '10mb'}));
 	app.use('/api', expressJwt({secret: cfg.secret}));
 	app.use('/api', login.setpermisoscalculados({models: models}));
 	app.use('/api', api.log(models));
@@ -227,6 +228,9 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.get('/api/v1/public/ratioResueltos/:anualidad', procedimiento.ratioResueltos(cfg, models));
 	app.get('/api/v1/public/tramitesMediaMes', procedimiento.mediaMesTramites(cfg, models));
 	app.get('/api/v1/public/tramitesMediaMes/:anualidad', procedimiento.mediaMesTramites(cfg, models));
+
+	//app.use('/api/v1/public/feedback', multer({ dest: path.join( __dirname, 'tmp') + path.sep}));
+	app.post('/api/v1/public/feedback', feedback.log(models));
 
 	app.get('/download/:token/:hash', exportador.download(app, cfg, fs, md5, path));
 

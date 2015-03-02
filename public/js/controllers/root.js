@@ -1,8 +1,8 @@
-(function(angular, document, $, Blob, saveAs){
+(function(angular, document, $, Blob, saveAs, Feedback){
 	'use strict';
 	angular.module('sici')
-	.controller('AppCtrl', ['$window', '$q', '$scope', '$rootScope', '$log', 'Session', '$location', 'PermisosCalculados', 'AuthService',
-		function ($window, $q, $scope, $rootScope, $log, Session, $location, PermisosCalculados, AuthService) {
+	.controller('AppCtrl', ['$window', '$q', '$scope', '$rootScope', '$log', 'Session', '$location', '$http', 'PermisosCalculados', 'AuthService',
+		function ($window, $q, $scope, $rootScope, $log, Session, $location, $http, PermisosCalculados, AuthService) {
 
 		$rootScope.setTitle = function (title){ $scope.name = title; };
 		$rootScope.setLogeado = function(t){
@@ -22,12 +22,13 @@
 		$rootScope.navegabilidad = [
 			{ id: 'inicio', caption: 'Inicio' },
 			{ id: 'actividad', caption: 'Actividad' },
-			{ id: 'stats', caption: 'Estadísticas' },
-			{ id: 'errors', caption: 'Incoherencias' },
-			{ id: 'inconsistencias', caption: 'Inconsistencias' },
-			{ id: (IEChecker.test(browser) ? 'updateIE' : 'update'), caption: 'Actualizar mediante fichero' },
-			{ id: 'http://intranet.carm.es/web/integra.servlets.Blob?ARCHIVO=GU%CDA%20R%C1PIDA.pdf&TABLA=ARCHIVOS&CAMPOCLAVE=IDARCHIVO&VALORCLAVE=103830&CAMPOIMAGEN=ARCHIVO&IDTIPO=60', caption: 'Ayuda'},
-			{ id: 'logout', caption: 'Salir' }
+			{ id: '#', caption: 'Reportes', sub: [
+				{ id: 'informes', caption: 'Informes'},
+				{ id: 'stats', caption: 'Estadísticas' },
+				{ id: 'errors', caption: 'Incoherencias' },
+				{ id: 'inconsistencias', caption: 'Inconsistencias' }
+			] },
+			{ id: (IEChecker.test(browser) ? 'updateIE' : 'update'), caption: 'Importar' },
 		];
 		$rootScope.navegabilidadSuper = [
 			{ id: 'recalculate', caption: 'Recalcular datos' },
@@ -35,8 +36,10 @@
 			{ id: 'etiqueta', caption: 'Gestionar etiquetas'},
 			{ id: 'periodos', caption: 'Gestionar períodos'},
 			{ id: 'crearprocedimiento', caption: 'Crear procedimiento'},
-			{ id: 'loginas', caption: 'Cambiar de usuario'},
-			{ id: 'informes', caption: 'Informes'}
+			{ id: 'loginas', caption: 'Cambiar de usuario'}
+		];
+		$rootScope.navegabilidadLast = [
+			{ id: 'logout', caption: 'Salir' }
 		];
 
 		$rootScope.loginCarm = AuthService.carmlogin;
@@ -143,9 +146,61 @@
 			}
 		};
 
+		$rootScope.apiFeedback = null;
+
+		$rootScope.report = function(){
+			if (true && !$rootScope.apiFeedback)
+			{
+				var adapter = new window.Feedback.Send();
+				adapter.send = function( data, callback){
+					$log.log(data);
+					//callback( (xhr.status === 200) );
+					$http.post('/api/v1/public/feedback', data)
+						.success(function(answer) { callback(true); $log.info(answer); })
+						.error(function(answer) { callback(false); $log.error(answer); });
+					callback(true);
+				};
+
+				var parameters = {
+					h2cPath: '/js/lib/html2canvas.js',
+					label: 'Enviar comentarios',
+					header: 'Enviar comentarios',
+					url: '/api/v1/public/feedback',
+					nextLabel: 'Continuar',
+					reviewLabel: 'Revisar',
+					sendLabel: 'Enviar',
+					closeLabel: 'Cerrar',
+					messageSuccess: 'Tu comentario ha sido enviado con éxito. Gracias por tu ayuda.',
+					messageError: 'Hubo un error enviando una notificación al servidor',
+					blackoutClass: 'hidden',
+					appendTo: null, // don't add feedback button to page
+					adapter: adapter,
+					pages: null
+				};
+				parameters.pages = [
+						new window.Feedback.Form([{
+							type: 'textarea',
+							name: 'Comentario',
+							label: 'Por favor, describa su incidencia',
+							required: true
+						}, {
+							type: 'input-text',
+							name: 'Contacto',
+							label: 'Si lo desea, incluya un teléfono o dirección de correo electrónico de contacto',
+							required: false
+						} ]),
+						new window.Feedback.Screenshot(parameters),
+						new window.Feedback.Review()
+					];
+				$rootScope.apiFeedback = Feedback(parameters);
+			}
+
+			$rootScope.apiFeedback.open();
+		};
+
 		$rootScope.$on('$locationChangeSuccess', function(){
 			angular.element('.navbar-collapse').removeClass('in');
 		});
 	}
 	]);
-})(angular, document, $, Blob, saveAs);
+})(angular, document, $, Blob, saveAs, Feedback);
