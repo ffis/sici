@@ -23,20 +23,20 @@
 			{ id: 'inicio', caption: 'Inicio' },
 			{ id: 'actividad', caption: 'Actividad' },
 			{ id: '#', caption: 'Reportes', sub: [
-				{ id: 'informes', caption: 'Informes'},
-				{ id: 'stats', caption: 'Estadísticas' },
-				{ id: 'errors', caption: 'Incoherencias' },
-				{ id: 'inconsistencias', caption: 'Inconsistencias' }
+				{ id: 'informes', caption: 'Informes', icon: 'fa-file-excel-o' },
+				{ id: 'stats', caption: 'Estadísticas', icon: 'fa-bar-chart' },
+				{ id: 'errors', caption: 'Incoherencias', icon: 'fa-flag' },
+				{ id: 'inconsistencias', caption: 'Inconsistencias', icon: 'fa-exclamation-triangle' }
 			] },
-			{ id: (IEChecker.test(browser) ? 'updateIE' : 'update'), caption: 'Importar' },
+			{ id: (IEChecker.test(browser) ? 'updateIE' : 'update'), caption: 'Importar' }
 		];
 		$rootScope.navegabilidadSuper = [
-			{ id: 'recalculate', caption: 'Recalcular datos' },
-			{ id: 'permisos', caption: 'Gestionar permisos' },
-			{ id: 'etiqueta', caption: 'Gestionar etiquetas'},
-			{ id: 'periodos', caption: 'Gestionar períodos'},
-			{ id: 'crearprocedimiento', caption: 'Crear procedimiento'},
-			{ id: 'loginas', caption: 'Cambiar de usuario'}
+			{ id: 'recalculate', caption: 'Recalcular datos', icon: 'fa-refresh' },
+			{ id: 'permisos', caption: 'Gestionar permisos', icon: 'fa-users' },
+			{ id: 'etiqueta', caption: 'Gestionar etiquetas', icon: 'fa-tags'},
+			{ id: 'periodos', caption: 'Gestionar períodos', icon: 'fa-calendar'},
+			{ id: 'crearprocedimiento', caption: 'Crear procedimiento', icon: 'fa-table' },
+			{ id: 'loginas', caption: 'Cambiar de usuario', icon: 'fa-user-plus' }
 		];
 		$rootScope.navegabilidadLast = [
 			{ id: 'logout', caption: 'Salir' }

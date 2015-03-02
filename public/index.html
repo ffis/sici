@@ -13,7 +13,7 @@
 		<link rel="stylesheet" href="/bower_components/angular-xeditable/dist/css/xeditable.css">
 		<link rel="stylesheet" href="/bower_components/angular-bootstrap-colorpicker/css/colorpicker.css">
 		<link rel="stylesheet" href="/bower_components/angularjs-toaster/toaster.css">
-		<link rel="stylesheet" href="/css/font-awesome-4.2.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="/css/font-awesome-4.3.0/css/font-awesome.min.css">
 		<link rel="stylesheet" href="/js/lib/feedback.css">
 	</head>
 	<body>
@@ -37,7 +37,7 @@
 						<a ng-If="!(navg.sub.length > 0)" href="{{navg.id}}" ng-class="{'dropdown-toggle': navg.sub.length > 0 }" data-toggle="dropdown">{{navg.caption}}  <span class="caret" ng-If="navg.sub.length > 0"></span></a>
 						<ul class="dropdown-menu" role="menu" ng-If="navg.sub.length > 0">
 							<li ng-repeat="navg2 in navg.sub">
-								<a href="{{navg2.id}}">{{navg2.caption}}</a>
+								<a href="{{navg2.id}}"><i ng-if="navg2.icon" class="fa fa-fw" ng-class="navg2.icon"></i> {{navg2.caption}}</a>
 							</li>
 						</ul>
 					</li>
@@ -60,7 +60,7 @@
 			          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Administrar <span class="caret"></span></a>
 			          	<ul class="dropdown-menu" role="menu">
 							<li ng-class="{active:$root.nav==navg.id}" ng-repeat="navg in $root.navegabilidadSuper">
-								<a href="{{navg.id}}">{{navg.caption}}</a>
+								<a href="{{navg.id}}"><i ng-if="navg.icon" class="fa fa-fw" ng-class="navg.icon"></i> {{navg.caption}}</a>
 							</li>
 						</ul>
 					</li>
