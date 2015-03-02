@@ -1,0 +1,56 @@
+<div class="row">
+	<div class="col-sm-12 col-md-12 col-lg-12">
+		<h1>Feedback</h1>
+
+		<div class="col-sm-12 col-md-6 col-lg-6">
+			<table class="col-md-12 col-sm-12 table table-striped table-bordered">
+				<caption>Comentarios</caption>
+				<thead>
+					<tr>
+						<th scope="col">Fecha</th>
+						<th scope="col">Usuario</th>
+						<th scope="col">URL</th>
+						<th scope="col">Tipo</th>
+						<th scope="col">Destinatario</th>
+						<th scope="col">Estado</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="f in feedbacks" ng-click="setFeedback(f)" class="cursor">
+						<td>{{f.fecha}}</td>
+						<td>{{f.usr}}</td>
+						<td>{{f.url}}</td>
+						<td>{{f.tipo}}</td>
+						<td>{{f.destinatario}}</td>
+						<td>{{f.estado}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="col-sm-12 col-md-6 col-lg-6" ng-If="selected">
+			<div class="col-sm-12 col-md-12 col-lg-12">
+				<strong>Comentario</strong>
+				<pre>{{selected.comentario}}</pre>
+			</div>
+			<div class="col-sm-12 col-md-12 col-lg-12" ng-If="selected.contacto">
+				<strong>Contacto</strong>
+				<pre>{{selected.contacto}}</pre>
+			</div>
+			<div class="col-sm-12 col-md-12 col-lg-12" ng-If="selected.captura">
+				<img ng-src="{{selected.captura}}" style="max-width:100%" class="img-responsive img-rounded" />
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--
+'usr': String,
+'fecha': Date,
+'url': String,
+'comentario': String, 
+'contacto': String,
+'captura': String,
+'estado': String,
+'tipo': String,
+'destinatario': String
+-->

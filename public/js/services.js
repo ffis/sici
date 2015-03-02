@@ -26,7 +26,7 @@ modulo
         .factory('Importacion', ['$resource', function ($resource) {
                 return $resource('/api/v1/public/importacion/:id', {id: '@_id'}, {update: {method: 'PUT'}}); }])
         .factory('Jerarquia', ['$resource', function ($resource) {
-                return $resource('/api/v1/public/jerarquia/:id', {}, {get: {method: 'GET', isArray: false},query: {method: 'GET', isArray: false}} ); }])
+                return $resource('/api/v1/public/jerarquia/:id', {}, {get: {method: 'GET', isArray: false}, query: {method: 'GET', isArray: false}} ); }])
         .factory('JerarquiaAncestros', ['$resource', function ($resource) {
                 return $resource('/api/v1/public/jerarquiaancestros/:idjerarquia', {}, {query: {method: 'GET', isArray: true}}); }])
         .factory('PermisosCalculados', ['$resource', function ($resource) {
@@ -36,11 +36,11 @@ modulo
         .factory('Procedimiento', ['$resource', function ($resource) {
                 return $resource('/api/v1/public/procedimiento/:codigo', {codigo: '@codigo'}, {get: {method: 'GET', isArray: false}, update: {method: 'PUT'}, create: {method: 'POST'}}); }])
         .factory('ProcedimientosByResponsable', ['$resource', function ($resource) {
-                return $resource('/api/v1/public/procedimientosByResponsable/:codplaza', {}, {query: {method: 'GET', isArray:true}}); }])                   
+                return $resource('/api/v1/public/procedimientosByResponsable/:codplaza', {}, {query: {method: 'GET', isArray: true}}); }])
         .factory('ProcedimientoCount', ['$resource', function ($resource) {
                 return $resource('/api/v1/public/procedimientoCount', {}, {}); }])
         .factory('ProcedimientoHasChildren', ['$resource', function ($resource) {
-                return $resource('/api/v1/public/procedimientoHasChildren/:codigo', {}, {query: {method: 'GET', isArray:false}}); }])
+                return $resource('/api/v1/public/procedimientoHasChildren/:codigo', {}, {query: {method: 'GET', isArray: false}}); }])
         .factory('ProcedimientoList', ['$resource', function ($resource) {
                 return $resource('/api/v1/public/procedimientoList/:idjerarquia/:recursivo', {}, {query: {method: 'GET', isArray: true}}); }])
         .factory('ProcedimientosSinExpedientes', ['$resource', function ($resource) {
@@ -63,14 +63,15 @@ modulo
 
 modulo
         .factory('Anualidad', ['$resource', function ($resource) {
-                return $resource('/api/v1/restricted/anualidad/:anualidad', {}, { save: {method: 'POST'},query: {method: 'GET', isArray:false}}); }]) 
+                return $resource('/api/v1/restricted/anualidad/:anualidad', {}, { save: {method: 'POST'}, query: {method: 'GET', isArray: false}}); }])
         .factory('ReglasInconsistencias', ['$resource', function ($resource) {
                 return $resource('/api/v1/restricted/reglasinconsistencias/:id', {id: '@_id'}, {update: {method: 'PUT'}}); }])
         .factory('Periodo', ['$resource', function ($resource) {
                 return $resource('/api/v1/restricted/periodos/:id', {id: '@_id'}, {update: {method: 'PUT'}}); }])
         .factory('Persona', ['$resource', function ($resource) {
                 return $resource('/api/v1/restricted/persona/:id', {id: '@id'}, {create: {method: 'POST'}, update: {method: 'PUT'}}); }])
-        
+        .factory('Feedback', ['$resource', function ($resource) {
+                return $resource('/api/v1/restricted/feedback/:id', {id: '@id'}, {update: {method: 'PUT'}}); }])
 ;
 /* private services */
 
@@ -84,13 +85,13 @@ modulo
         .factory('PermisoToDelete', ['$resource', function ($resource) {
                 return $resource('/api/v1/private/permisos/delete-jerarquia/:idpermiso/:idjerarquia', {}, {delete_permiso: {method: 'GET'}}); }])
         .factory('PermisoProcedimientoToDelete', ['$resource', function ($resource) {
-                return $resource('/api/v1/private/permisos/delete-procedimiento/:idpermiso/:idprocedimiento', {}, {delete_permiso: {method: 'GET'}}); }])        
+                return $resource('/api/v1/private/permisos/delete-procedimiento/:idpermiso/:idprocedimiento', {}, {delete_permiso: {method: 'GET'}}); }])
         .factory('Permiso', ['$resource', function ($resource) {
-                return $resource('/api/v1/private/permisos/:id', {id: '@id'}, {get:{method:'GET',isArray:false}, update: {method: 'PUT'}, create: {method: 'POST'}, 'delete': {method:'DELETE'}}); }])
+                return $resource('/api/v1/private/permisos/:id', {id: '@id'}, {get: {method: 'GET', isArray: false}, update: {method: 'PUT'}, create: {method: 'POST'}, 'delete': {method: 'DELETE'}}); }])
         .factory('PermisosDelegar', ['$resource', function ($resource) {
                 return $resource('/api/v1/private/permisosdelegar/:login/:cod_plaza', {}, {query: {method: 'GET', isArray: true}}); }])
         .factory('PermisosDelegarSeleccionado', ['$resource', function ($resource) {
-                return $resource('/api/v1/private/permisosdelegar/:login/:cod_plaza/:procedimiento', {}, {query: {method: 'GET', isArray: false}}); }])			
+                return $resource('/api/v1/private/permisosdelegar/:login/:cod_plaza/:procedimiento', {}, {query: {method: 'GET', isArray: false}}); }])
         .factory('PermisosByLoginPlaza', ['$resource', function ($resource) {
                 return $resource('/api/v1/private/permisosByLoginPlaza/:login/:cod_plaza', {}, {query: {method: 'GET', isArray: true}}); }])
         .factory('PersonasByPuesto', ['$resource', function ($resource) {
@@ -103,5 +104,4 @@ modulo
                 return $resource('/api/v1/private/searchpersonas', {}, {query: {method: 'GET', isArray: true}}); }])
 
         .value('version', '0.1')
-
 ;

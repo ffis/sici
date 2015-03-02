@@ -36,7 +36,8 @@
 			{ id: 'etiqueta', caption: 'Gestionar etiquetas', icon: 'fa-tags'},
 			{ id: 'periodos', caption: 'Gestionar períodos', icon: 'fa-calendar'},
 			{ id: 'crearprocedimiento', caption: 'Crear procedimiento', icon: 'fa-table' },
-			{ id: 'loginas', caption: 'Cambiar de usuario', icon: 'fa-user-plus' }
+			{ id: 'loginas', caption: 'Cambiar de usuario', icon: 'fa-user-plus' },
+			{ id: 'feedback', caption: 'Incidencias', icon: 'fa-bug' }
 		];
 		$rootScope.navegabilidadLast = [
 			{ id: 'logout', caption: 'Salir' }
