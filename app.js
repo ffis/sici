@@ -140,6 +140,11 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.put('/api/v1/restricted/reglasinconsistencias/:id', reglainconsistencia.updateReglaInconsistencia(models));
 	app.delete('/api/v1/restricted/reglasinconsistencias/:id', reglainconsistencia.removeReglaInconsistencia(models));
 
+	app.get('/api/v1/restricted/feedback', feedback.get(models));
+	app.get('/api/v1/restricted/feedback/:_id', feedback.get(models));
+	app.put('/api/v1/restricted/feedback/:_id', feedback.update(models));
+	app.delete('/api/v1/restricted/feedback/:_id', feedback.remove(models));
+
 	app.get('/api/v1/restricted/excelgesper', persona.importarGesper(models, Q));
 
 	/* funcionalidad grantuser */

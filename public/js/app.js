@@ -41,6 +41,7 @@ var app = angular.module('sici', dependencies).
         $routeProvider.when('/informes',    {templateUrl: 'partials/informes.html', controller: 'InformesCtrl'});
         $routeProvider.when('/resumenorganica/:idjerarquia',    {templateUrl: 'partials/detallesorganica.html', controller: 'DetallesOrganicaCtrl'});
         $routeProvider.when('/debug',    {templateUrl: 'partials/debug.html', controller: 'DebugCtrl'});
+        $routeProvider.when('/feedback',    {templateUrl: 'partials/feedback.html', controller: 'FeedbackCtrl'});
 
         $routeProvider.otherwise({redirectTo: '/welcome'});
         $locationProvider.html5Mode(true);
