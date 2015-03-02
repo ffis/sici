@@ -8,6 +8,7 @@
 				$scope.actualizando = 0;
 				$window.document.title = 'SICI';
 				$scope.respuestas = [];
+				$scope.tienePermisoVar = false;
 				$scope.anyos = [];
 				$scope.funcionalidades = [
 					{label: 'Informe global', selectanyo: true, fn: [{label: 'Descargar Excel', cmd: 'descargarexcel', anyo: true}]},
@@ -125,6 +126,21 @@
 				};
 
 				var cached = null;
+				
+				$scope.tienePermiso = function(seleccionado) {					
+
+					if (!$rootScope.permisoscalculados.$resolved)
+						return false;					
+					
+					$scope.tienePermisoVar =
+						$rootScope.permisoscalculados.jerarquialectura.indexOf(seleccionado.id)>=0 ||
+						$rootScope.permisoscalculados.jerarquiaescritura.indexOf(seleccionado.id)>=0 
+					return $scope.tienePermisoVar;						
+				};
+
+				
+
+
 				$scope.fnGetStatsNode = function(nodoid, anualidad){
 					if (cached && cached._id && cached._id.idjerarquia === nodoid && cached._id.anualidad === anualidad){
 						return cached;

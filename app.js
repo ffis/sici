@@ -170,7 +170,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 
 	/* funcionalidad user */
 	setProgressMessage('Estableciendo rutas: rutas user');
-	app.get('/api/v1/public/mapReducePeriodos', function(req, res){ exportador.mapReducePeriodos(Q, models, null, req.permisoscalculados).then(function(r){ res.json(r); }); });
+	app.get('/api/v1/public/mapReducePeriodos', function(req, res){ exportador.mapReducePeriodos(Q, models, null, req.user.permisoscalculados).then(function(r){ res.json(r); }); });
 	app.post('/api/v1/public/updateByFile', upload.update(), csvsici.parse(models));
 	app.post('/api/v1/public/updateByFileIE', upload.update(), csvsici.parse(models));
 	app.get('/api/v1/public/aggregate/:anualidad/:campo', api.aggregate(cfg, models));

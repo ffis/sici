@@ -24,14 +24,27 @@
 		}
 		restriccion.oculto = {'$ne': true};
 		restriccion.eliminado = {'$ne': true};
+		
+		console.log(permisoscalculados);
+
 		if (typeof permisoscalculados !== 'undefined' && permisoscalculados && !permisoscalculados.superuser)
 		{
-			if (typeof permisoscalculados.procedimientosdirectalectura === 'undefined')
+			if (typeof permisoscalculados.procedimientoslectura === 'undefined')
 					permisoscalculados.procedimientoslectura = [];
 			if (typeof permisoscalculados.procedimientosdirectalectura === 'undefined')
 					permisoscalculados.procedimientosdirectalectura = [];
-			restriccion.codigo = { '$in': permisoscalculados.procedimientosdirectalectura.concat(permisoscalculados.procecedimientoslectura) }
+			if (typeof permisoscalculados.procedimientosdirectaescritura === 'undefined')
+					permisoscalculados.procedimientosdirectaescritura = [];
+			if (typeof permisoscalculados.procedimientosescritura === 'undefined')
+					permisoscalculados.procedimientosescritura = [];
+			restriccion.codigo = { '$in': permisoscalculados.procedimientosdirectalectura
+							.concat(permisoscalculados.procedimientoslectura)
+							.concat(permisoscalculados.procedimientosdirectaescritura)
+							.concat(permisoscalculados.procedimientosescritura) }
 		}
+
+		
+		console.log(restriccion);
 
 
 		Procedimiento.find(restriccion, {'ancestros.id': 1, 'periodos': 1}, function(error, procedimientos){
