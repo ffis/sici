@@ -44,8 +44,6 @@
 		}
 
 		
-		console.log(restriccion);
-
 
 		Procedimiento.find(restriccion, {'ancestros.id': 1, 'periodos': 1}, function(error, procedimientos){
 			if (error){
