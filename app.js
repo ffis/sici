@@ -7,13 +7,13 @@ var os = require('os'),
 	path = require('path'),
 	mongoose = require('mongoose'),
 	md5 = require('MD5'),
-	path = require('path'),
 	fs = require('fs'),
 	serveStatic = require('serve-static'),
 	crypto = require('crypto'),
 	multer = require('multer'),
 	expressJwt = require('express-jwt'),
 	jwt = require('jsonwebtoken'),
+	compress = require('compression'),
 	/* specific api&routes */
 	recalculate = require('./api/recalculate'),
 	routes = require('./routes'),
@@ -65,6 +65,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.disable('x-powered-by');
 	app.set('port', process.env.PORT || cfg.port || 6000);
 	app.set('prefixtmp', tmpdirectory);
+	app.use(compress());
 	app.use(serveStatic( path.join(__dirname, 'public')) );
 
 	mongoose.set('debug', false);
@@ -79,11 +80,8 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.use('/api/v1/public/updateByFile', multer({ dest: path.join( __dirname, 'tmp') + path.sep}));
 
 	app.get('/tipologin.js', function (req, res) {
-		var r = (cfg.logincarm) ?
-				'$("body").append("<script src=\'/js/logincarm.util.js\'></script>");' :
-				'$("body").append("<script src=\'/js/login.util.js\'></script>");';
-
-		res.status(200).type('application/javascript').send(r);
+		var file = (cfg.logincarm) ? path.join(__dirname, 'public', 'js', 'logincarm.util.js') : path.join(__dirname, 'public', 'js', 'login.util.js');
+		res.sendFile(file);
 	});
 
 	if (cfg.logincarm){
