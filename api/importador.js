@@ -237,7 +237,13 @@
 									recalculate.softCalculateProcedimiento(Q, models, procedimiento).then(function(procedimiento){
 										recalculate.softCalculateProcedimientoCache(Q, models, procedimiento).then(function(procedimiento){
 											P.saveVersion(models, Q, procedimiento).then(function(){
-												def.resolve();
+												procedimiento.save(function (error) {
+													if (error){
+														def.reject(error);
+													}else{
+														def.resolve();
+													}
+												});
 											});
 										});
 									});
