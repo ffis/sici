@@ -422,6 +422,7 @@
 								promise.reject(procedimiento);
 							} else {
 								fnprocedimiento.saveVersion(models, Q, procedimiento).then(function () {
+									procedimiento.markModified('periodos');
 									procedimiento.save(function (error) {
 										if (error) {
 											console.error(error);
