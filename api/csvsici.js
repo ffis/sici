@@ -5,7 +5,7 @@
 	var fs = require('fs');
 
 	module.exports.parse = function(models){
-		return function(req, res, next){
+		return function(req, res){
 
 			if (!req.files){
 				res.status(500).send('Error').end();
@@ -81,6 +81,7 @@
 						if (inputs.length === 0){
 							//comprobar si lleva cabecera
 							avisos.push(getStatus() + 'El sistema permite la carga de ficheros con cabecera, pero la teoría es que sobra. No hace falta que cambie nada.');
+							record = parser.read();
 							continue;
 						}else{
 							errores.push(getStatus() + 'Insertar más de una cabecera de datos no es la mejor manera de poner el sistema a prueba.');
@@ -95,7 +96,10 @@
 					record = parser.read();
 				}
 			});
-
+			parser.on('error', function(err){
+				console.error(err);
+				res.status(500).send(err);
+			});
 			parser.on('finish', function(){
 
 				var equivalencias = [
