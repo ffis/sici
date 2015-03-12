@@ -34,9 +34,9 @@
 						if (!$scope.idsencomun){ $scope.idsencomun = {}; }
 						$scope.procedimiento.forEach(function(p){
 							if (typeof $scope.idsencomun['id' + p.codigo] === 'undefined'){
-								$scope.idsencomun['id' + p.codigo] = {id: parseInt(p.codigo), procedimiento: p};
+								$scope.idsencomun['id' + parseInt(p.codigo)] = {id: parseInt(p.codigo), procedimiento: p};
 							}else{
-								$scope.idsencomun['id' + p.codigo].procedimiento = p;
+								$scope.idsencomun['id' + parseInt(p.codigo)].procedimiento = p;
 							}
 						});
 					});
@@ -44,10 +44,10 @@
 				$scope.crawled = Raw.query({model: 'crawled', fields: ['id', 'jerarquia', 'any'].join(' ')}, function(){
 					if (!$scope.idsencomun){ $scope.idsencomun = {}; }
 					$scope.crawled.forEach(function(p){
-						if (typeof $scope.idsencomun['id' + p.id] === 'undefined'){
-							$scope.idsencomun['id' + p.id] = {id: parseInt(p.id), crawled: p};
+						if (typeof $scope.idsencomun['id' + parseInt(p.id)] === 'undefined'){
+							$scope.idsencomun['id' + parseInt(p.id)] = {id: parseInt(p.id), crawled: p};
 						}else{
-							$scope.idsencomun['id' + p.id].crawled = p;
+							$scope.idsencomun['id' + parseInt(p.id)].crawled = p;
 						}
 					});
 				});
