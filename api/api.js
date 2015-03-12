@@ -88,11 +88,15 @@ module.exports.raw = function(models){
 		var restricciones = {'oculto': {'$ne': true}, 'eliminado': {'$ne': true}};
 		if (modelname === 'crawled'){
 			var ids = [];
-			for(var i in req.user.permisoscalculados.procedimientoslectura){
-				ids.push( parseInt( req.user.permisoscalculados.procedimientoslectura[i] ) );
+			var procedimientos = req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura);
+			for(var i in procedimientos){
+				if (!isNaN( parseInt( procedimientos[i]) ) ){
+					ids.push( parseInt( procedimientos[i] ) );
+				}
 			}
 			restricciones.id = { '$in': ids };
 		}
+
 		var query = Loader.find(restricciones);
 
 		if (typeof fields !== 'undefined'){
