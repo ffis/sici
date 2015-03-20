@@ -30,10 +30,13 @@
 				$scope.mesActual = date.getMonth();
 				$scope.anyoActual = date.getFullYear();
 
+				$scope.mesPeriodoAnterior = $scope.mesActual === 0 ? 11 : $scope.mesActual - 1;
+				$scope.anyoPeriodoAnterior = $scope.mesActual === 0 ? $scope.anyoActual - 1 : $scope.anyoActual;
+
 				$scope.pendientes = Aggregate.query({
 						anualidad: $scope.anyoActual,
 						campo: JSON.stringify({'codigo': '$codigo', 'denominacion': '$denominacion'}),
-						restriccion: '{"periodos.a' + $scope.anyoActual + '.totalsolicitudes":{"$lt":1}}'
+						restriccion: '{"periodos.a' + $scope.anyoPeriodoAnterior + '.actualizado.' + $scope.mesPeriodoAnterior + '" : {"$lt":1}}'
 				});
 				$scope.inconsistencias = Aggregate.query({
 						anualidad: $scope.anyoActual,
