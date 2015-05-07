@@ -175,13 +175,12 @@
 					<th></th>
 				</tr>
 			</thead>
-
 			<tbody ng-if="permisos.length || procedimientos.length " id="LISTADO PERMISOS DE UN USUARIO">				
 		
 				<tr ng-repeat="permiso in permisos" ng-if="permisos.length" ng-init="objetopermiso=getObjetoPermisoUsuario(permiso)" >
 					<td>{{permiso.login}}</td>
 					<td>{{permiso.codplaza}}</td>
-					<td ><span class="hidden-sm hidden-xs" ng-init="persona=getPersona(permiso)">{{persona[0].nombre}} {{ persona[0].apellidos}}</span></td>
+					<td ><span ng-class="{'text-danger': !persona[0].habilitado}" style="cursor:pointer" ng-click="setHabilitado(persona[0])" class="hidden-sm hidden-xs" ng-init="persona=getPersona(permiso)">{{persona[0].nombre}} {{ persona[0].apellidos}}</span></td>
 					<td>
 						<span ng-if="objetopermiso && objetopermiso.length==1">{{objetopermiso[0].nombre}}</span>
 						<span ng-if="objetopermiso && !objetopermiso.length">{{objetopermiso.nombre}}</span>						

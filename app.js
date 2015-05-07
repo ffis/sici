@@ -128,6 +128,8 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 
 	app.post('/api/v1/restricted/persona', persona.newPersona(models));
 	app.put('/api/v1/restricted/persona/:id', persona.updatePersona(models));
+	app.post('/api/v1/restricted/habilitar/persona/:id', persona.setHabilitado(models));
+	
 
 	/*fake public */
 	app.delete('/api/v1/public/procedimiento/:codigo', procedimiento.deleteProcedimiento(Q, models, recalculate));

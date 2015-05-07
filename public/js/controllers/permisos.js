@@ -1,7 +1,7 @@
 
 
 
-function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosList,PersonasSearchList,ProcedimientoList,PermisosProcedimientoList,PermisosDirectosProcedimientoList,Jerarquia, Permiso, PersonasByPuesto, PersonasByLogin, PersonasByRegexp, Persona, $q, Procedimiento,PermisosByLoginPlaza,PermisosDelegar, PermisosByLoginPlaza, PermisosDelegarSeleccionado, PermisoToDelete, PermisoProcedimientoToDelete, ProcedimientosByResponsable) {
+function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosList,PersonasSearchList,ProcedimientoList,PermisosProcedimientoList,PermisosDirectosProcedimientoList,Jerarquia, Permiso, PersonasByPuesto, PersonasByLogin, PersonasByRegexp, Persona, $q, Procedimiento,PermisosByLoginPlaza,PermisosDelegar, PermisosByLoginPlaza, PermisosDelegarSeleccionado, PermisoToDelete, PermisoProcedimientoToDelete, ProcedimientosByResponsable, $http) {
 	$rootScope.nav = 'permisos';
 	$window.document.title ='SICI: Permisos';
 
@@ -836,8 +836,23 @@ function PermisoCtrl($rootScope,$scope,$location,$window,Arbol,Session,PermisosL
 		if (typeof procedimiento.cod_plaza !== 'undefined' && procedimiento.cod_plaza)
 			var p = PersonasByPuesto({"cod_plaza":procedimiento.cod_plaza});
 		return p;
-	}
+	};
+	
+	$scope.setHabilitado = function(persona){
+		if (!persona) return;
+		if (persona.habilitado){
+			$http.post('/api/v1/restricted/habilitar/persona/' + persona._id, { habilitado: false }, function(){
+				$window.alert('Usuario deshabilitado');
+				persona.habilitado = false;
+			});
+		}else{
+			$http.post('/api/v1/restricted/habilitar/persona/' + persona._id, { habilitado: true }, function(){
+				$window.alert('Usuario habilitado');
+				persona.habilitado = true;
+			});
+		}
+	};
     
 	
 }
-PermisoCtrl.$inject = ['$rootScope','$scope','$location','$window','Arbol','Session','PermisosList','PersonasSearchList','ProcedimientoList','PermisosProcedimientoList', 'PermisosDirectosProcedimientoList','Jerarquia','Permiso', 'PersonasByPuesto', 'PersonasByLogin', 'PersonasByRegexp','Persona','$q','Procedimiento','PermisosByLoginPlaza','PermisosDelegar','PermisosByLoginPlaza','PermisosDelegarSeleccionado', 'PermisoToDelete', 'PermisoProcedimientoToDelete','ProcedimientosByResponsable'];
+PermisoCtrl.$inject = ['$rootScope','$scope','$location','$window','Arbol','Session','PermisosList','PersonasSearchList','ProcedimientoList','PermisosProcedimientoList', 'PermisosDirectosProcedimientoList','Jerarquia','Permiso', 'PersonasByPuesto', 'PersonasByLogin', 'PersonasByRegexp','Persona','$q','Procedimiento','PermisosByLoginPlaza','PermisosDelegar','PermisosByLoginPlaza','PermisosDelegarSeleccionado', 'PermisoToDelete', 'PermisoProcedimientoToDelete','ProcedimientosByResponsable', '$http'];

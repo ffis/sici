@@ -45,6 +45,22 @@
 		};
 	};
 
+	module.exports.setHabilitado = function(models){
+		return function(req, res){
+			var Persona = models.persona();
+			var id = req.params.id;
+			var content = req.body;
+			var habilitado = content.habilitado ? content.habilitado === 'true' : false; 
+			Persona.update({'_id': id},{'$set': {habilitado: habilitado} }, function(e){
+				if (e) {
+					res.status(500).json({'error': 'An error has occurred'});
+				} else {
+					res.json({habilitado:true});
+				}
+			});
+		};
+	};
+
 	module.exports.updatePersona = function (models) {
 		return function (req, res) {
 			var Persona = models.persona();
@@ -53,7 +69,7 @@
 			var content = req.body;
 			Persona.update({'_id': id}, content, {upsert: true}, function (e) {
 				if (e) {
-					res.send({'error': 'An error has occurred'});
+					res.status(500).json({'error': 'An error has occurred'});
 				} else {
 					res.send(content);
 				}
@@ -67,7 +83,7 @@
 			var content = req.body;
 			new Persona(content).save(function (e) {
 				if (e) {
-					res.send({'error': 'An error has occurred'});
+					res.status(500).json({'error': 'An error has occurred'});
 				} else {
 					res.send(content);
 				}
@@ -108,8 +124,7 @@
 					if (err) {
 						console.error(restriccion);
 						console.error(err);
-						res.status(500);
-						res.end();
+						res.status(500).end();
 						return;
 					}
 
