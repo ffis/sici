@@ -55,7 +55,7 @@
 				if (e) {
 					res.status(500).json({'error': 'An error has occurred'});
 				} else {
-					res.json({habilitado:true});
+					res.json({habilitado: habilitado});
 				}
 			});
 		};
