@@ -367,7 +367,7 @@
 			var filas = [];
 			var promesasActualizacion = [];
 			var restriccion = {habilitado: true};
-			if (typeof req.params.login){
+			if (typeof req.params.login !== 'undefined'){
 				restriccion.login = req.params.login;
 			}
 			Persona.find(restriccion).sort({ultimoupdate: 1}).limit(1).exec(function (err, personas) {
