@@ -100,7 +100,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 		else{ res.status(403).json({error: 'Unathorized'}); }
 	});
 	app.use('/bot/', function(req, res, next){
-		if (req.ip === '127.0.0.1'){ if (next){ next();} }
+		if (req.ip === '127.0.0.1' || req.ip  === '::ffff:127.0.0.1' ){ if (next){ next();} }
 		else{ res.status(403).json({error: 'Unathorized'}); }
 	});
 
@@ -108,6 +108,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 
 	/* funcionalidad bots */
 	app.get('/bot/personas/actualizarGesper', persona.updateCodPlazaByLogin(models, Q, cfg));
+	app.get('/bot/personas/actualizarGesper/:login', persona.updateCodPlazaByLogin(models, Q, cfg));
 
 	setProgressMessage('Estableciendo rutas: rutas superuser');
 	/* funcionalidad superuser */
@@ -239,7 +240,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 
 	app.get('/download/:token/:hash', exportador.download(app, cfg, fs, md5, path));
 
-	if (os.platform() === 'linux'){
+	if (process.env.DEBUG_MEMORY && os.platform() === 'linux'){
 		setProgressMessage('Estableciendo rutas: memory');
 		var memwatch = require('memwatch');
 		process.nextTick(function(){

@@ -246,8 +246,7 @@
 	module.exports.infoByPlaza2 = function (cfg) {
 		return function (req, res) {
 			var codplaza = req.params.codplaza;
-			/* TODO: this should be on settings obj */
-			var url = 'https://jad.carm.es/jAD/webservice/WSGesper/wsSICI?wsdl';
+			var url = cfg.ws_url;
 			var args = { arg0: {key: 'P_PLAZA', value: codplaza }};
 			var options = {
 	//            ignoredNamespaces: {
@@ -276,7 +275,7 @@
 	module.exports.infoByLogin2 = function (cfg) {
 		return function (req, res) {
 			var login = req.params.login;
-			var url = 'https://jad.carm.es/jAD/webservice/WSGesper/wsSICI?wsdl';
+			var url = cfg.ws_url;
 			var args = {arg0: {key: 'p_login', value: login}};
 			var options = {
 	//            ignoredNamespaces: {
@@ -305,7 +304,7 @@
 
 	module.exports.infoByLogin = function (login, Q, cfg) {
 		var def = Q.defer();
-		var url = 'https://jad.carm.es/jAD/webservice/WSGesper/wsSICI?wsdl';
+		var url = cfg.ws_url;
 		var args = {arg0: {key: 'p_login', value: login}};
 		var options = {
 	//        ignoredNamespaces: {
@@ -321,6 +320,7 @@
 				client.SacaPlaza(args, function (err, result) {
 					if (err) {
 						console.error('Error buscando login en WS');
+						console.log(result);
 						def.resolve(null);
 					} else {
 						console.log('Consulto el login ' + login);
@@ -334,7 +334,7 @@
 
 	module.exports.infoByPlaza = function (codplaza, Q, cfg) {
 		var def = Q.defer();
-		var url = 'https://jad.carm.es/jAD/webservice/WSGesper/wsSICI?wsdl';
+		var url = cfg.ws_url;
 		var args = {arg0: {key: 'P_PLAZA', value: codplaza}};
 		var options = {
 	//        ignoredNamespaces: {
@@ -351,6 +351,7 @@
 					if (err) {
 						console.error('Error buscando plaza en WS');
 						def.resolve(null);
+						console.log(result);
 					} else {
 						def.resolve(result);
 					}
@@ -365,7 +366,11 @@
 			var Persona = models.persona();
 			var filas = [];
 			var promesasActualizacion = [];
-			Persona.find({habilitado: true}).sort({ultimoupdate: 1}).limit(1).exec(function (err, personas) {
+			var restriccion = {habilitado: true};
+			if (typeof req.params.login){
+				restriccion.login = req.params.login;
+			}
+			Persona.find(restriccion).sort({ultimoupdate: 1}).limit(1).exec(function (err, personas) {
 				if (err) {
 					console.error(err);
 					res.status(500).end();
@@ -375,6 +380,7 @@
 					personas.forEach(function (persona) {
 						var promesaUpdate = Q.defer();
 						promesasActualizacion.push(promesaUpdate.promise);
+						//console.log('exports.infoByLogin:'+persona.login);
 						exports.infoByLogin(persona.login, Q, cfg).then(function (result) {
 							var codplaza;
 							if ((result !== null) && (typeof result.return !== 'undefined') && (result.return.length > 0)) {
