@@ -325,7 +325,7 @@
 				var cb = function(df) {
 					return function(error, result, $) {
 						if (error){
-							res.json ({});
+							df.reject({});
 							return;
 						}
 						var datos = {};
@@ -362,6 +362,8 @@
 					c.queue(url);
 					deferred.promise.then(function (v){
 						res.json(v);
+					}, function(){
+						res.json ({});
 					});
 				}
 				/*}else{
