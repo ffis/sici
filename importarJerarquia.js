@@ -70,7 +70,7 @@
 			console.log(registros.length + ' registros');
 			console.log('Fichero volcado con éxito en: ' + path.join(__dirname, 'data', 'output.json'));
 			console.log('Pasos:');
-			console.log("\tmongodump -h 10.166.47.65 --db test -c jerarquia");
+			console.log("\tmongodump -h localhost --db test -c jerarquia");
 			console.log("\tmongoimport --host localhost --db test --collection jerarquia --file data/output.json --jsonArray --drop");
 			console.log('En caso de crisis:');
 			console.log("\tmongorestore --db test -c jerarquia -h localhost --drop dump/sici/jerarquia.bson");
