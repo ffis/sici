@@ -219,7 +219,7 @@ Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
 	app.get('/api/v1/public/procedimientosSinExpedientes/:anualidad', procedimiento.procedimientosSinExpedientes(cfg, models));
 	app.get('/api/v1/public/raw/:modelname', api.raw(models));
 
-	app.put('/api/v1/public/procedimiento/:codigo', procedimiento.updateProcedimiento(Q, models, recalculate, persona));
+	app.put('/api/v1/public/procedimiento/:codigo', procedimiento.updateProcedimiento(Q, models, recalculate, persona, cfg));
 	//app.post('/api/procedimiento', procedimiento.createProcedimiento(Q, models, recalculate) );
 	app.post('/api/v1/public/procedimiento/:codigo', procedimiento.createProcedimiento(Q, models, recalculate));
 

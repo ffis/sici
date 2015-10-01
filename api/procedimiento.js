@@ -257,7 +257,7 @@ module.exports.deleteProcedimiento = function (Q, models, recalculate) {
 };
 
 
-module.exports.updateProcedimiento = function (Q, models, recalculate, persona) {
+module.exports.updateProcedimiento = function (Q, models, recalculate, persona, cfg) {
 	return function (req, res) {
 		var Procedimiento = models.procedimiento();
 		var Permiso = models.permiso();
@@ -481,7 +481,7 @@ module.exports.updateProcedimiento = function (Q, models, recalculate, persona) 
 														promesaPer.resolve();
 													}
 												});
-												persona.registroPersonaWS(original.cod_plaza, models, Q).then(function(data) {
+												persona.registroPersonaWS(original.cod_plaza, models, Q, cfg).then(function(data) {
 
 													Persona.update({'codplaza': original.cod_plaza}, {$set: {'habilitado': true}}, {multi: false, upsert: false}, function(err){
 														if (err){
