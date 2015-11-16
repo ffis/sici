@@ -12,27 +12,32 @@
 
 	function checkRegistroNumerico(registro, campo){
 		/* excepcion */
-		if (campo === 'ancestrodirecto' && registro.id == "1") return true;
+		if (campo === 'ancestrodirecto' && registro.id == "1"){
+			return true;
+		}
 
-
-		if (!registro[campo]) return false;
+		if (!registro[campo]){
+			return false;
+		}
 		return parseInt(registro[campo]) == registro[campo];
 	}
 
 	function checkRegistroString(registro, campo){
-		if (!registro[campo]) return false;
-		return registro[campo] != '';
+		if (!registro[campo]){
+			return false;
+		}
+		return registro[campo] !== '';
 	}
 
 	function run_tests(){
 
 		for(var i = 0, j = registros.length; i < j; i++){
-			assert( checkRegistroNumerico(registros[i], 'id'), 'El campo ID debe existir y ser numérico. Línea:' + (i+1));
-			assert( checkRegistroNumerico(registros[i], 'ancestrodirecto'), 'El campo ancestrodirecto debe existir y ser numérico. Línea:' + (i+1));
-			assert( checkRegistroString(registros[i], 'nombre'), 'El campo nombre debe existir y ser texto. Línea:' + (i+1));
-			assert( checkRegistroString(registros[i], 'nombrelargo'), 'El campo nombre largo debe existir y ser texto. Línea:' + (i+1));
-			assert( checkRegistroString(registros[i], 'inicialestipo'), 'El campo inicialestipo debe existir y ser texto. Línea:' + (i+1));
-			assert( checkRegistroString(registros[i], 'tipo'), 'El campo tipo debe existir y ser texto. Línea:' + (i+1));
+			assert( checkRegistroNumerico(registros[i], 'id'), 'El campo ID debe existir y ser numérico. Línea:' + (i + 1));
+			assert( checkRegistroNumerico(registros[i], 'ancestrodirecto'), 'El campo ancestrodirecto debe existir y ser numérico. Línea:' + (i + 1));
+			assert( checkRegistroString(registros[i], 'nombre'), 'El campo nombre debe existir y ser texto. Línea:' + (i + 1));
+			assert( checkRegistroString(registros[i], 'nombrelargo'), 'El campo nombre largo debe existir y ser texto. Línea:' + (i + 1));
+			assert( checkRegistroString(registros[i], 'inicialestipo'), 'El campo inicialestipo debe existir y ser texto. Línea:' + (i + 1));
+			assert( checkRegistroString(registros[i], 'tipo'), 'El campo tipo debe existir y ser texto. Línea:' + (i + 1));
 		}
 
 		//comprobar que existen todos
@@ -44,7 +49,7 @@
 		for(var i = 0, j = registros.length; i < j; i++){
 			var ancestrodirecto = registros[i].ancestrodirecto;
 			if (ancestrodirecto){
-				assert(typeof registrosXId[ ancestrodirecto ] === 'object', 'El campo ancestrodirecto debe existir entre los importados. Línea:' + (i+1));
+				assert(typeof registrosXId[ ancestrodirecto ] === 'object', 'El campo ancestrodirecto debe existir entre los importados. Línea:' + (i + 1));
 			}
 		}
 
@@ -76,19 +81,19 @@
 			console.log("\tmongorestore --db test -c jerarquia -h localhost --drop dump/sici/jerarquia.bson");
 		});
 	}
-	
+
 	parser.on('readable', function(){
 		var record = parser.read();
 
 		if (record && record.length > 0){
 			if (campos.length === 0) //cabecera
 			{
-				for(var i = 0, j = record.length; i < j ; i++){
+				for(var i = 0, j = record.length; i < j; i++){
 					campos.push(record[i].trim());
 				}
 			}else{
 				var registro = {};
-				for(var i = 0, j = record.length; i < j ; i++){
+				for(var i = 0, j = record.length; i < j; i++){
 					registro[ campos[i] ] = record[i].trim();
 				}
 				registros.push(registro);
@@ -107,7 +112,6 @@
 	});
 
 	var input = fs.createReadStream(path.join(__dirname, 'data', 'organica.csv'));
-
 	input.pipe(parser);
 
-})(module,require);
+})(module, require);

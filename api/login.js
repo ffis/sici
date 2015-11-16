@@ -1,5 +1,6 @@
 
 function calcularPermisos(permisos) {
+	'use strict';
 	var permisoscalculados = {
 		jerarquialectura: [], jerarquiaescritura: [],
 		procedimientoslectura: [], procedimientosescritura: [],
@@ -79,15 +80,15 @@ exports.authenticate = function(config){
 
 	return function(req, res){
 
-		//should delegate 
+		//should delegate
 		//if is invalid, return 401
 		//for testing this should be enough
 
 		/*if (req.body.password !== 'password') {
-		  res.status(401).send('Wrong password');
-		  return;
+			res.status(401).send('Wrong password');
+			return;
 		}*/
-		
+
 		var restriccion = {login: req.body.username, habilitado: true};
 		var shasum = crypto.createHash('sha256');
 		shasum.update(req.body.password);
@@ -120,7 +121,7 @@ exports.authenticate = function(config){
 						for(var i = 0, j = permisos.length; i < j; i++ ){
 							o.idspermisos.push(permisos[i]._id);
 						}
-						var token = jwt.sign(o, secret, { expiresInMinutes: 300 });
+						var token = jwt.sign(o, secret, { expiresIn: 300 * 60 });
 						res.json({ profile: o, token: token });
 					}
 				);

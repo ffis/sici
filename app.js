@@ -7,7 +7,7 @@
 		Q = require('q'),
 		path = require('path'),
 		mongoose = require('mongoose'),
-		md5 = require('MD5'),
+		md5 = require('md5'),
 		fs = require('fs'),
 		serveStatic = require('serve-static'),
 		crypto = require('crypto'),
@@ -242,7 +242,7 @@
 
 		if (process.env.DEBUG_MEMORY && os.platform() === 'linux'){
 			setProgressMessage('Estableciendo rutas: memory');
-			var memwatch = require('memwatch');
+			var memwatch = require('memwatch-next');
 			process.nextTick(function(){
 				var previousinvoke = new memwatch.HeapDiff();
 				app.get('/memory', function(req, res){

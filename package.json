@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "MD5": "^1.2.1",
+    "md5": "",
     "body-parser": "^1.10.2",
     "compression": "^1.4.1",
     "crawler": "^0.2.7",
@@ -28,7 +28,6 @@
     "strip-bom": "^1.0.0",
     "underscore": "^1.7.0",
     "v8-profiler": "^5.2.2",
-    "webkit-devtools-agent": "^0.3.1",
     "xlsx": "^0.7.12",
     "zombie": "^2.0.8"
   }

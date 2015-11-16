@@ -58,8 +58,11 @@ module.exports.createProcedimiento = function (Q, models, recalculate) {
 			}
 
 			//check jerarquia $exists
-			Jerarquia.find({id: idjerarquia}, function (err, jerarquias) {
-				if (jerarquias.length > 0)
+			Jerarquia.find({id: idjerarquia}, function (erro, jerarquias) {
+				if (erro) {
+					res.status(500).send('Error 63 guardando').end();
+					return;
+				}else if (jerarquias.length > 0)
 				{
 					//check codigo $exists:0
 					Procedimiento.find({codigo: procedimiento.codigo}, function (err, procs) {
@@ -112,8 +115,8 @@ module.exports.createProcedimiento = function (Q, models, recalculate) {
 									{
 										continue;
 									}
-									procedimiento.periodos[anualidad]=JSON.parse(JSON.stringify(plantilla));
-									procedimiento.periodos[anualidad].periodoscerrados=periodos[anualidad];
+									procedimiento.periodos[anualidad] = JSON.parse(JSON.stringify(plantilla));
+									procedimiento.periodos[anualidad].periodoscerrados = periodos[anualidad];
 								}
 								procedimiento.periodos['a2013'] = {
 									'plazo_maximo_resolver': 0,
@@ -243,7 +246,7 @@ module.exports.deleteProcedimiento = function (Q, models, recalculate) {
 											res.json(original);
 										}, function (err) {
 											console.error(err);
-											res.send(500, JSON.stringify(err));
+											res.status(500).send(JSON.stringify(err));
 										});
 									}
 								});
@@ -374,17 +377,17 @@ module.exports.updateProcedimiento = function (Q, models, recalculate, persona, 
 
 					if (puedeEscribirSiempre) {
 						/*
-						 for(var attr in schema){
-						 if (attr == 'codigo') continue;
-						 if (attr == 'periodos') continue;
-						 if (attr == 'idjerarquia') continue;
-						 if (attr == 'cod_plaza') continue;
-						 if (attr == 'fecha_creacion') continue;
-						 if (attr == 'fecha_fin') continue;
-						 if (attr == 'fecha_version') continue;
-						 if (attr == 'etiquetas') continue;
-						 if (attr == 'padre') continue;
-						 }*/
+						for(var attr in schema){
+							if (attr == 'codigo') continue;
+							if (attr == 'periodos') continue;
+							if (attr == 'idjerarquia') continue;
+							if (attr == 'cod_plaza') continue;
+							if (attr == 'fecha_creacion') continue;
+							if (attr == 'fecha_fin') continue;
+							if (attr == 'fecha_version') continue;
+							if (attr == 'etiquetas') continue;
+							if (attr == 'padre') continue;
+						}*/
 						if (original.cod_plaza !== procedimiento.cod_plaza) {
 							original.cod_plaza = procedimiento.cod_plaza;
 							codplaza_changed = true;
@@ -425,10 +428,10 @@ module.exports.updateProcedimiento = function (Q, models, recalculate, persona, 
 					'periodoscerrados': procedimiento.periodos.a2013.periodoscerrados
 				};
 
-				if (! (Array.isArray(original.periodos.a2013.total_resueltos) && original.periodos.a2013.total_resueltos.length>0))
+				if (! (Array.isArray(original.periodos.a2013.total_resueltos) && original.periodos.a2013.total_resueltos.length > 0))
 					original.periodos.a2013.total_resueltos = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-				for(var mes = 0, meses = original.periodos.a2013.periodoscerrados.length; mes<meses; mes++) {
+				for(var mes = 0, meses = original.periodos.a2013.periodoscerrados.length; mes < meses; mes++) {
 					original.periodos.a2013.total_resueltos[mes] = parseInt(procedimiento.periodos.a2013.total_resueltos[mes]);
 				}
 
@@ -436,108 +439,111 @@ module.exports.updateProcedimiento = function (Q, models, recalculate, persona, 
 					recalculate.softCalculateProcedimientoCache(Q, models, original).then(function (original) {
 						exports.saveVersion(models, Q, original).then(function () {
 							original.fecha_version = new Date();
-							Procedimiento.update({codigo: original.codigo}, JSON.parse(JSON.stringify(original)), {multi: false, upsert: false}, function (err, coincidencias, elemento)
-							{
-								if (err) {
-									console.error(err);
-									res.status(500).send(JSON.stringify(err)).end();
-									return;
-								}
-								else {
-									var promesaProc = Q.defer();
-									var promesaPer = null;
-
-									if (codplaza_changed) {
-										promesaPer = Q.defer();
-										Permiso.findOne( {codplaza: original.cod_plaza}, function (err, permiso) {
-											if (err) {
-												console.error(err);
-												promesa_per.reject(err);
-											} else if (permiso == null) {
-												// si no existe permiso asociado creamos uno para el camoto este.
-												var nuevopermiso = {
-													'codplaza': original.cod_plaza,
-													'login': null,
-													'jerarquialectura': [],
-													'jerarquiadirectalectura': [],
-													'jerarquiaescritura': [],
-													'jerarquiadirectaescritura': [],
-													'procedimientoslectura': [],
-													'procedimientosdirectalectura': [],
-													'procedimientosescritura': [],
-													'procedimientosdirectaescritura': [],
-													'superuser': 0,
-													'grantoption': 0,
-													'descripcion': 'Permiso otorgado por ' + req.user.login,
-													'caducidad': req.user.permisoscalculados.caducidad,
-													'cod_plaza_grantt': req.user.login
-												};
-												var p = new Permiso(nuevopermiso);
-												p.save(function (err) {
-													if (err){
-														promesaPer.reject(err);
-													}
-													else{
-														promesaPer.resolve();
-													}
-												});
-												persona.registroPersonaWS(original.cod_plaza, models, Q, cfg).then(function(data) {
-
-													Persona.update({'codplaza': original.cod_plaza}, {$set: {'habilitado': true}}, {multi: false, upsert: false}, function(err){
-														if (err){
-															console.error('Error habilitando personas del codigo de plaza responsable');
-														}
-													});
-													console.log('El pavo existía en el WS, lo ha buscado y encontrado');
-													promesaPer.resolve();
-												}, function(err) {
-													Persona.update({'codplaza': original.cod_plaza}, {$set: {'habilitado': true}}, {multi: false, upsert: false}, function(err){
-														if (err){
-															console.error('Error habilitando personas del codigo de plaza responsable');
-														}
-													});
-													console.log('El pavo no existía en el WS o ha fallado el WS');
-													console.error(err);
-													promesaPer.resolve();
-												});
-											} else{
-												promesaPer.resolve();
-											}
-										}
-										);
-										promesaPer.promise.then(
-											function () {
-												recalculate.fullSyncpermiso(Q, models).then(function (data) {
-													promesaProc.resolve();
-												});
-											},
-											function (err) {
-												promesaProc.reject(err);
-											});
-									} else {
-										promesaProc.resolve();
-									}
-
-									promesaProc.promise.then(function () {
-										if (hayCambiarOcultoHijos) {
-											exports.ocultarHijos(original, models, Q).then(function () {
-												recalculate.fullSyncjerarquia(Q, models).then(function () {
-													res.json(original);
-												}, function (err) {
-													console.error(err);
-													res.send(500, JSON.stringify(err));
-												});
-											});
-										} else {
-											res.json(original);
-										}
-									}, function (err) {
+							Procedimiento.update( {codigo: original.codigo},
+								JSON.parse(JSON.stringify(original)),
+								{multi: false, upsert: false},
+								function (err, coincidencias, elemento)
+								{
+									if (err) {
 										console.error(err);
 										res.status(500).send(JSON.stringify(err)).end();
 										return;
-									});
-								}
-							});
+									}
+									else {
+										var promesaProc = Q.defer();
+										var promesaPer = null;
+
+										if (codplaza_changed) {
+											promesaPer = Q.defer();
+											Permiso.findOne( {codplaza: original.cod_plaza}, function (err, permiso) {
+												if (err) {
+													console.error(err);
+													promesaPer.reject(err);
+												} else if (permiso == null) {
+													// si no existe permiso asociado creamos uno para el camoto este.
+													var nuevopermiso = {
+														'codplaza': original.cod_plaza,
+														'login': null,
+														'jerarquialectura': [],
+														'jerarquiadirectalectura': [],
+														'jerarquiaescritura': [],
+														'jerarquiadirectaescritura': [],
+														'procedimientoslectura': [],
+														'procedimientosdirectalectura': [],
+														'procedimientosescritura': [],
+														'procedimientosdirectaescritura': [],
+														'superuser': 0,
+														'grantoption': 0,
+														'descripcion': 'Permiso otorgado por ' + req.user.login,
+														'caducidad': req.user.permisoscalculados.caducidad,
+														'cod_plaza_grantt': req.user.login
+													};
+													var p = new Permiso(nuevopermiso);
+													p.save(function (err) {
+														if (err){
+															promesaPer.reject(err);
+														}
+														else{
+															promesaPer.resolve();
+														}
+													});
+													persona.registroPersonaWS(original.cod_plaza, models, Q, cfg).then(function(data) {
+
+														Persona.update({'codplaza': original.cod_plaza}, {$set: {'habilitado': true}}, {multi: false, upsert: false}, function(err){
+															if (err){
+																console.error('Error habilitando personas del codigo de plaza responsable');
+															}
+														});
+														console.log('El pavo existía en el WS, lo ha buscado y encontrado');
+														promesaPer.resolve();
+													}, function(err) {
+														Persona.update({'codplaza': original.cod_plaza}, {$set: {'habilitado': true}}, {multi: false, upsert: false}, function(err){
+															if (err){
+																console.error('Error habilitando personas del codigo de plaza responsable');
+															}
+														});
+														console.log('El pavo no existía en el WS o ha fallado el WS');
+														console.error(err);
+														promesaPer.resolve();
+													});
+												} else{
+													promesaPer.resolve();
+												}
+											}
+											);
+											promesaPer.promise.then(
+												function () {
+													recalculate.fullSyncpermiso(Q, models).then(function (data) {
+														promesaProc.resolve();
+													});
+												},
+												function (err) {
+													promesaProc.reject(err);
+												});
+										} else {
+											promesaProc.resolve();
+										}
+
+										promesaProc.promise.then(function () {
+											if (hayCambiarOcultoHijos) {
+												exports.ocultarHijos(original, models, Q).then(function () {
+													recalculate.fullSyncjerarquia(Q, models).then(function () {
+														res.json(original);
+													}, function (err) {
+														console.error(err);
+														res.status(500).send(JSON.stringify(err));
+													});
+												});
+											} else {
+												res.json(original);
+											}
+										}, function (err) {
+											console.error(err);
+											res.status(500).send(JSON.stringify(err)).end();
+											return;
+										});
+									}
+								});
 						});
 					});
 				});
@@ -597,15 +603,18 @@ module.exports.procedimientosByResponsable = function(models)
 		var Procedimiento = models.procedimiento();
 		if (typeof req.params.codplaza !== 'undefined' && req.params.codplaza !== '') {
 			var cod_plaza = req.params.codplaza;
-			var restriccion = { $and: [ {'cod_plaza': cod_plaza},
-								{'$or': [
-										{'oculto': {$exists: false}},
-										{'$and': [
-												{'oculto': {$exists: true}},
-												{'oculto': false}
-											]}
-									]
-								} ]
+			var restriccion = {
+				'$and': [
+					{'cod_plaza': cod_plaza},
+					{'$or': [
+							{'oculto': {$exists: false}},
+							{'$and': [
+								{'oculto': {'$exists': true}},
+								{'oculto': false}
+								]}
+						]
+					}
+				]
 			};
 			Procedimiento.find(restriccion, function(err, procedimientos){
 				if (err) {
@@ -840,6 +849,7 @@ module.exports.setPeriodosCerrados = function (models) {
 			};
 			res.json(periodoscerrados);
 			//Procedimiento.update(conditions, update, options, callback);
+			//BUG
 		}
 	};
 
