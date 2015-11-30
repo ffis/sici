@@ -29,6 +29,7 @@ module.exports.expediente = function (models) {
 	};
 };
 
+/* TODO: better check&clean input */
 module.exports.deleteExpediente = function (models) {
 	return function (req, res) {
 		var Expediente = models.expediente();
@@ -36,7 +37,7 @@ module.exports.deleteExpediente = function (models) {
 		var id = req.params.id;
 		if (typeof procedimiento !== 'undefined' && typeof id !== 'undefined') {
 			Expediente.remove({idexpediente: id, procedimiento: procedimiento},
-				function (err, numBorrados) {
+				function (err) {
 					if (err) {
 						res.status(500).end('Error al buscar el expediente');
 						return;
@@ -67,17 +68,17 @@ module.exports.initExpediente = function (models) {
 						res.status(500).end('Error al buscar el expediente');
 						return;
 					} else if (!data) {
-							var expediente = new Expediente();
-							expediente.idexpediente = id;
-							expediente.procedimiento = procedimiento;
-							expediente.fechainicio = fechaInicio;
-							expediente.save(function (err) {
-								if (err) {
-									res.status(500).end('Error inicializando expediente ' + id);
-								} else {
-									res.json(expediente);
-								}
-							});
+						var expediente = new Expediente();
+						expediente.idexpediente = id;
+						expediente.procedimiento = procedimiento;
+						expediente.fechainicio = fechaInicio;
+						expediente.save(function (error) {
+							if (error) {
+								res.status(500).end('Error inicializando expediente ' + id);
+							} else {
+								res.json(expediente);
+							}
+						});
 					} else {
 						res.json({'error': 'Ya existe el expediente con el identificador y procedimiento indicados'});
 					}
@@ -99,7 +100,7 @@ module.exports.updateExpediente = function (models) {
 			var fechaFin = req.body.fecha_fin;
 			if (typeof fechaFin !== 'undefined' && !isNaN(fechaFin)) {
 				Expediente.update({idexpediente: id, procedimiento: procedimiento}, {fechafin: fechaFin}, {upsert: false, multi: false},
-					function (err, filesAffected, expediente) {
+					function (err) {
 						if (err) {
 							res.status(500).end('No se ha podido actualizar el expediente ' + id);
 							return;
@@ -127,9 +128,11 @@ module.exports.updateExpediente = function (models) {
 									return;
 								}
 							}
-							Expediente.update({idexpediente: id, procedimiento: procedimiento}, {$addToSet: {periodossuspension: {fechasuspension: fechaSuspension, fechareinicio: null}}},
-								function (err, filesAffected, data) {
-									if (err) {
+							Expediente.update(
+								{idexpediente: id, procedimiento: procedimiento},
+								{$addToSet: {periodossuspension: {fechasuspension: fechaSuspension, fechareinicio: null }}},
+								function (error) {
+									if (error) {
 										res.status(500).end('No se ha podido suspender el expediente ' + id);
 										return;
 									} else {
@@ -157,9 +160,11 @@ module.exports.updateExpediente = function (models) {
 									return;
 								}
 								expediente.periodossuspension[pos - 1].fechareinicio = fechaFinSuspension;
-								Expediente.update({idexpediente: id, procedimiento: procedimiento}, {periodossuspension: expediente.periodossuspension},
-									function (err, filesAffected, data) {
-										if (err) {
+								Expediente.update(
+									{idexpediente: id, procedimiento: procedimiento},
+									{periodossuspension: expediente.periodossuspension},
+									function (erro) {
+										if (erro) {
 											res.status(500).end('No se ha podido suspender el expediente ' + id);
 											return;
 										} else {
