@@ -15,7 +15,8 @@
 					$scope.periodo = $scope.periodos[0];
 				});
 
-				$scope.getAncestros = function(jerarquia) {
+				$scope.getAncestros = function() {
+					/* function(jerarquia) */
 					return $scope.ancestros;
 				};
 

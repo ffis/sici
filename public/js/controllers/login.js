@@ -20,12 +20,10 @@
 				}
 
 				$scope.back = function() { window.history.back(); };
-				$scope.logout = function(){  AuthService.logout();	};
+				$scope.logout = function(){ AuthService.logout(); };
 				$scope.mensaje = '';
 			}
-		]);
-
-	angular.module('sici')
+		])
 		.controller('LoginCtrl', ['$scope', '$rootScope', 'AUTH_EVENTS', 'AuthService', '$window', '$location', '$route', '$log',
 			function ($scope, $rootScope, AUTH_EVENTS, AuthService, $window, $location, $route, $log)
 			{
@@ -34,7 +32,7 @@
 				$window.document.title = 'Inicio de sesión';
 				$scope.imagen = 'background: transparent url("/imgs/flag.svg")';
 				$scope.back = function() { window.history.back(); };
-				$scope.logout = function(){  AuthService.logout();	};
+				$scope.logout = function(){ AuthService.logout();	};
 				/*** inicializamos la credenciales a valores vacíos **/
 				$scope.credentials = { username: '', password: '' };
 				/** login será una función que comprueba las credenciales y propaga un evento
@@ -46,7 +44,6 @@
 					{
 						$scope.mensaje = 'Introduzca su nombre de usuario y contraseña para continuar';
 					}else{
-
 						AuthService.login(credentials).then(
 							function() {
 								$log.log('OK?');

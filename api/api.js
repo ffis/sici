@@ -58,7 +58,7 @@ module.exports.arbol = function(Q, models){
 				for(var i = 0, j = hijos[ idjerarquia ].length; i < j; i++){
 					var nodo = hijos[ idjerarquia ][i];
 					if (filterfn(nodo)){
-						returnval.push({_id: nodo._id, id: nodo.id, title: nodo.nombrelargo, nodes: getHijos( nodo.id ), numprocedimientos: nodo.numprocedimientos});
+						returnval.push({_id: nodo._id, id: nodo.id, title: nodo.nombrelargo, nodes: getHijos( nodo.id ), numprocedimientos: nodo.numprocedimientos, numobjetivos: nodo.numobjetivos});
 					}
 				}
 				return returnval;
@@ -67,7 +67,7 @@ module.exports.arbol = function(Q, models){
 			idsraiz.forEach(function(idraiz){
 				var nodo = mappingXid[idraiz];
 				if (filterfn(nodo)){
-					returnValue.push({_id: nodo._id, id: nodo.id, title: nodo.nombrelargo, nodes: getHijos(nodo.id), numprocedimientos: nodo.numprocedimientos });
+					returnValue.push({_id: nodo._id, id: nodo.id, title: nodo.nombrelargo, nodes: getHijos(nodo.id), numprocedimientos: nodo.numprocedimientos, numobjetivos: nodo.numobjetivos });
 				}
 			});
 			res.json(returnValue);

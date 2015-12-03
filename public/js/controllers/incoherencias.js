@@ -60,7 +60,7 @@
 				};
 				$scope.parseInt = function(n){ return (n && n !== '') ? parseInt(n) : 0; };
 				$scope.testwarning = function(row){
-					if (!row.crawled || !row.crawled.any || !row.crawled.any['Plazo de resolución']){ return true;}
+					if (!row.crawled || !row.crawled.any || !row.crawled.any['Plazo de resolución']){ return true; }
 					if (!row.procedimiento ){ return true; }
 					var sum =
 						$scope.parseInt(row.procedimiento.periodos['a' + $scope.anualidad].plazo_maximo_resolver) +

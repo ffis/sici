@@ -5,7 +5,7 @@ var dependencies = [
     'ui.bootstrap',
     'easypiechart', 'nvd3ChartDirectives',
     'xeditable', 'colorpicker.module',
-    'sici.filters', 'sici.services', 'sici.directives', 'sici.login.util', 'sici.translate',
+    'sici.filters', 'sici.services', 'sici.directives', 'sici.login.util', 'sici.translate', 'sici.ui',
     'pascalprecht.translate',
     'autocomplete',
     'toaster'
@@ -17,7 +17,7 @@ if (angularFileUploadLoaded){
 
 var app = angular.module('sici', dependencies).
     config(['$routeProvider', '$locationProvider', '$logProvider', function($routeProvider, $locationProvider, $logProvider) {
-        $logProvider.debugEnabled(true);
+        $logProvider.debugEnabled(false);
 
         $routeProvider.when('/stats', {templateUrl: 'partials/stats.html', controller: 'StatsCtrl'});
         $routeProvider.when('/inconsistencias', {templateUrl: 'partials/inconsistencias.html', controller: 'InconsistenciasCtrl'});
@@ -42,6 +42,9 @@ var app = angular.module('sici', dependencies).
         $routeProvider.when('/resumenorganica/:idjerarquia',    {templateUrl: 'partials/detallesorganica.html', controller: 'DetallesOrganicaCtrl'});
         $routeProvider.when('/debug',    {templateUrl: 'partials/debug.html', controller: 'DebugCtrl'});
         $routeProvider.when('/feedback',    {templateUrl: 'partials/feedback.html', controller: 'FeedbackCtrl'});
+        $routeProvider.when('/carta',    {templateUrl: 'partials/carta.html', controller: 'CartaCtrl'});
+        $routeProvider.when('/carta/:idjerarquia',    {templateUrl: 'partials/carta.html', controller: 'CartaCtrl'});
+        $routeProvider.when('/carta/:idjerarquia/:idcarta',    {templateUrl: 'partials/carta.html', controller: 'CartaCtrl'});
 
         $routeProvider.otherwise({redirectTo: '/welcome'});
         $locationProvider.html5Mode(true);

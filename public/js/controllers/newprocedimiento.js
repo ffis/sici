@@ -4,7 +4,7 @@
 		.controller('NewProcedimientoCtrl', ['$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', 'ArbolWithEmptyNodes', 'ProcedimientoList', 'DetalleCarmProcedimiento', 'DetalleCarmProcedimiento2', 'PersonasByPuesto', 'Session', 'Etiqueta', 'PersonasByRegexp', 'Procedimiento',
 			function ($rootScope, $scope, $location, $window, $routeParams, $timeout, ArbolWithEmptyNodes, ProcedimientoList, DetalleCarmProcedimiento, DetalleCarmProcedimiento2, PersonasByPuesto, Session, Etiqueta, PersonasByRegexp, Procedimiento) {
 				$rootScope.nav = 'procedimiento';
-				$window.document.title = 'SICI: Registrar nuevo procedimiento';
+				$rootScope.setTitle('Registrar nuevo procedimiento');
 
 				$scope.idjerarquia = $routeParams.idjerarquia ? $routeParams.idjerarquia : false;
 				$scope.camposfiltros = ['cod_plaza'];
@@ -19,7 +19,7 @@
 
 				///$scope.oallprocedimientos = ProcedimientoList.query({'idjerarquia':seleccionado.id,'recursivo':false});
 
-				$scope.$watch('seleccionado', function(_new, old){
+				$scope.$watch('seleccionado', function(_new){
 					$scope.oallprocedimientos = ProcedimientoList.query({'idjerarquia': _new.id, 'recursivo': false});
 					if ($scope.procedimiento.padre) {
 						delete $scope.procedimiento.padre;
@@ -27,12 +27,13 @@
 					}
 				});
 
-				$scope.$watch('responsable', function(_new, old){
+				$scope.$watch('responsable', function(_new){
 					var partes = _new.split('-');
-					$scope.procedimiento.cod_plaza = partes[0];
+					var cp = 'cod_plaza';
+					$scope.procedimiento[cp] = partes[0];
 				});
 
-				$scope.$watch('padre', function( _new, old){
+				$scope.$watch('padre', function( _new){
 					var value = _new.substring(1, _new.indexOf(']'));
 					$scope.procedimiento.padre = value;
 			//		$scope.procedimiento.responsable = ( typeof _new.codplaza !== 'undefined' ? _new.codplaza : _new.login );
@@ -40,8 +41,7 @@
 
 				$scope.getPersonas = function(viewValue) {
 					if (viewValue.length > 2) {
-						var p = PersonasByRegexp.query({'regex': viewValue}).$promise;
-						return p;
+						return PersonasByRegexp.query({'regex': viewValue}).$promise;
 					} else {
 						return [];
 					}
@@ -92,8 +92,8 @@
 
 				//$scope.jerarquia = Session.create().permisoscalculados.jerarquialectura.concat(Session.create().permisoscalculados.jerarquiaescritura);
 
-				$scope.filtrojerarquia = function(item) {
-					//es superusuario, no hace falta filtrar
+				$scope.filtrojerarquia = function() {
+					/* function(item) es superusuario, no hace falta filtrar */
 					return true;
 				};
 
@@ -110,8 +110,8 @@
 					}
 				};
 
-				$scope.isFiltroSelected= function(filtro, key, fa){
-					return (typeof filtro[key] !== 'undefined' && fa.name == filtro[key]);
+				$scope.isFiltroSelected = function(filtro, key, fa){
+					return (typeof filtro[key] !== 'undefined' && fa.name === filtro[key]);
 				};
 			}
 		]);

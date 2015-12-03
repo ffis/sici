@@ -4,10 +4,11 @@ angular.module('sici.login.util', ['ngResource'])
 		function ($rootScope, $window, $log, $cookieStore ) {
 			this.userId = false;
 			this.create = function (data) {
+				var attr;
 				if (data)
 				{
 					data.date = new Date().getTime();
-					for(var attr in data)
+					for(attr in data)
 					{
 						this[attr] = data[attr];
 					}
@@ -20,10 +21,12 @@ angular.module('sici.login.util', ['ngResource'])
 					$log.debug('Cargando desde session storage');
 					var suser, user;
 					suser = $window.localStorage.client_session;
-					suser && (user = JSON.parse(suser));
+					if (suser){
+						user = JSON.parse(suser);
+					}
 					var today = new Date().getTime();
 					if (user && (today - user.date) < 86400000) { /* 1 day */
-						for(var attr in user)
+						for(attr in user)
 						{
 							this[attr] = user[attr];
 						}
@@ -97,7 +100,7 @@ angular.module('sici.login.util', ['ngResource'])
 								$log.info('Contraseña no válida');
 								delete $window.localStorage.token;
 							});
-					} else  {
+					}else{
 						var urlconsulta = '/SICI_SSO/LoginSSO';
 						var urllogin = '/SICI_SSO/';
 						var deferred = $q.defer();
@@ -135,6 +138,7 @@ angular.module('sici.login.util', ['ngResource'])
 				},
 				logout: function() {
 					$log.debug('en AuthService.logout');
+					var username = Session.userId;
 					Session.destroy();
 					$rootScope.setLogeado(false);
 					$rootScope.logeado = false;
@@ -143,7 +147,7 @@ angular.module('sici.login.util', ['ngResource'])
 						{
 							method: 'POST',
 							url: '/logout',
-							data: 'username=' + Session.userId
+							data: JSON.stringify({ username: username })
 						}).then(function(){
 							$log.debug('74');
 							$location.path('/login');
@@ -155,7 +159,7 @@ angular.module('sici.login.util', ['ngResource'])
 						});
 				},
 				isAuthenticated: function () {
-					return  $window.localStorage.token && (!!Session.userId || !!Session.create()) ;
+					return $window.localStorage.token && (!!Session.userId || !!Session.create());
 				},
 				isAuthorized: function (authorizedRoles) {
 					return true; // dejamos abierta la puerta a un futuro uso de esto

@@ -25,8 +25,6 @@
 		restriccion.oculto = {'$ne': true};
 		restriccion.eliminado = {'$ne': true};
 
-		//console.log(permisoscalculados);
-
 		if (typeof permisoscalculados !== 'undefined' && permisoscalculados && !permisoscalculados.superuser)
 		{
 			if (typeof permisoscalculados.procedimientoslectura === 'undefined'){
@@ -46,7 +44,6 @@
 							.concat(permisoscalculados.procedimientosdirectaescritura)
 							.concat(permisoscalculados.procedimientosescritura) };
 		}
-
 
 		Procedimiento.find(restriccion, {'ancestros.id': 1, 'periodos': 1}, function(error, procedimientos){
 			if (error){
@@ -161,12 +158,12 @@
 			//reduce phase
 			var results = [];
 			for(var keyStr in returnValue){
-				var key = JSON.parse(keyStr);
-				results.push({_id: key, value: fnReduce(key, returnValue[keyStr]) });
+				var keyV = JSON.parse(keyStr);
+				results.push({_id: keyV, value: fnReduce(keyV, returnValue[keyStr]) });
 			}
 
 
-			if (typeof idjerarquia === 'undefined' || idjerarquia==null  ){
+			if (typeof idjerarquia === 'undefined' || idjerarquia === null ){
 				deferMR.resolve(results);
 			}else{
 				var periodos = {};
@@ -222,29 +219,32 @@
 			'total_resueltos', 'fuera_plazo', 'pendientes'];
 
 
-		Jerarquia.find({ancestrodirecto: jerarquia.id}, {id: true, _id: false, nombre: true, numProcedimientos: true, nombrelargo: true}, function(err, hijos){
-			if (err)
-				defer_descendientes.reject(err);
-			else {
-				defer_descendientes.resolve(hijos);
+		Jerarquia.find(
+			{ ancestrodirecto: jerarquia.id },
+			{ id: true, _id: false, nombre: true, numProcedimientos: true, nombrelargo: true },
+			function(err, hijos){
+				if (err){
+					defer_descendientes.reject(err);
+				}
+				else {
+					defer_descendientes.resolve(hijos);
+				}
 			}
-		});
+		);
 
 		Q.all([defer_descendientes.promise, exports.mapReducePeriodos(Q, models, null, permisoscalculados)]).then(
-			function(all_data) {
-				var hijos = all_data[0], results = all_data[1];
+			function(allData) {
+				var hijos = allData[0], results = allData[1];
 				hijos = ([ {nombrelargo: jerarquia.nombrelargo, nombre: jerarquia.nombre, id: jerarquia.id} ]).concat(hijos);
 				var ihijos = [];
 
-				hijos.forEach(function(hijo){ihijos.push(hijo.id)});
+				hijos.forEach(function(hijo){ ihijos.push(hijo.id); });
 
 				var periodos = {};
-
-				results.forEach(function (result) {
-					if (ihijos.indexOf(result._id.idjerarquia)!==-1) {
+				results.forEach(function(result) {
+					if (ihijos.indexOf(result._id.idjerarquia) !== -1) {
 						var idjerarquia = result._id.idjerarquia;
-						if (typeof periodos[idjerarquia] === 'undefined')
-						{
+						if (typeof periodos[idjerarquia] === 'undefined'){
 							periodos[idjerarquia] = {};
 						}
 						periodos[idjerarquia][parseInt(result._id.anualidad)] = result.value;
@@ -307,7 +307,7 @@
 						cellValueRef = XLSX.utils.encode_cell({c: ic, r: ir});
 						ws[cellValueRef] = cellValue;		*/
 						ir++;
-						for(var ind=0, l2 = indicadoresDatabase.length; ind < l2; ind++)
+						for(var ind = 0, l2 = indicadoresDatabase.length; ind < l2; ind++)
 						{
 							var valor = periodos[ihijos[i]][anualidad][indicadoresDatabase[ind]];
 							var ivalor = valor[0] + valor[1] + valor[2] + valor[3] + valor[4] + valor[5] + valor[6] + valor[7] + valor[8] + valor[9] + valor[10] + valor[11];
@@ -505,15 +505,14 @@
 			}
 
 			var hojaUsuarios = function (Q, personas){
-				var defer = Q.defer();
-
-				var ws = {};
+				var defer = Q.defer(),
+					ws = {};
 				ws[XLSX.utils.encode_cell({c: 0, r: 0})] = {v: 'Nombre', t: 's'};
 				ws[XLSX.utils.encode_cell({c: 1, r: 0})] = {v: 'Apellidos', t: 's'};
 				ws[XLSX.utils.encode_cell({c: 2, r: 0})] = {v: 'Login', t: 's'};
 				ws[XLSX.utils.encode_cell({c: 3, r: 0})] = {v: 'Código plaza', t: 's'};
 				ws[XLSX.utils.encode_cell({c: 4, r: 0})] = {v: 'Habilitado', t: 's'};
-				for (var i = 1, j = personas.length ; i <= j; i++) {
+				for (var i = 1, j = personas.length; i <= j; i++) {
 					var persona = personas[i - 1];
 					ws[ XLSX.utils.encode_cell({c: 0, r: i}) ] = {v: persona.nombre, t: 's'};
 					ws[ XLSX.utils.encode_cell({c: 1, r: i}) ] = {v: persona.apellidos, t: 's'};
@@ -523,7 +522,6 @@
 				}
 
 				ws['!ref'] = XLSX.utils.encode_range( {s: {c: 0, r: 0}, e: {c: 5, r: personas.length + 1}} );
-
 				defer.resolve({'wsName': 'Usuarios', 'sheet': ws});
 
 				return defer.promise;
@@ -571,7 +569,7 @@
 
 							var cellAdministrador = {v: typeof permiso.superuser === 'undefined' || permiso.superuser < 1 ? 'NO' : 'SÍ', t: 's'};
 							var cellGrantoption = {v: typeof permiso.grantoption === 'undefined' || !permiso.grantoption ? 'NO' : 'SÍ', t: 's'};
-							var cellDescripcion = {v: typeof permiso.descripcion === 'undefined'|| permiso.descripcion === null  ? '' : permiso.descripcion, t: 's'};
+							var cellDescripcion = {v: typeof permiso.descripcion === 'undefined' || permiso.descripcion === null ? '' : permiso.descripcion, t: 's'};
 							var cellcodPlazaGrantt = {v: typeof permiso.cod_plaza_grantt === 'undefined' || permiso.cod_plaza_grantt === null ? '-' : permiso.cod_plaza_grantt, t: 's'};
 
 							for (var j = 0; j < permiso.jerarquiadirectaescritura.length; j++) {
@@ -870,10 +868,10 @@
 				}
 				pos++;
 			}
-			for (var mes = 0; mes < meses.length; mes++) {
+			for (var month = 0; month < meses.length; month++) {
 				for (var ind = 0; ind < indicadoresDatabase.length; ind++) {
 					if (typeof procedimiento.periodos[year][indicadoresDatabase[ind]] !== 'undefined') {
-						ws[ XLSX.utils.encode_cell({c: pos, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[year][indicadoresDatabase[ind]][mes] === 'undefined') ? '' : procedimiento.periodos[year][indicadoresDatabase[ind]][mes]), t: 'n'};
+						ws[ XLSX.utils.encode_cell({c: pos, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[year][indicadoresDatabase[ind]][month] === 'undefined') ? '' : procedimiento.periodos[year][indicadoresDatabase[ind]][month]), t: 'n'};
 					}
 					pos++;
 				}

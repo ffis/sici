@@ -6,7 +6,7 @@
         };
     }])
     .filter('orderObjectBy', function(){
-        return function(input, attribute, reverse) {
+        return function(input, attribute, reverse){
             if (!angular.isObject(input)){ return input; }
             var array = [];
             for(var objectKey in input){
@@ -55,6 +55,56 @@
             }
         };
     }])
+    .directive('organismos', function(){
+        return {
+            restrict: 'E',
+            scope: {
+                arbol: '=',
+                tipoelementos: '=',
+                setseleccionado: '=',
+                seleccionado: '=',
+                attr: '=',
+                title: '=otitle',
+                filtro: '=filtro'
+            },
+            templateUrl: '/partials/organismos.html',
+            controller: ['$scope', '$rootScope', '$q', function($scope, $rootScope, $q){
+                $scope.setSeleccionado = function(i){
+                    $scope.setseleccionado(i);
+                };
+                var defjerarquia = $q.defer();
+                $scope.pjerarquia = defjerarquia.promise;
+                $rootScope.jerarquialectura().then(function(j){
+                    $rootScope.jerarquiaescritura().then(function(j2){
+                        $scope.jerarquia = j.concat(j2);
+                        defjerarquia.resolve($scope.jerarquia);
+                    });
+                });
+
+                $scope.fj = function(item) {
+                    if (!$scope.filtro(item)) return false;
+                    if ($scope.jerarquia.indexOf(item.id) !== -1 ){ return true; }
+                    if (item.nodes){
+                        for(var i = 0; i < item.nodes.length; i++){
+                            if ($scope.filtrojerarquia(item.nodes[i])){
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                };
+
+                $scope.filtrojerarquia = function(item) {
+                    var def = $q.defer();
+                    $scope.pjerarquia.then( function(){
+                        def.resolve($scope.fj(item));
+                        $scope.filtrojerarquia = $scope.fj;
+                    }, function(err){ def.reject(err); });
+                    return def.promise;
+                };
+            }]
+        };
+    })
     .constant('AUTH_EVENTS', {
           loginSuccess: 'auth-login-success',
           loginFailed: 'auth-login-failed',

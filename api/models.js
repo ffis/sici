@@ -83,7 +83,8 @@
 			//recalculables
 			'ancestros': [Number],
 			'descendientes': [Number],
-			'numprocedimientos': Number
+			'numprocedimientos': Number,
+			'numobjetivos': Number
 		},
 		importacionesprocedimiento: {
 			'login_importador': String,

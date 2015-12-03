@@ -1,84 +1,21 @@
 
 <div class="row">
 	<div ng-class="{'col-lg-5': !oculto, 'hidden': oculto}" class="left animated">
-		<div class="panel panel-danger">
-			<div class="panel-heading">
-				<h3 class="panel-title">
-					Organismos
-				</h3>
-			</div>
-			<div class="panel-body">			
-				<input type="text" ng-model="texto.$" placeholder="Filtro" style="margin-bottom:1em" class="form-control"/>
-				<ul ng-if="arbol.length" style="padding-left:0.6em">
-					<li ng-repeat="element in arbol |filter:texto| filter:filtrojerarquia" ng-class="{'list-group-item-warning':element.id==seleccionado.id}">
-						<p>
-						<strong>
-							[{{element.id}}] &nbsp;
-						</strong>
-						<span ng-click="setSeleccionado(element)" class="cursor"  title="Engloba {{element.numprocedimientos}} procedimientos">
-							{{element.title}} 
-						</span>
-						<span class="badge pull-right">{{element.numprocedimientos}}</span>
-						</p>
-						<ul class="list-group" ng-if="element.nodes" style="clear:both">
-							<li class="list-group-item" ng-repeat="elemen in element.nodes |filter:texto | filter:filtrojerarquia" ng-class="{'list-group-item-danger':elemen.id==seleccionado.id}">
-							<p>
-								<strong>
-									[{{elemen.id}}] &nbsp;
-								</strong>
-								<span ng-click="setSeleccionado(elemen)" class="cursor" title="Engloba {{elemen.numprocedimientos}} procedimientos">
-									{{elemen.title}} 
-								</span>
-								<span class="badge pull-right">{{elemen.numprocedimientos}}</span>
-								</p>
-								<ul ng-if="elemen.nodes" style="clear:both">
-									<li ng-repeat="eleme in elemen.nodes |filter:texto |filter:filtrojerarquia"  ng-class="{'list-group-item-danger':eleme.id==seleccionado.id}" >
-									<p>
-										<strong>
-											[{{eleme.id}}] &nbsp;
-										</strong>
-										<span ng-class="{'bg-danger':eleme.id==seleccionado.id }" ng-click="setSeleccionado(eleme)" class="cursor" title="Engloba {{eleme.numprocedimientos}} procedimientos">
-											{{eleme.title}} 
-										</span>
-										<span class="badge pull-right">{{eleme.numprocedimientos}}</span>
-										</p>
-										<ul ng-if="eleme.nodes" style="clear:both">
-											<li ng-repeat="elem in eleme.nodes |filter:texto |filter:filtrojerarquia">
-											<p>
-												<strong>
-													[{{elem.id}}] &nbsp;
-												</strong>
-												<span ng-class="{'bg-danger':elem.id==seleccionado.id }" ng-click="setSeleccionado(elem)" class="cursor"  title="Engloba {{elem.numprocedimientos}} procedimientos">
-													{{elem.title}} 
-												</span>
-												<span class="badge pull-right">{{elem.numprocedimientos}}</span>
-												</p>
-											</li>
-										</ul>
-									</li>
-								</ul>
-							</li>
-						</ul>
-					</li>
-				</ul>
-			</div>
-		</div>
+		<organismos otitle="'Organismos con procedimientos'" arbol="arbol" tipoelementos="'procedimiento/s'" attr="'numprocedimientos'" setseleccionado="setSeleccionado" seleccionado="seleccionado"></organismos>
 	</div>
 	<div ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated" id="detallesjerarquia">
-		<div ng-click="oculto=!oculto">
+		<div ng-click="oculto=!oculto" style="cursor:ew-resize">
 			<span class="glyphicon glyphicon-fullscreen pull-right">
 			</span>
-			<h2>
-				{{seleccionado.title}}
-			</h2>
+			<h2>{{seleccionado.title}}</h2>
 		</div>
 		<div ng-if="procedimientos.length" class="panel panel-danger">
-			<div ng-click="filtrosocultos=!filtrosocultos" class="panel-heading">
+			<div ng-click="filtrosocultos=!filtrosocultos" class="panel-heading" style="cursor:ns-resize">
 				<span ng-class="{&quot;glyphicon-collapse-down&quot;:!filtrosocultos,&quot;glyphicon-expand&quot;:filtrosocultos}" class="glyphicon pull-right">
 				</span>
 				<div class="progress">
 					<div role="progressbar" aria-valuenow="{{100*cumplimentados / count}}" aria-valuemin="0" aria-valuemax="100" style="width:{{100*cumplimentados / count}}%" class="progress-bar progress-bar-striped progress-bar-danger">
-						{{(100*cumplimentados / count).toFixed(2)}}% ({{cumplimentados}} / {{count}})
+						{{(100 * cumplimentados / count).toFixed(2)}}% ({{cumplimentados}} / {{count}})
 					</div>
 				</div>
 			</div>
@@ -105,10 +42,10 @@
 						<div class="col-sm-9">
 							<div ng-repeat="etiqueta in etiquetas track by $index" class="col-sm-6">
 								<label class="control-label col-sm-3">
-									<input type="checkbox" name="" id="et{{$index}}" value="{{etiqueta._id}}" >
+									<input type="checkbox" name="" id="et{{$index}}" value="{{etiqueta._id}}" />
 								</label>
 								<div class="col-sm-9">
-									<label for="et{{$index}}"> <span class="label label-danger" title="{{etiqueta.descripcion}}" >{{etiqueta._id}}</span></label>
+									<label for="et{{$index}}"><span class="label label-danger" title="{{etiqueta.descripcion}}" >{{etiqueta._id}}</span></label>
 								</div>
 							</div>
 						</div>
@@ -119,17 +56,17 @@
 		<div>
 			{{filtrotxtprocedimiento.codigo}}
 		</div>
-                <div>
-                    <div class="btn-group">
-                        <button ng-class="{disabled: actualizando > 0}" class="btn btn-default" ng-click="descargarExcel()">
-                            <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>&nbsp;Descargar excel
-                        </button>&nbsp;&nbsp;
-						<a class="btn btn-default" role="button" href="/resumenorganica/{{idjerarquia}}" ng-if="idjerarquia && !seleccionado">Ver resumen</a>
-						<a class="btn btn-default" role="button" href="/resumenorganica/{{seleccionado.id}}" ng-if="seleccionado && seleccionado.id">Ver resumen</a>
-                        <p ng-if="actualizando > 0">Generando informe...</p>
-                    </div>
-                    <div class="alert {{respuesta.clase}}" role="alert">{{respuesta.mensaje}}</div>
-                </div>
+        <div>
+            <div class="btn-group">
+                <button ng-class="{disabled: actualizando > 0}" class="btn btn-default" ng-click="descargarExcel()">
+                    <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>&nbsp;Descargar excel
+                </button>&nbsp;&nbsp;
+				<a class="btn btn-default" role="button" href="/resumenorganica/{{idjerarquia}}" ng-if="idjerarquia && !seleccionado">Ver resumen</a>
+				<a class="btn btn-default" role="button" href="/resumenorganica/{{seleccionado.id}}" ng-if="seleccionado && seleccionado.id">Ver resumen</a>
+                <p ng-if="actualizando > 0">Generando informe...</p>
+            </div>
+            <div class="alert {{respuesta.clase}}" role="alert">{{respuesta.mensaje}}</div>
+        </div>
 		<div ng-if="procedimientosfiltrados.length" class="table-responsive">
 			<table class="table table-striped table-bordered table-condensed table-hover" id="procedimientostable">
 				<thead>

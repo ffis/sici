@@ -1,7 +1,7 @@
 (function(angular, $){
 	'use strict';
 	angular.module('sici')
-		.controller('InformesCtrl', ['$rootScope', '$scope', '$window', '$http', '$timeout', '$log', 'ExportarInforme', 'PeriodosStats', 'Arbol','$q',
+		.controller('InformesCtrl', ['$rootScope', '$scope', '$window', '$http', '$timeout', '$log', 'ExportarInforme', 'PeriodosStats', 'Arbol', '$q',
 			function ($rootScope, $scope, $window, $http, $timeout, $log, ExportarInforme, PeriodosStats, Arbol, $q) {
 
 				$rootScope.nav = 'recalculate';
@@ -19,10 +19,10 @@
 
 				$q.all([$rootScope.jerarquialectura(), $rootScope.jerarquiaescritura()], $rootScope.superuser).then(
 					function(data) {
-
-						if (data[2]!== 'undefined' && data[2]>0) 
+						if (typeof data[2] !== 'undefined' && data[2] > 0){
 							return;
-						
+						}
+
 						$scope.jerarquia = data[0].concat(data[1]);
 						$scope.pjerarquia.resolve($scope.jerarquia);
 						/*$scope.filtrojerarquia*/
@@ -51,8 +51,7 @@
 						$scope.filtrojerarquia = $scope.fj;
 					}, function(err){ def.reject(err); });
 					return def.promise;
-				};				
-				
+				};
 
 				var maxAnyo = new Date().getFullYear();
 
@@ -61,8 +60,6 @@
 				}
 				$scope.anyoSelected = $scope.anyos[ $scope.anyos.length - 1 ];
 				$scope.clasefuncionalidades = 'col-md-' + (12 / $scope.funcionalidades.length).toFixed(0);
-
-				
 
 				$scope.invoke = function (cmd, anyoSelected) {
 					if ($scope.actualizando) {
@@ -95,7 +92,9 @@
 						break;
 						case 'periodosStats':
 							$scope.arbol = Arbol.query();
-							$scope.stats = PeriodosStats.query(function(){$scope.actualizando--;});
+							$scope.stats = PeriodosStats.query(function(){
+								$scope.actualizando--;
+							});
 						break;
 					}
 				};
@@ -126,19 +125,20 @@
 				};
 
 				var cached = null;
-				
-				$scope.tienePermiso = function(seleccionado) {					
 
-					if (!$rootScope.permisoscalculados.$resolved)
-						return false;					
-					
+				$scope.tienePermiso = function(seleccionado) {
+
+					if (!$rootScope.permisoscalculados.$resolved){
+						return false;
+					}
+
 					$scope.tienePermisoVar =
-						$rootScope.permisoscalculados.jerarquialectura.indexOf(seleccionado.id)>=0 ||
-						$rootScope.permisoscalculados.jerarquiaescritura.indexOf(seleccionado.id)>=0 
-					return $scope.tienePermisoVar;						
+						$rootScope.permisoscalculados.jerarquialectura.indexOf(seleccionado.id) >= 0 ||
+						$rootScope.permisoscalculados.jerarquiaescritura.indexOf(seleccionado.id) >= 0;
+					return $scope.tienePermisoVar;
 				};
 
-				
+
 
 
 				$scope.fnGetStatsNode = function(nodoid, anualidad){
@@ -155,11 +155,11 @@
 				};
 				$scope.getTotales = function(nodoid, anualidad, campo){
 					var nodo = $scope.fnGetStatsNode(nodoid, anualidad);
-					if (!nodo){ return '';}
-					if (!nodo.value[campo]){ return '0';}
+					if (!nodo){ return ''; }
+					if (!nodo.value[campo]){ return '0'; }
 					return nodo.value[campo].reduce(function(prev, current){ return prev + current; }, 0);
 				};
-				$scope.mutextoculto = function(){ $scope.oculto = !$scope.oculto;};
+				$scope.mutextoculto = function(){ $scope.oculto = !$scope.oculto; };
 				$scope.mostrarcolumnasocultas = function(){ $scope.columnasocultas = !$scope.columnasocultas; };
 				$scope.oculto = false;
 				$scope.columnasocultas = true;
@@ -169,7 +169,6 @@
 					'resueltos_1', 'resueltos_5', 'resueltos_10', 'resueltos_15', 'resueltos_30', 'resueltos_45', 'resueltos_mas_45',
 					'quejas', 'recursos'
 				];
-
 			}
 	]);
 })(angular, $);

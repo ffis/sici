@@ -35,6 +35,7 @@
 		exportador = require('./api/exportador'),
 		csvsici = require('./api/csvsici'),
 		feedback = require('./api/feedback'),
+		carta = require('./api/carta'),
 		/* app */
 		app = module.exports = express()
 	;
@@ -234,6 +235,9 @@
 		app.get('/api/v1/public/ratioResueltos/:anualidad', procedimiento.ratioResueltos(cfg, models));
 		app.get('/api/v1/public/tramitesMediaMes', procedimiento.mediaMesTramites(cfg, models));
 		app.get('/api/v1/public/tramitesMediaMes/:anualidad', procedimiento.mediaMesTramites(cfg, models));
+
+		app.get('/api/v2/public/carta', carta.indicadores());
+		app.get('/api/v2/public/carta/:idjerarquia', carta.indicadores());
 
 		//app.use('/api/v1/public/feedback', multer({ dest: path.join( __dirname, 'tmp') + path.sep}));
 		app.post('/api/v1/public/feedback', feedback.log(models));

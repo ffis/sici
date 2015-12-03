@@ -6,9 +6,9 @@
 		function ($q, $rootScope, $scope, $location, $window, $routeParams, $timeout, $log, Arbol, ProcedimientoList, DetalleCarmProcedimiento, DetalleCarmProcedimiento2, PersonasByPuesto, Etiqueta, ExportarResultadosJerarquia) {
 			$rootScope.nav = 'actividad';
 			$window.document.title = 'SICI: Actividad';
+			$scope.idjerarquia = ($routeParams.idjerarquia) ? parseInt( $routeParams.idjerarquia ) : false;
 			$scope.arbol = Arbol.query(function(){ $scope.setJerarquiaById($scope.idjerarquia); });
 
-			$scope.idjerarquia = ($routeParams.idjerarquia) ? parseInt( $routeParams.idjerarquia ) : false;
 			$scope.camposfiltros = ['cod_plaza'];
 			$scope.filtros = {};
 			$scope.filtro = {};
@@ -66,8 +66,10 @@
 					}
 					return false;
 				};
-				for(var idx = 0, idxmax = $scope.arbol.length; idx < idxmax ; idx++){
-					if (setJ( $scope.arbol[idx], idj)){ break; }
+				for(var idx = 0, idxmax = $scope.arbol.length; idx < idxmax; idx++){
+					if (setJ( $scope.arbol[idx], idj)){
+						break;
+					}
 				}
 			};
 
@@ -89,7 +91,7 @@
 
 			/*$scope.filtrojerarquia*/
 			$scope.fj = function(item) {
-				if ($scope.jerarquia.indexOf(item.id) !== -1 ){ return true;	}
+				if ($scope.jerarquia.indexOf(item.id) !== -1 ){ return true; }
 				if (item.nodes){
 					for(var i = 0; i < item.nodes.length; i++){
 						if ($scope.filtrojerarquia(item.nodes[i])){

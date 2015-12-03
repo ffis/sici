@@ -102,6 +102,18 @@ modulo
                 return $resource('/api/v1/private/personasByRegexp/:regex', {}, {query: {method: 'GET', isArray: true}}); }])
         .factory('PersonasSearchList', ['$resource', function ($resource) {
                 return $resource('/api/v1/private/searchpersonas', {}, {query: {method: 'GET', isArray: true}}); }])
+        .factory('CartaServicio', ['$resource', function ($resource) {
+                return $resource('/api/v2/public/carta/:idjerarquia', {}, {query: {method: 'GET', isArray: true}}); }])
 
-        .value('version', '0.1')
+        .factory('PastelColor', function(){
+                var colors = [];
+                return function(i){
+                        if (typeof colors[i] === 'undefined'){
+                                var hue = Math.floor(Math.random() * 360);
+                                colors[i] = 'hsl(' + hue + ', 100%, 87.5%)';
+                        }
+                        return colors[i];
+                };
+        })
+        .value('version', '0.2')
 ;

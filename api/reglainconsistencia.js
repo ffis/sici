@@ -8,12 +8,12 @@
 			if (typeof id !== 'undefined')
 			{
 				Reglasinconsistencias.findOne({'_id': id}, function(err, data){
-					if (err) { console.error(err); res.status(500).end(); return ; }
+					if (err) { console.error(err); res.status(500).end(); return; }
 					res.json(data);
 				});
 			}else{
 				Reglasinconsistencias.find({}, function(err, data){
-					if (err) { console.error(err); res.status(500).end(); return ; }
+					if (err) { console.error(err); res.status(500).end(); return; }
 					res.json(data);
 				});
 			}

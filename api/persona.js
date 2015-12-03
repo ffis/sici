@@ -1,10 +1,41 @@
 (function(module, process){
-
-
 	'use strict';
 	process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 	var XLSX = require('xlsx');
 	var soap = require('../lib/soap');
+
+/* mapping for using XY coordinates on excel */
+	var mapping = [];
+	var index = 0;
+	for (var i = 'A'.charCodeAt(0), j = 'Z'.charCodeAt(0); i <= j; i++) {
+		mapping.push(String.fromCharCode(i));
+		index++;
+	}
+
+	for (var prefixi = 'A'.charCodeAt(0), prefixj = 'Z'.charCodeAt(0); prefixi <= prefixj; prefixi++) {
+		for (var i = 'A'.charCodeAt(0), j = 'Z'.charCodeAt(0); i <= j; i++) {
+			mapping.push(String.fromCharCode(prefixi) + String.fromCharCode(i));
+			index++;
+		}
+	}
+	for (var prefix = 'A'.charCodeAt(0), prefixk = 'Z'.charCodeAt(0); prefix <= prefixk; prefix++) {
+		for (var prefixi = 'A'.charCodeAt(0), prefixj = 'Z'.charCodeAt(0); prefixi <= prefixj; prefixi++) {
+			for (var i = 'A'.charCodeAt(0), j = 'Z'.charCodeAt(0); i <= j; i++) {
+				mapping.push(String.fromCharCode(prefix) + String.fromCharCode(prefixi) + String.fromCharCode(i));
+				index++;
+			}
+		}
+	}
+
+	function getColumn(x) {
+		return mapping[x];
+	}
+
+	function parseStr2Int (str){
+		var valor = parseInt(str);
+		if(isNaN(valor)) { valor = 0; }
+		return valor;
+	}
 
 	module.exports.personasByPuesto = function (models) {
 		return function (req, res) {
@@ -47,12 +78,12 @@
 
 	module.exports.setHabilitado = function(models){
 		return function(req, res){
-			var Persona = models.persona();
-			var id = req.params.id;
-			var content = req.body;
-			var habilitado = content.habilitado ? content.habilitado === 'true' : false; 
-			Persona.update({'_id': id},{'$set': {habilitado: habilitado} }, function(e){
-				if (e) {
+			var Persona = models.persona(),
+				id = req.params.id,
+				content = req.body,
+				habilitado = content.habilitado ? content.habilitado === 'true' : false;
+			Persona.update({'_id': id}, {'$set': { habilitado: habilitado } }, function(e) {
+				if (e){
 					res.status(500).json({'error': 'An error has occurred'});
 				} else {
 					res.json({habilitado: habilitado});
@@ -215,9 +246,9 @@
 								nuevaPersona.apellidos = result.return[6].value + ' ' + result.return[5].value;
 								nuevaPersona.telefono = result.return[7].value;
 								nuevaPersona.habilitado = false;
-								nuevaPersona.save(function (err) {
-									if (err) {
-										console.err(err);
+								nuevaPersona.save(function (erro) {
+									if (erro) {
+										console.err(erro);
 										deferRegistro.reject();
 									} else {
 										var output = [{'login': nuevaPersona.login, 'codplaza': nuevaPersona.codplaza, 'nombre': nuevaPersona.nombre, 'apellidos': nuevaPersona.apellidos}];
@@ -347,11 +378,10 @@
 				def.reject(err);
 			} else {
 				client.setSecurity(new soap.WSSecurity(cfg.ws_user, cfg.ws_pwd, 'PasswordText'));
-				client.SacaOcupante(args, function (err, result) {
-					if (err) {
-						console.error('Error buscando plaza en WS');
+				client.SacaOcupante(args, function (erro, result) {
+					if (erro) {
+						console.error('Error buscando plaza en WS', erro);
 						def.resolve(null);
-						console.log(result);
 					} else {
 						def.resolve(result);
 					}
@@ -501,23 +531,11 @@
 		return informeresultado;
 	}
 
-
-
 	function parseExcelGesper(path, worksheetName, maxrows, models, Q) {
-		var turnObjToArray = function (obj) {
-			return [].map.call(obj, function (element) {
-				return element;
-			});
-		};
-
-
 		var workbook = XLSX.readFile(path);
 		var worksheet = workbook.Sheets[worksheetName];
-		var cabecera = [];
-		var fields = {lista: [], tipos: {}};
+		var fields = { lista: [], tipos: {} };
 		var objetos = [];
-		var jerarquias = [];
-
 		var procesados = 0;
 
 		for (var fila = 1; fila < maxrows; fila++)
@@ -528,8 +546,9 @@
 				for (var columna = 0; columna < 55550; columna++)
 				{
 					var n = getColumn(columna);
-					if (n === 'H')
+					if (n === 'H'){
 						break;
+					}
 					var idx = getColumn(columna) + fila;
 					var campo = typeof worksheet[idx] === 'undefined' ? '' : worksheet[idx].v.trim()
 							.replace('.', '_').replace('.', '_').replace('.', '_')
@@ -617,20 +636,17 @@
 					console.error('Error importando persona. Actualización fallida. ' + err);
 				}
 			};
+			var fnInforme = function (informeresultado) {
+				resultado.push({'persona': informeresultado.persona, 'actualizada': informeresultado.actualizada});
+				if (informeresultado.actualizada)
+				{
+					informeresultado.persona.update(errorHandler);
+				}else{
+					informeresultado.persona.save(errorHandler);
+				}
+			};
 			for (var i = 0; i < promesas.length; i++) {
-				promesas[i].then(
-					function (informeresultado) {
-						resultado.push({'persona': informeresultado.persona, 'actualizada': informeresultado.actualizada});
-						if (informeresultado.actualizada)
-						{
-							informeresultado.persona.update(errorHandler);
-						}else{
-							informeresultado.persona.save(errorHandler);
-						}
-					}, function (err) {
-						console.error('Error. importando persona. Reject en promesa.');
-					}
-				);
+				promesas[i].then(fnInforme, errorHandler);
 			}
 			Q.all(promesas).then(function () {
 				res.json(resultado);
@@ -638,39 +654,7 @@
 		};
 	};
 
-	function getColumn(x) {
-		return mapping[x];
-	}
-
-
-	/* mapping for using XY coordinates on excel */
-	var mapping = [];
-	var index = 0;
-	for (var i = 'A'.charCodeAt(0), j = 'Z'.charCodeAt(0); i <= j; i++) {
-		mapping.push(String.fromCharCode(i));
-		index++;
-	}
-
-	for (var prefixi = 'A'.charCodeAt(0), prefixj = 'Z'.charCodeAt(0); prefixi <= prefixj; prefixi++) {
-		for (var i = 'A'.charCodeAt(0), j = 'Z'.charCodeAt(0); i <= j; i++) {
-			mapping.push(String.fromCharCode(prefixi) + String.fromCharCode(i));
-			index++;
-		}
-	}
-	for (var prefix = 'A'.charCodeAt(0), prefixk = 'Z'.charCodeAt(0); prefix <= prefixk; prefix++) {
-		for (var prefixi = 'A'.charCodeAt(0), prefixj = 'Z'.charCodeAt(0); prefixi <= prefixj; prefixi++) {
-			for (var i = 'A'.charCodeAt(0), j = 'Z'.charCodeAt(0); i <= j; i++) {
-				mapping.push(String.fromCharCode(prefix) + String.fromCharCode(prefixi) + String.fromCharCode(i));
-				index++;
-			}
-		}
-	}
-
-
-
-
-	module.exports.personassearchlist = function (models, Q)
-	{
+	module.exports.personassearchlist = function (models, Q){
 		return function (req, res) {
 
 			var Persona = models.persona(), Procedimiento = models.procedimiento();
@@ -683,51 +667,52 @@
 			Persona.find({}, {codplaza: true, login: true, nombre: true, apellidos: true}, function (err, data) {
 				if (err) {
 					console.error(err);
-					res.status(500);
-					res.end();
+					res.status(500).end();
 					deferPersona.reject(err);
 				} else {
-
 					deferPersona.resolve(data);
 				}
 			});
 
 			/// 2. Buscamos personas como responsables de procedimientos ... ¡¡¡Y que no estén en el primer grupo¡¡¡
 			Procedimiento.aggregate()
-					.unwind('responsables')
-					.group({'_id': {
-							'login': '$responsables.login',
-							'codplaza': '$responsables.codplaza'
-						},
-						'nombre': {'$first': '$responsables.nombre'},
-						'apellidos': {'$first': '$responsables.apellidos'}
-					})
-					.exec(function (err, data) {
-						if (err) {
-							console.error(err);
-							res.status(500);
-							res.end();
-							deferProcedimiento.reject(err);
-						} else {
+				.unwind('responsables')
+				.group({'_id': {
+						'login': '$responsables.login',
+						'codplaza': '$responsables.codplaza'
+					},
+					'nombre': {'$first': '$responsables.nombre'},
+					'apellidos': {'$first': '$responsables.apellidos'}
+				})
+				.exec(function (err, data) {
+					if (err) {
+						console.error(err);
+						res.status(500);
+						res.end();
+						deferProcedimiento.reject(err);
+					} else {
 
-							deferProcedimiento.resolve(data);
-						}
-					});
+						deferProcedimiento.resolve(data);
+					}
+				});
 
 			Q.all([deferPersona.promise, deferProcedimiento.promise]).then(function (data) {
 				var r = {};
 				var response = [];
 				var personasByPersona = data[0];
 				var personasByResponsable = data[1];
+				var idr = '';
+				var persona;
+
 				for (var i = 0; i < personasByPersona.length; i++) {
-					var persona = personasByPersona[i];
-					var idr = persona.login + '-' + persona.codplaza;
+					persona = personasByPersona[i];
+					idr = persona.login + '-' + persona.codplaza;
 					r[idr] = persona;
 					response.push({data: persona.login + ' ; ' + persona.codplaza + ' ; ' + persona.nombre + ' ' + persona.apellidos});
 				}
 				for (var i = 0; i < personasByResponsable.length; i++) {
-					var persona = personasByResponsable[i];
-					var idr = persona._id.login + '-' + persona._id.codplaza;
+					persona = personasByResponsable[i];
+					idr = persona._id.login + '-' + persona._id.codplaza;
 					if (typeof r[idr] === 'undefined') {
 						console.log('Saltandose ' + idr);
 						r[idr] = persona;

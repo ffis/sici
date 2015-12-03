@@ -135,7 +135,7 @@ angular.module('sici.login.util', ['ngResource'])
 					return Session;
 				},
 				logout: function() {
-					$log.debug('en AuthService.logout');
+					var username = Session.userId;
 					Session.destroy();
 					$rootScope.setLogeado(false);
 					$rootScope.logeado = false;
@@ -144,7 +144,7 @@ angular.module('sici.login.util', ['ngResource'])
 						{
 							method: 'POST',
 							url: '/logout',
-							data: 'username=' + Session.userId
+							data: JSON.stringify({ username: username })
 						}).then(function(){
 							$log.debug('74');
 							$location.path('/login');

@@ -1,0 +1,2246 @@
+[
+  {
+    "descripcion":"1 Se responderá el 90% de las consultas telefónicas o presenciales (con o sin cita previa) en un plazo igual o inferior a 5 días hábiles y en cualquier caso no superior a 10 días. (Número de consultas mensuales resueltas en el plazo de 5 días hábiles / Número total de consultas solicitadas mensualmente) x 100 mayor o = 90.",
+    "formulas":[
+      "(Número de consultas mensuales resueltas en el plazo de 10 días hábiles / Número total de consultas solicitadas mensualmente) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Acreditaci�n e Inspecci�n - Dirección General de Pol�tica Social.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36882&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 Las consultas realizadas por vía telemática se responderán en un plazo igual o inferior a 10 días hábiles.",
+    "formulas":[
+      "(Número de consultas mensuales resueltas en el plazo máximo de 10 días hábiles / Número total de consultas solicitadas mensualmente) x 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Servicio de Acreditaci�n e Inspecci�n - Dirección General de Pol�tica Social.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36882&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 La emisión de certificados solicitados por los ciudadanos o por entidades privadas con o sin ánimo de lucro sobre actividades inscritas en el Registro de Entidades, Centros y Servicios Sociales de la Región de Murcia, se realizará en un plazo máximo de 10 días hábiles.",
+    "formulas":[
+      "(Número de certificados solicitados mensualmente y emitidos en el plazo máximo de 10 días hábiles / Número total de certificados solicitados mensualmente) x 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Servicio de Acreditaci�n e Inspecci�n - Dirección General de Pol�tica Social.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36882&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"1 Cada año se mantendrán reuniones con los representantes de los sectores agrícolas y asociaciones agrarias para informarles sobre las líneas de ayuda y los programas o procedimientos que les afecten.",
+    "formulas":[
+      "(Nº. de reuniones sectoriales mantenidas anualmente / Nº. de sectores y asociaciones interesados en ser informados) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General para la Pol�tica Agraria Com�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36775&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 Los expedientes de “pago único”, serán resueltos antes de 31 de diciembre de cada año, en todos aquellos casos, en los que sus solicitudes estén correctamente cumplimentadas desde su presentación y hayan superado los controles de campo.",
+    "formulas":[
+      "(Nº. de expedientes resueltos en el plazo comprometido / Nº. de solicitudes presentadas que reúnan los requisitos exigidos) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General para la Pol�tica Agraria Com�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36775&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 Aprobar en 5 meses los Planes de Reestructuración y Reconversión de Viñedos.",
+    "formulas":[
+      "(Nº. de Planes aprobados en el plazo igual o inferior al comprometido / Nº. de Planes aprobados) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General para la Pol�tica Agraria Com�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36775&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"4 Reducir el plazo de resolución de los expedientes del Registro de Maquinaria. El plazo legal de resolución es de 3 meses, actualmente se resuelven en 21 días y el compromiso es resolver en 14 días.",
+    "formulas":[
+      "(Nº. de expedientes mensuales resueltos en el plazo comprometido / Nº. expedientes resueltos mensualmente) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General para la Pol�tica Agraria Com�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36775&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"1 No superar los 10 días entre la solicitud de acta de no inicio, o fin de obras y la realización de la inspección en expedientes del Fondo Europeo de Pesca (FEP)",
+    "formulas":[
+      "(Número de expedientes que no superan los 10 días entre la fecha de solicitud y la inspección / número de expedientes FEP inspeccionados en no inicio ó fin de obras) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Pesca y Acuicultura",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36755&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 Publicar en 3 días naturales en la web toda la información relacionada con la concesión de ayudas y subvenciones a la pesca, acuicultura, transformación y comercialización y puertos pesqueros del Fondo Europeo de Pesca (FEP)",
+    "formulas":[
+      "(Número de publicaciones del FEP/FEMP en WEB en un plazo inferior a los 3 días naturales desde la aparición en el BORM / Número de publicaciones BORM en la web del FEP/FEMP) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Pesca y Acuicultura",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36755&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 Alcanzar un porcentaje inferior al 5% de pagos indebidos con cargo al Fondo Europeo de Pesca (FEP)",
+    "formulas":[
+      "(Número de los pagos indebidos / numero total de los pagos tramitados) X 100 <= 5."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Pesca y Acuicultura",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36755&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"4 Entrega de información sobre los compromisos que implican las ayudas del Fondo Europeo de Pesca (FEP) a los solicitantes de ayudas en el 100% de las solicitudes",
+    "formulas":[
+      "(Número de solicitudes informadas / Número de solicitudes presentadas en concurrencia en las convocatorias del FEP/FEMP) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Pesca y Acuicultura",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36755&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"5 Conceder en el acto los permisos de pesca en la tramitación presencial de las licencias marítimas de recreo, siempre que el usuario presente toda la información necesaria y acredite el pago de la tasa si procede",
+    "formulas":[
+      "(Número de licencias tramitadas en el acto / Número de licencias solicitadas que reúnen todos los requisitos) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Pesca y Acuicultura",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36755&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"6 Conceder en un plazo máximo de 10 días naturales las licencias de pesca de recreo solicitadas de forma no presencial, desde su recepción en el Servicio de Pesca y Acuicultura",
+    "formulas":[
+      "(Número de licencias no presenciales tramitadas en un plazo máximo de 10 días naturales / número de licencias no presenciales totales solicitadas que reúnen todos los requisitos) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Pesca y Acuicultura",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36755&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"1 Servicio de Sanidad Animal: la comunicación de resultados analíticos al ganadero en los programas sanitarios de erradicación de enfermedades en animales de renta, será inferior a 30 días desde la entrega de las muestras al laboratorio.",
+    "formulas":[
+      "(Número mensual de muestras informadas en un plazo inferior a 30 días / Número mensual de muestras informadas para su análisis) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Ganader�a y Pesca",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36614&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 Servicio de Sanidad Animal: resolver la solicitud de ayuda para el fomento y apoyo de las ADS en un plazo máximo de 90 días desde la fecha de finalización de la convocatoria.",
+    "formulas":[
+      "(Número de solicitudes resueltas dentro de los 90 días / Número total de solicitudes) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Ganader�a y Pesca",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36614&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 Servicio de Sanidad Animal: realizar las inspecciones de verificación para la inscripción y registro de entidades ganaderas en un plazo inferior a los 30 días desde la entrega de la solicitud.",
+    "formulas":[
+      "(Número mensual de inspecciones realizadas dentro de los 30 días desde entrega de la solicitud / Número mensual de solicitudes) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Ganader�a y Pesca",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36614&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"4 Servicio de Sanidad Animal: realizar las inspecciones de verificación para la inscripción y registro de establecimientos de fabricación de piensos y aditivos en un plazo inferior a los 30 días desde su solicitud.",
+    "formulas":[
+      "(número mensual de inspecciones realizadas dentro de los 30 días desde la entrega de la solicitud / número mensual de solicitudes) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Ganader�a y Pesca",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36614&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"5 Servicio de Sanidad Animal: la comunicación de resultados analíticos realizados en el control de calidad higiénica de la leche será inferior a 30 días desde la entrega de las muestras al laboratorio.",
+    "formulas":[
+      "(Número mensual de muestras informadas en un plazo inferior a 30 días / Número mensual de muestras entregadas para su análisis) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Ganader�a y Pesca",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36614&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"6 Servicio de Sanidad Animal: la comunicación de autorización de ferias y mercados será inferior a 15 días desde la solicitud por interesado.",
+    "formulas":[
+      "(Número mensual de autorizaciones realizadas en un plazo inferior a 15 días / Número mensual de solicitudes autorizadas) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Ganader�a y Pesca",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36614&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"7 Servicio de Sanidad Animal: la emisión de certificados sanitarios de exportación a la UE y a terceros países se realizará en menos de 24 horas tras la emisión de los resultados analíticos preceptivos.",
+    "formulas":[
+      "(Número mensual de certificados de exportación emitidos en 24 horas / Número mensual de certificados emitidos de exportación) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Ganader�a y Pesca",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36614&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"8 Servicio de Producción Animal: comunicar a los interesados todos los actos que se deriven del procedimiento administrativo relacionados con los expedientes de ayuda en los que tengan la condición de interesado, con el fin de evitarle cualquier indefensión.",
+    "formulas":[
+      "(Número mensual de actos comunicados de expedientes de ayuda en plazo comprometido / Número mensual de actos de ayuda gestionados) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Ganader�a y Pesca",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36614&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"9 Servicio de Producción Animal: realizar los controles de campo relacionados con las ayudas en el marco de la PAC, como máximo dentro de los 4 meses siguientes a la finalización del plazo de presentación de las solicitudes de ayuda.",
+    "formulas":[
+      "(Número mensual de controles de campo realizados dentro de los 4 meses siguientes a la finalización del plazo de presentación de solicitudes de ayuda / Número mensual de controles de ayuda efectuados) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Ganader�a y Pesca",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36614&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"1 El tiempo de realización del bastanteo de poderes será de 1 día a contar desde su solicitud y haber abonado la tasa.",
+    "formulas":[
+      "(Número mensual de bastanteos realizados en el plazo comprometido / Número total mensual de bastanteos solicitados) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Secretar�a Gral. de Fomento, Obras P�blicas y Ordenaci�n del Terrirorio",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36574&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 El plazo máximo para la resolución de reclamaciones previas a la vía jurisdiccional civil será de 1 mes (plazo legal 3 meses) y en la laboral en el plazo de 20 días (plazo legal 1 mes).",
+    "formulas":[
+      "(Número mensual de reclamaciones resueltas en el plazo comprometido / Número total de reclamaciones resueltas en el mes) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Secretar�a Gral. de Fomento, Obras P�blicas y Ordenaci�n del Terrirorio",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36574&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 El tiempo de resolución de los expedientes de aplazamiento o fraccionamiento del pago ante la Consejería será igual o inferior a 5 meses (plazo legal 6 meses).",
+    "formulas":[
+      "(Número mensual de expedientes de aplazamiento o fraccionamiento resueltos en el plazo comprometido / Número total de expedientes de aplazamiento o fraccionamiento solicitados) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Secretar�a Gral. de Fomento, Obras P�blicas y Ordenaci�n del Terrirorio",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36574&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"1 Servicio Económico-Contable y de Contratación. En relación con los contratos a convocar, sujetos a \"regulación armonizada\", se publicará, en todo caso, un \"anuncio previo\".",
+    "formulas":[
+      "(Número mensual de contratos tramitados sujetos a \"regulación armonizada\" que figuran en un anuncio previo / número mensual de éstos contratos convocados) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección Gerencial del Instituto Murciano de Acci�n Social.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36500&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 Servicio Jurídico. Resolución de las reclamaciones previas a la vía civil y laboral en el plazo de 88 días naturales para la vía civil y 27 para la laboral.",
+    "formulas":[
+      "(Número mensual de reclamaciones resueltas en cada modalidad en el plazo comprometido / número de reclamaciones resueltas en el mes)x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección Gerencial del Instituto Murciano de Acci�n Social.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36500&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 Servicio Jurídico. Bastanteo de poderes. Se establece un plazo de emisión en 24 horas para el bastanteo de poderes.",
+    "formulas":[
+      "(Número mensual de bastanteos efectuados en el plazo comprometido / número mensual de bastanteos efectuados) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección Gerencial del Instituto Murciano de Acci�n Social.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36500&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"4 Servicio de Personal. Con una antelación mínima de 48 horas al acto de adjudicación de las listas de espera para la cobertura de puestos de trabajo, se avisará a los aspirantes por número de orden con un mensaje corto SMS al teléfono móvil proporcionado por el aspirante.",
+    "formulas":[
+      "(Número mensual de aspirantes contactados por SMS que se han enviado / Número de aspirantes que han proporcionado el número de móvil para esa convocatoria) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección Gerencial del Instituto Murciano de Acci�n Social.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36500&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"5 Servicio de Prevención de Riesgos Laborales y Régimen Interior. Información general. Se valorará la calidad y satisfacción del servicio mediante encuesta. En dicha encuesta la puntuación de la satisfacción, medida en una escala de 0 al 10, será igual o superior al 7,5 en el cuestionario utilizado por las Oficinas Corporativas de Atención al Ciudadano de carácter general para la medición de la satisfacción de la ciudadanía Índice de satisfacción respecto de la atención recibida según el cuestionario utilizado, será ≥ de 7.5.",
+    "formulas":[
+      "El número de quejas anuales en relación al servicio será inferior a una por cada 100 personas atendidas. Número de quejas recibidas por cada 100 personas atendidas ≤ a 1."
+    ],
+    "organismo":"Carta de Servicios de la Dirección Gerencial del Instituto Murciano de Acci�n Social.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36500&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"6 Servicio de Prevención de Riesgos Laborales y Régimen Interior. Registro y expedición de tasas, se valorará la calidad y satisfacción del servicio mediante encuesta. En dicha encuesta la puntuación de la satisfacción, medida en una escala de 0 al 10, será igual o superior al 7,5 en el cuestionario utilizado por las Oficinas Corporativas de Atención al Ciudadano para la medición de la satisfacción del ciudadano. Índice de satisfacción respecto de la atención recibida según el cuestionario, será ≥ de 7.5.",
+    "formulas":[
+      "El número de quejas anuales en relación al servicio será inferior a una por cada 100 personas atendidas. Número de quejas recibidas por cada 100 personas atendidas ≤ a 1."
+    ],
+    "organismo":"Carta de Servicios de la Dirección Gerencial del Instituto Murciano de Acci�n Social.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36500&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"1 Tiempo máximo de espera en el servicio de préstamo, 10 minutos",
+    "formulas":[
+      "(Número mensual de de tiempos de espera <= 10 / Número de préstamos realizadas en el mes) X 100= 100."
+    ],
+    "organismo":"Carta de Servicios de la Biblioteca Regional de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36444&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 Actualización de información en el sitio web de la Biblioteca, www.bibliotecaregional.carm.es se hará en un plazo máximo de 3 días.",
+    "formulas":[
+      "(Número mensual de actuaciones realizadas en el plazo comprometido / Número de actuaciones realizadas en el mes) X 100= 100."
+    ],
+    "organismo":"Carta de Servicios de la Biblioteca Regional de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36444&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 Renovación de la colección en un 4 % anual sobre el total.",
+    "formulas":[
+      "(Número de fondos de la colección renovados en el año / Numero de fondos al final del año >= 4%."
+    ],
+    "organismo":"Carta de Servicios de la Biblioteca Regional de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36444&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"4 Las solicitudes de información presencial se responden en el plazo máximo de 15 minutos.",
+    "formulas":[
+      "(Número mensual de solicitudes de información respondidas en el plazo comprometido / Número mensual de solicitudes de información) X 100= 100."
+    ],
+    "organismo":"Carta de Servicios de la Biblioteca Regional de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36444&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"5 Las solicitudes de información vía electrónica se responden en el plazo máximo de 2 días laborables.",
+    "formulas":[
+      "(Número mensual de solicitudes de información respondidas en el plazo comprometido / Número mensual de solicitudes de información) X 100= 100."
+    ],
+    "organismo":"Carta de Servicios de la Biblioteca Regional de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36444&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"6 Servir las colecciones de depósito, es decir, no accesibles al público, en un máximo de 15 minutos.",
+    "formulas":[
+      "(Número colecciones mensuales servidas en el plazo comprometido / Número de colecciones mensuales servidas) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Biblioteca Regional de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36444&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"7 Las sugerencias y reclamaciones presentadas por escrito se tramitarán en el plazo máximo de 15 días, dándose traslado de las mismas al Servicio de Atención al Ciudadano.",
+    "formulas":[
+      "(Número mensual de sugerencias - reclamaciones tramitadas en el plazo / Número mensual de sugerencias - reclamaciones) X 100= 100."
+    ],
+    "organismo":"Carta de Servicios de la Biblioteca Regional de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36444&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"8 Tramitar las solicitudes de préstamo interbibliotecario en un máximo de 5 días.",
+    "formulas":[
+      "(Número de solicitudes mensuales de préstamo tramitadas en el plazo comprometido / Número mensual de solicitudes de préstamo tramitadas ) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Biblioteca Regional de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36444&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"9 Programar y realizar más de 200 actividades de animación a la lectura anuales.",
+    "formulas":[
+      "Número de actividades de animación a la lectura programadas y realizadas anualmente mayor o igual a 200."
+    ],
+    "organismo":"Carta de Servicios de la Biblioteca Regional de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36444&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"10 Colocación de obras devueltas en el plazo máximo de una hora y media",
+    "formulas":[
+      "(Número mensual de obras colocadas en el plazo comprometido / Número mensual de obras devueltas ) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Biblioteca Regional de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36444&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"1 Convocar los Premios al Mérito Deportivo en el mes de octubre de cada año, con el fin de que se realice su concesión antes de finalizar el mismo. http://carm.es/guiadeservicios (Nº 2061).",
+    "formulas":[
+      "(Número de premios convocados en el plazo comprometido/Número de premios convocados) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 Elaborar el listado de deportistas de alto rendimiento de la Región de Murcia antes de la finalización del primer trimestre de cada año, a propuesta de la Comisión de Deportistas de Alto Rendimiento de la Región de Murcia. http://carm.es/guiadeservicios.es (Nº 1220).",
+    "formulas":[
+      "(Número de listados elaborados en el plazo comprometido/Número de listados elaborados) x 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 Expedición de certificados de deportistas de alto rendimiento para su reconocimiento escolar y universitario en el plazo máximo de cinco días. http://carm.es/guiadeservicios.es (Nº 1223).",
+    "formulas":[
+      "(Número de certificados mensuales expedidos en el plazo comprometido/Número de certificados mensuales expedidos) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"4 Inscribir en el Registro de Formación Deportivas de la Región de Murcia los diplomas presentados por las Federaciones Deportivas en el plazo de un mes desde la presentación de la documentación de evaluación. http://carm.es/guiadeservicios (Nº 1166).",
+    "formulas":[
+      "(Número de diplomas mensuales expedidos en el plazo comprometido/Número de diplomas mensuales expedidos) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"5 Reconocer las actividades de formación deportiva realizadas por las Federaciones Deportivas en el plazo de 15 días desde la presentación de los documentos de evaluación. http://carm.es/guiadeservicios.es (Nº 1167).",
+    "formulas":[
+      "(Número de actividades mensuales de formación reconocidas en el plazo comprometido / Número de resoluciones mensuales de reconocimiento ) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"6 Organizar a demanda de las Federaciones Deportivas el bloque común de los cursos oficiales de formación de técnicos deportivos en el plazo de tres meses.",
+    "formulas":[
+      "(Número de bloques de formación organizados en el plazo comprometido / Número de bloques solicitados) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"7 Tramitar y desarrollar la convocatoria anual de Deporte en Edad Escolar durante el mes de julio de cada año.",
+    "formulas":[
+      "Convocatorias propuestas en el plazo comprometido = 1."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"8 Establecer ayudas de concesión directa a Federaciones Deportivas de la Región de Murcia durante el primer trimestre de cada año.",
+    "formulas":[
+      "(Número de ayudas de concesión directa publicadas en plazo comprometido / Número de ayudas de concesión directa publicadas ) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"9 Convocar subvenciones a Clubes y Entidades Deportivas de la Región de Murcia durante el primer trimestre de cada año.",
+    "formulas":[
+      "(Número de convocatorias de ayudas a clubes en plazo / Número de convocatorias realizadas) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"10 Convocar becas a deportistas de alto rendimiento de la Región de Murcia durante el primer trimestre de cada año.",
+    "formulas":[
+      "(Número de convocatorias de becas en plazo comprometido / Número de convocatorias de becas realizadas ) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"11 Autorizar en el plazo de dos meses, y de forma anual, la relación de especialidades deportivas que proponen y desarrollan las Federaciones Deportivas de la Región de Murcia.",
+    "formulas":[
+      "(Número de especialidades autorizadas en plazo de dos meses / Número de especialidades autorizadas ) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"12 Autorizar en el plazo de tres meses la propuesta de reconocimiento de una nueva modalidad deportiva que realizan al menos un mínimo de cinco entidades deportivas.",
+    "formulas":[
+      "(Número de reconocimientos autorizadas en plazo / Número de solicitudes de reconocimiento) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"13 Remisión al Consejo Superior de Deportes de la documentación relativa a las actividades de formación reconocidas por la CARM a efectos de inscripción en el plazo de un mes desde la firma de la Resolución de reconocimiento.",
+    "formulas":[
+      "(Número de actividades reconocidas remitidas en plazo comprometido / número de resoluciones de reconocimiento) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"14 Validar la presentación de las memorias oficiales y programas de tecnificación anual de las federaciones deportivas de la Región de Murcia en el plazo de un mes.",
+    "formulas":[
+      "(Número de memorias validadas en plazo /Número de memorias validadas) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"15 Convocar al Comité de Disciplina Deportiva de la Región de Murcia a demanda o necesidad de los grupos de interés en un plazo máximo de quince días.",
+    "formulas":[
+      "(Número de convocatorias realizadas en plazo / Número de solicitudes de convocatorias ) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"16 Convocar a la Junta de Garantías Electorales de la Región de Murcia a demanda o necesidad de los grupos de interés en un plazo máximo de quince días.",
+    "formulas":[
+      "(Número convocatorias realizadas en plazo / Número convocatorias solicitadas ) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"17 Convocar a la Comisión de Deportistas de Alto Rendimiento durante los dos primeros meses de cada año.",
+    "formulas":[
+      "(Número convocatorias realizadas en plazo / Número convocatorias solicitadas ) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"18 Convocar al Comité de Deporte Universitario de la Región de Murcia durante el mes de septiembre de cada año.",
+    "formulas":[
+      "(Número convocatorias realizadas en plazo / Número convocatorias realizadas ) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"19 Convocar al Comité Regional de Deporte en Edad Escolar de la Región de Murcia a demanda o necesidad de los grupos de interés en un plazo máximo de quince días.",
+    "formulas":[
+      "(Número convocatorias en el plazo comprometido / Número convocatorias solicitadas) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"20 Convocar a la Comisión Antiviolencia en el Deporte de la Región de Murcia cada seis meses, o a demanda o necesidad de los grupos de interés en un plazo máximo de quince días.",
+    "formulas":[
+      "(Número convocatorias realizadas en plazo / Número convocatorias realizadas) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"21 Convocar al Consejo Asesor Regional del Deporte en el mes de diciembre de cada año, o a demanda o necesidad de los grupos de interés en un plazo máximo de quince días",
+    "formulas":[
+      "(Número convocatorias realizadas en el plazo comprometido / Número convocatorias solicitadas o realizadas) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"22 Iniciar y resolver los expedientes sancionadores de inspección deportiva en el plazo de cuatro meses.",
+    "formulas":[
+      "(Número de expedientes mensuales resueltos en plazo / Número de expedientes mensuales resueltos) x 10 0 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"23 Tramitar el alta en el Registro de Entidades Deportivas de la Región de Murcia de la constitución de un Club Deportivo en el plazo máximo de un mes. http://carm.es/guiadeservicios (Nº 2044).",
+    "formulas":[
+      "(Número de clubes inscritos mensualmente en el registro en el plazo comprometido / Número mensual de clubes registrados ) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"24 Tramitar la modificación de estatutos sociales de un Club Deportivo en el Registro de Entidades Deportivas en el plazo máximo de quince días. http://carm.es/guiadeservicios (Nº 2058).",
+    "formulas":[
+      "(Número mensual de estatutos de clubes modificados e inscritos en el plazo comprometido / Número mensual de modificaciones registradas) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"25 Tramitar el alta en el Registro de Entidades Deportivas de la constitución de una Entidad de Promoción y Recreación Deportiva en el plazo máximo de un mes. http://carm.es/guiadeservicios (Nº 2060).",
+    "formulas":[
+      "(Número mensual de entidades creadas en el plazo comprometido / Número mensual de entidades registradas) x 100=100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"26 Tramitar la modificación de estatutos sociales de una Entidad de Promoción y Recreación Deportiva en el Registro de Entidades Deportivas en el plazo máximo de quince días.",
+    "formulas":[
+      "(Número mensual de entidades modificadas en el plazo comprometido / Número mensual de modificaciones registradas) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"27 Tramitar el alta en el Registro de Entidades Deportivas de la constitución de una Sociedad Anónima Deportiva en el plazo máximo de un mes.",
+    "formulas":[
+      "(Número mensual de sociedades creadas en el plazo comprometido / Número mensual de sociedades registradas) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"28 Tramitar la modificación de estatutos sociales de una Sociedad Anónima Deportiva en el plazo máximo de quince días.",
+    "formulas":[
+      "(Número mensual de estatutos de sociedades modificados en el plazo comprometido / Número mensual de modificaciones registradas) x 100=100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"29 Tramitar el alta en el Registro de Entidades Deportivas de la constitución de una Federación Deportiva en el plazo máximo de tres meses.",
+    "formulas":[
+      "(Número de federaciones creadas en el plazo comprometido /Número federaciones registradas) x 100=100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"30 Tramitar la modificación de estatutos sociales de una Federación Deportivo en el plazo máximo de dos meses. http://carm.es/guiadeservicios (Nº 2068).",
+    "formulas":[
+      "(Número estatutos de federaciones modificados en el plazo comprometido / Número modificaciones registradas) x 100=100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"31 Expedir certificaciones del Registro de Entidades Deportivas de la Región de Murcia en un plazo de cinco días a petición de los interesados a requerimiento de clubes, federaciones o instituciones públicas.",
+    "formulas":[
+      "(Número mensual de certificaciones expedidas en el plazo comprometido / Número certificaciones expedidas) x 100=100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"32 Ejecutar el 100 de las subvenciones autorizadas para instalaciones deportivas a ayuntamientos de la Región de Murcia para el fomento de la actividad física y el deporte cada año.",
+    "formulas":[
+      "(Importe crédito total concedido / Importe crédito autorizado) x 100=100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"33 Elaborar el Censo de Instalaciones Deportivas de la Región de Murcia en el próximo ejercicio y actualización permanente y constante del mismo.",
+    "formulas":[
+      "(Número total de instalaciones censadas en el plazo comprometido / Número de instalaciones censadas) x 100=100.",
+      "(Número de controles de calidad de instalaciones realizadas anualmente / Número total de instalaciones) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"34 Registrar las instalaciones deportivas de la Región de Murcia y actualización permanente y constante.",
+    "formulas":[
+      "(Número de instalaciones registradas y actualizadas anualmente / Número total de instalaciones) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"35 Emitir los informes preceptivos a terceros en materia de instalaciones deportivas en el plazo de veinte días.",
+    "formulas":[
+      "(Número mensual de informes emitidos en el plazo comprometido / Número mensual de informes emitidos) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36535&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"1 Actualizar la Web con la Normativa Estatal, Autonómica y de la Unión Europea en un plazo máximo de cuatro días desde su publicación en los Boletines y Diarios Oficiales.",
+    "formulas":[
+      "(Número de actualizaciones realizadas en el mes, en el plazo de cuatro días / Número total de actualizaciones de novedades legislativas en el mes) x 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Centro de Documentaci�n e Informaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36554&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 Informar en la Web de convocatorias de empleo público de interés para los ciudadanos en el plazo de 24 horas desde su publicación en sus respectivos Boletines y Diarios Oficiales.",
+    "formulas":[
+      "(Número de convocatorias publicadas en la Web en el mes, en el plazo comprometido / Número de convocatorias publicada en el mes en la Web) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Centro de Documentaci�n e Informaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36554&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 Difundir los Boletines mensuales de Normativa Legislativa y Convocatoria de Programas y Ayudas de la Unión Europea, en un plazo no superior a diez días después de la finalización del mes correspondiente a su publicación.",
+    "formulas":[
+      "(Número de boletines publicados en el mes en el plazo comprometido / Número de boletines publicados en el mes) x 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Centro de Documentaci�n e Informaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36554&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"4 Difundir los Boletines de Sumarios de la Colección General y de la Unión Europea en un plazo no superior a diez días, tras finalizar el mes de su publicación.",
+    "formulas":[
+      "(Número de boletines realizados mensualmente en el plazo comprometido / Número de boletines publicados en el mes) plazo x 100."
+    ],
+    "organismo":"Carta de Servicios del Centro de Documentaci�n e Informaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36554&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"5 Atender las consultas de información al CEDI en un plazo no superior a 3 días.",
+    "formulas":[
+      "(Número de consultas resueltas en el plazo de 3 días de las peticiones mensuales de información / Número mensual de peticiones de información) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Centro de Documentaci�n e Informaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36554&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"1 Servicio de Asesoramiento a Entidades Locales: Atender, en un plazo máximo de 3 días hábiles, las consultas de interés local que se remitan por los Ayuntamientos y otras Administraciones Públicas, de forma telefónica o por correo electrónico, y que no requieran de informe escrito.",
+    "formulas":[
+      "(Número de consultas recibidas mensuales y resueltas en el plazo máximo de 3 días hábiles / Número total de consultas resueltas mensualmente) x 100 =100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Administraci�n Local y Relaciones Institucionales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36534&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 Servicio de Asesoramiento a Entidades Locales: Mantener permanentemente actualizados a los Ayuntamientos sobre las novedades normativas de carácter estatal y/o autonómico, con mayor repercusión en el ámbito local dentro, como máximo, de los 10 días hábiles siguientes a su publicación.",
+    "formulas":[
+      "(Número total de correos enviados mensualmente en un plazo máximo de 10 días hábiles / Número total de normas publicadas en el mes en curso) x 100 =100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Administraci�n Local y Relaciones Institucionales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36534&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 Servicio de Asesoramiento a Entidades Locales: Resolver y notificar a las Entidades Locales de la CARM, en un plazo máximo de 60 días naturales, las solicitudes de autorización y de toma de conocimiento para la enajenación, permuta, gravamen o cesiones gratuitas de bienes inmuebles propiedad de las mismas, siempre y cuando obre íntegramente en el expediente la documentación necesaria.",
+    "formulas":[
+      "(Número de Resoluciones notificadas en el mes en el plazo comprometido / Número de solicitudes recibidas en el mes en curso) X 100) = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Administraci�n Local y Relaciones Institucionales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36534&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"4 Servicio de Asesoramiento a Entidades Locales: Tramitar y resolver en un plazo máximo de 75 días naturales, los expedientes en relación a la creación, clasificación y supresión de puestos reservados a funcionarios con habilitación de carácter nacional, siempre y cuando obre íntegramente en el expediente la documentación necesaria",
+    "formulas":[
+      "(Número de expedientes resueltos mensualmente en el plazo comprometido / Número total de expedientes resueltos en el mes en curso) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Administraci�n Local y Relaciones Institucionales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36534&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"5 Servicio de Asesoramiento a Entidades Locales: Tramitar y resolver en un plazo máximo de 60 días naturales, los expedientes relativos a provisión de puestos de trabajo reservados a funcionarios con habilitación de carácter nacional mediante nombramientos provisionales y provisionales excepcionales, siempre y cuando obren en el expediente los informes favorables necesarios.",
+    "formulas":[
+      "(Número de expedientes resueltos en el mes en el plazo comprometido / Número total de expedientes resueltos en el mes en curso) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Administraci�n Local y Relaciones Institucionales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36534&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"6 Servicio de Asesoramiento a Entidades Locales: Tramitar y resolver en un plazo máximo de 30 días naturales, los expedientes relativos a provisión de puestos de trabajo reservados a funcionarios con habilitación de carácter nacional mediante comisiones de servicio, siempre y cuando obren en el expediente los informes favorables necesarios.",
+    "formulas":[
+      "(Número de expedientes resueltos en el mes en el plazo comprometido / Número total de expedientes resueltos en el mes en curso) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Administraci�n Local y Relaciones Institucionales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36534&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"7 Servicio de Asesoramiento a Entidades Locales: Tramitar y resolver en un plazo máximo de 30 días naturales, los expedientes relativos a provisión de puestos de trabajo reservados a funcionarios con habilitación de carácter nacional, mediante nombramientos interinos, siempre y cuando obren en el expediente los informes favorables necesarios.",
+    "formulas":[
+      "(Número de expedientes resueltos en el mes en el plazo comprometido / Número total de expedientes resueltos en el mes en curso) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Administraci�n Local y Relaciones Institucionales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36534&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"8 Servicio de Asesoramiento a Entidades Locales: Tramitar y resolver en un plazo máximo de 30 días naturales, los expedientes relativos a provisión de puestos de trabajo reservados a funcionarios con habilitación de carácter nacional mediante permuta, siempre y cuando obren en el expediente los informes favorables necesarios.",
+    "formulas":[
+      "(Número de expedientes resueltos en el mes en el plazo comprometido / Número total de expedientes resueltos en el mes en curso) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Administraci�n Local y Relaciones Institucionales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36534&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"9 Servicio de Asesoramiento a Entidades Locales: Tramitar y resolver en un plazo máximo de 30 días naturales, los expedientes relativos a provisión de puestos de trabajo reservados a funcionarios con habilitación de carácter nacional mediante acumulación, siempre y cuando obren en el expediente los informes favorables necesarios.",
+    "formulas":[
+      "(Número de expedientes resueltos en el mes en el plazo comprometido / Número total de expedientes resueltos en el mes en curso) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Administraci�n Local y Relaciones Institucionales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36534&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"10 Servicio de Asistencia Técnica a Municipios: Evacuar, en un plazo máximo de 25 días hábiles, informes de supervisión de proyectos de obras que hayan de incluirse en los diferentes Planes de Cooperación Local y de proyectos de obras promovidos por Entidades Locales que carezcan de Oficinas o Unidades Técnicas competentes.",
+    "formulas":[
+      "(Número de informes emitidos en el mes en el plazo comprometido / Número total de informes emitidos en el mes en curso) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Administraci�n Local y Relaciones Institucionales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36534&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"11 Servicio de Asistencia Técnica a Municipios: Atender, en un plazo máximo de 3 días hábiles, las consultas sobre los diferentes aspectos técnicos de proyectos, direcciones y ejecuciones de obra.",
+    "formulas":[
+      "(Número de consultas atendidas en el mes en el plazo comprometido / Número total de consultas atendidas en el mes en curso) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Administraci�n Local y Relaciones Institucionales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36534&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"12 Servicio de Cooperación Económico Local: Enviar recordatorios, dentro de los 45 días naturales previos al vencimiento de los plazos establecidos en los procedimientos de concesión de subvenciones.",
+    "formulas":[
+      "(Número de recordatorios enviados en el mes en el plazo comprometido / Número total de recordatorios enviados en el mes en curso) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Administraci�n Local y Relaciones Institucionales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36534&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"13 Servicio de Cooperación Económico Local: Ofrecer información ágil y útil a las Entidades Locales, dentro de los 15 días naturales previos a la concesión de subvenciones para Planes de cooperación.",
+    "formulas":[
+      "(Número de informaciones proporcionadas en el mes en las condiciones comprometidas / Número total de subvenciones convocadas y comunicadas en el mes en curso) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Administraci�n Local y Relaciones Institucionales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36534&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"14 Servicio de Cooperación Económico Local: Atender, en un plazo máximo de 3 días hábiles, las consultas de interés local que se remitan por los Ayuntamientos u otras Administraciones Públicas, de forma telefónica o por correo electrónico y que no requieran de informe escrito.",
+    "formulas":[
+      "(Número de consultas recibidas y atendidas en el plazo máximo de 3 días hábiles/ Número total de consultas atendidas mensualmente) x 100= 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Administraci�n Local y Relaciones Institucionales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36534&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"1 Mantener un porcentaje de quejas anuales inferior al 5% con respecto al número de usuarios atendidos en todos los servicios objeto de la Carta de Servicios.",
+    "formulas":[
+      "(Número de quejas recibidas / número de usuarios atendidos por los servicios en el mismo periodo de tiempo) X 100 ≤5"
+    ],
+    "organismo":"Carta de Servicios del Servicio de Planificaci�n y Programas de Juventud",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36428&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 Obtener un grado de satisfacción medio de los usuarios, igual o superior a 3 sobre 5, de las encuestas de satisfacción de los servicios que recoge la presente Carta.",
+    "formulas":[
+      "Valor medio de todos los ítems de las encuestas obtenidas, será superior a 3 sobre 5."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Planificaci�n y Programas de Juventud",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36428&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 Comunicar al 100 % de las solicitudes de participantes en cursos o actividades organizadas por la Dirección General, la situación de su solicitud en un plazo inferior a 5 días hábiles tras el cierre del plazo de inscripción.",
+    "formulas":[
+      "(Número de comunicaciones efectuadas en el plazo comprometido / número de comunicaciones totales realizadas ) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Servicio de Planificaci�n y Programas de Juventud",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36428&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"4 Comunicar al 100 % de las solicitudes la confirmación de su inscripción en el programa Eurodisea en menos de 10 días hábiles tras su presentación.",
+    "formulas":[
+      "(Número de comunicaciones del programa Eurodisea efectuadas en el plazo comprometido / número de solicitudes totales del programa Eurodisea) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Servicio de Planificaci�n y Programas de Juventud",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36428&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"5 Informar al 100 % de los jóvenes inscritos en el programa Eurodisea, al menos trimestralmente, sobre la situación de su solicitud.",
+    "formulas":[
+      "(Número de jóvenes informados trimestralmente / número de jóvenes inscritos en el programa Eurodisea) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Servicio de Planificaci�n y Programas de Juventud",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36428&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"6 Dar respuesta inmediata al 100 % de las solicitudes presenciales de carnés internacionales para jóvenes.",
+    "formulas":[
+      "(Número mensual de solicitudes presenciales de carnés para jóvenes realizada sen plazo / número de carnés totales realizados) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Planificaci�n y Programas de Juventud",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36428&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"7 Resolver, en un plazo máximo de 3 meses, las solicitudes de reconocimiento de las Escuelas de Animación y Educación en el Tiempo Libre de la Comunidad Autónoma de la Región de Murcia.",
+    "formulas":[
+      "(Número de solicitudes resueltas en el plazo comprometido / número de solicitudes de reconocimiento totales recibidas) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Planificaci�n y Programas de Juventud",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36428&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"8 Homologar en un plazo máximo de 2 meses desde la presentación de la solicitud los cursos de Animación y Tiempo Libre.",
+    "formulas":[
+      "(Número mensual de homologaciones realizadas en el plazo comprometido / número mensual de solicitudes totales realizadas) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Planificaci�n y Programas de Juventud",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36428&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"9 Realizar anualmente un estudio de satisfacción que nos permita conocer la opinión de la ciudadanía sobre los servicios ofrecidos publicándose los resultados de dicho estudio en el portal de atención a la ciudadanía de la CARM.",
+    "formulas":[
+      "Publicación anual (diciembre) de resultados de estudios de satisfacción."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Planificaci�n y Programas de Juventud",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36428&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"1 Resolver los expedientes de subvención en el plazo máximo de tres meses contados desde la fecha de cierre establecida en la convocatoria abierta.",
+    "formulas":[
+      "(Número de expedientes de subvención resueltos en tres meses / número total de expedientes de subvención) X 100 =100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Trabajo",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36422&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 Registrar la constitución de una sociedad cooperativa o la calificación de laboral de una sociedad limitada o anónima, en el plazo máximo de 1 mes desde la solicitud del interesado o subsanación de la solicitud, en su caso.",
+    "formulas":[
+      "(Número de asientos registrales realizados en el plazo máximo de un mes desde su solicitud / número total de asientos registrales realizados) X 100 =100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Trabajo",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36422&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 Publicar en la página web corporativa los datos de ejecución del año, de los programas de subvenciones tramitados en el Servicio de Economía Social y de las inscripciones del Registro de Cooperativas y Sociedades Laborales, dentro de los 2 primeros meses del año siguiente.",
+    "formulas":[
+      "(Número de publicaciones de datos sobre ejecución realizadas en los 2 meses primeros del año / Número total de publicaciones realizadas en el año) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Trabajo",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36422&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"4 Entregar copias y certificados de los actos registrados en el Registro de Cooperativas y Sociedades Laborales en un plazo máximo de 5 días hábiles desde su solicitud.",
+    "formulas":[
+      "(Número de copias-certificados entregados en 5 días hábiles / Número total de copias y certificados solicitados) X 100 =100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Trabajo",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36422&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"5 Actualizar mensualmente en la Web corporativa la información de las Entidades Auditoras de los sistemas de prevención y de las empresas inscritas en el RERA, y en la aplicación SERPA la información de los Servicios de Prevención Ajenos.",
+    "formulas":[
+      "(Número de actualizaciones realizadas / Numero total de actualizaciones autorizadas) X 100 =100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Trabajo",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36422&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"6 Actualizar mensualmente en la pagina WEB corporativa los distintos procedimientos competencia de este Servicio de Normas Laborales y Sanciones, así como los modelos normalizados de documentos de solicitud, comunicación, etc.",
+    "formulas":[
+      "(Número de Actualizaciones realizadas/ número de actualizaciones autorizadas) X 100=100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Trabajo",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36422&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"7 Habilitar los libros de subcontratación en el plazo de dos días hábiles.",
+    "formulas":[
+      "(Libros de subcontratación habilitados/ Libros recibidos en la Dirección General de Trabajo para su habilitación) X 100 =100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Trabajo",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36422&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"8 Publicar mensualmente los resúmenes estadísticos de siniestralidad laboral (RESL) antes del día 20 de cada mes.",
+    "formulas":[
+      "(Número de RESL publicados antes del día 20 de cada mes/número total de RESL publicados) x 100 =100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Trabajo",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36422&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"9 Publicar anualmente las estadísticas de siniestralidad laboral de la Región de Murcia antes del mes de Septiembre de cada año.",
+    "formulas":[
+      "(Número de estadísticas de siniestralidad laboral de la Región de Murcia publicadas antes del mes de septiembre de cada año/ Número total de estadísticas publicadas) X 100 =100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Trabajo",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36422&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"10 Realizar siete acciones formativas en materia de seguridad y salud laboral en el presente ejercicio.",
+    "formulas":[
+      "(Número de acciones formativas realizadas en el presente ejercicio/ número total de acciones formativas ofertadas) X 100 =100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Trabajo",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36422&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"11 Responder las consultas técnicas relativas a PRL formuladas por escrito en un plazo máximo de 4 días laborables.",
+    "formulas":[
+      "(Número de consultas atendidas en un plazo máximo de 4 días laborables / número de consultas recibidas) X 100 =100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Trabajo",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36422&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"12 Investigar los accidentes de trabajo (AT) graves, muy graves y mortales (exceptuando los de tráfico, in itinere y patologías no traumáticas) y las enfermedades profesionales (EP) del grupo 6, notificados a través de las aplicaciones Delta y Cepross.",
+    "formulas":[
+      "(Número de AT y EP investigados/número total de AT y EP notificados) X 100=100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Trabajo",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36422&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"13 Analizar las muestras por parte del laboratorio de Higiene Industrial y Salud Laboral en un plazo máximo de 20 días laborables.",
+    "formulas":[
+      "(Número de análisis de muestra realizados en un plazo inferior o igual a 20 días laborables/número total de muestras analizado) X 100 =100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Trabajo",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36422&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"14 Celebrar el acto conciliación dentro de 14 días hábiles desde su solicitud por escrito.",
+    "formulas":[
+      "(Número de conciliaciones celebradas en 14 días desde su solicitud por escrito/ numero total de conciliaciones solicitadas) X 100 =100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Trabajo",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36422&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"15 Notificar por vía telemática las resoluciones (positiva o de subsanación) en materia de elecciones sindicales dentro de las 48 horas siguientes a la recepción de las solicitudes.",
+    "formulas":[
+      "(Número de notificaciones telemáticas realizadas en 48 horas / número total de notificaciones telemáticas realizadas) X 100 =100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Trabajo",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36422&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"16 Notificar por vía telemática las resoluciones en materia de registro de estatutos de organizaciones profesionales dentro del plazo de 15 días naturales.",
+    "formulas":[
+      "(Número de notificaciones telemáticas realizadas en 15 días naturales/ número total de notificaciones telemáticas realizadas) X 100 =100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Trabajo",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36422&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"17 Responder por escrito, o comunicar información sobre cualquier solicitud recibida en el Servicio de Relaciones Laborales en el plazo de 10 días hábiles.",
+    "formulas":[
+      "(Número de contestaciones, enviadas en diez días hábiles / número total de contestaciones enviadas) X 100 =100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Trabajo",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36422&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"1 Incorporación anual de 20 000 registros al catálogo en línea del Archivo General",
+    "formulas":[
+      "Nº de registros incorporados anualmente al catálogo en línea >= 20 000"
+    ],
+    "organismo":"Carta de Servicios del Archivo General de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36437&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 Respuesta al 100% de las consultas de los usuarios, en el plazo máximo de 15 días desde su recepción en el Archivo",
+    "formulas":[
+      "(Nº de respuestas mensuales a las consultas realizadas en el plazo comprometido/ Nº total de respuestas mensuales realizadas) x 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Archivo General de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36437&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 Entrega al usuario en la sala de investigación del 100% de los documentos solicitados en el plazo máximo de 20 minutos",
+    "formulas":[
+      "(Nº de solicitudes mensuales de documentos entregados a consulta en el plazo comprometido inferior o igual a 20 minutos/ Nº mensual de solicitudes de documentos) x 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Archivo General de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36437&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"4 Entrega del 100% de las reproducciones de documentos en el plazo máximo de 30 días, si la petición no supera las 100 imágenes",
+    "formulas":[
+      "(Nº de solicitudes mensuales de reproducciones documentos entregados en el plazo igual o inferior a 30 días/ Nº mensual de solicitudes de reproducciones de documentos) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Archivo General de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36437&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"5 Entrega del 100% de las copias auténticas o certificaciones de documentos conservados en el Archivo en el plazo de 15 días",
+    "formulas":[
+      "(Nº de solicitudes mensuales de copias autenticas o certificaciones entregadas en el plazo comprometido inferior o igual 15 días/ Nº mensual de solicitudes de copias autenticas o certificaciones entregadas) x 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Archivo General de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36437&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"6 Obtención en las encuestas sobre el uso de la sala de investigación de una media de satisfacción del usuario de 3,6 sobre 4",
+    "formulas":[
+      "Media anual de la satisfacción del usuario de sala de investigación en las encuestas > = 3,6 sobre 4"
+    ],
+    "organismo":"Carta de Servicios del Archivo General de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36437&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"7 Obtención en las encuestas sobre las actividades culturales de una media de satisfacción del usuario de 3,6 sobre 4",
+    "formulas":[
+      "Media anual de la satisfacción del usuario de actividades culturales en las encuestas > = 3,6 sobre 4"
+    ],
+    "organismo":"Carta de Servicios del Archivo General de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36437&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"1 (Servicio Jurídico):.- El plazo de realización del bastanteo de poderes será de 1 día a contar desde su solicitud y haber abonado la tasa.",
+    "formulas":[
+      "(Número de bastanteos mensuales efectuados en el plazo comprometido / Número bastanteo realizados en el mes) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Secretar�a General de la Consejer�a de Econom�a y Hacienda.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36355&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 (Servicio Jurídico): El plazo máximo para la resolución de reclamaciones previas a la vía jurisdiccional civil sería de 1 mes (plazo legal 3 meses) y en la laboral en el plazo de 20 días (plazo legal 1 mes).",
+    "formulas":[
+      "(Número de resoluciones de reclamaciones mensuales efectuados en el plazo comprometido / Número mensual de resoluciones de reclamaciones efectuadas X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Secretar�a General de la Consejer�a de Econom�a y Hacienda.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36355&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 (Servicio Jurídico): Resolución de las reclamaciones económico administrativas en el plazo máximo de 6 meses.",
+    "formulas":[
+      "(Número de reclamaciones mensuales resueltas en el plazo comprometido / Número de reclamaciones resueltas en el mes) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Secretar�a General de la Consejer�a de Econom�a y Hacienda.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36355&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"4 (Servicio de Contratación): En relación con los contratos a convocar, sujetos a \"regulación armonizada\", se publicará, en todo caso, un \"anuncio previo\".",
+    "formulas":[
+      "(Número de contratos mensuales tramitados sujetos a \"regulación armonizada que figuran en un \"anuncio previo\" / Número mensual de ellos tramitados\") X 100= 100"
+    ],
+    "organismo":"Carta de Servicios de la Secretar�a General de la Consejer�a de Econom�a y Hacienda.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36355&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"5 (Junta Regional de Contratación Administrativa): Las solicitudes para la. Clasificación de Empresas serán resueltas en el plazo máximo de 90 días (Plazo legal 6 meses)",
+    "formulas":[
+      "(Número de expedientes resueltos en el plazo comprometido / Número mensual de clasificaciones de empresas efectuadas) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Secretar�a General de la Consejer�a de Econom�a y Hacienda.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36355&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"6 (Junta Regional de Contratación Administrativa): La inscripción en el Registro de Licitadores tendrá lugar en el plazo máximo de 45 días (plazo legal 3 meses)",
+    "formulas":[
+      "(Número de inscripciones mensuales efectuados en el plazo comprometido / Número mensual de inscripciones efectuadas) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Secretar�a General de la Consejer�a de Econom�a y Hacienda.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36355&IDTIPO=11&RASTRO=c672$m26661"
+  },
+    {  
+    "descripcion":"En los servicios de información (excepto información telefónica y contestación por correo electrónico) el tiempo medio mensual de espera será inferior a 14 minutos, con un tiempo máximo de espera que no superará 25 minutos.",
+    "formulas":[  
+      "(Tiempo acumulado de espera mensual de personas atendidas / Nº de personas atendidas en el mes) ≤ 14 minutos.",
+      "Tiempo de espera de las personas atendidas > 25 minutos"
+    ],
+    "organismo":"Carta de Servicios de la Agencia Tributaria de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36320&IDTIPO=11&RASTRO=c672$m26661",
+    "partes":[  
+      [  
+        "Tiempo acumulado de espera mensual de personas atendidas",
+        "Nº de personas atendidas en el mes ≤ 14 minutos."
+      ],
+      [  
+        "Tiempo de espera de las personas atendidas > 25 minutos"
+      ]
+    ],
+    "i":1,
+    "uid":"636-1"
+  },
+  {  
+    "descripcion":"En los servicios de información (excepto información telefónica y contestación por correo electrónico) el Nivel de Satisfacción Global obtenido de la Encuesta mensual de Satisfacción presencial será superior a 2,3 sobre una puntuación total de 3.",
+    "formulas":[  
+      "Nivel mensual de Satisfacción Global ≥ 2,3 sobre 3."
+    ],
+    "organismo":"Carta de Servicios de la Agencia Tributaria de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36320&IDTIPO=11&RASTRO=c672$m26661",
+    "partes":[  
+      [  
+        "Nivel mensual de Satisfacción Global ≥ 2,3 sobre 3"
+      ]
+    ],
+    "i":2,
+    "uid":"636-2"
+  },
+  {  
+    "descripcion":"La contestación por correo electrónico a las consultas de contribuyentes y profesionales (consultas INFOTRIB) se realizará en un plazo máximo de 7 días naturales.",
+    "formulas":[  
+      "(Nº mensual de consultas INFOTRIB contestadas en plazo inferior a 7 días naturales / Nº mensual de consultas contestadas) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Agencia Tributaria de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36320&IDTIPO=11&RASTRO=c672$m26661",
+    "partes":[  
+      [  
+        "Nº mensual de consultas INFOTRIB contestadas en plazo inferior a 7 días naturales",
+        "Nº mensual de consultas contestadas"
+      ]
+    ],
+    "i":3,
+    "uid":"636-3"
+  },
+  {  
+    "descripcion":"En los servicios de ayuda para el cumplimiento de las obligaciones tributarias (excepto INCIDENCIAS PACO y el servicio de Prevaloraciones) el Nivel de Satisfacción Global obtenido de la Encuesta mensual de Satisfacción presencial será superior a 2,3 sobre una puntuación total de 3.",
+    "formulas":[  
+      "Nivel mensual de Satisfacción Global ≥ 2,3 sobre 3."
+    ],
+    "organismo":"Carta de Servicios de la Agencia Tributaria de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36320&IDTIPO=11&RASTRO=c672$m26661",
+    "partes":[  
+      [  
+        "Nivel mensual de Satisfacción Global ≥ 2,3 sobre 3."
+      ]
+    ],
+    "i":4,
+    "uid":"636-4"
+  },
+  {  
+    "descripcion":"El tiempo medio mensual de realización de las prevaloraciones será inferior a 20 días. Ninguna prevaloración se realizará en tiempo superior a 45 días.",
+    "formulas":[  
+      "(Tiempo mensual empleado en las prevaloraciones / Nº de prevaloraciones mensuales realizadas) < 20 días.",
+      "(Nº de prevaloraciones mensuales en tiempo inferior a 45 días / Nº de prevaloraciones mensuales realizadas) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Agencia Tributaria de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36320&IDTIPO=11&RASTRO=c672$m26661",
+    "partes":[  
+      [  
+        "Tiempo mensual empleado en las prevaloraciones",
+        "Nº de prevaloraciones mensuales realizadas"
+      ],
+      [  
+        "Nº de prevaloraciones mensuales en tiempo inferior a 45 días",
+        "Nº de prevaloraciones mensuales realizadas"
+      ]
+    ],
+    "i":5,
+    "uid":"636-5"
+  },
+  {  
+    "descripcion":"En el servicio de prevaloraciones el Nivel de Satisfacción Global obtenido de la Encuesta mensual de Satisfacción presencial será superior a 2,3 sobre una puntuación total de 3.",
+    "formulas":[  
+      "Nivel mensual de Satisfacción Global ≥ 2,3 sobre 3."
+    ],
+    "organismo":"Carta de Servicios de la Agencia Tributaria de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36320&IDTIPO=11&RASTRO=c672$m26661",
+    "partes":[  
+      [  
+        "Nivel mensual de Satisfacción Global ≥ 2,3 sobre 3."
+      ]
+    ],
+    "i":6,
+    "uid":"636-6"
+  },
+  {  
+    "descripcion":"El tiempo medio mensual de respuesta a las incidencias que se plantean en la herramienta PACO (INCIDENCIAS PACO) será de 2 días. Ninguna respuesta se realizará en plazo superior a 7 días.",
+    "formulas":[  
+      "(Tiempo mensual de respuesta de incidencias/Nº incidencias mensuales) ≤ 2 días",
+      "(Nº de respuestas mensuales (INCIDENCIAS PACO) en tiempo igual o inferior a 7 días/Nº mensual de respuestas) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Agencia Tributaria de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36320&IDTIPO=11&RASTRO=c672$m26661",
+    "partes":[  
+      [  
+        "Tiempo mensual de respuesta de incidencias",
+        "Nº incidencias mensuales ≤ 2 días"
+      ],
+      [  
+        "Nº de respuestas mensuales (INCIDENCIAS PACO) en tiempo igual o inferior a 7 días",
+        "Nº mensual de respuestas"
+      ]
+    ],
+    "i":7,
+    "uid":"636-7"
+  },
+  {  
+    "descripcion":"El tiempo medio en la resolución de los expedientes de devolución de ingresos indebidos medido mensualmente será inferior a 5 meses con un tiempo máximo de 6 meses.",
+    "formulas":[  
+      "(Tiempo mensual de devoluciones resueltas / Nº incidencias mensuales resueltas) ≤ 5 meses.",
+      "(Nº de expedientes de devolución en plazo igual o inferior a 180 días / Nº de expedientes de devolución tramitados) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Agencia Tributaria de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36320&IDTIPO=11&RASTRO=c672$m26661",
+    "partes":[  
+      [  
+        "Tiempo mensual de devoluciones resueltas",
+        "Nº incidencias mensuales resueltas",
+        "≤ 5 meses."
+      ],
+      [  
+        "Nº de expedientes de devolución en plazo igual o inferior a 180 días",
+        "Nº de expedientes de devolución tramitados",
+        "X 100",
+        "100."
+      ]
+    ],
+    "i":8,
+    "uid":"636-8"
+  },
+  {  
+    "descripcion":"El tiempo medio mensual por autorizar la instalación de máquinas recreativas en bares y cafeterías concedidas será menor a 23 días con un tiempo máximo de 30 días.",
+    "formulas":[  
+      "(Tiempo mensual de autorizaciones resueltas /Nº autorizaciones mensuales resueltas) ≤ 23 días",
+      "(Nº Autorizaciones mensuales en plazo inferior a 30 días/ Nº de autorizaciones mensuales realizadas) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Agencia Tributaria de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36320&IDTIPO=11&RASTRO=c672$m26661",
+    "partes":[  
+      [  
+        "Tiempo mensual de autorizaciones resueltas",
+        "Nº autorizaciones mensuales resueltas",
+        "≤ 23 días"
+      ],
+      [  
+        "Nº Autorizaciones mensuales en plazo inferior a 30 días",
+        "Nº de autorizaciones mensuales realizadas",
+        "X 100",
+        "100"
+      ]
+    ],
+    "i":9,
+    "uid":"636-9"
+  },
+  {  
+    "descripcion":"Tiempo medio mensual de canje de máquinas recreativas concedidas será menor a 11 días, pero no sobrepasará los 20 días.",
+    "formulas":[  
+      "(Tiempo mensual de canjes resueltas /Nº autorizaciones mensuales de canjes resueltas) ≤ 11 días",
+      "(Nº autorizaciones mensuales de canjes en plazo inferior a 20 días/ Nº de autorizaciones de canjes mensuales realizadas) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Agencia Tributaria de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36320&IDTIPO=11&RASTRO=c672$m26661",
+    "partes":[  
+      [  
+        "Tiempo mensual de canjes resueltas",
+        "Nº autorizaciones mensuales de canjes resueltas",
+        "≤ 11 días"
+      ],
+      [  
+        "Nº autorizaciones mensuales de canjes en plazo inferior a 20 días",
+        "Nº de autorizaciones de canjes mensuales realizadas",
+        "X 100",
+        "100"
+      ]
+    ],
+    "i":10,
+    "uid":"636-10"
+  },
+  {  
+    "descripcion":"En el servicio de juego el Nivel de Satisfacción Global obtenido de la Encuesta mensual de Satisfacción presencial será superior a 2,3 sobre una puntuación total de 3.",
+    "formulas":[  
+      "Nivel mensual de Satisfacción Global ≥ 2,1 sobre 3."
+    ],
+    "organismo":"Carta de Servicios de la Agencia Tributaria de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36320&IDTIPO=11&RASTRO=c672$m26661",
+    "partes":[  
+      [  
+        "Nivel mensual de Satisfacción Global ≥ 2,1 sobre 3."
+      ]
+    ],
+    "i":11,
+    "uid":"636-11"
+  },
+  {  
+    "descripcion":"Las reclamaciones y quejas serán tramitadas en un plazo de 15 días naturales al Servicio de Atención al Cliente.",
+    "formulas":[  
+      "(Nº de quejas tramitadas en plazo igual o inferior a 15 días naturales/ Nº de quejas tramitadas) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Agencia Tributaria de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36320&IDTIPO=11&RASTRO=c672$m26661",
+    "partes":[  
+      [  
+        "Nº de quejas tramitadas en plazo igual o inferior a 15 días naturales",
+        "Nº de quejas tramitadas",
+        "X 100",
+        "100."
+      ]
+    ],
+    "i":12,
+    "uid":"636-12"
+  },
+  {  
+    "descripcion":"Las solicitudes de exención o bonificación del Impuesto sobre Vehículos de Tracción Mecánica se resolverán en el plazo máximo de 30 días desde que el interesado aporte la documentación requerida.",
+    "formulas":[  
+      "(Número mensual de solicitudes resueltas en el plazo comprometido / Número mensual de solicitudes) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Agencia Tributaria de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36320&IDTIPO=11&RASTRO=c672$m26661",
+    "partes":[  
+      [  
+        "Número mensual de solicitudes resueltas en el plazo comprometido",
+        "Número mensual de solicitudes",
+        "X 100",
+        "100."
+      ]
+    ],
+    "i":13,
+    "uid":"636-13"
+  },
+  {  
+    "descripcion":"Los certificados de estar al corriente en el cumplimiento de las obligaciones tributarias con la Administración Regional se emitirán en el momento de la solicitud, siempre que se soliciten a través de la Web o en cualquiera de las Oficinas de la Agencia Tributaria.",
+    "formulas":[  
+      "(Número de certificados expedidos en el plazo comprometido / Número total de certificados solicitados) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Agencia Tributaria de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36320&IDTIPO=11&RASTRO=c672$m26661",
+    "partes":[  
+      [  
+        "Número de certificados expedidos en el plazo comprometido",
+        "Número total de certificados solicitados",
+        "X 100",
+        "100."
+      ]
+    ],
+    "i":14,
+    "uid":"636-14"
+  },
+  {  
+    "descripcion":"Los certificados catastrales emitidos desde los PIC (Puntos de Información Catastral) ubicados en las Oficinas de la Agencia tributaria se expedirán en el momento de su solicitud, siempre que se acredite la titularidad catastral.",
+    "formulas":[  
+      "(Nº mensual de certificados expedidos en el plazo comprometido / nº mensual de certificados) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Agencia Tributaria de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36320&IDTIPO=11&RASTRO=c672$m26661",
+    "partes":[  
+      [  
+        "Nº mensual de certificados expedidos en el plazo comprometido",
+        "Nº mensual de certificados",
+        "X 100",
+        "100."
+      ]
+    ],
+    "i":15,
+    "uid":"636-15"
+  },
+  {  
+    "descripcion":"Los certificados de estar al corriente en el pago del IBI (Impuesto sobre Bienes Inmuebles), necesarios para la trasmisión del inmueble, se emitirán en el momento de su solicitud para los contribuyentes que lo soliciten en cualquiera de las Oficinas de la Agencia Tributaria.",
+    "formulas":[  
+      "(Nº mensual de certificados expedidos en el plazo comprometido / nº mensual de certificados) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Agencia Tributaria de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36320&IDTIPO=11&RASTRO=c672$m26661",
+    "partes":[  
+      [  
+        "Nº mensual de certificados expedidos en el plazo comprometido",
+        "Nº mensual de certificados",
+        "X 100",
+        "100"
+      ]
+    ],
+    "i":16,
+    "uid":"636-16"
+  },
+  {
+    "descripcion":"1 Servicio de Pensiones: La espera para ser atendido por la unidad de información será igual o inferior a 15 minutos y el tiempo medio de atención a cada ciudadano oscilará ente 5 y 10 minutos desde el acceso a las dependencias hasta la atención por el funcionario.",
+    "formulas":[
+      "(Número de personas atendidas en el mes en el plazo comprometido / Número de solicitudes de atención) X 100 = 100",
+      "Tiempo medio mensual de atención ≤ 10 minutos (Tiempo mensual tardado en atender a los solicitantes de atención / Nº de personas atendidas en el mes) ≤ 10 minutos"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Pensiones, Valoraci�n y Programas de Inclusi�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36295&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 Servicio de Pensiones: Resolución de los expedientes en el plazo de 80 días naturales.",
+    "formulas":[
+      "(Número de expedientes mensuales resueltos en el plazo comprometido de 80 días /Nº de expedientes resueltos en el mes) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Pensiones, Valoraci�n y Programas de Inclusi�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36295&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 Servicio de Pensionistas: Emitir el 95% de certificados de pensión solicitados por correo en un plazo máximo de 2 días desde la presentación de la solicitud. La totalidad de los certificados solicitados serán expedidos en un plazo inferior a 5 días.",
+    "formulas":[
+      "(Número mensual de certificados emitidos en el plazo comprometido de 2 días hábiles / Número de certificados emitidos en el mes) X 100 = 95",
+      "(Número mensual de certificados emitidos en el plazo comprometido de 5 días hábiles / Número de certificados emitidos en el mes) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Pensiones, Valoraci�n y Programas de Inclusi�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36295&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"4 Servicio de Pensionistas: Enviar al domicilio de los beneficiarios de pensión no contributiva, de prestaciones económicas para personas con discapacidad y perceptores de prestaciones del Fondo de Asistencia Social, en el mes de enero de cada año, el formulario de la declaración anual personalizado.",
+    "formulas":[
+      "(Número de formularios enviados en el mes de enero de cada año a los beneficiarios de pensión del año anterior / Número de beneficiarios de pensión del año anterior ) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Pensiones, Valoraci�n y Programas de Inclusi�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36295&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"5 Servicio de Prestaciones Económicas: Emisión del 80% de los certificados solicitados por correo en el plazo máximo de 10 días desde la fecha de la recepción de la solicitud hasta la fecha de registro de salida. La totalidad de los certificados solicitados serán expedidos en un plazo inferior a 15 días.",
+    "formulas":[
+      "(Nº mensual de certificados expedidos en el plazo comprometido de 10 hábiles / Nº mensual de certificados expedidos) X 100 = 80",
+      "(Nº mensual de certificados expedidos en el plazo comprometido de 15 días hábiles / Nº mensual de certificados expedidos) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Pensiones, Valoraci�n y Programas de Inclusi�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36295&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"6 Servicio de Prestaciones Económicas: Respuesta inmediata a las demandas de información y orientación formuladas desde los Servicios Sociales municipales en el 100% de las consultas.",
+    "formulas":[
+      "(Nº mensual de respuestas a demandas de información realizadas en respuesta inmediata / Nº mensual de respuestas a demandas de información) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Pensiones, Valoraci�n y Programas de Inclusi�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36295&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"7 Servicio de Inclusión y Corresponsabilidad Social: Emisión de certificados solicitados por las entidades en el plazo máximo de 10 días.",
+    "formulas":[
+      "(Nº mensual de certificados expedidos en el plazo comprometido / Número mensual de certificados solicitados) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Pensiones, Valoraci�n y Programas de Inclusi�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36295&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"8 Servicio de Inclusión y Corresponsabilidad Social: Información a las entidades en el plazo de 5 días desde la publicación de la correspondiente convocatoria de las novedades y difusión de otros temas de su interés para facilitar la gestión o justificación del expediente.",
+    "formulas":[
+      "(Número de informaciones mensuales suministradas en las condiciones comprometidas / Número de informaciones mensuales proporcionadas a los solicitantes ) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Pensiones, Valoraci�n y Programas de Inclusi�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36295&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"9 Valoración de la Dependencia: Resolver el 95% de las solicitudes de valoración de la dependencia de los menores de 3 años que no hayan presentado durante la tramitación de la asignación y la visita incidencias ajenas a la administración o de fuerza mayor, en el plazo de 30 días",
+    "formulas":[
+      "(Nº de expedientes mensuales resueltos en el plazo y condiciones del compromiso / Nº de expedientes resueltos en el mes en curso ) X 100 = 95"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Pensiones, Valoraci�n y Programas de Inclusi�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36295&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"10 Valoración de la Dependencia: Resolver el 90% de las solicitudes de valoración de la dependencia de los solicitantes de 3 o más años que no hayan presentado durante la tramitación de la asignación y la visita incidencias ajenas a la administración o de fuerza mayor, en el plazo de tres meses. La totalidad se resolverá en el plazo de cuatro meses",
+    "formulas":[
+      "(Nº de expedientes mensuales resueltos en el plazo y condiciones del compromiso / Nº de expedientes solicitados en el mes en curso ) X 100 = 90",
+      "(Nº de expedientes mensuales resueltos en el plazo de 4 meses y condiciones del compromiso / Nº de expedientes mensuales resueltos) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Pensiones, Valoraci�n y Programas de Inclusi�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36295&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"1 Diariamente y de forma continua y regular se actualizará y publicará la información relativa a las actividades del Gobierno y la Administración de la CARM. El servicio se presta durante los 365 días del año. Las medias mensuales de publicaciones diarias no tendrán desviaciones superiores al 20% respecto a la media mensual acumulada.",
+    "formulas":[
+      "(Número de publicaciones realizadas en el mes / número de días del mes) = media mensual",
+      "(media mensual de publicaciones / media mensual acumulada) x 100 ≤ 20"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Comunicaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36296&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 Se publicarán de forma continua y regular contenidos en el apartado CARM Informa de la página web carm.es, siempre que dicha página web no registre problemas técnicos no atribuibles a esta Dirección General que impidan el cumplimiento del objetivo. Las medias mensuales de publicaciones diarias no tendrán desviaciones superiores al 20% respecto a la media mensual acumulada.",
+    "formulas":[
+      "(Número de publicaciones realizadas en el día/número de informaciones para publicar) X 100 = 100",
+      "(Media mensual de publicaciones/media mensual acumulada) X 100 ≤ 20"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Comunicaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36296&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 Se realizarán encuestas de satisfacción anuales entre los grupos de interés por la prestación del servicio de Oficina de Prensa. Se valorarán atención y receptividad en la prestación del servicio, calidad e interés de la información suministrada y rapidez en ser facilitada.La satisfacción entre los grupos de interés por la prestación del servicio de Oficina de Prensa evaluada mediante encuestas de satisfacción relativas a atención, presentación, rapidez y calidad y utilidad de los contenidos, debe ser superior a 7.",
+    "formulas":[
+      "La media de satisfacción relativa a atención, presentación, rapidez y calidad y utilidad de los contenidos, será igual o superior a 7 sobre 10."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Comunicaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36296&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"4 Se mantendrá y actualizará de forma continua y regular la Agenda de la Comunicación, al menos con una revisión semanal de sus contenidos.",
+    "formulas":[
+      "(Número de actualizaciones mensuales realizadas en plazo/número de actualizaciones mensuales realizadas) x100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de Comunicaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36296&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"1 Servicio de Coordinación de Policías Locales: Notificar, con al menos 12 horas de antelación a la celebración del correspondiente evento, las resoluciones de autorización de pruebas deportivas en carretera, festejos taurinos y otros espectáculos públicos cuya autorización sean competencia de la Administración regional.",
+    "formulas":[
+      "(Número mensual de autorizaciones de espectáculos públicos notificadas con la antelación comprometida / Número mensual de de autorizaciones registradas) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 Servicio de Coordinación de Policías Locales: Resolver en el plazo máximo de 5 meses, al menos el 90% de los expedientes sancionadores incoados en el ejercicio correspondiente.",
+    "formulas":[
+      "(Número mensual de expedientes sancionadores resueltos en el plazo máximo comprometido / Número mensual de expedientes resueltos) x 100 ≥ 90",
+      "(Número de expedientes sancionadores resueltos en el plazo de 6 meses / Número total de expedientes incoados) x 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 Servicio de Coordinación de Policías Locales: Efectuar en un plazo máximo de 5 días hábiles el nombramiento de los vocales de la Administración Regional en los órganos de selección en los procesos para la cobertura de plazas de policía local, desde la entrada de la solicitud en la Dirección General.",
+    "formulas":[
+      "(Número de nombramientos efectuados en el plazo comprometido / número total de solicitudes registradas) x 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"4 Centro de Coordinación de Emergencias: Atención del 90% de las llamadas recibidas cada mes en el teléfono 112.",
+    "formulas":[
+      "(Número mensual de llamadas 112 atendidas / número total de llamadas 112 recibidas) x 100 ≥ 90"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"5 Centro de Coordinación de Emergencias: Disponibilidad de atención para el 99% de las llamadas recibidas cada mes en el teléfono 112 en los siguientes idiomas: español, inglés, francés, alemán y árabe.",
+    "formulas":[
+      "(Nº mensual de llamadas atendidas en los idiomas español, inglés, francés, alemán y árabe / Nº mensual de llamadas al teléfono 112 solicitando atención en estos idiomas) x 100 ≥ 99."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"6 Centro de Coordinación de Emergencias: Destinar 1.200 horas anuales a la formación y evaluación continua del personal de atención de llamadas 112.",
+    "formulas":[
+      "(Número anual de horas de formación realizadas / 1200) x 100 ≥ 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"7 Centro de Coordinación de Emergencias: El número máximo de reclamaciones sobre el proceso de Atención de Llamadas 112 no superará la proporción de 1 reclamación por cada 250.000 llamadas recibidas.",
+    "formulas":[
+      "(Número de reclamaciones recibidas sobre el proceso de Atención de Llamadas/Nº de llamadas recibidas en el teléfono 112 ≤ 1/250000"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"8 Centro de Coordinación de Emergencias: Tiempo medio de descuelgue de las llamadas 112, medido con una periodicidad mensual, no superior a 8 segundos.",
+    "formulas":[
+      "Tiempo mensual medio (en segundos) de descuelgue de las llamadas atendidas en el teléfono 112, desde la finalización del mensaje inicial grabado ≤ 8."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"9 Centro de Coordinación de Emergencias: El 85% de las llamadas atendidas, lo serán antes de 20 segundos, en cómputo mensual.",
+    "formulas":[
+      "(Número mensual de llamadas 112 atendidas antes de 20 segundos / Número total de llamadas 112 atendidas) x 100 ≥85."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"10 Centro de Coordinación de Emergencias: En el 90% de los incidentes atendidos por el 112, en cómputo mensual, constará la visualización del protocolo de Atención de Llamadas correspondiente.",
+    "formulas":[
+      "(Número de incidentes atendidos por el 112 con visualización del protocolo de Atención de Llamadas / número total de incidentes atendidos por el 112) x 100 ≥ 90."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"11 Centro de Coordinación de Emergencias: Destinar 1.200 horas anuales al seguimiento, revisión y mejora continua de los protocolos de Atención de Llamadas 112.",
+    "formulas":[
+      "(Número de horas destinadas al seguimiento, revisión y mejora continua de los protocolos de Atención de Llamadas 112 realizadas en el ejercicio / 1.200) x 100 ≥ 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"12 Centro de Coordinación de Emergencias: El tiempo medio de transferencia de la información básica del incidente a los servicios de emergencia integrados en el 112, medido con una periodicidad mensual, será inferior a 50 segundos.",
+    "formulas":[
+      "Tiempo medio mensual (en segundos) de transferencia de la información básica del incidente a los servicios de emergencia integrados en el 112 ≤ 50."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"13 Centro de Coordinación de Emergencias: En el 80% de los incidentes atendidos por el 112 (en cómputo mensual) se transferirá la información básica a los servicios de emergencia integrados en el 112, antes de 60 segundos.",
+    "formulas":[
+      "(Número de incidentes atendidos por el 112 con transferencia de la información básica a los servicios de emergencia integrados en el 112 antes de 60 segundos / Número total de incidentes atendidos por el 112) x 100 ≥ 80."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"14 Centro de Coordinación de Emergencias: El grado de satisfacción general de los usuarios del servicio 112, recogido a través de encuestas de satisfacción (medido en una escala de 0 a 100), será superior al 75.",
+    "formulas":[
+      "Grado de satisfacción general de los usuarios del servicio 112 (medido en una escala de 0 a 100)≥ 75."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"15 Centro de Coordinación de Emergencias: Realizar al menos 1 campaña de difusión anual para dar a conocer a los ciudadanos la existencia y el uso del teléfono 112.",
+    "formulas":[
+      "Número de campañas anuales de difusión del teléfono 112 = 1."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"16 Centro de Coordinación de Emergencias: El grado de conocimiento del teléfono 112 por parte de los ciudadanos, recogido a través de encuestas de conocimiento (medido en una escala de 0 a 100) será superior al 80%.",
+    "formulas":[
+      "Grado de conocimiento del teléfono 112 por los ciudadanos (medido en una escala de 0 a 100) = 80."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"17 Centro de Coordinación de Emergencias: Contestar en un plazo máximo de 10 días hábiles el 60% de las solicitudes de información, quejas y sugerencias sobre la actividad del Centro de Coordinación de Emergencias de la CARM.",
+    "formulas":[
+      "(Número mensual de solicitudes de información, quejas y sugerencias contestadas dentro del plazo comprometido / Número mensual de solicitudes registradas y contestadas) x 100 ≥60."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"18 Centro de Coordinación de Emergencias: Atender de inmediato de acuerdo con disponibilidad más del 90% de las llamadas de los medios de comunicación solicitando información al Centro de Coordinación de Emergencias de la CARM.",
+    "formulas":[
+      "(Número de llamadas de los medios de comunicación atendidas por el Responsable de Información del Centro en el plazo comprometido de Coordinación de Emergencias / Número total de llamadas de los medios de comunicación al teléfono 112) x 100 ≥ 90"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"19 Centro de Coordinación de Emergencias: Publicar a través de la página web y redes sociales más de 40 noticias al mes sobre las actuaciones del Centro de Coordinación de Emergencias de la CARM.",
+    "formulas":[
+      "Número de noticias publicadas al mes sobre las actuaciones del Centro de Coordinación de Emergencias de la CARM ≥ 40"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"20 Centro de Coordinación de Emergencias: Publicar (en la página web y redes sociales) antes de los 15 minutos desde su declaración oficial el 95% de las alertas meteorológicas correspondientes a niveles de alerta de color naranja/rojo y a la activación de planes de emergencia de protección civil.",
+    "formulas":[
+      "(Número de alertas meteorológicas de nivel naranja-rojo y de activación de planes de protección civil publicadas antes de los 15 minutos desde su declaración oficial / Número total de alertas y de activación de planes) x 100 ≥ 95."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"21 Centro de Coordinación de Emergencias: Emitir consejos a la población en el 100% de los casos de alertas meteorológicas por fenómenos adversos (naranja/rojo) y de activación de planes de protección civil.",
+    "formulas":[
+      "(Número de publicaciones de consejos a la población en caso de alertas meteorológicas naranja-rojo y activaciones de planes de protección civil / número de alertas y de activación de planes) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"22 Servicio de Protección Civil: Promover la formación de al menos 30 personas al año en cursos relacionados con la protección civil.",
+    "formulas":[
+      "Número de personas formadas en cursos relacionados con protección civil, por año natural ≥30."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General Seguridad Ciudadana y Emergencias.",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36315&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"1 Garantizar que las publicaciones del BORM en edición electrónica estarán disponibles antes de las 08:00 horas en un 100% de las veces, salvo que concurra fuerza mayor ajena al servicio.",
+    "formulas":[
+      "(N.º de publicaciones mensuales disponibles antes de las 08:00 horas / N.º de publicaciones mensuales publicadas) x 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Organismo Aut�nomo Bolet�n Oficial de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36276&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 Los suscriptores a los servicios de alertas electrónicas, RSS (Sindicación de contenidos) y suscripción electrónica del BORM, recibirán el BORM diariamente en su correo electrónico antes de las 08:00 horas.",
+    "formulas":[
+      "(N.º remisiones mensuales de las suscripciones antes de las 08:00 horas / n.º total de remisiones mensuales) x 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Organismo Aut�nomo Bolet�n Oficial de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36276&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 El tiempo máximo de publicación de anuncios de pago urgentes recibidos de forma telemática para su publicación en el BORM será de 5 días hábiles (excluidos domingos y festivos), desde que se tenga constancia del pago (grabación por la entidad colaboradora en la propia carta de pago).",
+    "formulas":[
+      "(N.º de publicaciones mensuales de anuncios de pago urgente recibidos de forma telemática dentro de los 5 días / n.º de publicaciones mensuales totales de anuncios de pago urgente recibidos telemáticamente) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Organismo Aut�nomo Bolet�n Oficial de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36276&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"4 El tiempo máximo de publicación de anuncios gratuitos recibidos de forma telemática para su publicación en el BORM será de 8 días hábiles (excluidos domingos y festivos). (N.º de publicaciones mensuales de anuncios gratuitos recibidos telemáticamente realizadas dentro de los 8 días / n.º de publicaciones mensuales totales de anuncios gratuitos recibidos telemáticamente) x 100 = 100.",
+    "formulas":[
+
+    ],
+    "organismo":"Carta de Servicios del Organismo Aut�nomo Bolet�n Oficial de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36276&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"5 El tiempo máximo de publicación de anuncios de pago normal recibidos de forma telemática para su publicación en el BORM será de 8 días hábiles (excluidos domingos y festivos) desde que se tenga constancia del pago (grabación por la entidad colaboradora en la propia carta de pago).",
+    "formulas":[
+      "(N.º de publicaciones mensuales de anuncios de pago normal recibidos de forma telemática dentro de los 8 días / n.º de publicaciones mensuales totales de anuncios de pago normal recibidos de forma telemática) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Organismo Aut�nomo Bolet�n Oficial de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36276&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"6 El tiempo máximo de publicación de anuncios de pago urgente recibidos en papel para su publicación en el BORM desde que se tenga constancia del pago (grabación por la entidad colaboradora en la propia carta de pago) será de 5 días hábiles (excluidos domingos y festivos).",
+    "formulas":[
+      "(N.º de publicaciones mensuales de anuncios de pago urgente recibidos en papel dentro de los 5 días / n.º de publicaciones mensuales totales de anuncios de pago urgente recibidos en papel) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Organismo Aut�nomo Bolet�n Oficial de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36276&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"7 Será de 14 días hábiles (excluidos domingos y festivos) el tiempo máximo de publicación de anuncios gratuitos recibidos en formato papel.",
+    "formulas":[
+      "(N.º mensual de publicaciones de anuncios gratuitos recibidos en papel dentro de los 14 días / N.º mensual de publicaciones totales de anuncios gratuitos recibidos en papel) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Organismo Aut�nomo Bolet�n Oficial de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36276&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"8 Será de 14 días hábiles (excluidos domingos y festivos) el tiempo máximo de publicación de anuncios de pago normal recibidos en papel, desde que se tenga constancia del pago.",
+    "formulas":[
+      "(N.º de publicaciones mensuales de anuncios de pago normal recibidos en papel dentro de los 14 días / n.º de publicaciones mensuales totales de anuncios de pago normal recibidos en papel) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Organismo Aut�nomo Bolet�n Oficial de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36276&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"9 El plazo máximo para poner la carta de pago de la tasa T-510 a disposición del usuario en la web será de dos días hábiles (excluidos domingos y festivos).",
+    "formulas":[
+      "(N.º mensual de cartas de pago de la tasa T510 disponibles en la web dentro de los dos días siguientes de la solicitud / N.º mensual total de cartas de pago de la tasa T510 puestos a disposición en la web) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Organismo Aut�nomo Bolet�n Oficial de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36276&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"10 El plazo máximo para tramitar las peticiones de información y las propuestas de mejora presentadas a través de nuestra página web, será de 5 días hábiles (excluidos domingos y festivos).",
+    "formulas":[
+      "(N.º mensual de peticiones de información y propuestas de mejora presentadas a través de la página web respondidas dentro de los 5 días / N.º mensual de peticiones totales de información y propuestas de mejora presentadas a través de la página web) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Organismo Aut�nomo Bolet�n Oficial de la Regi�n de Murcia",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36276&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"1 Servicio de Orientación, Intermediación y Contratos: Todas las personas usuarias que soliciten cita previa en las Oficinas de Empleo será atendidas en los cinco días siguientes a la fecha de solicitud.",
+    "formulas":[
+      "(Número de citas previas atendidas mensualmente en plazo igual o inferior a 5 días / Nº de citas previas concertadas y atendidas en el mes en curso) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Servicio de Empleo y Formaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36275&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 Servicio de Orientación, Intermediación y Contratos: Todas las personas usuarias que soliciten cita previa serán atendidas en un tiempo máximo de 15 minutos desde la hora final del tramo horario asignado.",
+    "formulas":[
+      "(Número de citas previas atendidas en el mes en tiempo de espera igual o inferior a 15 minutos / Nº de citas previas atendidas en el mes en curso) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Servicio de Empleo y Formaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36275&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 Servicio de Orientación, Intermediación y Contratos: Se facilitará candidatos/as a las empresas que presenten ofertas de trabajo a través de la aplicación e-curriculum en un plazo máximo de 2 días hábiles desde el siguiente al registro en dicha aplicación.",
+    "formulas":[
+      "(Número de ofertas mensuales de candidatos/as facilitadas el curriculum en el plazo comprometido / Nº de ofertas mensuales recibidas) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Servicio de Empleo y Formaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36275&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"4 Servicio de Orientación, Intermediación y Contratos: Las solicitudes de participación en los Consejos Comarcales de Empleo se resolverán en un tiempo máximo de 2 meses desde el inicio del plazo de presentación.",
+    "formulas":[
+      "(Nº de solicitudes de participación en los Consejos Comarcales Empleo resueltas en el plazo de 2 meses / Nº de solicitudes de participación) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Servicio de Empleo y Formaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36275&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"5 Centro Nacional de Formación Ocupacional de Cartagena: La lista de personas admitidas por el Centro Nacional de Formación Ocupacional de Cartagena se publicará en el tablón de anuncios y página web del centro en un plazo igual o inferior a 6 días hábiles.",
+    "formulas":[
+      "(Listas mensuales de personas admitidas publicadas en el plazo de 6 días hábiles/Listas de personas publicadas en el mes en curso) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Servicio de Empleo y Formaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36275&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"6 Centro Nacional de Formación Ocupacional de Cartagena: Los diplomas acreditativos de la formación impartida en el Centro Nacional de Formación Ocupacional de Cartagena se entregarán en un plazo no superior a 12 días hábiles, desde la finalización de la misma.",
+    "formulas":[
+      "( Nº de diplomas entregados en el mes en el plazo inferior a 12 días hábiles / Nº de diplomas entregados en el mes) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Servicio de Empleo y Formaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36275&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"7 Observatorio Ocupacional: La publicación de los principales datos de empleo (paro y contratos) de la Región de Murcia se realizarán antes de las 12 horas del segundo día hábil de cada mes.",
+    "formulas":[
+      "(Datos mensuales de empleo publicados antes de las 12 horas del segundo día hábil de cada mes/Datos mensuales de empleo publicados) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Servicio de Empleo y Formaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36275&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"8 Servicio de Homologación y Autorización de Acciones y Proyectos y Programación: Las notificaciones de la Resolución de solicitud de inscripción en el registro de Entidades para la formación se realizará en un plazo inferior a 25 días hábiles.",
+    "formulas":[
+      "(Resoluciones mensuales notificadas en un plazo de 25 días hábiles / Resoluciones mensuales notificadas) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Servicio de Empleo y Formaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36275&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"9 Servicio de Homologación y Autorización de Acciones y Proyectos y Programación: Publicar en la página web y tablón de anuncios del SEF los listados de las becas o ayudas concedidas y/o denegadas en un plazo de 2 meses desde la fecha de finalización de la acción formativa.",
+    "formulas":[
+      "(Nº de listados de becas y ayudas publicados en un plazo de 2 meses/Nº de listados de becas y ayudas publicados) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Servicio de Empleo y Formaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36275&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"10 Servicio de Ejecución, Seguimiento y Evaluación de Acciones y Proyectos: Notificar la Resolución de exención del módulo de formación práctica en centros de trabajo (Certificados de profesionalidad), en un plazo de 20 días naturales.",
+    "formulas":[
+      "(Nº de resoluciones mensuales notificadas de solicitudes de exención en el plazo de 20 días naturales / Nº de resoluciones mensuales notificadas) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Servicio de Empleo y Formaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36275&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"11 Servicio de Ejecución, Seguimiento y Evaluación de Acciones y Proyectos: Notificar la Resolución de autorización de la simultaneidad de las prácticas profesionales no laborales, en un plazo de 20 días naturales.",
+    "formulas":[
+      "( Nº de resoluciones de solicitud de simultaneidad de prácticas profesionales no laborales notificadas en el plazo de 20 días naturales/Nº de resoluciones notificadas) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Servicio de Empleo y Formaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36275&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"12 Servicio Jurídico: Los informes de bastanteo se emtirán en el plazo de 2 días hábiles.",
+    "formulas":[
+      "(Nº de informes de bastanteo emitidos mensualmente en el plazo de 2 días hábiles / Nº de informes de bastanteo emitidos mensualmente) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios del Servicio de Empleo y Formaci�n",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36275&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"1 (Servicio 7,21) El SPRL Coordinador informará a los empleados, a través de los medios de comunicación disponibles, sobre los riesgos evaluados a los que están expuestos.",
+    "formulas":[
+      "(Número de evaluaciones de riesgos publicadas / número de evaluaciones de riesgos realizadas) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 (Servicio 11-16) Se facilitará el acceso de los empleados públicos al documento de solicitud de actuación del SPRL Coordinador a través de la intranet.",
+    "formulas":[
+      "Número de documentos de solicitud de actuación operativos en la intranet = 1."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 (Servicio 12) Durante la realización de evaluaciones de riesgos de puestos de trabajo, se ofrecerá tanto al empleado como a su jefe de servicio, la posibilidad de cumplimentar un listado de tareas específicas del puesto.",
+    "formulas":[
+      "(Número de listados de tareas ofrecidos / número de puestos de trabajo evaluados) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"4 (Servicio 14) Durante la evaluación de factores psicosociales, se ofrecerá la posibilidad de realización de entrevistas personalizadas al menos al 50% de la plantilla del centro de trabajo.",
+    "formulas":[
+      "(Número de entrevistas ofrecidas / número de empleados del centro de trabajo) x 100 = 50."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"5 (Servicio 15) Se realizarán encuestas de investigación de accidentes laborales de tráfico al personal que ha sufrido este tipo de accidentes con el fin de determinar las causas y proponer medidas preventivas.",
+    "formulas":[
+      "(Número de encuestas realizadas / número de accidentes laborales de tráfico) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"6 (Servicio 9, 15) El SPRL SMS prestará la asistencia, investigación, tratamiento y seguimiento si se precisa, en caso de exposición ocupacional a agentes biológicos de transmisión sanguínea, colaborando con la Mutua de Accidentes de Trabajo y Enfermedades Profesionales.",
+    "formulas":[
+      "(Número de accidentes causados por agentes biológicos en los que se interviene / número de accidentes causados por agentes biológicos comunicados) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"7 (Servicio 18,19) El SPRL Coordinador informará sobre los riesgos y medidas preventivas contempladas en los planes de emergencia y evacuación realizados, previa a la implantación del mismo, en los centros de su ámbito de competencia.",
+    "formulas":[
+      "(Número de colaboraciones o charlas impartidas al personal / número de planes de emergencia realizados) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"8 (Servicio 20) El SPRL Coordinador impartirá la formación en materia preventiva al personal de nuevo de ingreso de la Administración durante la realización de las jornadas de acogida.",
+    "formulas":[
+      "(Número de empleados de nuevo ingreso / número de empleados de nuevo ingreso formados en materia preventiva) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"9 (Servicio 21) Se divulgará entre los empleados públicos el protocolo de actuación en materia de protección de la maternidad a través de los medios de comunicación disponibles.",
+    "formulas":[
+      "Número de publicaciones realizadas = 1,"
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"10 (Servicio 20) El SPRL Coordinador dotará de material e impartirá la formación necesaria para realizar una actuación de emergencia al personal alérgico expuesto al riesgo de picadura de himenópteros (abejas y avispas).",
+    "formulas":[
+      "(Número de botiquines facilitados / número de empleados alérgicos expuestos al riesgo de picadura de himenópteros) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"11 (Servicio 20) El SPRL Coordinador ofertará formación específica (inicial y/o continuada) para el uso y mantenimiento de los DESA instalados en los centros de trabajo de la Administración regional, cada dos años.",
+    "formulas":[
+      "Número de planificaciones de formación específica DESA cada dos años = 1."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"12 (Servicio 20) El SPRL Coordinador ofertará formación adicional de refuerzo y simulacro de uso y mantenimiento de DESA cada dos años, alternando con la formación específica, con el fin de complementar la formación reglada, comprobar el funcionamiento de procedimiento establecido y adoptar las medidas correctoras necesarias.",
+    "formulas":[
+      "Número de planificaciones de formación adicional DESA cada dos años = 1."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"13 (Servicio 21,22) Se divulgará la planificación de los exámenes de salud al personal al servicio de la Administración, a través de los medios de comunicación disponibles.",
+    "formulas":[
+      "(Número de planificaciones divulgadas / número de planificaciones realizadas) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"14 (Servicio 23) Se establecerá contacto con el personal al servicio de la Administración Regional, ante los resultados analíticos que requieran derivación prioritaria al servicio público de salud, anticipándonos a la realización del examen de salud.",
+    "formulas":[
+      "(Número de contactos establecidos / número de resultados que requieren derivación) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"15 (Servicio 23) Se informará por escrito al personal al servicio de la Administración Regional de la finalidad de la realización de pruebas complementarias ante exposición a riesgo biológico y se recogerá por escrito su autorización o negativa a las mismas.",
+    "formulas":[
+      "(Número de documentos de autorización entregados / número de empleados que acuden al servicio y necesitan la realización de pruebas complementarias) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"16 (Servicio 24) Se informará por escrito al personal al servicio de la Administración Regional de la finalidad de la realización del examen de salud y recoger por escrito su autorización o negativa al mismo.",
+    "formulas":[
+      "(Número de documentos de autorización entregados / número de empleados que acuden a examen de salud) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"17 (Servicio 24) Se entregarán por escrito los resultados del examen de salud realizado al personal, adjuntando copia de exploraciones complementarias.",
+    "formulas":[
+      "(Número de resultados entregados por escrito / número de empleados que acuden a examen de salud) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"18 (Servicio 24) Si durante la realización de un examen de salud se necesita información complementaria para emitir aptitud laboral, se proporcionará al usuario un informe por escrito para su entrega al facultativo correspondiente, solicitando la misma.",
+    "formulas":[
+      "(Número de informes solicitados / número de informes necesarios) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"19 (Servicio 24) Se pondrá a disposición del personal empleado público, un cuestionario de calidad tras la realización de examen de salud, con el fin de obtener indicadores de satisfacción y trato recibido por el personal del área sanitaria, así como cualquier observación al respecto.",
+    "formulas":[
+      "(Número de cuestionarios entregados / número de exámenes de salud realizados) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"20 (Servicio 24) El SPRL Coordinador realizará exámenes de salud en la Unidad móvil del Servicio, al personal perteneciente a centros de trabajo alejados de la ciudad de Murcia o que por su volumen de trabajadores y organización en turnos de trabajo les resulte difícil acudir a las instalaciones del Servicio de Prevención.",
+    "formulas":[
+      "(Número de desplazamientos realizados por la unidad móvil / número de desplazamientos planificados) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"21 (Servicio 25) Se informará por escrito al personal al servicio de la Administración Regional de la finalidad de la administración de vacunas y recoger por escrito su autorización o negativa a las mismas.",
+    "formulas":[
+      "(Número de autorizaciones entregadas / número de vacunas ofertadas) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"22 (Servicio 9,25) Se facilitará la vacunación antigripal durante la campaña anual, colaborando activamente con la DG de Salud Pública de la Consejería de Sanidad y Política Social, con el fin de prevenir la gripe estacional y contribuir así a la mejora de la salud del personal empleado público.",
+    "formulas":[
+      "Número de campañas vacunación antigripal = 1."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"23 (Servicio 26) Se realizará la prevención y control de la tuberculosis ante los casos comunicados al Servicio de Prevención, informando al personal del centro sobre el mecanismo de contagio y medidas preventivas a adoptar.",
+    "formulas":[
+      "(Número de actuaciones realizadas / número de comunicaciones recibidas) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"24 (Servicio 26) Se colaborará con la DG de Salud Pública en la información de medidas preventivas a tener en cuenta ante posibles casos de enfermedad infectocontagiosa en los centros de trabajo de la Administración Regional comunicados al Servicio de Prevención.",
+    "formulas":[
+      "(Número de actuaciones realizadas / número de comunicaciones recibidas) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"25 (Servicio 27) El SPRL Coordinador ofertará intervención de apoyo en deshabituación tabáquica al personal al servicio de la Administración Regional que lo precise y que cumpla los criterios establecidos.",
+    "formulas":[
+      "(Número de intervenciones realizadas / número de solicitudes recibidas) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"26 (Servicio 27) El SPRL Coordinador informará al personal al servicio de la Administración regional sobre el programa de ayuda para dejar de fumar mediante campañas o medios de comunicación disponibles.",
+    "formulas":[
+      "Número de divulgaciones al año = 2."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"27 (Servicio 27) El SPRL Coordinador divulgará de forma bianual el programa de ayuda para dejar de fumar al personal al servicio de la Administración regional mediante campañas o medios de comunicación disponibles.",
+    "formulas":[
+      "Número de divulgaciones al año = 2."
+    ],
+    "organismo":"Carta de Servicios de los Servicios de Prevenci�n de Riesgos Laborales",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36294&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"1 Se realizará anualmente un estudio de satisfacción que nos permita conocer la opinión de la ciudadanía sobre los servicios ofrecidos a través de los distintos canales de atención (presencial y telefónico), publicándose los resultados de dicho estudio en el portal de atención al ciudadano de la CARM tras su realización.",
+    "formulas":[
+      "Publicación anual (diciembre) de resultados de estudios de satisfacción."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Atenci�n al Ciudadano",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36254&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 El Servicio de Atención al Ciudadano, se compromete a prestar a través de su red de oficinas corporativas, un servicio global de calidad, para conseguir la satisfacción de la ciudadanía, valorando dicha satisfacción en una escala del 0 al 10, con una puntuación igual o superior al 7,5.",
+    "formulas":[
+      "Valoración media de los usuarios de las oficinas Corporativas de Atención al ciudadano de carácter General igual o superior a 7,5 sobre 10."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Atenci�n al Ciudadano",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36254&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 El Servicio de Atención al Ciudadano, se compromete a prestar, a través del teléfono corporativo 012, un servicio global de calidad, para conseguir la satisfacción de la ciudadanía, valorando dicha satisfacción en una escala del 0 al 10, con una puntuación igual o superior al 7,5.",
+    "formulas":[
+      "Valoración media de los usuarios del teléfono 012 igual o superior a 7,5."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Atenci�n al Ciudadano",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36254&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"4 Las quejas sobre los servicios prestados por la red de Oficinas Corporativas del Servicio de Atención al Ciudadano no superarán, en cómputo anual el 1%.",
+    "formulas":[
+      "(Nº de quejas presentadas sobre la atención presencial en el año / personas atendidas) X 100 ≤ 1."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Atenci�n al Ciudadano",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36254&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"5 Las quejas sobre los servicios prestados a través del teléfono corporativo de Atención al Ciudadano no superarán, en cómputo anual el 1%.",
+    "formulas":[
+      "(Nº de quejas presentadas sobre la atención telefónica en el año / llamadas atendidas) X 100 ≤ 1."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Atenci�n al Ciudadano",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36254&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"6 La totalidad de las quejas presentadas por la ciudadanía en relación con los servicios de atención se responderán justificadamente por escrito, en un plazo inferior a 20 días hábiles, informando, en su caso, de las acciones de mejora emprendidas.",
+    "formulas":[
+      "(Nº mensual de quejas contestadas en plazo igual o inferior a 20 días hábiles / Nº mensual de quejas contestadas en el mes) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Atenci�n al Ciudadano",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36254&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"7 A la recepción de cualquier queja o sugerencia que afecte a los servicios de la Administración Regional distintos de los del SAC se acusará recibo en un plazo de 2 días de la fecha de la recepción de las mismas y en un plazo inferior a 28 días se le informará de las actuaciones llevadas a cabo.",
+    "formulas":[
+      "(Nº mensual de quejas contestadas en plazo igual o inferior a 28 días / Nº mensual de quejas contestadas en el mes) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Atenci�n al Ciudadano",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36254&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"8 Si su queja o sugerencia es relativa a la actividad de otras Administraciones Públicas, nos comprometemos a hacerla llegar a la administración que corresponda y a informarle de dicho traslado, en el plazo de 2 días.",
+    "formulas":[
+      "(Nº de quejas y sugerencias comunicadas a otras administraciones en el plazo de 2 días / Nº de quejas/sugerencias presentadas para otras administraciones) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Atenci�n al Ciudadano",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36254&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"9 La atención presencial prestada en OCAGS se ofrecerá en horario de mañanas de 09:00 a 14:00. El horario publicado en la WEB se cumplirá en el 100% de los casos.",
+    "formulas":[
+      "(Nº de oficinas abiertas en horario de 09 a 14h en el mes / Nº de OCAGS) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Atenci�n al Ciudadano",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36254&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"10 En las oficinas de atención presencial que dispongan de gestor de colas (OCAG ubicadas en los edificios administrativos siguientes: Edificio FORO de Cartagena, Palacio Regional, Edificio Administrativo Infante y Consejería de Agricultura y Agua en Murcia), el tiempo máximo de espera será inferior a 20 minutos.",
+    "formulas":[
+      "(Nº de personas atendidas en el mes en tiempos iguales o inferiores a 20 minutos / Nº de personas atendidas en el mes) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Atenci�n al Ciudadano",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36254&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"11 En la atención telefónica, el tiempo medio de espera en las llamadas atendidas, consideradas por periodos mensuales, no será superior a los 30 segundos.",
+    "formulas":[
+      "Media mensual de tiempos de espera en las llamadas telefónicas será igual o inferior a 30 segundos."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Atenci�n al Ciudadano",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36254&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"12 Si solicita cita previa, será atendido a la hora concertada. Los servicios ofrecidos mediante cita previa y las oficinas donde se prestan están disponibles para su consulta en la Guía de Procedimientos y Servicios de la CARM http://www.carm.es/guiadeservicios  (Procedimiento 4241). Número de quejas sobre el incumplimiento de la puntualidad horaria en la atención de citas previas será 0.",
+    "formulas":[
+      "(Nº de quejas sobre incumplimiento presentadas / nº de personas atendidas) x 100 = 0."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Atenci�n al Ciudadano",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36254&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"13 Si se solicita información (de carácter general, especializado o particular de la Administración Regional) en la modalidad de respuesta diferida, el Servicio de Atención al Ciudadano, se compromete a dar respuesta en un plazo máximo de 8 días hábiles.",
+    "formulas":[
+      "(Nº mensual de respuestas en plazo igual o inferior a 8 días de solicitudes de información diferida de la CARM / Nº mensual de solicitudes de información diferida de la CARM) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios del Servicio de Atenci�n al Ciudadano",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36254&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"1 Servicio de Gestión de RR. HH.: La emisión de certificados de servicios prestados, se realizará de forma inmediata.",
+    "formulas":[
+      "(Número de certificados expedidos en el plazo comprometido / Número de certificados solicitados) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de la Funci�n P�blica y Calidad de los Servicios",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36196&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"2 Servicio de Régimen Jurídico: Se proporcionará información inmediata a los interesados del estado de tramitación de cualquier expediente que haya tenido entrada en el Servicio.",
+    "formulas":[
+      "(Número de informaciones proporcionados en el plazo comprometido / número de solicitudes de información) x 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de la Funci�n P�blica y Calidad de los Servicios",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36196&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"3 Servicio de Selección: La emisión de certificados de ejercicios aprobados en las pruebas selectivas se realizarán en el momento de su solicitud.",
+    "formulas":[
+      "(Número de certificados expedidos de ejercicios aprobados en el plazo comprometido / Número de certificados solicitados) X 100 = 100"
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de la Funci�n P�blica y Calidad de los Servicios",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36196&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"4 Servicio de Selección: Con una antelación mínima de 48 horas al acto de adjudicación de las listas de espera y procedimientos extraordinarios para la cobertura de puestos de trabajo, se avisará a los aspirantes por número de orden con un mensaje corto SMS al teléfono móvil proporcionado por el aspirante.",
+    "formulas":[
+      "(Número de SMS enviados / Número de aspirantes que han proporcionado el número de móvil) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de la Funci�n P�blica y Calidad de los Servicios",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36196&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"5 Servicio de Selección: Se publicarán en BICI los puestos de trabajo a cubrir, el día anterior al acto de adjudicación.",
+    "formulas":[
+      "(Número de listas con los puestos a cubrir, publicadas en BICI, en el plazo comprometido / Número de actos de adjudicación) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de la Funci�n P�blica y Calidad de los Servicios",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36196&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"6 Servicio de Selección: Realizado el acto de adjudicación, se publicará en BICI el listado -con nº de orden- de los adjudicatarios con el puesto asignado.",
+    "formulas":[
+      "(Número de listados publicados en BICI con los requisitos comprometidos / Número de convocatorias de actos de adjudicación ) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de la Funci�n P�blica y Calidad de los Servicios",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36196&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"7 Servicio de Selección: Se hará pública en BICI la relación de los aspirantes convocados que no hayan asistido al acto de adjudicación, concediéndoles un plazo para presentar alegaciones de 5 días hábiles.",
+    "formulas":[
+      "(Número listas publicadas en BICI con los requisitos comprometidos / Número de convocatorias en los que no ha asistido algún aspirante) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de la Funci�n P�blica y Calidad de los Servicios",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36196&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"8 Servicio de Evaluación de Puestos y Planificación de Efectivos/Servicio de Selección: La información pública sobre Oferta de Empleo Público/procesos selectivos estará disponible en BICI a los 2 días de su publicación en el BORM.",
+    "formulas":[
+      "(Nº de publicaciones del compromiso en BICI a los 2 días/Nº de publicaciones en BORM) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de la Funci�n P�blica y Calidad de los Servicios",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36196&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"9 Servicio de Relaciones Laborales: Publicar y mantener actualizado trimestralmente el Boletín Estadístico del Registro de Órganos de Representación.",
+    "formulas":[
+      "Número de actualizaciones trimestrales del Boletín = 1."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de la Funci�n P�blica y Calidad de los Servicios",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36196&IDTIPO=11&RASTRO=c672$m26661"
+  },
+  {
+    "descripcion":"10 Servicio de Relaciones Laborales: Enviar por correo electrónico con carácter inmediato, los certificados del Registro de Órganos de Representación una vez emitidos.",
+    "formulas":[
+      "(Número de certificados enviados en el plazo comprometido / número de certificados emitidos ) X 100 = 100."
+    ],
+    "organismo":"Carta de Servicios de la Dirección General de la Funci�n P�blica y Calidad de los Servicios",
+    "url":"http://www.carm.es/web/pagina?IDCONTENIDO=36196&IDTIPO=11&RASTRO=c672$m26661"
+  }
+]

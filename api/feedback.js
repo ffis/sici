@@ -39,13 +39,11 @@
 		};
 	};
 
-
 	module.exports.get = function(models){
 		return function(req, res){
 			var feedback = models.feedback();
 			var id = req.params._id;
-			if (id)
-			{
+			if (id){
 				feedback.findOne({'_id': id}, function(err, data){
 					if (err){
 						console.error(err); res.status(400).end();
@@ -57,7 +55,7 @@
 				});
 			}else{
 				feedback.find({}, function(err, data){
-					if (err) { console.error(err); res.status(500); res.end(); return ; }
+					if (err) { console.error(err); res.status(500); res.end(); return; }
 					res.json(data);
 				});
 			}

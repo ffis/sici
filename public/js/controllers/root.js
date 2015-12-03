@@ -22,6 +22,7 @@
 		$rootScope.navegabilidad = [
 			{ id: 'inicio', caption: 'Inicio' },
 			{ id: 'actividad', caption: 'Actividad' },
+			{ id: 'carta', caption: 'Carta' },
 			{ id: '#', caption: 'Reportes', sub: [
 				{ id: 'informes', caption: 'Informes', icon: 'fa-file-excel-o' },
 				{ id: 'stats', caption: 'Estadísticas', icon: 'fa-bar-chart' },
@@ -51,8 +52,7 @@
 			}
 		};
 
-		$rootScope.colorText = function(i, numcolors, phase)
-		{
+		$rootScope.colorText = function(i, numcolors, phase){
 			if (typeof phase === 'undefined'){ phase = 0; }
 			var center = 128, width = 127, frequency = Math.PI * 2 / numcolors;
 			return {
@@ -73,7 +73,9 @@
 			saveAs(blob, nombre + '.xls');
 		};
 
-		$rootScope.exportDOC = function (idx, nombre) { $log.error('not supported');
+		$rootScope.exportDOC = function (idx, nombre){
+			$log.log(idx, nombre);
+			$log.error('not supported');
 			return false;
 		};
 
@@ -195,7 +197,6 @@
 					];
 				$rootScope.apiFeedback = Feedback(parameters);
 			}
-
 			$rootScope.apiFeedback.open();
 		};
 

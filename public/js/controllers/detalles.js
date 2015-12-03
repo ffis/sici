@@ -155,7 +155,7 @@
 								}
 								k = k[index];
 							}
-							if (typeof k !== 'undefined' && k.length > 0) {
+							if (typeof k !== 'undefined' && k.length) {
 								k.forEach(function (val, idx) {
 									if (((idx <= graphskeys[i].keys[indx].maxx) && (anualidad === $scope.anualidadActual)) || (anualidad !== $scope.anualidadActual)) {
 										values.push([idx, val]);

@@ -17,9 +17,9 @@
                     if ( start > $scope.pageCount() - rangeSize ) {
                         start = $scope.pageCount() - rangeSize + 1;
                     }
-                    if (start > 1){ rangeSize--; ps.push(start - 2);    }
-                    if (start > 0){ rangeSize--; ps.push(start - 1);    }
-                    for (var i = start; i < start + rangeSize; i++) {
+                    if (start > 1){ rangeSize--; ps.push(start - 2); }
+                    if (start > 0){ rangeSize--; ps.push(start - 1); }
+                    for (var i = start; i < start + rangeSize; i++){
                         if(i >= 0){
                             ps.push(i);
                         }

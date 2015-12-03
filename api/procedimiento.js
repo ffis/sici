@@ -11,19 +11,15 @@ module.exports.hasChildred = function (models) {
 			var restriccion = {'padre': codigo};
 			Procedimiento.count(restriccion, function (err, count) {
 				if (err) {
-					console.error(restriccion);
-					console.error(err);
-					res.status(500);
-					res.end();
+					console.error(restriccion, err);
+					res.status(500).end();
 					return;
 				}
-				console.log('hasChildren :' + count);
 				res.json({'count': count});
 			});
 		} else {
 			console.error('No tiene permiso para consultar el número de hijos de este procedimiento');
-			res.status(500);
-			res.end();
+			res.status(500).end();
 			return;
 		}
 	};
@@ -33,8 +29,7 @@ module.exports.createProcedimiento = function (Q, models, recalculate) {
 	return function (req, res) {
 		if (!(req.user.permisoscalculados && req.user.permisoscalculados.superuser))
 		{
-			res.status(500).send('Error. Solo el administrador puede crear procedimientos');
-			res.end();
+			res.status(500).send('Error. Solo el administrador puede crear procedimientos').end();
 			return;
 		}
 
@@ -82,8 +77,7 @@ module.exports.createProcedimiento = function (Q, models, recalculate) {
 							Periodo.findOne({}, function(err, periodos){
 								if (err) {
 									console.error(err);
-									res.status(500);
-									res.end();
+									res.status(500).end();
 									deferPeriodos.reject(err);
 									return;
 								}else{
@@ -207,8 +201,7 @@ module.exports.deleteProcedimiento = function (Q, models, recalculate) {
 			if (err) {
 				console.error(restriccion);
 				console.error(err);
-				res.status(500);
-				res.end();
+				res.status(500).end();
 				return;
 			}
 //            var procedimiento = req.body;
