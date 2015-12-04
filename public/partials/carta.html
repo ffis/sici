@@ -1,0 +1,145 @@
+
+<div class="row">
+	<div ng-class="{'col-lg-3': !oculto, 'col-md-4': !oculto, 'hidden': oculto}" class="left animated">
+		<div class="panel panel-default">
+		  <div class="panel-heading">
+		    <h3 class="panel-title">Temporalmente</h3>
+		  </div>
+		  <div class="panel-body">
+		  	<span ng-repeat="(t, v) in equivalencias" style="font-size:16px">
+		    	<span class="label label-default cursor" ng-click="setJerarquiaById(v)">{{t}}</span>
+		    </span>
+		  </div>
+		</div>
+		<organismos otitle="'Organismos con cartas de compromisos'" arbol="arbol" tipoelementos="'carta de compromisos'" attr="'numobjetivos'" setseleccionado="setSeleccionado" seleccionado="seleccionado" filtro="filtro"></organismos>
+	</div>
+	<div ng-class="{'col-lg-9': !oculto, 'col-md-8': !oculto, 'col-lg-12': oculto}" class="right animated" id="detallesjerarquia">
+		<div ng-click="oculto=!oculto" style="cursor:ew-resize">
+			<span class="glyphicon glyphicon-fullscreen pull-right">
+			</span>
+			<h2>{{seleccionado.title}}</h2>
+		</div>
+
+		<div ng-if="cartas.length" class="table-responsive">
+			<p>
+				<div class="pull-right">
+				<div class="btn-group">
+					<a class="btn btn-default" target="_blank" href="{{cartas[0].url}}" title="Ver informaci&oacute;n publicada"><span class="glyphicon glyphicon-info-sign"></span></a>
+					<div class="btn-group">
+					  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					    Carta de servicios actual <span class="caret"></span>
+					  </button>
+						<ul class="dropdown-menu">
+							<li><a href="/carta/{{idjerarquia}}">Carta de servicios actual</a></li>
+							<li role="separator" class="divider"></li>
+							<li ng-repeat="c in cartasservicio"><a href="{{c.url}}">{{c.titulo}}</a></li>
+						</ul>
+					</div>
+				</div>
+				</div>
+				<br style="clear:both" />
+			</p>
+			<table class="table table-striped table-bordered table-condensed table-hover" id="cartastable">
+				<thead>
+					<tr>
+						<th ng-class="{danger:orderby=='codigo' }" ng-click="reverse=!reverse;orderby='codigo'">{{'codigo'|translate}}</th>
+						<th ng-class="{danger:orderby=='denominacion' }" ng-click="reverse=!reverse;orderby='denominacion'">{{'denominacion'|translate}}</th>
+					</tr>
+				</thead>
+				<tfoot>
+					<tr>
+						<td colspan="2">
+							<strong>Nº de compromisos listados:</strong>
+							{{cartas.length}}
+							<span ng-click="$root.exportXLS('cartastable','cartas')" class="pull-right glyphicon glyphicon-floppy-disk"></span>
+						</td>
+					</tr>
+				</tfoot>
+				<tbody>
+					<tr ng-repeat="indicador in cartas track by indicador.uid">
+						<th class="text-center">
+							<p>{{indicador.i}}</p>
+							<div class="btn-group-vertical" role="group">
+								<button type="button" class="btn btn-default" title="Editar">
+									<span class="glyphicon glyphicon-pencil"></span>
+								</button>
+								<button type="button" class="btn btn-default" title="Comentar">
+									<span class="glyphicon glyphicon-comment" ng-class="claseComentarios(indicador)"></span>
+								</button>
+								<button type="button" class="btn btn-default">
+									<span class="glyphicon glyphicon-link"></span>
+								</button>
+							</div>
+						</th>
+						<td class="text-left">
+							<p>{{indicador.descripcion}}</p>
+							<table class="table table-striped table-bordered table-condensed table-hover">
+								<tbody>
+									<tr ng-repeat="formula in indicador.formulas track by $index">
+										<td style="width:85%">
+											<p><strong>{{formula}}</strong></p>
+											<table class="table table-striped table-bordered" style="width:100%">
+												<thead>
+													<tr>
+														<th></th>
+														<th class="text-center" ng-repeat="a in [0,1,2,3,4,5,6,7,8,9,10,11]">{{inicialesmeses[a]}}</th>
+														<th>2015</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr ng-repeat="parte in indicador.partes[$index] | filter:filtropartes">
+														<td style="width:50%">{{parte}}</td>
+														<td ng-repeat="a in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]">
+															<input type="text" style="width:3em" class="text-right form-control" value="0" />
+														</td>
+														<td>
+															<input type="text" style="width:3em" class="text-right form-control"  value="0" />
+														</td>
+													</tr>
+												</tbody>
+											</table>
+										</td>
+										<td style="text-align:center">
+											<canvas data-gauge-chart maxvalue="100" dato="gaugeChart[indicador.i].data" value="gaugeChart[indicador.i].data.val" data-options="gaugeChart[indicador.i].options" style="width: 120px; height: 60px; " class=""></canvas>
+											<br />
+											{{gaugeChart[indicador.i].data.val}}
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+<style>
+#cartastable tbody tr th .btn-group-vertical{display: none}
+#cartastable tbody tr:hover th .btn-group-vertical{display: block}
+#cartastable tbody tr th { vertical-align:middle }
+</style>
+<!--
+<td class="hidden">
+	<div class="progress">
+  		<div class="progress-bar {{getProgressClass(indicador.i)}}" role="progressbar" aria-valuenow="{{getProgress(indicador.i)}}" aria-valuemin="0" aria-valuemax="100" style="width: {{getProgress(indicador.i)}}%;">
+    	<span>{{getProgress(indicador.i)}}%</span>
+  		</div>
+	</div>
+</td>
+<div class="row" ng-if="cartas.length">
+	<div class="col-sm-6 col-md-4" ng-repeat="indicador in cartas">
+	    <div class="thumbnail">
+			<canvas data-gauge-chart data-data="gaugeChart[indicador.i].data" data-options="gaugeChart[indicador.i].options" style="width: 120px; height: 60px; " class=""></canvas>
+			<div class="caption">
+				<p>{{indicador.descripcion}}</p>
+				<ul>
+					<li style="list-style:none" ng-repeat="formula in indicador.formulas track by $index"><strong>{{formula}}</strong></li>
+		        </ul>
+		        <p><a href="#" class="btn btn-primary" role="button">Button</a> <a href="#" class="btn btn-default" role="button">Button</a></p>
+			</div>
+	    </div>
+	</div>
+</div>
+
+-->

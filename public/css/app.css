@@ -1401,3 +1401,14 @@ Portlets
 .feedback-btn.feedback-btn-small.feedback-btn-inverse{
   display:none;
 }
+
+
+organismos p{
+  width: 90%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+organismos ul{
+  padding-left: 2em;
+}
