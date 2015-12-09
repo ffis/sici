@@ -3,7 +3,7 @@
 	angular.module('sici')
 		.controller('ReglasInconsistenciasCtrl', ['$rootScope', '$scope', '$window', '$routeParams', 'ReglasInconsistencias',
 			function ($rootScope, $scope, $window, $routeParams, ReglasInconsistencias) {
-				$window.document.title = 'SICI: Reglas Inconsistencias';
+				$rootScope.setTitle('Reglas Inconsistencias');
 				$scope.cambios = [];
 				$scope.inconsistencias = ReglasInconsistencias.query();
 				$scope.nuevo = new ReglasInconsistencias();

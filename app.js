@@ -36,6 +36,7 @@
 		csvsici = require('./api/csvsici'),
 		feedback = require('./api/feedback'),
 		carta = require('./api/carta'),
+		entidadobjeto = require('./api/entidadobjeto'),
 		/* app */
 		app = module.exports = express()
 	;
@@ -236,8 +237,11 @@
 		app.get('/api/v1/public/tramitesMediaMes', procedimiento.mediaMesTramites(cfg, models));
 		app.get('/api/v1/public/tramitesMediaMes/:anualidad', procedimiento.mediaMesTramites(cfg, models));
 
-		app.get('/api/v2/public/carta', carta.indicadores());
-		app.get('/api/v2/public/carta/:idjerarquia', carta.indicadores());
+		app.get('/api/v2/public/objetivo', carta.indicadores());
+		app.get('/api/v2/public/objetivo/:idjerarquia', carta.indicadores());
+
+		app.get('/api/v2/public/entidadobjeto', entidadobjeto.get(models));
+		app.put('/api/v2/public/entidadobjeto/:id', entidadobjeto.update(models));
 
 		//app.use('/api/v1/public/feedback', multer({ dest: path.join( __dirname, 'tmp') + path.sep}));
 		app.post('/api/v1/public/feedback', feedback.log(models));

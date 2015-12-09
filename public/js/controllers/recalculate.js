@@ -5,7 +5,7 @@
             function ($rootScope, $scope, $window, $http) {
                 $rootScope.nav = 'recalculate';
                 $scope.actualizando = 0;
-                $window.document.title = 'SICI';
+                $rootScope.setTitle('Recalcular');
                 $scope.respuestas = [];
                 $scope.funcionalidades = [
                     {label: 'Procedimientos', fn: [{label: 'Recalcular caché', cmd: '/api/v1/restricted/fprocedimiento'}]},

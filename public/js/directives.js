@@ -20,7 +20,7 @@
                     for(var i = 0; i < attribute.length && c === 0; i++)
                     {
                         var aux = attribute[i];
-                        if (typeof a[aux] === 'string'){ c = a[aux].localeCompare( b[aux] );}
+                        if (typeof a[aux] === 'string'){ c = a[aux].localeCompare( b[aux] ); }
                         else{ c = a[aux] - b[aux]; }
                     }
                     return c;
@@ -36,7 +36,7 @@
     .directive('scrollToItem', function() {
         return {
             restrict: 'A',
-            scope: { scrollTo: "@" },
+            scope: { scrollTo: '@' },
             link: function(scope, $elm) {
                 $elm.on('click', function() {
                     angular.element('html,body').animate({scrollTop: $(scope.scrollTo).offset().top - 80 }, 'slow');
@@ -82,7 +82,7 @@
                 });
 
                 $scope.fj = function(item) {
-                    if (!$scope.filtro(item)) return false;
+                    if (typeof $scope.filtro === 'function' && !$scope.filtro(item)){ return false; }
                     if ($scope.jerarquia.indexOf(item.id) !== -1 ){ return true; }
                     if (item.nodes){
                         for(var i = 0; i < item.nodes.length; i++){

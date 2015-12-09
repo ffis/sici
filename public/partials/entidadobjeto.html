@@ -1,0 +1,36 @@
+<div class="row" style="clear:both; margin-top:2em" >
+	<div class="col-lg-12">
+		<div style="clear:both" class="table-responsive">
+			<h3>Entidades objeto</h3>
+			<table class="table table-striped" ng-If="!!$root.permisoscalculados.superuser">
+				<caption>
+				<div class="pull-right">
+					<input type="text" class="form-control" placeholder="Filtro..." ng-model="filtro" />
+				</div>
+				Entidades objeto
+
+				</caption>
+				<thead>
+					<tr>
+						<th>ID</th>
+						<th ng-If="clave!='_id'" ng-repeat="(clave, valor) in entidades[0]">{{clave}}</th>
+					</tr>
+				</thead>
+				<tfoot>
+					<tr>
+						<td class="text-center" colspan="Object.keys(entidades[0]).length">Nº de registros mostrados: <strong>{{entidades.length}}</strong></td>
+					</tr>
+				</tfoot>
+				<tbody ng-repeat="entidadobjeto in entidades | filter:filtro">
+					<tr>
+						<th>{{entidadobjeto._id}}</th>
+						<td  ng-If="clave!='_id'" ng-repeat="(clave, valor) in entidadobjeto">
+							<a href="#" editable-text="entidadobjeto[clave]" onaftersave="actualizar(entidadobjeto, clave)">{{entidadobjeto[clave]}}</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+</div>

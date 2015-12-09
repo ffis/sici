@@ -179,6 +179,47 @@
 				},
 				'a2014': plantillaanualidad
 			}*/
+		},
+		/* dic-2015 */
+		entidadobjeto: {
+			'codigo': Number,
+			'denominacion': String,
+			'url': String,
+			'responsable': String,
+			'idjerarquia': Number,
+			'tipoentidad': String,
+			'fechaalta': Date,
+			'fechafin': Date,
+			'fechaversion': Date,
+			'eliminado': Boolean
+		},
+		compromiso: {
+			'codigo': Number,
+			'denominacion': String,
+			'index': Number,
+			'objetivo': String,
+			'perspectiva': String,
+			'estado': String,
+			'formulas': [{
+				'human': String,
+				'frecuencia': String,
+				//valores: Mixed
+				'indicadores': [ Number ],
+				'meta': Number,
+				//'parteizq': Mixed
+			}]
+		},
+		indicador: {
+			'id': Number,
+			'denominacion': String,
+			'resturl': String,
+			'fechaversion': Date,
+			//'valores': Mixed,
+			//'observaciones': Mixed
+			//'medidas': Mixed
+			'vinculacion': String,
+			'frecuencia': String,
+			'pendiente': Boolean
 		}
 	};
 

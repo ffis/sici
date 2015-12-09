@@ -1,58 +1,64 @@
-(function(angular){ "use strict";
-angular.module("sici.filters", [])
-	.filter("interpolate", ["version", function (version) {
+(function(angular){ 'use strict';
+angular.module('sici.filters', [])
+	.filter('interpolate', ['version', function (version) {
                 return function (text) {
                     return String(text).replace(/\%VERSION\%/mg, version);
                 };
             }])
-        .filter("treatAsHTML", function () {
+        .filter('treatAsHTML', function () {
             return function (state) {
                 return state;
             };
         })
-        .filter("extractFromPath", function () {
+        .filter('extractFromPath', function () {
             return function (value, fieldpath) {
                 if (value[fieldpath]){
                     return value[fieldpath];
 		}
-                var parts = fieldpath.split(".");
+                var parts = fieldpath.split('.');
                 for (var i = 0, j = parts.length; i < j; i++) {
-                    if (typeof value[parts[i]] !== "undefined")
+                    if (typeof value[parts[i]] !== 'undefined')
                     {
                         value = value[parts[i]];
                     } else {
-                        return "";
+                        return '';
                     }
 
                 }
                 return value;
             };
         })
-        .filter("numberFormat", function () {
+        .filter('numberFormat', function () {
             return function (text, sepmiles, sepdecimal, simbol) {
-                (typeof sepmiles === "undefined") && (sepmiles = ".");
-                (typeof sepdecimal === "undefined") && (sepdecimal = ",");
-                (typeof simbol === "undefined") && (simbol = "");
+                if (typeof sepmiles === 'undefined'){
+                    sepmiles = '.';
+                }
+                if (typeof sepdecimal === 'undefined'){
+                    sepdecimal = ',';
+                }
+                if (typeof simbol === 'undefined'){
+                    simbol = '';
+                }
 
                 var num = String(text);
-                var splitStr = num.split(".");
+                var splitStr = num.split('.');
                 var splitLeft = splitStr[0];
-                var splitRight = splitStr.length > 1 ? sepdecimal + splitStr[1] : "";
+                var splitRight = splitStr.length > 1 ? sepdecimal + splitStr[1] : '';
                 var regx = /(\d+)(\d{3})/;
                 while (regx.test(splitLeft)) {
-                    splitLeft = splitLeft.replace(regx, "$1" + sepmiles + "$2");
+                    splitLeft = splitLeft.replace(regx, '$1' + sepmiles + '$2');
                 }
                 return simbol + splitLeft + splitRight;
             };
         })
-        .filter("pagination", function ()
+        .filter('pagination', function ()
         {
             return function (input, start) {
                 start = parseInt(start, 10);
                 return input.slice(start);
             };
         })
-        .filter("codigoDenominacion", function ()
+        .filter('codigoDenominacion', function ()
         {
             return function (items, value) {
                 var filtered = [];

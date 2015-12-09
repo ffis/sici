@@ -20,22 +20,18 @@
 			<h2>{{seleccionado.title}}</h2>
 		</div>
 
-		<div ng-if="cartas.length" class="table-responsive">
+		<div ng-if="cartasservicio.length" class="table-responsive">
 			<p>
-				<div class="pull-right">
 				<div class="btn-group">
-					<a class="btn btn-default" target="_blank" href="{{cartas[0].url}}" title="Ver informaci&oacute;n publicada"><span class="glyphicon glyphicon-info-sign"></span></a>
+					<a class="btn btn-default" target="_blank" href="{{cartaservicioseleccionada.url}}" title="Ver informaci&oacute;n publicada"><span class="glyphicon glyphicon-info-sign"></span></a>
 					<div class="btn-group">
 					  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					    Carta de servicios actual <span class="caret"></span>
+					    {{cartaservicioseleccionada.denominacion}} <span class="caret" ng-if="cartasservicio.length > 1"></span>
 					  </button>
-						<ul class="dropdown-menu">
-							<li><a href="/carta/{{idjerarquia}}">Carta de servicios actual</a></li>
-							<li role="separator" class="divider"></li>
-							<li ng-repeat="c in cartasservicio"><a href="{{c.url}}">{{c.titulo}}</a></li>
+						<ul class="dropdown-menu" ng-if="cartasservicio.length > 1">
+							<li ng-if="cartaservicioseleccionada._id != c._id" ng-repeat="c in cartasservicio"><a href="{{c.urledicion}}">{{c.denominacion}}</a></li>
 						</ul>
 					</div>
-				</div>
 				</div>
 				<br style="clear:both" />
 			</p>
@@ -50,13 +46,13 @@
 					<tr>
 						<td colspan="2">
 							<strong>Nº de compromisos listados:</strong>
-							{{cartas.length}}
-							<span ng-click="$root.exportXLS('cartastable','cartas')" class="pull-right glyphicon glyphicon-floppy-disk"></span>
+							{{objetivos.length}}
+							<span ng-click="$root.exportXLS('cartastable','objetivos')" class="pull-right glyphicon glyphicon-floppy-disk"></span>
 						</td>
 					</tr>
 				</tfoot>
 				<tbody>
-					<tr ng-repeat="indicador in cartas track by indicador.uid">
+					<tr ng-repeat="indicador in objetivos track by indicador.uid">
 						<th class="text-center">
 							<p>{{indicador.i}}</p>
 							<div class="btn-group-vertical" role="group">

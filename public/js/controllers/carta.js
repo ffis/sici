@@ -2,8 +2,8 @@
 	'use strict';
 	angular.module('sici')
 		.controller('CartaCtrl',
-			['$q', '$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', '$log', 'Arbol', 'CartaServicio',
-			function ($q, $rootScope, $scope, $location, $window, $routeParams, $timeout, $log, Arbol, CartaServicio) {
+			['$q', '$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', '$log', 'Arbol', 'Objetivo', 'EntidadObjeto',
+			function ($q, $rootScope, $scope, $location, $window, $routeParams, $timeout, $log, Arbol, Objetivo, EntidadObjeto) {
 				$rootScope.nav = 'carta';
 				$scope.idjerarquia = ($routeParams.idjerarquia) ? parseInt( $routeParams.idjerarquia ) : false;
 				$scope.arbol = Arbol.query(function(){ $scope.setJerarquiaById($scope.idjerarquia); });
@@ -38,8 +38,7 @@
 					}
 				};
 				$scope.filtro = function(elemento){
-					return true;
-					//return elemento.numobjetivos;
+					return true;/* elemento.numobjetivos; */
 				};
 				var progresos = [0];
 				$scope.getProgress = function(i){
@@ -69,18 +68,14 @@
 				$scope.claseComentarios = function(indicador){
 					return indicador.i % 2 === 0 ? 'text-danger' : '';
 				};
-				$scope.setSeleccionado = function(selection){
-					if (selection) {
-						$scope.idjerarquia = selection.id;
-						$scope.cartasservicio = [
-							{ titulo: "01/01/2014 - 31/12/2015", url: "/carta/" + $scope.idjerarquia + '/1'},
-							{ titulo: "01/01/2015 - 31/12/2016", url: "/carta/" + $scope.idjerarquia + '/2'}
-						];
-						$scope.seleccionado = selection;
-						$rootScope.setTitle(selection.title);
-						$scope.cartas = CartaServicio.query({ idjerarquia: selection.id }, function(){
+				$scope.setCartaServicio = function(cartaservicio){
+					if (typeof cartaservicio !== 'undefined'){
+						$rootScope.setTitle(cartaservicio.denominacion);
+						$scope.cartaservicioseleccionada = cartaservicio;
+						var restrictions = { idjerarquia: cartaservicio.idjerarquia, carta: cartaservicio._id };
+						$scope.objetivos = Objetivo.query(restrictions, function(){
 							$scope.gaugeChart = [];
-							for(var i = 0, j = $scope.cartas.length; i <= j; i++ ){
+							for(var i = 0, j = $scope.objetivos.length; i <= j; i++ ){
 								$scope.gaugeChart.push({
 									data: {
 										maxValue: 100,
@@ -108,8 +103,27 @@
 								$scope.gaugeChart[i].data.val = progresos[i];
 							}
 						});
-						$scope.cumplimentados = 0;
-						$scope.count = 1;
+					}else{
+						$scope.objetivos = [];
+						delete $scope.cartaservicioseleccionada;
+					}
+				};
+				$scope.setSeleccionado = function(selection){
+					if (selection) {
+						$scope.idjerarquia = selection.id;
+						$scope.cartasservicio = EntidadObjeto.query({'tipoentidad': 'CS', 'idjerarquia': $scope.idjerarquia}, function(){
+							for(var i = 0, j = $scope.cartasservicio.length; i < j; i++){
+								$scope.cartasservicio[i].urledicion = '/carta/' + $scope.idjerarquia + '/' + $scope.cartasservicio[i]._id;
+							}
+							if ($scope.cartasservicio.length > 0){
+								$scope.setCartaServicio($scope.cartasservicio[0]);
+							}else{
+								$scope.setCartaServicio();
+							}
+						});
+
+						$scope.seleccionado = selection;
+
 						$timeout(function(){
 							$('body').animate({scrollTop: $('#detallesjerarquia').offset().top }, 'slow');
 						}, 20);

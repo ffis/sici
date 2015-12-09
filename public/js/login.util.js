@@ -8,8 +8,7 @@ angular.module('sici.login.util', ['ngResource'])
 				if (data)
 				{
 					data.date = new Date().getTime();
-					for(var attr in data)
-					{
+					for(var attr in data){
 						this[attr] = data[attr];
 					}
 
@@ -21,7 +20,9 @@ angular.module('sici.login.util', ['ngResource'])
 					$log.debug('Cargando desde session storage');
 					var suser, user;
 					suser = $window.localStorage.client_session;
-					suser && (user = JSON.parse(suser));
+					if (suser){
+						user = JSON.parse(suser);
+					}
 					var today = new Date().getTime();
 					if (user && (today - user.date) < 86400000) {
 						for(var attr in user)
@@ -97,7 +98,7 @@ angular.module('sici.login.util', ['ngResource'])
 							$log.info('Contraseña no válida');
 							delete $window.localStorage.token;
 						});
-					} else  {
+					} else {
 						var urlconsulta = '/SICI_SSO/LoginSSO';
 						var urllogin = '/SICI_SSO/';
 						var deferred = $q.defer();
@@ -140,7 +141,7 @@ angular.module('sici.login.util', ['ngResource'])
 					$rootScope.setLogeado(false);
 					$rootScope.logeado = false;
 
-					return  $http(
+					return $http(
 						{
 							method: 'POST',
 							url: '/logout',
@@ -156,7 +157,7 @@ angular.module('sici.login.util', ['ngResource'])
 						});
 				},
 				isAuthenticated: function () {
-					return  $window.localStorage.token && (!!Session.userId || !!Session.create()) ;
+					return $window.localStorage.token && (!!Session.userId || !!Session.create());
 				},
 				isAuthorized: function (authorizedRoles) {
 					return true; // dejamos abierta la puerta a un futuro uso de esto
