@@ -102,8 +102,8 @@ modulo
                 return $resource('/api/v1/private/personasByRegexp/:regex', {}, {query: {method: 'GET', isArray: true }}); }])
         .factory('PersonasSearchList', ['$resource', function ($resource) {
                 return $resource('/api/v1/private/searchpersonas', {}, {query: {method: 'GET', isArray: true }}); }])
-        .factory('CartaServicio', ['$resource', function ($resource) {
-                return $resource('/api/v2/public/carta/:idjerarquia', { idjerarquia: '@idjerarquia' }, {query: {method: 'GET', isArray: true }}); }])
+        .factory('Objetivo', ['$resource', function ($resource) {
+                return $resource('/api/v2/public/objetivo/:idjerarquia', { idjerarquia: '@idjerarquia' }, {query: {method: 'GET', isArray: true }}); }])
         .factory('EntidadObjeto', ['$resource', function ($resource) {
                 return $resource('/api/v2/public/entidadobjeto/:id', {id: '@_id' }, {update: {method: 'PUT' }}); }])
 
