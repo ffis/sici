@@ -4,7 +4,7 @@
 	.controller('AppCtrl', ['$window', '$q', '$scope', '$rootScope', '$log', 'Session', '$location', '$http', 'PermisosCalculados', 'AuthService',
 		function ($window, $q, $scope, $rootScope, $log, Session, $location, $http, PermisosCalculados, AuthService) {
 
-		$rootScope.setTitle = function (title){ $scope.name = title; };
+		$rootScope.setTitle = function (title){ $window.document.title = 'SICI - ' + title; };
 		$rootScope.setLogeado = function(t){
 			$rootScope.logeado = t;
 			if (t && typeof $rootScope.permisoscalculados === 'undefined') {

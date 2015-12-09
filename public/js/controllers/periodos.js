@@ -4,7 +4,7 @@
 		.controller('PeriodosCtrl', ['$rootScope', '$scope', '$routeParams', '$window', 'Periodo', 'Anualidad',
 			function ($rootScope, $scope, $routeParams, $window, Periodo, Anualidad) {
 				$rootScope.nav = 'periodos';
-				$window.document.title = 'SICI: Períodos';
+				$rootScope.setTitle('Períodos');
 				$scope.meses = $rootScope.meses;
 				$scope.periodo = false;
 

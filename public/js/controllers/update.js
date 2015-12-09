@@ -5,7 +5,7 @@
 		function ($rootScope, $scope, $window, $log, $http, $upload, Importacion) {
 			$rootScope.nav = 'update';
 			$scope.actualizando = 0;
-			$window.document.title = 'SICI - Importación';
+			$rootScope.setTitle('Importación');
 			$scope.respuestas = Importacion.query();
 
 			$scope.remove = function(respuesta){

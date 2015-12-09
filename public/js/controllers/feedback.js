@@ -4,7 +4,7 @@
 		.controller('FeedbackCtrl', [ '$rootScope', '$scope', '$window', '$routeParams', 'Feedback',
 			function ($rootScope, $scope, $window, $routeParams, Feedback) {
 				$rootScope.nav = 'feedback';
-				$window.document.title = 'SICI: Feedback';
+				$rootScope.setTitle('Feedback');
 				$scope.cambios = [];
 				$scope.feedbacks = Feedback.query();
 				$scope.selected = null;

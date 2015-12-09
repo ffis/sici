@@ -5,7 +5,7 @@
 			['$q', '$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', '$log', 'Arbol', 'ProcedimientoList', 'DetalleCarmProcedimiento', 'DetalleCarmProcedimiento2', 'PersonasByPuesto', 'Etiqueta', 'ExportarResultadosJerarquia',
 		function ($q, $rootScope, $scope, $location, $window, $routeParams, $timeout, $log, Arbol, ProcedimientoList, DetalleCarmProcedimiento, DetalleCarmProcedimiento2, PersonasByPuesto, Etiqueta, ExportarResultadosJerarquia) {
 			$rootScope.nav = 'actividad';
-			$window.document.title = 'SICI: Actividad';
+			$rootScope.setTitle('Actividad');
 			$scope.idjerarquia = ($routeParams.idjerarquia) ? parseInt( $routeParams.idjerarquia ) : false;
 			$scope.arbol = Arbol.query(function(){ $scope.setJerarquiaById($scope.idjerarquia); });
 

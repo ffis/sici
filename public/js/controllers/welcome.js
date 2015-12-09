@@ -5,7 +5,7 @@
 			function ($rootScope, $scope, $window, Aggregate, ProcedimientoCount, TramitesCount, PorcentajeTramitesResultos, ProcedimientosSinExpedientes){
 
 				$rootScope.nav = 'inicio';
-				$window.document.title = 'SICI - Portada';
+				$rootScope.setTitle('Portada');
 
 				$scope.indicadores = [ ];
 				$scope.welcomeDetailsEnabled = false;

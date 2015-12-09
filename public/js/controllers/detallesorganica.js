@@ -165,7 +165,7 @@
 				});
 
 				$scope.jerarquiaSeleccionada = Jerarquia.get({id: $routeParams.idjerarquia}, function () {
-					$window.document.title = 'SICI: ' + $scope.jerarquiaSeleccionada.nombrelargo;
+					$rootScope.setTitle('$scope.jerarquiaSeleccionada.nombrelargo');
 					$scope.anualidad = '' + (new Date()).getFullYear();
 					$scope.anualidadActual = parseInt($scope.anualidad.replace('a', ''));
 					//$scope.procedimientosPadre = ProcedimientoList.query({'idjerarquia': $scope.procedimientoSeleccionado.idjerarquia, 'recursivo': false});

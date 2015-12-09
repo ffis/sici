@@ -6,7 +6,7 @@
 
 				$rootScope.nav = 'recalculate';
 				$scope.actualizando = 0;
-				$window.document.title = 'SICI';
+				$rootScope.setTitle('Informes');
 				$scope.respuestas = [];
 				$scope.tienePermisoVar = false;
 				$scope.anyos = [];

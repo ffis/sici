@@ -4,7 +4,7 @@
         .controller('TestExpediente', ['$rootScope', '$scope', '$window', '$http', 'TestExpediente',
             function ($rootScope, $scope, $window, $http, TestExpediente) {
                 $rootScope.nav = 'recalculate';
-                $window.document.title = 'SICI';
+                $$rootScope.setTitle('TestExpediente');
                 $scope.respuesta = {
                     clase: 'alert-success',
                     mensaje: 'Sin ejecutar'

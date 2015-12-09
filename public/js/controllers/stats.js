@@ -4,7 +4,7 @@
 	.controller('StatsCtrl', ['$rootScope', '$scope', '$window', 'Aggregate',
 		function ($rootScope, $scope, $window, Aggregate){
 			$rootScope.nav = 'stats';
-			$window.document.title = 'SICI: Estadísticas';
+			$rootScope.setTitle('Estadísticas');
 			$scope.graphs = [];
 			$scope.campos = ['ancestro_v_2', 'ancestro_v_3', 'ancestro_v_4', 'cod_plaza', 'denominacion', 'codigo'];
 			$scope.campo = $scope.campos[0];

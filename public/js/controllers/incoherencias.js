@@ -7,7 +7,7 @@
 				$rootScope.nav = 'errors';
 				$scope.mostrartodos = '1';
 				$scope.idsencomun = false;
-				$window.document.title = 'SICI: Incoherencias';
+				$rootScope.setTitle('Incoherencias');
 				$scope.anualidad = new Date().getFullYear();
 
 				var camposprocedimiento = [

@@ -7,7 +7,7 @@
 				$log.error('intentando destruir sesión');
 				$scope.imagen = 'background: transparent url("/imgs/flag.svg")';
 
-				$window.document.title = 'Sesión cerrada';
+				$rootScope.setTitle('Sesión cerrada');
 				//$scope.login = Session.create();
 				//Session.destroy();
 				AuthService.logout();
@@ -29,7 +29,7 @@
 			{
 				$log.error('intentando destruir sesión');
 
-				$window.document.title = 'Inicio de sesión';
+				$rootScope.setTitle('Inicio de sesión');
 				$scope.imagen = 'background: transparent url("/imgs/flag.svg")';
 				$scope.back = function() { window.history.back(); };
 				$scope.logout = function(){ AuthService.logout();	};

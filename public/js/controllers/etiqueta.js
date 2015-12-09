@@ -4,7 +4,7 @@
 		.controller('EtiquetaCtrl', [ '$rootScope', '$scope', '$window', '$routeParams', 'Etiqueta',
 			function ($rootScope, $scope, $window, $routeParams, Etiqueta) {
 				$rootScope.nav = 'etiqueta';
-				$window.document.title = 'SICI: Etiquetas';
+				$rootScope.setTitle('Etiquetas');
 				$scope.cambios = [];
 				$scope.etiquetas = Etiqueta.query();
 				$scope.nuevo = new Etiqueta();
