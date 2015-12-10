@@ -1,4 +1,4 @@
-(function(module){
+(function(module, gc, global){
 'use strict';
 
 	var memwatch = require('memwatch');
@@ -28,4 +28,4 @@
 			next();
 		};
 	};
-})(module);
+})(module, gc, global);

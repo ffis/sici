@@ -18,15 +18,15 @@ function calcularPermisos(permisos) {
 			permisoscalculados.grantoption = permisoscalculados.grantoption || permisos[i].grantoption;
 			//o.permisos.push( permisos[i] );
 		}
-
-		for (var k = 0, l = permisos[i].jerarquialectura.length; k < l; k++){
+		var k, l;
+		for (k = 0, l = permisos[i].jerarquialectura.length; k < l; k++){
 			if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime()) &&
 				(permisoscalculados.jerarquiaescritura.indexOf(permisos[i].jerarquialectura[k]) === -1 ) )
 			{
 				permisoscalculados.jerarquialectura.push( permisos[i].jerarquialectura[k]);
 			}
 		}
-		for(var k = 0, l = permisos[i].procedimientoslectura.length; k < l; k++){
+		for(k = 0, l = permisos[i].procedimientoslectura.length; k < l; k++){
 			if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime()) &&
 				(permisoscalculados.procedimientosescritura.indexOf(permisos[i].procedimientoslectura[k]) === -1 ) )
 			{
@@ -93,11 +93,11 @@ exports.authenticate = function(config){
 		var shasum = crypto.createHash('sha256');
 		shasum.update(req.body.password);
 
-		if (!!req.body.notcarmuser){
+		if (req.body.notcarmuser){
 			restriccion.contrasenya = shasum.digest('hex');
 		}
 
-		console.log(restriccion);
+		//console.log(restriccion);
 		Persona.find( restriccion,
 			function(err, personas){
 				if (err || personas.length === 0)

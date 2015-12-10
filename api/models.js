@@ -84,7 +84,7 @@
 			'ancestros': [Number],
 			'descendientes': [Number],
 			'numprocedimientos': Number,
-			'numobjetivos': Number
+			'numcartas': Number
 		},
 		importacionesprocedimiento: {
 			'login_importador': String,

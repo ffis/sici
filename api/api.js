@@ -58,7 +58,7 @@ module.exports.arbol = function(Q, models){
 				for(var i = 0, j = hijos[ idjerarquia ].length; i < j; i++){
 					var nodo = hijos[ idjerarquia ][i];
 					if (filterfn(nodo)){
-						returnval.push({_id: nodo._id, id: nodo.id, title: nodo.nombrelargo, nodes: getHijos( nodo.id ), numprocedimientos: nodo.numprocedimientos, numobjetivos: nodo.numobjetivos});
+						returnval.push({_id: nodo._id, id: nodo.id, title: nodo.nombrelargo, nodes: getHijos( nodo.id ), numprocedimientos: nodo.numprocedimientos, numcartas: nodo.numcartas});
 					}
 				}
 				return returnval;
@@ -67,7 +67,7 @@ module.exports.arbol = function(Q, models){
 			idsraiz.forEach(function(idraiz){
 				var nodo = mappingXid[idraiz];
 				if (filterfn(nodo)){
-					returnValue.push({_id: nodo._id, id: nodo.id, title: nodo.nombrelargo, nodes: getHijos(nodo.id), numprocedimientos: nodo.numprocedimientos, numobjetivos: nodo.numobjetivos });
+					returnValue.push({_id: nodo._id, id: nodo.id, title: nodo.nombrelargo, nodes: getHijos(nodo.id), numprocedimientos: nodo.numprocedimientos, numcartas: nodo.numcartas });
 				}
 			});
 			res.json(returnValue);
@@ -160,11 +160,11 @@ module.exports.aggregate = function(cfg, models){
 						match[campomatch] = valor;
 					});
 				}
-					match = {'$and': [ match, blancos, jerarquia, oculto, eliminado ]};
+				match = {'$and': [ match, blancos, jerarquia, oculto, eliminado ]};
 //				match.idjerarquia = {'$in':req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)};
 			} else {
-					match = {'$and': [ blancos, jerarquia, oculto, eliminado ]};
-				}
+				match = {'$and': [ blancos, jerarquia, oculto, eliminado ]};
+			}
 			group.push({ '$match': match });
 			groupfield.count = {'$sum': 1};
 			groupfield.porcumplimentar = { '$sum': {'$cond': [ { '$eq': [0, '$periodos.a' + anualidad + '.totalsolicitudes']}, 1, 0 ] } };
@@ -177,7 +177,6 @@ module.exports.aggregate = function(cfg, models){
 				if (err) { console.error(err); res.status(500); res.end(); return ; }
 				res.json(data);
 			});
-
 	};
 };
 

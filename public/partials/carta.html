@@ -11,7 +11,7 @@
 		    </span>
 		  </div>
 		</div>
-		<organismos otitle="'Organismos con cartas de compromisos'" arbol="arbol" tipoelementos="'carta de compromisos'" attr="'numobjetivos'" setseleccionado="setSeleccionado" seleccionado="seleccionado" filtro="filtro"></organismos>
+		<organismos otitle="'Organismos con cartas de compromisos'" arbol="arbol" tipoelementos="'carta de compromisos'" attr="'numcartas'" setseleccionado="setSeleccionado" seleccionado="seleccionado" filtro="filtro"></organismos>
 	</div>
 	<div ng-class="{'col-lg-9': !oculto, 'col-md-8': !oculto, 'col-lg-12': oculto}" class="right animated" id="detallesjerarquia">
 		<div ng-click="oculto=!oculto" style="cursor:ew-resize">
@@ -78,7 +78,7 @@
 												<thead>
 													<tr>
 														<th></th>
-														<th class="text-center" ng-repeat="a in [0,1,2,3,4,5,6,7,8,9,10,11]">{{inicialesmeses[a]}}</th>
+														<th class="text-center" ng-repeat="a in [0,1,2,3,4,5,6,7,8,9,10,11]">{{$root.inicialesmeses[a]}}</th>
 														<th>2015</th>
 													</tr>
 												</thead>

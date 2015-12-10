@@ -73,7 +73,7 @@
 				while(record){
 					numlinea++;
 					for(var j = record.length - 1; j >= 0; j--){
-						if (record[j].trim() !== ''){ break;}
+						if (record[j].trim() !== ''){ break; }
 						record.splice(j, 1);
 					}
 

@@ -68,5 +68,5 @@
 			$scope.toolTipContentFunction = function(){ return function(key, x, y) { return '<p>' + y.point._id + ' : ' + parseInt(x) + '</p>'; }; };
 			$scope.widthgraph = 0;
 		}
-		]);
+	]);
 })(angular);

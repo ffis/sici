@@ -15,7 +15,8 @@
 					'DG de Juventud y Deportes-Área de Deportes': 637,
 					'DG de Pensiones, Valoración y Programas de Inclusión': 1990,
 					'DG de Trabajo': 1746,
-					'DG de la Función Pública y Calidad de los Servicios': 18
+					'DG de la Función Pública y Calidad de los Servicios': 18,
+					'Carta de Servicios del Servicio de Atención al Ciudadano': 85
 				};
 
 				$scope.setJerarquiaById = function(idj){
@@ -64,7 +65,6 @@
 				$scope.filtropartes = function(a){
 					return a.indexOf('100') === -1;
 				};
-				$scope.inicialesmeses = ['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
 				$scope.claseComentarios = function(indicador){
 					return indicador.i % 2 === 0 ? 'text-danger' : '';
 				};

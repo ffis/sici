@@ -50,7 +50,6 @@
 		/**** FIN PARCHE ***/
 
 		// comprobamos que cualquier permiso sobre procedimiento permite leer la jerarquia a que pertenece.
-		var dprocs = [];
 		var superarray = (Array.isArray(permiso.procedimientosdirectalectura) ? permiso.procedimientosdirectalectura : []);
 		superarray = superarray.concat(Array.isArray(permiso.procedimientosdirectaescritura) ? permiso.procedimientosdirectaescritura : []);
 		var restriccion_proc = null;
@@ -127,7 +126,7 @@
 				}
 				var def = Q.defer();
 				// buscamos todas las jerarquías indicadas en el mismo
-				Jerarquia.find({id: {'$in': idsjerarquia}},{id: true, descendientes: true}, function (err, jerarquias) {
+				Jerarquia.find({id: {'$in': idsjerarquia}}, {id: true, descendientes: true}, function (err, jerarquias) {
 					if (err) {
 						def.reject(err);
 						return;
@@ -168,7 +167,7 @@
 
 					permiso[ attr ] = permiso[ attr ].filter(function (value, index, self) {
 						return self.indexOf(value) === index;
-					})
+					});
 
 					var idsjerarquia = permiso[ attrsOrigenjerarquia[idx] ];
 					if (idsjerarquia && idsjerarquia.length === 0){
@@ -477,7 +476,7 @@
 					permiso.save(function (error) {
 						if (error) {
 							console.error();
-							console.error(error+' softcalculate permiso concluido ' + permiso._id + ' ; ' + permiso.login + ';' + permiso.codplaza + ' (' + pindex + ' de ' + plength + ')');
+							console.error(error + ' softcalculate permiso concluido ' + permiso._id + ' ; ' + permiso.login + ';' + permiso.codplaza + ' (' + pindex + ' de ' + plength + ')');
 							informes.push({codigo: permiso._id, status: 500});
 							promise.reject(err);
 						} else {
@@ -599,24 +598,27 @@
 
 			var defs = [];
 			var contador = 0;
+			var cbProcedimientoCount = function (defer, id) {
+				return function (err, count) {
+					mapeadoArray[id].numprocedimientos = count;
+					mapeadoArray[id].save(function (e) {
+						if (e) {
+							console.error(e);
+							defer.reject(e);
+						}
+						else {
+							defer.resolve();
+						}
+					});
+				};
+			};
+			/*
+			TODO: sustituir esto (cbProcedimientoCount y el siguiente bucle) por un único mapreduce
+			*/
 			for (var i = 0, j = ids.length; i < j; i++)
 			{
 				var id = ids[i];
 				var defer = Q.defer();
-				var f = function (defer, id) {
-					return function (err, count) {
-						mapeadoArray[id].numprocedimientos = count;
-						mapeadoArray[id].save(function (e) {
-							if (e) {
-								console.error(e);
-								defer.reject(e);
-							}
-							else {
-								defer.resolve();
-							}
-						});
-					};
-				};
 
 				Procedimiento.count({'$and': [
 						{'idjerarquia': {'$in': [mapeadoArray[id].id].concat(mapeadoArray[id].descendientes)}},
@@ -637,7 +639,8 @@
 							]
 						}
 					]},
-				f(defer, id));
+					cbProcedimientoCount(defer, id)
+				);
 				defs.push(defer.promise);
 			}
 			Q.all(defs).then(function () {

@@ -17,6 +17,7 @@
 		$rootScope.nav = '';
 		$rootScope.logeado = false;
 		$rootScope.meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+		$rootScope.inicialesmeses = ['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
 		var IEChecker = /MSIE [6789]+/i;
 		var browser = $window.navigator.userAgent;
 		$rootScope.navegabilidad = [

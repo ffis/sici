@@ -1,5 +1,5 @@
 (function(module){
-'use strict';
+	'use strict';
 
 	function socketioconsole(app)
 	{
@@ -28,8 +28,8 @@
 				fns[fnname].apply(console, arguments);
 			};
 		};
-		for(var fnname in fns){
-			console[fnname] = fn(fnname);
+		for(var funname in fns){
+			console[funname] = fn(funname);
 		}
 	}
 

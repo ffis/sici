@@ -48,7 +48,8 @@
 		'Carta de Servicios de la Dirección General de Juventud y Deportes-�rea de Deportes': 637,
 		'Carta de Servicios de la Dirección General de Pensiones, Valoraci�n y Programas de Inclusi�n': 1990,
 		'Carta de Servicios de la Dirección General de Trabajo': 1746,
-		'Carta de Servicios de la Dirección General de la Funci�n P�blica y Calidad de los Servicios': 18
+		'Carta de Servicios de la Dirección General de la Funci�n P�blica y Calidad de los Servicios': 18,
+		'Carta de Servicios del Servicio de Atención al Ciudadano': 85
 	};
 	function getMapping(id){
 		for(var iq in equivalencias){

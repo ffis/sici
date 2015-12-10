@@ -8,7 +8,6 @@
 					<input type="text" class="form-control" placeholder="Filtro..." ng-model="filtro" />
 				</div>
 				Entidades objeto
-
 				</caption>
 				<thead>
 					<tr>
@@ -18,13 +17,13 @@
 				</thead>
 				<tfoot>
 					<tr>
-						<td class="text-center" colspan="Object.keys(entidades[0]).length">Nº de registros mostrados: <strong>{{entidades.length}}</strong></td>
+						<td class="text-center" colspan="{{entidades[0] | keylength}}">Nº de registros mostrados: <strong>{{entidades.length}}</strong></td>
 					</tr>
 				</tfoot>
 				<tbody ng-repeat="entidadobjeto in entidades | filter:filtro">
 					<tr>
 						<th>{{entidadobjeto._id}}</th>
-						<td  ng-If="clave!='_id'" ng-repeat="(clave, valor) in entidadobjeto">
+						<td  ng-If="clave!='_id'" ng-repeat="(clave, valor) in entidadobjeto" style="overflow:auto; max-width:200px">
 							<a href="#" editable-text="entidadobjeto[clave]" onaftersave="actualizar(entidadobjeto, clave)">{{entidadobjeto[clave]}}</a>
 						</td>
 					</tr>
