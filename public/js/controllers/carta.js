@@ -2,8 +2,8 @@
 	'use strict';
 	angular.module('sici')
 		.controller('CartaCtrl',
-			['$q', '$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', '$log', 'Arbol', 'Objetivo', 'EntidadObjeto',
-			function ($q, $rootScope, $scope, $location, $window, $routeParams, $timeout, $log, Arbol, Objetivo, EntidadObjeto) {
+			['$q', '$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', '$log', 'Arbol', 'Objetivo', 'EntidadObjeto', 'PastelColor', 'ImportarObjetivo',
+			function ($q, $rootScope, $scope, $location, $window, $routeParams, $timeout, $log, Arbol, Objetivo, EntidadObjeto, PastelColor, ImportarObjetivo) {
 				$rootScope.nav = 'carta';
 				$scope.idjerarquia = ($routeParams.idjerarquia) ? parseInt( $routeParams.idjerarquia ) : false;
 				$scope.arbol = Arbol.query(function(){ $scope.setJerarquiaById($scope.idjerarquia); });
@@ -108,6 +108,7 @@
 						delete $scope.cartaservicioseleccionada;
 					}
 				};
+				$scope.anualidad = new Date().getFullYear(); //temporalmente */
 				$scope.setSeleccionado = function(selection){
 					if (selection) {
 						$scope.idjerarquia = selection.id;
@@ -129,7 +130,12 @@
 						}, 20);
 					}
 				};
-
+				$scope.getPastel = function(i){
+					return PastelColor(i);
+				};
+				$scope.importarObjetivos = function(){
+					ImportarObjetivo.get({idjerarquia: $scope.idjerarquia});
+				};
 			}
 		]
 	);

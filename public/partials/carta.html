@@ -23,6 +23,9 @@
 		<div ng-if="cartasservicio.length" class="table-responsive">
 			<p>
 				<div class="btn-group">
+					<a class="btn btn-danger" ng-click="importarObjetivos()">
+						<span class="glyphicon glyphicon-info-sign"></span>
+					</a>
 					<a class="btn btn-default" target="_blank" href="{{cartaservicioseleccionada.url}}" title="Ver informaci&oacute;n publicada"><span class="glyphicon glyphicon-info-sign"></span></a>
 					<div class="btn-group">
 					  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -35,7 +38,7 @@
 				</div>
 				<br style="clear:both" />
 			</p>
-			<table class="table table-striped table-bordered table-condensed table-hover" id="cartastable">
+			<table class="table table-bordered table-condensed table-hover" id="cartastable">
 				<thead>
 					<tr>
 						<th ng-class="{danger:orderby=='codigo' }" ng-click="reverse=!reverse;orderby='codigo'">{{'codigo'|translate}}</th>
@@ -52,15 +55,15 @@
 					</tr>
 				</tfoot>
 				<tbody>
-					<tr ng-repeat="indicador in objetivos track by indicador.uid">
+					<tr ng-repeat="objetivo in objetivos" style="background-color:{{getPastel(objetivo.index)}}">
 						<th class="text-center">
-							<p>{{indicador.i}}</p>
+							<p>{{objetivo.index}}</p>
 							<div class="btn-group-vertical" role="group">
 								<button type="button" class="btn btn-default" title="Editar">
 									<span class="glyphicon glyphicon-pencil"></span>
 								</button>
 								<button type="button" class="btn btn-default" title="Comentar">
-									<span class="glyphicon glyphicon-comment" ng-class="claseComentarios(indicador)"></span>
+									<span class="glyphicon glyphicon-comment" ng-class="claseComentarios(objetivo)"></span>
 								</button>
 								<button type="button" class="btn btn-default">
 									<span class="glyphicon glyphicon-link"></span>
@@ -68,22 +71,23 @@
 							</div>
 						</th>
 						<td class="text-left">
-							<p>{{indicador.descripcion}}</p>
+							<div class="formuladetails">
+							<p>{{objetivo.denominacion}}</p>
 							<table class="table table-striped table-bordered table-condensed table-hover">
 								<tbody>
-									<tr ng-repeat="formula in indicador.formulas track by $index">
+									<tr ng-repeat="formula in objetivo.formulas track by $index">
 										<td style="width:85%">
-											<p><strong>{{formula}}</strong></p>
+											<p><strong>{{formula.human}}</strong></p>
 											<table class="table table-striped table-bordered" style="width:100%">
 												<thead>
 													<tr>
 														<th></th>
 														<th class="text-center" ng-repeat="a in [0,1,2,3,4,5,6,7,8,9,10,11]">{{$root.inicialesmeses[a]}}</th>
-														<th>2015</th>
+														<th>{{anualidad}}</th>
 													</tr>
 												</thead>
 												<tbody>
-													<tr ng-repeat="parte in indicador.partes[$index] | filter:filtropartes">
+													<tr ng-repeat="parte in objetivo.partes[$index] | filter:filtropartes">
 														<td style="width:50%">{{parte}}</td>
 														<td ng-repeat="a in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]">
 															<input type="text" style="width:3em" class="text-right form-control" value="0" />
@@ -96,13 +100,14 @@
 											</table>
 										</td>
 										<td style="text-align:center">
-											<canvas data-gauge-chart maxvalue="100" dato="gaugeChart[indicador.i].data" value="gaugeChart[indicador.i].data.val" data-options="gaugeChart[indicador.i].options" style="width: 120px; height: 60px; " class=""></canvas>
+											<canvas data-gauge-chart maxvalue="100" dato="gaugeChart[objetivo.i].data" value="gaugeChart[objetivo.i].data.val" data-options="gaugeChart[objetivo.i].options" style="width: 120px; height: 60px; " class=""></canvas>
 											<br />
-											{{gaugeChart[indicador.i].data.val}}
+											{{gaugeChart[objetivo.i].data.val}}
 										</td>
 									</tr>
 								</tbody>
 							</table>
+							</div>
 						</td>
 					</tr>
 				</tbody>
@@ -114,6 +119,8 @@
 #cartastable tbody tr th .btn-group-vertical{display: none}
 #cartastable tbody tr:hover th .btn-group-vertical{display: block}
 #cartastable tbody tr th { vertical-align:middle }
+#cartastable tbody tr    { page-break-inside:avoid; page-break-after:auto }
+#cartastable tbody tr td div.formuladetails { page-break-inside:avoid; } /* This is the key */
 </style>
 <!--
 <td class="hidden">

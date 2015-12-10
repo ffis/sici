@@ -237,8 +237,9 @@
 		app.get('/api/v1/public/tramitesMediaMes', procedimiento.mediaMesTramites(cfg, models));
 		app.get('/api/v1/public/tramitesMediaMes/:anualidad', procedimiento.mediaMesTramites(cfg, models));
 
-		app.get('/api/v2/public/objetivo', carta.indicadores());
-		app.get('/api/v2/public/objetivo/:idjerarquia', carta.indicadores());
+		app.get('/api/v2/public/objetivo', carta.objetivo(models));
+		app.get('/api/v2/public/objetivo/:id', carta.objetivo(models));
+		app.get('/api/v2/public/importarobjetivo/:idjerarquia', carta.import(models, Q));
 
 		app.get('/api/v2/public/entidadobjeto', entidadobjeto.get(models));
 		app.put('/api/v2/public/entidadobjeto/:id', entidadobjeto.update(models));

@@ -42,6 +42,7 @@
 
 			content.idjerarquia = parseInt(content.idjerarquia);
 			content.fecha_version = new Date();
+			//entidadobjeto.markModified('fecha_version');
 
 			entidadobjeto.update({'_id': id}, content, {upsert: true}, function (e) {
 				if (e) {

@@ -1,6 +1,7 @@
 (function(module){
 	'use strict';
 
+	var mongoose = undefined;
 	var schemas = {};
 
 	var schemasfields = {
@@ -190,10 +191,11 @@
 			'tipoentidad': String,
 			'fechaalta': Date,
 			'fechafin': Date,
-			'fechaversion': Date,
+			'fechaversion': { type: Date, default: Date.now },
 			'eliminado': Boolean
 		},
-		compromiso: {
+		objetivo: {
+			//'carta': Schema.Types.ObjectId,
 			'codigo': Number,
 			'denominacion': String,
 			'index': Number,
@@ -203,10 +205,11 @@
 			'formulas': [{
 				'human': String,
 				'frecuencia': String,
-				//valores: Mixed
-				'indicadores': [ Number ],
+				'indicadores': [ 'Schema.Types.ObjectId' ],
 				'meta': Number,
+				'direccion': String,
 				//'parteizq': Mixed
+				'valores': 'Mixed'
 			}]
 		},
 		indicador: {
@@ -214,12 +217,12 @@
 			'denominacion': String,
 			'resturl': String,
 			'fechaversion': Date,
-			//'valores': Mixed,
-			//'observaciones': Mixed
-			//'medidas': Mixed
 			'vinculacion': String,
 			'frecuencia': String,
-			'pendiente': Boolean
+			'pendiente': Boolean,
+			'valores': 'Mixed',
+			'observaciones': 'Mixed',
+			'medidas': 'Mixed'
 		}
 	};
 
@@ -236,7 +239,7 @@
 		if (Object.keys(fields).length === 0 || !strict){
 			cfg.strict = false;
 		}
-		var objSchema = new Schema (fields, cfg);
+		var objSchema = new Schema(fields, cfg);
 		schemas[name] = mongoose.model(name, objSchema);
 
 		if (typeof schemasfields[name] === 'undefined'){
@@ -245,8 +248,11 @@
 
 		return schemas[name];
 	}
-
-	module.exports.init = function(mongoose) {
+	module.exports.ObjectId = function(o){
+		return mongoose.Types.ObjectId(o);
+	};
+	module.exports.init = function(mongoos) {
+		mongoose = mongoos;
 		var Schema = mongoose.Schema;
 		schemasfields.crawled.any = Schema.Types.Mixed;
 		schemasfields.registroactividad.req = Schema.Types.Mixed;
@@ -257,6 +263,12 @@
 		schemasfields.importacionesprocedimiento.output = Schema.Types.Mixed;
 		schemasfields.importacionesprocedimiento.avisos = Schema.Types.Mixed;
 		schemasfields.importacionesprocedimiento.errores = Schema.Types.Mixed;
+		schemasfields.objetivo.carta = Schema.Types.ObjectId;
+		schemasfields.objetivo.formulas[0].indicadores = Schema.Types.Mixed;
+		schemasfields.objetivo.formulas[0].valores = Schema.Types.Mixed;
+		schemasfields.indicador.valores = Schema.Types.Mixed;
+		schemasfields.indicador.observaciones = Schema.Types.Mixed;
+		schemasfields.indicador.medidas = Schema.Types.Mixed;
 
 		for(var name in schemasfields){
 			exports[name](mongoose);
@@ -269,7 +281,7 @@
 		return function(mongoose) {
 			if (mapconstructors[name])
 				return mapconstructors[name];
-			return mapconstructors[name]=schemaConstructor(name, mongoose, true);
+			return mapconstructors[name] = schemaConstructor(name, mongoose, true);
 		};
 	}
 

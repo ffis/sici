@@ -103,7 +103,9 @@ modulo
         .factory('PersonasSearchList', ['$resource', function ($resource) {
                 return $resource('/api/v1/private/searchpersonas', {}, {query: {method: 'GET', isArray: true }}); }])
         .factory('Objetivo', ['$resource', function ($resource) {
-                return $resource('/api/v2/public/objetivo/:idjerarquia', { idjerarquia: '@idjerarquia' }, {query: {method: 'GET', isArray: true }}); }])
+                return $resource('/api/v2/public/objetivo/:id', {id: '@_id'}, {query: {method: 'GET', isArray: true }}); }])
+        .factory('ImportarObjetivo', ['$resource', function ($resource) {
+                return $resource('/api/v2/public/importarobjetivo/:idjerarquia', { idjerarquia: '@idjerarquia' }, {query: {method: 'GET', isArray: true }}); }])
         .factory('EntidadObjeto', ['$resource', function ($resource) {
                 return $resource('/api/v2/public/entidadobjeto/:id', {id: '@_id' }, {update: {method: 'PUT' }}); }])
 
