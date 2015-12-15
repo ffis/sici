@@ -488,7 +488,7 @@
 				}, function (err) {
 					informes.push({codigo: permiso._id, status: 500});
 					promise.reject(err);
-				})
+				});
 			};
 			permisos.forEach(function (permiso) {
 				var promise = Q.defer();
@@ -596,8 +596,52 @@
 				}
 			}
 
-                       var numProcedimientos = [];
-                       Procedimiento.find({'$and': [
+			var Carta = models.entidadobjeto();
+
+			//primero recorrer el listado de jerarquías que ya existía, asignando el valor 0 a los dos atributos:
+			for(var id in mapeadoArray){
+				if (typeof mapeadoArray[id] !== 'undefined' && typeof mapeadoArray[id].numprocedimientos !== 'undefined' ){
+					mapeadoArray[id].numprocedimientos = 0;
+					mapeadoArray[id].numcartas = 0;
+				}
+			}
+
+			//segundo definir función genérica, que sirva tanto para numprocedimientos como para numcartas
+			//campo: ['numprocedimientos', 'numcartas']
+			var fnActualizacion = function(campo, promise, actualizarancestros){
+				return function(erro, agrupaciones){
+					if (erro){
+						console.error(erro);
+						promise.reject(erro);
+						return;
+					}
+
+					//tercero recorrer el listado de agrupaciones calculada, incrementando el valor de las jerarquias:
+					for(i = 0, j = agrupaciones.length; i < j; i++){
+						var idjerarquia = agrupaciones[i]._id,
+							count = agrupaciones[i].count;
+
+						if (typeof mapeadoArray[idjerarquia] !== 'undefined'){
+							mapeadoArray[idjerarquia][campo] += count;
+							//actualizar sus ancestros también
+							if (!actualizarancestros){
+								continue;
+							}
+							for(k = 0, l = mapeadoArray[idjerarquia].ancestros.length; k < l; k++){
+								var idancestro = mapeadoArray[idjerarquia].ancestros[k];
+								mapeadoArray[idancestro][campo] += count;
+							}
+						}
+					}
+					promise.resolve();
+				};
+			};
+
+			var deferNumProcedimientos = Q.defer(),
+				deferNumCartas = Q.defer();
+
+			//cuarto lanzar el cálculo del número de procedimientos y cartas asignado/as directamente a cada jerarquia:
+			var matchProcedimiento = {'$and': [
                             {'$or': [
                                     {'oculto': {$exists: false}},
                                     {'$and': [
@@ -613,31 +657,30 @@
                                             {'eliminado': false}
                                         ]}
                                 ]
-                            }]}, function (err, result) {
-                                if (!err) {
-                                    for (var i = 0, j = ids.length; i < j; i++) {   
-                                        var id = ids[i];
-                                        numProcedimientos[id] = 0;
-                                        for (var p = 0; p < result.length; p++) {
-                                            var proc = result[p];
-                                            if (([id].concat(mapeadoArray[id].descendientes).indexOf(proc.idjerarquia) >= 0)) {
-                                                numProcedimientos[id]++;
-                                            }
-                                        }
-                                        mapeadoArray[id].numprocedimientos = numProcedimientos[id];
-                                        mapeadoArray[id].save(function (e) {
-                                            if (e) {
-                                                console.error(e);
-                                            }
-                                        });
-                                    }
-                                        
-                                    deferred.resolve(mapeadoArray.filter(function (o) {
-                                        return o;
-                                    }));
-                                }
-                            });
-		});
+                            }]};
+
+
+			Procedimiento.aggregate([{$match: matchProcedimiento}, {$group: { _id: '$idjerarquia', count: {$sum: 1}}}, {$sort: {'_id': 1}} ], fnActualizacion('numprocedimientos', deferNumProcedimientos, true));
+			Carta.aggregate([{$match: {tipoentidad: 'CS'} }, {$group: { _id: '$idjerarquia', count: {$sum: 1}}}, {$sort: {'_id': 1}} ], fnActualizacion('numcartas', deferNumCartas, false));
+
+			//quinto esperar resultados y devolverlos
+			Q.all( [deferNumProcedimientos.promise, deferNumCartas.promise]).then(function(){
+				var reportError = function (e) {
+					if (e) {
+						console.error(e);
+					}
+				};
+				for(id in mapeadoArray){
+					if (typeof mapeadoArray[id] !== 'undefined'){
+						mapeadoArray[id].save(reportError); /* posible condición de carrera por no esperar */
+					}
+				}
+				deferred.resolve(mapeadoArray.filter(function (o) {
+					return o;
+				}));
+			} );
+
+		} );
 
 		return deferred.promise;
 	};
