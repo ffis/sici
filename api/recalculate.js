@@ -596,61 +596,47 @@
 				}
 			}
 
-			var defs = [];
-			var contador = 0;
-			var cbProcedimientoCount = function (defer, id) {
-				return function (err, count) {
-					mapeadoArray[id].numprocedimientos = count;
-					mapeadoArray[id].save(function (e) {
-						if (e) {
-							console.error(e);
-							defer.reject(e);
-						}
-						else {
-							defer.resolve();
-						}
-					});
-				};
-			};
-			/*
-			TODO: sustituir esto (cbProcedimientoCount y el siguiente bucle) por un único mapreduce
-			*/
-			for (var i = 0, j = ids.length; i < j; i++)
-			{
-				var id = ids[i];
-				var defer = Q.defer();
-
-				Procedimiento.count({'$and': [
-						{'idjerarquia': {'$in': [mapeadoArray[id].id].concat(mapeadoArray[id].descendientes)}},
-						{'$or': [
-								{'oculto': {$exists: false}},
-								{'$and': [
-										{'oculto': {$exists: true}},
-										{'oculto': false}
-									]}
-							]
-						},
-						{'$or': [
-								{'eliminado': {$exists: false}},
-								{'$and': [
-										{'eliminado': {$exists: true}},
-										{'eliminado': false}
-									]}
-							]
-						}
-					]},
-					cbProcedimientoCount(defer, id)
-				);
-				defs.push(defer.promise);
-			}
-			Q.all(defs).then(function () {
-				deferred.resolve(mapeadoArray.filter(function (o) {
-					return o;
-				}));
-			}, function (e) {
-				console.error(e);
-				deferred.reject(e);
-			});
+                       var numProcedimientos = [];
+                       Procedimiento.find({'$and': [
+                            {'$or': [
+                                    {'oculto': {$exists: false}},
+                                    {'$and': [
+                                            {'oculto': {$exists: true}},
+                                            {'oculto': false}
+                                        ]}
+                                ]
+                            },
+                            {'$or': [
+                                    {'eliminado': {$exists: false}},
+                                    {'$and': [
+                                            {'eliminado': {$exists: true}},
+                                            {'eliminado': false}
+                                        ]}
+                                ]
+                            }]}, function (err, result) {
+                                if (!err) {
+                                    for (var i = 0, j = ids.length; i < j; i++) {   
+                                        var id = ids[i];
+                                        numProcedimientos[id] = 0;
+                                        for (var p = 0; p < result.length; p++) {
+                                            var proc = result[p];
+                                            if (([id].concat(mapeadoArray[id].descendientes).indexOf(proc.idjerarquia) >= 0)) {
+                                                numProcedimientos[id]++;
+                                            }
+                                        }
+                                        mapeadoArray[id].numprocedimientos = numProcedimientos[id];
+                                        mapeadoArray[id].save(function (e) {
+                                            if (e) {
+                                                console.error(e);
+                                            }
+                                        });
+                                    }
+                                        
+                                    deferred.resolve(mapeadoArray.filter(function (o) {
+                                        return o;
+                                    }));
+                                }
+                            });
 		});
 
 		return deferred.promise;
