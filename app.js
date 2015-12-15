@@ -36,14 +36,13 @@
 		csvsici = require('./api/csvsici'),
 		feedback = require('./api/feedback'),
 		carta = require('./api/carta'),
-		entidadobjeto = require('./api/entidadobjeto'),
+		entidadobjeto = require('./api/entidadobjeto');
 		/* app */
-		app = module.exports = express()
-	;
+	var	app = module.exports = express();
 
 	function setProgressMessage(msg){
-		process.stdout.write('                                                                                                                                            ' + "\r");
-		process.stdout.write( msg + "\r");
+		process.stdout.write('                                                                                                                                            ' + '\u000d');
+		process.stdout.write( msg + '\u000d' );
 	}
 
 	app.set('mongosrv', process.env.MONGOSVR || 'mongodb://mongosvr/sici');
@@ -82,9 +81,9 @@
 
 		app.use('/api/v1/public/updateByFile', multer({ dest: path.join( __dirname, 'tmp') + path.sep}));
 
+		var filetipologin = (cfg.logincarm) ? path.join(__dirname, 'public', 'js', 'logincarm.util.js') : path.join(__dirname, 'public', 'js', 'login.util.js');
 		app.get('/tipologin.js', function (req, res) {
-			var file = (cfg.logincarm) ? path.join(__dirname, 'public', 'js', 'logincarm.util.js') : path.join(__dirname, 'public', 'js', 'login.util.js');
-			res.sendFile(file);
+			res.sendFile(filetipologin);
 		});
 
 		if (cfg.logincarm){
@@ -92,7 +91,6 @@
 		}else{
 			app.post('/authenticate', login.authenticate({secret: cfg.secret, jwt: jwt, models: models, crypto: crypto}));
 		}
-
 
 		app.use('/api/v1/restricted/', function(req, res, next){
 			if (req.user.permisoscalculados.superuser){ if (next){ next(); } }
@@ -240,6 +238,9 @@
 		app.get('/api/v2/public/objetivo', carta.objetivo(models));
 		app.get('/api/v2/public/objetivo/:id', carta.objetivo(models));
 		app.get('/api/v2/public/importarobjetivo/:idjerarquia', carta.import(models, Q));
+
+		app.get('/api/v2/public/indicador/:id', carta.indicador());
+		app.put('/api/v2/public/indicador/:id', carta.actualizaindicador());
 
 		app.get('/api/v2/public/entidadobjeto', entidadobjeto.get(models));
 		app.put('/api/v2/public/entidadobjeto/:id', entidadobjeto.update(models));

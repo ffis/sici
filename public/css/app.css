@@ -1,4 +1,7 @@
 /* app css stylesheet */
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
 
 body {
   padding-top:70px;
@@ -58,7 +61,7 @@ autocomplete li {
 }
 
 autocomplete li:hover {
-	background-image: linear-gradient(to bottom,#f2dede 0,#ebcccc 100%);	
+	background-image: linear-gradient(to bottom,#f2dede 0,#ebcccc 100%);
 	background-repeat: repeat-x;
 
 }
@@ -97,10 +100,10 @@ svg text {
 .right {
 	font-size: 12px;
 }
-  
-  
+
+
 .cursor { cursor:pointer; }
-.numberCell { text-align:right}
+.numberCell { text-align:right; }
 .logo{ max-width:100px; margin-top: -7px;}
 
 
@@ -130,7 +133,7 @@ svg text {
     display: inline-block;
 }
 
-#filaProcedimientoNoVigente {    
+#filaProcedimientoNoVigente {
     padding: 1em;
     background-color: #D7ECFF; /**#E5F2FE; #E9F4FF; #C0DFFE; #99CCFF;*/
     font-size: 1.2em;
@@ -143,7 +146,7 @@ svg text {
     padding: 0.2em 0.2em 0.2em 0.5em
 }
 
-#filaProcedimientoNoVigente p#tituloNoVigente {    
+#filaProcedimientoNoVigente p#tituloNoVigente {
     margin-bottom: 0.5em;
 }
 
@@ -195,7 +198,7 @@ svg text {
 
 .procedimiento .subtipoTramite {
     font-size: 0.9em;
-    font-style: italic;    
+    font-style: italic;
     color: #999999;
 }
 
@@ -693,8 +696,6 @@ $.dashboard-stat-light .details .number {
   background-color: #cc4444;
 }
 
-
-
 /* Statistic Block */
 .dashboard-stat.green-soft {
   background-color: #3faba4;
@@ -720,8 +721,6 @@ $.dashboard-stat-light .details .number {
   background-color: #3a9c96;
 }
 
-
-
 /* Statistic Block */
 .dashboard-stat.purple-soft {
   background-color: #8877a9;
@@ -746,8 +745,6 @@ $.dashboard-stat-light .details .number {
   color: white;
   background-color: #7d6ba1;
 }
-
-
 
 /* Portlet */
 .portlet > .portlet-body.red,
@@ -1401,7 +1398,6 @@ Portlets
 .feedback-btn.feedback-btn-small.feedback-btn-inverse{
   display:none;
 }
-
 
 organismos p{
   width: 90%;

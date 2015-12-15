@@ -2,8 +2,8 @@
 	'use strict';
 	angular.module('sici')
 		.controller('CartaCtrl',
-			['$q', '$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', '$log', 'Arbol', 'Objetivo', 'EntidadObjeto', 'PastelColor', 'ImportarObjetivo',
-			function ($q, $rootScope, $scope, $location, $window, $routeParams, $timeout, $log, Arbol, Objetivo, EntidadObjeto, PastelColor, ImportarObjetivo) {
+			['$q', '$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', '$log', 'Arbol', 'Objetivo', 'EntidadObjeto', 'PastelColor', 'ImportarObjetivo', 'Indicador',
+			function ($q, $rootScope, $scope, $location, $window, $routeParams, $timeout, $log, Arbol, Objetivo, EntidadObjeto, PastelColor, ImportarObjetivo, Indicador) {
 				$rootScope.nav = 'carta';
 				$scope.idjerarquia = ($routeParams.idjerarquia) ? parseInt( $routeParams.idjerarquia ) : false;
 				$scope.arbol = Arbol.query(function(){ $scope.setJerarquiaById($scope.idjerarquia); });
@@ -18,6 +18,7 @@
 					'DG de la Función Pública y Calidad de los Servicios': 18,
 					'Carta de Servicios del Servicio de Atención al Ciudadano': 85
 				};
+				$scope.indicadores = [];
 
 				$scope.setJerarquiaById = function(idj){
 					if (!idj){ return; }
@@ -74,34 +75,8 @@
 						$scope.cartaservicioseleccionada = cartaservicio;
 						var restrictions = { idjerarquia: cartaservicio.idjerarquia, carta: cartaservicio._id };
 						$scope.objetivos = Objetivo.query(restrictions, function(){
-							$scope.gaugeChart = [];
-							for(var i = 0, j = $scope.objetivos.length; i <= j; i++ ){
-								$scope.gaugeChart.push({
-									data: {
-										maxValue: 100,
-										animationSpeed: 40,
-										val: 0
-									},
-									options: {
-										lines: 12,
-										angle: 0,
-										lineWidth: 0.47,
-										pointer: {
-											length: 0.6,
-											strokeWidth: 0.03,
-											color: '#000000'
-										},
-										limitMax: 'false',
-										colorStart: '#A3C86D',
-										colorStop: '#A3C86D',
-										strokeColor: '#E0E0E0',
-										generateGradient: true,
-										percentColors: [[0.0, "#ff0000" ], [0.50, "#f9c802"], [1.0, "#a9d70b"]]
-									}
-								});
-								progresos[i] = Math.floor(Math.random() * 99 + 1);
-								$scope.gaugeChart[i].data.val = progresos[i];
-							}
+							$scope.drawGauges();
+							$scope.mockIndicadores();
 						});
 					}else{
 						$scope.objetivos = [];
@@ -135,6 +110,59 @@
 				};
 				$scope.importarObjetivos = function(){
 					ImportarObjetivo.get({idjerarquia: $scope.idjerarquia});
+				};
+				$scope.drawGauges = function(){
+					$scope.gaugeChart = [];
+					for(var i = 0, j = $scope.objetivos.length; i < j; i++ ){
+						$scope.gaugeChart.push({
+							data: {
+								maxValue: 100,
+								animationSpeed: 40,
+								val: 0
+							},
+							options: {
+								lines: 12,
+								angle: 0,
+								lineWidth: 0.47,
+								pointer: {
+									length: 0.6,
+									strokeWidth: 0.03,
+									color: '#000000'
+								},
+								limitMax: 'false',
+								colorStart: '#A3C86D',
+								colorStop: '#A3C86D',
+								strokeColor: '#E0E0E0',
+								generateGradient: true,
+								percentColors: [[0.0, '#ff0000' ], [0.50, '#f9c802'], [1.0, '#a9d70b']]
+							}
+						});
+						progresos[i] = Math.floor(Math.random() * 99 + 1);
+						$scope.gaugeChart[i].data.val = progresos[i];
+					}
+				};
+				$scope.generarIndicador = function(anterior){
+					var idrandom = parseInt(parseFloat(Math.random()* 10 + 1).toFixed(0));
+					if (anterior === idrandom){
+						idrandom++;
+					}
+					if (typeof $scope.indicadores[idrandom] === 'undefined'){
+						$scope.indicadores[idrandom] = Indicador.get({id: idrandom});
+					}
+					return idrandom;
+				};
+				$scope.mockIndicadores = function(){
+					for(var i = 0, j = $scope.objetivos.length; i < j; i++ ){
+						for(var k = 0, l = $scope.objetivos[i].formulas.length; k < l; k++){
+							var ind = $scope.generarIndicador(0), ind2 = $scope.generarIndicador(ind);
+							$scope.objetivos[i].formulas[k].indicadores.push(ind);
+							$scope.objetivos[i].formulas[k].indicadores.push(ind2);
+						}
+					}
+				};
+				$scope.updateIndicador = function(indicadorid){
+					console.log($scope.indicadores[indicadorid]);
+					$scope.indicadores[indicadorid].$update();
 				};
 			}
 		]

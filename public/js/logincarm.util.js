@@ -90,7 +90,6 @@ angular.module('sici.login.util', ['ngResource'])
 				carmlogin: true,
 				login: function (credentials) {
 					if (!!credentials.notcarmuser){
-						console.log(credentials);
 						return $http.post('/authenticate', credentials)
 							.success(function (data) {
 								$window.localStorage.token = data.token;
@@ -109,7 +108,7 @@ angular.module('sici.login.util', ['ngResource'])
 								if (typeof data.t === 'undefined'){
 									$log.info('URL sesión no iniciada');
 									var full = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
-									window.location.href = full + urllogin;
+									$window.location.href = full + urllogin;
 								}else{
 									/** hacemos un post a la dirección del login. Esperamos respuesta. Si statusCode=401 hay error de autenticación **/
 									$http.post('/authenticate', data)

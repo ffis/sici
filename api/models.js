@@ -216,10 +216,11 @@
 			'id': Number,
 			'denominacion': String,
 			'resturl': String,
-			'fechaversion': Date,
+			'fechaversion': { type: Date, default: Date.now },
 			'vinculacion': String,
 			'frecuencia': String,
 			'pendiente': Boolean,
+			'acumulador': String,
 			'valores': 'Mixed',
 			'observaciones': 'Mixed',
 			'medidas': 'Mixed'

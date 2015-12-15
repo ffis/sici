@@ -1,7 +1,39 @@
 (function(module){
 	'use strict';
+	/* remove this after prototyping */
 	var indicadores = require('../data/indicadores.json');
+	var indicadoresTest = [], counter = 0;
 
+	function extractIndicadores(elem){
+		for(var i = 0, j = elem.length; i < j; i++){
+			var parte = elem[i];
+			if (parte.indexOf('100') > -1){
+				continue;
+			}
+			indicadoresTest[counter] = {
+				id: counter,
+				_id: counter,
+				nombre: parte.trim(),
+				resturl: '/indicador/' + counter,
+				valores: {
+					'a2015': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ], /* 13 elementos */
+					'a2016': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+				},
+				observaciones: {
+					'a2015': ['', '', '', '', '', '', '', '', '', '', '', '', '' ],
+					'a2016': ['', '', '', '', '', '', '', '', '', '', '', '', '' ]
+				},
+				fechaversion: new Date(),
+				medidas: {},
+				vinculacion: null,
+				unidad: null,
+				frecuencia: 'mensual',
+				pendiente: false,
+				acumulador: 'suma'
+			};
+			counter++;
+		}
+	}
 	function tokenizer(str){
 		var parts = [];
 		parts = str.replace('(', '|').replace(')', '|').replace('/', '|').replace('=', '|').split('|');
@@ -19,6 +51,7 @@
 			indicadores[i].partes = [];
 			for(var k = 0, l = indicadores[i].formulas.length; k < l; k++){
 				indicadores[i].partes[k] = tokenizer(indicadores[i].formulas[k]);
+				extractIndicadores(indicadores[i].partes[k]);
 			}
 			var primeraLetra = indicadores[i].descripcion.charAt(0);
 			if (primeraLetra >= '0' && primeraLetra <= '9'){
@@ -60,7 +93,7 @@
 		return '';
 	}
 
-	module.exports.indicadores = function(){
+	module.exports.indicadoresAntiguo = function(){
 		return function(req, res){
 			if (typeof req.params.idjerarquia !== 'undefined'){
 				var idorganismo = parseInt(req.params.idjerarquia);
@@ -79,10 +112,57 @@
 		};
 	};
 
+	module.exports.indicador = function(){
+		return function(req, res){
+			if (typeof req.params.id !== 'undefined'){
+				var id = parseInt(req.params.id);
+				if (typeof indicadoresTest[id] === 'undefined'){
+					res.status(404).send('Not found.');
+				}else{
+					res.json(indicadoresTest[id]);
+				}
+			}else{
+				res.json([]);
+			}
+		};
+	};
+	module.exports.actualizaindicador = function(){
+		return function(req, res){
+			if (typeof req.params.id !== 'undefined'){
+				var id = parseInt(req.params.id);
+				if (typeof indicadoresTest[ id ] !== 'undefined'){
+					var indicador = indicadoresTest[ id ];
+					if (indicador.acumulador === 'suma'){
+						for(var attr in indicador.valores){
+							var suma = 0;
+							for (var i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
+								indicador.valores[attr][i] = parseInt(req.body.valores[attr][i]);
+								suma += indicador.valores[attr][i];
+							}
+							indicador.valores[attr][ indicador.valores[attr].length - 1 ] = suma;
+						}
+					}
+					for(var attr in indicador.observaciones){
+						for (var i = 0, j = indicador.observaciones[attr].length; i < j; i++){
+							indicador.observaciones[attr][i] = req.body.observaciones[attr][i].trim();
+						}
+					}
+					res.json(indicador);
+				}else{
+					res.status(404).json({'error': 'Not found'});
+				}
+			}else{
+				res.status(404).json({'error': 'Not found'});
+			}
+		};
+	};
+
+	/* till this */
+
 	module.exports.objetivo = function(models){
 		return function(req, res){
 			if (req.query.carta === 'undefined'){
-				res.status(404).json({error:'Not found.'});
+				res.status(404).json({error: 'Not found.'});
 				return;
 			}
 			var Objetivo = models.objetivo();
@@ -157,7 +237,7 @@
 								new Objetivo(obj).save( fbObjetivo(defer, obj) );
 							}
 							Q.all(defers).then(function(objs){
-								res.status(200).json({'OK': true, objs: objs});
+								res.json({'OK': true, objs: objs});
 							}, function(error){
 								res.status(500).json({'error': 'An error has occurred', details: error});
 							});

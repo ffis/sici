@@ -78,7 +78,7 @@
 									<tr ng-repeat="formula in objetivo.formulas track by $index">
 										<td style="width:85%">
 											<p><strong>{{formula.human}}</strong></p>
-											<table class="table table-striped table-bordered" style="width:100%">
+											<table class="table table-striped table-bordered table-condensed" style="width:100%">
 												<thead>
 													<tr>
 														<th></th>
@@ -87,13 +87,27 @@
 													</tr>
 												</thead>
 												<tbody>
-													<tr ng-repeat="parte in objetivo.partes[$index] | filter:filtropartes">
-														<td style="width:50%">{{parte}}</td>
-														<td ng-repeat="a in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]">
-															<input type="text" style="width:3em" class="text-right form-control" value="0" />
+													<tr ng-repeat-start="indicadorid in formula.indicadores track by $index">
+														<td style="width:40%">
+														<div class="pull-right">
+															<span class="fa fa-comment" ng-click="indicadores[indicadorid].desplegado = !indicadores[indicadorid].desplegado"></span>
+														</div>
+														{{indicadores[indicadorid].nombre}}
 														</td>
-														<td>
-															<input type="text" style="width:3em" class="text-right form-control"  value="0" />
+														<td ng-repeat="(v,a) in indicadores[indicadorid].valores['a2015'] track by $index">
+															<input ng-blur="updateIndicador(indicadorid)" type="text" style="width:3em; font-size:smaller; padding:1px" class="text-right form-control" ng-model="indicadores[indicadorid].valores['a2015'][v]" />
+														</td>
+													</tr>
+													<tr ng-repeat-end ng-if="indicadores[indicadorid].desplegado">
+														<td colspan="14">
+															<table class="table table-striped table-bordered table-condensed" style="width:100%">
+																<tbody>
+																	<tr ng-repeat="a in [0,1,2,3,4,5,6,7,8,9,10,11]">
+																		<th style="width:40%">{{$root.meses[a]}}</th>
+																		<td><input ng-blur="updateIndicador(indicadorid)" type="text" class="text-right form-control" style="width:90%" /></td>
+																	</tr>
+																</tbody>
+															</table>
 														</td>
 													</tr>
 												</tbody>
@@ -116,10 +130,10 @@
 	</div>
 </div>
 <style>
-#cartastable tbody tr th .btn-group-vertical{display: none}
-#cartastable tbody tr:hover th .btn-group-vertical{display: block}
-#cartastable tbody tr th { vertical-align:middle }
-#cartastable tbody tr    { page-break-inside:avoid; page-break-after:auto }
+#cartastable tbody tr th .btn-group-vertical{display: none; }
+#cartastable tbody tr:hover th .btn-group-vertical{display: block; }
+#cartastable tbody tr th { vertical-align:middle; }
+#cartastable tbody tr    { page-break-inside:avoid; page-break-after: auto; }
 #cartastable tbody tr td div.formuladetails { page-break-inside:avoid; } /* This is the key */
 </style>
 <!--

@@ -104,6 +104,8 @@ modulo
                 return $resource('/api/v1/private/searchpersonas', {}, {query: {method: 'GET', isArray: true }}); }])
         .factory('Objetivo', ['$resource', function ($resource) {
                 return $resource('/api/v2/public/objetivo/:id', {id: '@_id'}, {query: {method: 'GET', isArray: true }}); }])
+        .factory('Indicador', ['$resource', function ($resource) {
+                return $resource('/api/v2/public/indicador/:id', {id: '@_id'}, {query: {method: 'GET', isArray: true }, update: {method: 'PUT' } }); }])
         .factory('ImportarObjetivo', ['$resource', function ($resource) {
                 return $resource('/api/v2/public/importarobjetivo/:idjerarquia', { idjerarquia: '@idjerarquia' }, {query: {method: 'GET', isArray: true }}); }])
         .factory('EntidadObjeto', ['$resource', function ($resource) {
