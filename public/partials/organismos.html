@@ -6,7 +6,7 @@
 		</div>
 		<div class="panel-body">
 			<input type="text" ng-model="texto.$" placeholder="Filtro" style="margin-bottom:1em" class="form-control"/>
-			<ul ng-if="arbol.length" style="padding-left:0.6em">
+			<ul ng-if="arbol.length" style="padding-left:0.3em">
 				<li ng-repeat="element in arbol | filter:texto | filter:filtrojerarquia" ng-class="{'list-group-item-warning':element.id==seleccionado.id}">
 					<span class="badge pull-right" title="Engloba {{element[attr]}} {{tipoelementos}}">{{element[attr]}}</span>
 					<p ng-class="{'text-muted': element[attr]===0 }">
@@ -17,7 +17,7 @@
 						{{element.title}}
 					</span>
 					</p>
-					<ul class="list-group" ng-if="element.nodes" style="clear:both">
+					<ul class="list-group" ng-if="element.nodes" style="clear:both;padding-left:0.3em">
 						<li class="list-group-item" ng-repeat="elemen in element.nodes | filter:texto | filter:filtrojerarquia" ng-class="{'list-group-item-danger':elemen.id==seleccionado.id}">
 							<span class="badge pull-right" title="Engloba {{elemen[attr]}} {{tipoelementos}}">{{elemen[attr]}}</span>
 							<p ng-class="{'text-muted': elemen[attr]===0 }">
@@ -29,7 +29,7 @@
 									{{elemen.title}}
 								</span>
 							</p>
-							<ul ng-if="elemen.nodes" style="clear:both">
+							<ul ng-if="elemen.nodes" style="clear:both;padding-left:0.3em">
 								<li ng-repeat="eleme in elemen.nodes | filter:texto |filter:filtrojerarquia"  ng-class="{'list-group-item-danger':eleme.id==seleccionado.id}" >
 									<span class="badge pull-right" title="Engloba {{eleme[attr]}} {{tipoelementos}}">{{eleme[attr]}}</span>
 									<p ng-class="{'text-muted': eleme[attr]===0 }">
@@ -40,7 +40,7 @@
 											{{eleme.title}}
 										</span>
 									</p>
-									<ul ng-if="eleme.nodes" style="clear:both">
+									<ul ng-if="eleme.nodes" style="clear:both;padding-left:0.3em">
 										<li ng-repeat="elem in eleme.nodes | filter:texto |filter:filtrojerarquia">
 										<span class="badge pull-right" title="Engloba {{elem[attr]}} {{tipoelementos}}">{{elem[attr]}}</span>
 										<p ng-class="{'text-muted': elem[attr]===0 }">
