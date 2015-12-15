@@ -19,7 +19,6 @@
 				if (typeof restricciones.idjerarquia !== 'undefined'){
 					restricciones.idjerarquia = parseInt(restricciones.idjerarquia);
 				}
-				console.log(restricciones);
 				entidadobjeto.find(restricciones, function (err, data) {
 					if (err) {
 						console.error(err);
