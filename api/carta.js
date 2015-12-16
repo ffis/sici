@@ -126,28 +126,17 @@
 					res.json(indicador);
 				});
 			}else{
-				indicadormodel.find(function(err, indicadores){
+				var restricciones = {};
+				if (typeof req.query.idjerarquia !== 'undefined'){
+					restricciones.idjerarquia = parseInt(req.query.idjerarquia);
+				}
+				indicadormodel.find(restricciones, function(err, indicadores){
 					if (err){
 						res.status(500).json({'error': 'An error has occurred', details: err});
 						return;
 					}
 					res.json(indicadores);
 				});
-			}
-		};
-	};
-
-	module.exports.indicadorTest = function(){
-		return function(req, res){
-			if (typeof req.params.id !== 'undefined'){
-				var id = parseInt(req.params.id);
-				if (typeof indicadoresTest[id] === 'undefined'){
-					res.status(404).send('Not found.');
-				}else{
-					res.json(indicadoresTest[id]);
-				}
-			}else{
-				res.json([]);
 			}
 		};
 	};
