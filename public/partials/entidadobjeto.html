@@ -13,11 +13,12 @@
 					<tr>
 						<th>ID</th>
 						<th ng-If="clave!='_id'" ng-repeat="(clave, valor) in entidades[0]">{{clave}}</th>
+						<th></th>
 					</tr>
 				</thead>
 				<tfoot>
 					<tr>
-						<td class="text-center" colspan="{{entidades[0] | keylength}}">Nº de registros mostrados: <strong>{{entidades.length}}</strong></td>
+						<td class="text-center" colspan="{{(entidades[0] | keylength) + 1 }}">Nº de registros mostrados: <strong>{{entidades.length}}</strong></td>
 					</tr>
 				</tfoot>
 				<tbody ng-repeat="entidadobjeto in entidades | filter:filtro">
@@ -25,6 +26,9 @@
 						<th>{{entidadobjeto._id}}</th>
 						<td  ng-If="clave!='_id'" ng-repeat="(clave, valor) in entidadobjeto" style="overflow:auto; max-width:200px">
 							<a href="#" editable-text="entidadobjeto[clave]" onaftersave="actualizar(entidadobjeto, clave)">{{entidadobjeto[clave]}}</a>
+						</td>
+						<td>
+							<span class="fa fa-arrow-down cursor" ng-click="download(entidadobjeto)" ></span>
 						</td>
 					</tr>
 				</tbody>
