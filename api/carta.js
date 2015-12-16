@@ -117,7 +117,7 @@
 		return function(req, res){
 			var indicadormodel = models.indicador();
 			if (typeof req.params.id !== 'undefined'){
-				var id = models.mongoose.ObjectId(req.params.id);
+				var id = req.params.id;
 				indicadormodel.findOne({_id: id}, function(err, indicadores){
 					if (err){
 						res.status(500).json({'error': 'An error has occurred', details: err});
