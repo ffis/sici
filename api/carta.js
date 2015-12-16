@@ -141,14 +141,14 @@
 		return function(req, res){
 			var Objetivo = models.objetivo();
 			if (typeof req.params.id !== 'undefined'){
-				Objetivo.findOne({ '_id': models.ObjectId(req.params.id) }, function(erro, objetivo){
-				if (erro){
-					res.status(500).json({'error': 'An error has occurred', details: erro});
-					return;
-				}
-				res.json(objetivo);
-			});
-
+                            Objetivo.findOne({ '_id': models.ObjectId(req.params.id) }, function(erro, objetivo){
+                                if (erro){
+                                        res.status(500).json({'error': 'An error has occurred', details: erro});
+                                        return;
+                                }
+                                res.json(objetivo);
+                            });
+                            return;
 			}else if (req.query.carta === 'undefined'){
 				res.status(404).json({error: 'Not found.'});
 				return;
