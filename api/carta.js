@@ -118,12 +118,12 @@
 			var indicadormodel = models.indicador();
 			if (typeof req.params.id !== 'undefined'){
 				var id = req.params.id;
-				indicadormodel.findOne({_id: id}, function(err, indicadores){
+				indicadormodel.findOne({_id: id}, function(err, indicador){
 					if (err){
 						res.status(500).json({'error': 'An error has occurred', details: err});
 						return;
 					}
-					res.json(indicadores);
+					res.json(indicador);
 				});
 			}else{
 				indicadormodel.find(function(err, indicadores){
@@ -151,31 +151,94 @@
 			}
 		};
 	};
-	module.exports.actualizaindicador = function(){
+
+	module.exports.removeindicador = function(models){
 		return function(req, res){
 			if (typeof req.params.id !== 'undefined'){
-				var id = parseInt(req.params.id);
-				if (typeof indicadoresTest[ id ] !== 'undefined'){
-					var indicador = indicadoresTest[ id ];
-					if (indicador.acumulador === 'suma'){
-						for(var attr in indicador.valores){
-							var suma = 0;
-							for (var i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
-								indicador.valores[attr][i] = parseInt(req.body.valores[attr][i]);
-								suma += indicador.valores[attr][i];
-							}
-							indicador.valores[attr][ indicador.valores[attr].length - 1 ] = suma;
+				var indicadormodel = models.indicador();
+				var objetivomodel = models.objetivo();
+				var id = req.params.id;
+				if (req.user.permisoscalculados.superuser){
+					objetivomodel.find({'formulas.indicadores': id}, function(err, objetivos){
+						if (err){
+							res.status(500).json({'error': 'An error has occurred', details: err});
+							return;
 						}
-					}
-					for(var attr in indicador.observaciones){
-						for (var i = 0, j = indicador.observaciones[attr].length; i < j; i++){
-							indicador.observaciones[attr][i] = req.body.observaciones[attr][i].trim();
+						if (objetivos && objetivos.length > 0){
+							var vinculado = objetivos.map(function(o){ return o.denominacion; }).join(' | ');
+							res.status(401).json({'error': 'No se permite eliminar un indicador vinculado a un objetivo', details: vinculado});
+						}else{
+							var content = req.body;
+							indicadormodel.remove({'_id': id}, function(e){
+								if (e){
+									res.status(400).json({'error': 'An error has occurred'});
+								}else{
+									res.json(content);
+								}
+							});
 						}
-					}
-					res.json(indicador);
+					});
 				}else{
-					res.status(404).json({'error': 'Not found'});
+					res.status(401).json({'error': 'Not allowed'});
+					/* not allowed */
 				}
+			}else{
+				res.status(404).json({'error': 'Not found'});
+			}
+		};
+	};
+	module.exports.actualizaindicador = function(models){
+		return function(req, res){
+			if (typeof req.params.id !== 'undefined'){
+				var indicadormodel = models.indicador();
+				var id = req.params.id;
+				var actualizacion = req.body;
+				indicadormodel.findOne({_id: id}, function(err, indicador){
+					if (err){
+						res.status(500).json({'error': 'An error has occurred', details: err});
+						return;
+					}
+					if (indicador){
+						if (req.user.permisoscalculados.superuser){
+							indicador.nombre = actualizacion.nombre;
+							indicador.resturl = actualizacion.resturl;
+							indicador.vinculacion = actualizacion.vinculacion;
+							indicador.acumulador = actualizacion.acumulador;
+							indicador.frecuencia = actualizacion.frecuencia;
+							indicador.pendiente = actualizacion.pendiente;
+						}
+
+						if (indicador.acumulador === 'suma'){
+							for(var attr in indicador.valores){
+								var suma = 0;
+								for (var i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
+									indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseInt(actualizacion.valores[attr][i]);
+									suma += indicador.valores[attr][i];
+								}
+								indicador.valores[attr][ indicador.valores[attr].length - 1 ] = suma;
+							}
+						}
+						for(var attr in indicador.observaciones){
+							for (var i = 0, j = indicador.observaciones[attr].length; i < j; i++){
+								indicador.observaciones[attr][i] = actualizacion.observaciones[attr][i].trim();
+							}
+						}
+						indicador.markModified('valores');
+						indicador.markModified('observaciones');
+						indicador.markModified('medidas');
+						indicador.fechaversion = new Date();
+
+						indicador.save(function(erro, doc){
+							if (erro){
+								res.status(500).json({'error': 'An error has occurred', details: erro});
+							}else{
+								res.json(doc);
+							}
+						});
+					}else{
+						res.status(404).json({'error': 'Not found'});
+					}
+				});
 			}else{
 				res.status(404).json({'error': 'Not found'});
 			}
