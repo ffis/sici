@@ -5,6 +5,7 @@
 		bodyParser = require('body-parser'),
 		http = require('http'),
 		Q = require('q'),
+		Crawler = (os.platform() === 'linux') ? require('crawler') : false,
 		path = require('path'),
 		mongoose = require('mongoose'),
 		md5 = require('md5'),
@@ -183,7 +184,7 @@
 		app.get('/api/v1/public/aggregate/:anualidad/:campo/:match', api.aggregate(cfg, models));
 		app.get('/api/v1/public/arbol', api.arbol(Q, models));
 		app.get('/api/v1/public/arbol/:withemptynodes', api.arbol(Q, models));
-		app.get('/api/v1/public/cr/:id', importador.parseCr(Q, models));
+		app.get('/api/v1/public/cr/:id', importador.parseCr(Q, models, Crawler));
 		app.get('/api/v1/public/gs/:id', importador.parseGS());
 
 		app.get('/api/v1/public/etiqueta', etiqueta.getEtiqueta(models));
@@ -244,6 +245,7 @@
 
 		app.get('/api/v2/public/entidadobjeto', entidadobjeto.get(models));
 		app.put('/api/v2/public/entidadobjeto/:id', entidadobjeto.update(models));
+		app.get('/api/v2/public/testDownloadCarta/:id', carta.testDownloadCarta(models, Crawler, Q));
 
 		//app.use('/api/v1/public/feedback', multer({ dest: path.join( __dirname, 'tmp') + path.sep}));
 		app.post('/api/v1/public/feedback', feedback.log(models));

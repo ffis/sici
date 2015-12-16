@@ -2,10 +2,8 @@
 	'use strict';
 
 	var os = require('os');
-	var Crawler = false;
 	var Browser = false;
 	if (os.platform() === 'linux'){
-		Crawler = require('crawler').Crawler;
 		Browser = require('zombie');
 	}
 
@@ -305,7 +303,7 @@
 		};
 	};
 
-	module.exports.parseCr = function(Q, models){
+	module.exports.parseCr = function(Q, models, Crawler){
 		return function (req, res)
 		{
 

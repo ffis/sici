@@ -205,7 +205,7 @@
 			'formulas': [{
 				'human': String,
 				'frecuencia': String,
-				'indicadores': [ 'Schema.Types.ObjectId' ],
+				'indicadores': [ String ],
 				'meta': Number,
 				'direccion': String,
 				//'parteizq': Mixed
@@ -214,7 +214,8 @@
 		},
 		indicador: {
 			'id': Number,
-			'denominacion': String,
+			'nombre': String,
+			'idjerarquia': Number,
 			'resturl': String,
 			'fechaversion': { type: Date, default: Date.now },
 			'vinculacion': String,
