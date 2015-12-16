@@ -238,7 +238,6 @@
 
 		app.get('/api/v2/public/objetivo', carta.objetivo(models));
 		app.get('/api/v2/public/objetivo/:id', carta.objetivo(models));
-		app.get('/api/v2/public/importarobjetivo/:idjerarquia', carta.import(models, Q));
 
 		app.get('/api/v2/public/indicador', carta.indicador(models));
 		app.get('/api/v2/public/indicador/:id', carta.indicador(models));
