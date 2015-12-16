@@ -76,7 +76,16 @@
 						var restrictions = { idjerarquia: cartaservicio.idjerarquia, carta: cartaservicio._id };
 						$scope.objetivos = Objetivo.query(restrictions, function(){
 							$scope.drawGauges();
-							$scope.mockIndicadores();
+                                                        for (var i = 0, j = $scope.objetivos.length; i < j; i++) {
+                                                            for (var k = 0, l = $scope.objetivos[i].formulas.length; k < l; k++) {
+                                                                $scope.objetivos[i].formulas[k].indicadores.forEach(function(indicador){
+                                                                    if (typeof $scope.indicadores[indicador] === 'undefined'){
+                                                                        $scope.indicadores[indicador] = Indicador.get({id: indicador});    
+                                                                    }
+                                                                });
+                                                            }
+                                                        }
+							//$scope.mockIndicadores();
 						});
 					}else{
 						$scope.objetivos = [];
@@ -162,8 +171,33 @@
 				};
 				$scope.updateIndicador = function(indicadorid){
 					console.log($scope.indicadores[indicadorid]);
-					$scope.indicadores[indicadorid].$update();
+                                        var f = function(indicadorid, desplegado){
+                                            return function() {
+                                                $scope.indicadores[indicadorid].desplegado = desplegado;
+                                            };
+                                        };
+					$scope.indicadores[indicadorid].$update(f(indicadorid, $scope.indicadores[indicadorid].desplegado));
 				};
+                                $scope.existeComentario = function(observaciones) {
+                                    if (typeof observaciones === 'undefined') {
+                                        return false;
+                                    }
+                                    for(var i = 0, j = observaciones.length; i < j; i++) {
+                                        if (typeof observaciones[i] !== 'undefined') {
+                                            if (observaciones[i].length !== 0) {
+                                                return true;
+                                            }
+                                        }
+                                    }
+                                    return false;
+                                };
+                                $scope.setIndicadorSeleccionado = function(indicadorSeleccionado) {
+                                    $scope.indicadorSeleccionado = indicadorSeleccionado;
+                                };
+                                $scope.navigate = function(url) {
+                                    console.log(url);
+                                    $location.path(url);
+                                };
 			}
 		]
 	);

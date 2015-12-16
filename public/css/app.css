@@ -26,6 +26,10 @@ body {
 	color:rgb(173, 56, 56);
 }
 
+.color_note {
+    color: #E5DB1B;
+}
+
 ul.organica_proc {
 	margin: 0px 15px 0px 15px;
 	margin-bottom:15px  !important;
