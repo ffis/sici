@@ -1,8 +1,8 @@
 (function(angular, document, $, Blob, saveAs, Feedback){
 	'use strict';
 	angular.module('sici')
-	.controller('AppCtrl', ['$window', '$q', '$scope', '$rootScope', '$log', 'Session', '$location', '$http', 'PermisosCalculados', 'AuthService',
-		function ($window, $q, $scope, $rootScope, $log, Session, $location, $http, PermisosCalculados, AuthService) {
+	.controller('AppCtrl', ['$window', '$q', '$scope', '$rootScope', '$log', 'Session', '$location', '$http', 'toaster', 'PermisosCalculados', 'AuthService',
+		function ($window, $q, $scope, $rootScope, $log, Session, $location, $http, toaster, PermisosCalculados, AuthService) {
 
 		$rootScope.setTitle = function (title){ $window.document.title = 'SICI - ' + title; };
 		$rootScope.setLogeado = function(t){
@@ -12,6 +12,14 @@
 			}else if (!t) {
 				delete $rootScope.permisoscalculados;
 			}
+		};
+		$rootScope.toaster = function(txt, title, type){
+			if (typeof type === 'undefined'){
+				type = 'success';
+			}else if (typeof title === 'undefined'){
+				title = 'Aviso';
+			}
+			toaster.pop(type, title, txt);
 		};
 		$rootScope.session = Session;
 		$rootScope.nav = '';

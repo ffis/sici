@@ -199,17 +199,25 @@
 			'codigo': Number,
 			'denominacion': String,
 			'index': Number,
-			'objetivo': String,
+			'objetivoestrategico': Number,
 			'perspectiva': String,
-			'estado': String,
+			'estado': String, /* publicado en la web o no */
 			'formulas': [{
 				'human': String,
+				'computer': String,
 				'frecuencia': String,
-				'indicadores': [ String ],
 				'meta': Number,
 				'direccion': String,
-				//'parteizq': Mixed
-				'valores': 'Mixed'
+				'pendiente': Boolean,
+				'valores': 'Mixed',
+				'indicadores': 'Mixed',
+				'intervalos':[{
+					'min': Number,
+					'max': Number,
+					'mensaje': String,
+					'color': String,
+					'alerta': String
+				}]
 			}]
 		},
 		indicador: {

@@ -1,8 +1,8 @@
 (function(angular){
 	'use strict';
 	angular.module('sici')
-		.controller('WelcomeCtrl', [ '$rootScope', '$scope', '$window', 'Aggregate', 'ProcedimientoCount', 'TramitesCount', 'PorcentajeTramitesResultos', 'ProcedimientosSinExpedientes',
-			function ($rootScope, $scope, $window, Aggregate, ProcedimientoCount, TramitesCount, PorcentajeTramitesResultos, ProcedimientosSinExpedientes){
+		.controller('WelcomeCtrl', [ '$rootScope', '$scope', '$window', 'Aggregate', 'ProcedimientoCount', 'TramitesCount', 'PorcentajeTramitesResultos', 'ProcedimientosSinExpedientes', 'Objetivo',
+			function ($rootScope, $scope, $window, Aggregate, ProcedimientoCount, TramitesCount, PorcentajeTramitesResultos, ProcedimientosSinExpedientes, Objetivo){
 
 				$rootScope.nav = 'inicio';
 				$rootScope.setTitle('Portada');
@@ -43,6 +43,7 @@
 						campo: JSON.stringify({'codigo': '$codigo', 'denominacion': '$denominacion'}),
 						restriccion: '{"periodos.a' + $scope.anyoActual + '.pendientes":{"$lt":0}}'
 				});
+				Objetivo.get({id: "56716258771ad7a247dcede9"});
 		}
 	]);
 })(angular);

@@ -14,13 +14,18 @@
 				$scope.load();
 				$scope.actualizar = function(entidadobjeto, clave){
 					entidadobjeto[clave] = entidadobjeto[clave].trim();
-					entidadobjeto.$update(function(){
+					entidadobjeto.$update().then(function(){
 						$scope.cambios = [];
+						$rootScope.toaster('Carta de servicios actualizada');
+					}, function(err){
+						$rootScope.toaster('Carta de servicios fallida: ' + err.data.error , 'Error', 'error');
 					});
 				};
 				$scope.download = function(entidadobjeto){
-					$http.get('/api/v2/public/testDownloadCarta/' + entidadobjeto._id, function(dato){
-						console.log(dato);
+					$http.get('/api/v2/public/testDownloadCarta/' + entidadobjeto._id).then(function(dato){
+						$rootScope.toaster('Carta de servicios importada correctamente. Registrados ' + dato.data.objetivos.length + ' objetivos y ' + dato.data.indicadoresobtenidos.length + ' indicador/es.');
+					}, function(err){
+						$rootScope.toaster('Carta de servicios fallida: ' + err.data.error , 'Error', 'error');
 					});
 				};
 			}
