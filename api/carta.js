@@ -190,18 +190,20 @@
 						};
 					};
 					for (var i = 0, j = objetivo.formulas.length; i < j; i++){
-						//fingir formula
-						//si pendiente
-						objetivo.formulas[i].computer = JSON.stringify([ "ceil", "(", "(", "100","*", "/indicador/56716258771ad7a247dcedd8/valores/[anualidad]/[mes]",")", '/', "/indicador/56716258771ad7a247dcedde/valores/[anualidad]/[mes]", ")" ] );
-						//fin fingir formula
-						var defer = Q.defer();
-						expresion.evalFormula(objetivo.formulas[i].computer, fn(defer, i));
-						promises.push(defer.promise);
+
+						if (objetivo.formulas[i].pendiente){
+							//objetivo.formulas[i].computer = JSON.stringify([ "ceil", "(", "(", "100","*", "/indicador/56716258771ad7a247dcedd8/valores/[anualidad]/[mes]",")", '/', "/indicador/56716258771ad7a247dcedde/valores/[anualidad]/[mes]", ")" ] );
+							var defer = Q.defer();
+							expresion.evalFormula(objetivo.formulas[i].computer, fn(defer, i));
+							promises.push(defer.promise);
+						}
 					}
 					Q.all(promises).then(function(){
 						res.json(objetivo);
 					}, function(error){
-						res.status(500).json({'error': 'An error has occurred', details: error });
+						//fallo con la formula
+						res.json(objetivo);
+						//res.status(500).json({'error': 'An error has occurred', details: error });
 					})
 				});
 				return;
@@ -426,6 +428,9 @@
 								module.exports.extractAndSaveIndicadores(data.idjerarquia, objetivos, indicadormodel, Q).then(function(objetivosConIndicadores){
 									var objetivosAAlmacenar = objetivosConIndicadores.objetivos;
 									for(var i = 0, j = objetivosAAlmacenar.length; i < j; i++){
+										for(var k = 0, l = objetivosAAlmacenar[i].formulas.length; k < l; k++){
+											objetivosAAlmacenar[i].formulas[k] = trytoparseFormula(objetivosAAlmacenar[i].formulas[k]);
+										}
 										new objetivomodel(objetivosAAlmacenar[i]).save();
 										/* TODO: wait? */
 									}
