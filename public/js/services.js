@@ -103,7 +103,7 @@ modulo
         .factory('PersonasSearchList', ['$resource', function ($resource) {
                 return $resource('/api/v1/private/searchpersonas', {}, {query: {method: 'GET', isArray: true }}); }])
         .factory('Objetivo', ['$resource', function ($resource) {
-                return $resource('/api/v2/public/objetivo/:id', {id: '@_id'}, {query: {method: 'GET', isArray: true }}); }])
+                return $resource('/api/v2/public/objetivo/:id', {id: '@_id'}, {query: {method: 'GET', isArray: true }, update: {method: 'PUT' } }); }])
         .factory('Indicador', ['$resource', function ($resource) {
                 return $resource('/api/v2/public/indicador/:id', {id: '@_id'}, {query: {method: 'GET', isArray: true }, update: {method: 'PUT' } }); }])
         .factory('ImportarObjetivo', ['$resource', function ($resource) {
@@ -121,5 +121,12 @@ modulo
                         return colors[i];
                 };
         })
+        .value('acumulatorFunctions', [
+                    {name : 'Media', value: 'mean'},
+                    {name : 'Suma', value: 'sum'},
+                    {name : 'Máximo', value: 'max'},
+                    {name : 'Mínimo', value: 'min'}
+                ]
+        )
         .value('version', '0.2')
 ;

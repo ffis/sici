@@ -47,6 +47,7 @@ var app = angular.module('sici', dependencies).
         $routeProvider.when('/carta/:idjerarquia/:idcarta', {templateUrl: 'partials/carta.html', controller: 'CartaCtrl' });
         $routeProvider.when('/entidadobjeto', {templateUrl: 'partials/entidadobjeto.html', controller: 'EntidadObjetoCtrl' });
         $routeProvider.when('/objetivo/:idobjetivo', {templateUrl: 'partials/objetivo.html', controller: 'ObjetivoCtrl' });
+        $routeProvider.when('/indicador/:idjerarquia/:idindicador', {templateUrl: 'partials/indicador.html', controller: 'IndicadorCtrl' });
 
         $routeProvider.otherwise({redirectTo: '/welcome' });
         $locationProvider.html5Mode(true);

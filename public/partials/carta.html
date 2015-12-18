@@ -86,13 +86,21 @@
 														<th>{{anualidad}}</th>
 													</tr>
 												</thead>
+                                                                                                <tfoot>
+                                                                                                    <tr>
+                                                                                                        <th>Cálculo</th>
+                                                                                                        <th ng-repeat="valor in formula.valores['a2016'] track by $index">{{valor.resultado}}</th>
+                                                                                                        <th></th>
+                                                                                                    </tr>
+                                                                                                </tfoot>
 												<tbody>
 													<tr ng-repeat-start="indicadorid in formula.indicadores track by $index" ng-click="setIndicadorSeleccionado(indicadorid)" ng-class="{'danger' : indicadorSeleccionado === indicadorid}">
-														<td style="width:40%">
+														<td style="width:40%" class="menu-indicador">
 														<div class="pull-right">
+                                                                                                                    <a title="Editar" href="/indicador/{{idjerarquia}}/{{indicadorid}}"><i class="fa fa-pencil"></i></a> <!--<a title="Desvincular" href=""><i class="fa fa-unlink text-danger"></i></a>-->
                                                                                                                     <span class="glyphicon glyphicon-comment" ng-click="indicadores[indicadorid].desplegado = !indicadores[indicadorid].desplegado" ng-class="{'color_note' : existeComentario(indicadores[indicadorid].observaciones['a2015'])}"></span>
 														</div>
-														{{indicadores[indicadorid].nombre}}
+                                                                                                                    {{indicadores[indicadorid].nombre}} 
 														</td>
 														<td ng-repeat="(v,a) in indicadores[indicadorid].valores['a2015'] track by $index">
 															<input ng-blur="updateIndicador(indicadorid)" type="text" style="width:3em; font-size:smaller; padding:1px" class="text-right form-control" ng-model="indicadores[indicadorid].valores['a2015'][v]" />
@@ -134,7 +142,10 @@
 #cartastable tbody tr:hover th .btn-group-vertical{display: block; }
 #cartastable tbody tr th { vertical-align:middle; }
 #cartastable tbody tr    { page-break-inside:avoid; page-break-after: auto; }
-#cartastable tbody tr td div.formuladetails { page-break-inside:avoid; } /* This is the key */
+#cartastable tbody tr td div.formuladetails { page-break-inside:avoid; }
+.menu-indicador a {display: none;}
+.menu-indicador:hover a {display: inline;}
+/* This is the key */
 </style>
 <!--
 <td class="hidden">

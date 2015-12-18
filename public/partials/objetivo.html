@@ -1,3 +1,76 @@
-<div class="row">
-    <input ng-model="objetivo.denominacion" />
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <span class="pull-right label label-primary" style="font-size: 10pt;">{{objetivo.estado}}</span>
+        <b>{{objetivo.denominacion}}</b>
+    </div>
+    <div class="panel-body">
+        <div class="panel panel-info" ng-repeat="formula in objetivo.formulas track by $index">
+            <div class="panel-heading"><b>{{formula.human}}</b></div>
+            <div class="panel-body">
+                <form>
+                    <div class="form-group">
+                        <label for="formulaHuman">Fórmula</label>
+                        <input type="formulaHuman" class="form-control" id="formulaHuman" placeholder="Fórmula" ng-model="formula.human" />
+                    </div>
+                    <div class="form-group">
+                        <label for="formulaHuman">Fórmula Computada</label>
+                        <h5>{{ formula.computer }}</h5>
+                    </div>
+                    <div class="form-group">
+                        <label>Meta</label>
+                        <h4><span class="label label-danger">{{ formula.meta }}</span></h4>
+                    </div>
+                </form>
+                <br />
+                <h4><span class="label label-warning">Indicadores</span></h4>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Indicador</th>
+                            <th>Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody ng-init="indiceExterno = $index">
+                        <tr ng-repeat="indicador in formula.indicadores track by $index">
+                            <td>{{indicadores[indicador]._id}}</td>
+                            <td>{{indicadores[indicador].nombre}}</td>
+                            <td><button title="Desvincular" class="btn btn-primary btn-sm" ng-click="desvincular(indiceExterno, $index)"><i class="fa fa-unlink"></i></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h4><span class="label label-warning">Intervalos</span></h4>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Mínimo</th>
+                            <th>Máximo</th>
+                            <th>Color</th>
+                            <th>Nivel de alerta</th>
+                            <th>Texto</th>
+                            <th>Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody ng-init="indiceExterno = $index">
+                        <tr ng-repeat="intervalo in formula.intervalos track by $index" ng-class="formula.intervalos[$index].color">
+                            <td><input ng-model="formula.intervalos[$index].min" type="number" class="form-control"></td>
+                            <td><input ng-model="formula.intervalos[$index].max" type="number" class="form-control"></td>
+                            <td>
+                                <select ng-model="formula.intervalos[$index].color" ng-options="color.value as color.name for color in colores" class="form-control"></select>
+                            </td>
+                            <td>
+                                <select ng-model="formula.intervalos[$index].nivel" class="form-control">
+                                    <option ng-repeat="level in [1, 2, 3, 4, 5]" value="{{level}}">{{level}}</option>
+                                </select>
+                            </td>
+                            <td><input style="width: 100%;" ng-model="formula.intervalos[$index].mensaje" class="form-control"></td>
+                            <td><button class="btn btn-sm btn-danger" ng-click="borrarIntervalo(objetivo.formulas[indiceExterno], $index)"><i class="fa fa-trash"></i></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="btn btn-xs btn-danger" ng-click="crearNuevoIntervalo(objetivo.formulas[indiceExterno])"><i class="fa fa-plus"></i> Añadir intervalo</button>
+            </div>
+        </div>
+        <button title="Guardar" class="btn btn-danger btn-sm" ng-click="actualizar()"><i class="fa fa-save"></i> Guardar</button>
+    </div>
 </div>

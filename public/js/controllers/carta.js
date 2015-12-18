@@ -18,7 +18,7 @@
 					'DG de la Función Pública y Calidad de los Servicios': 18,
 					'Carta de Servicios del Servicio de Atención al Ciudadano': 85
 				};
-				$scope.indicadores = [];
+				$scope.indicadores = {};
 
 				$scope.setJerarquiaById = function(idj){
 					if (!idj){ return; }
@@ -85,11 +85,10 @@
                                                                 });
                                                             }
                                                         }
-							//$scope.mockIndicadores();
 						});
 					}else{
-						$scope.objetivos = [];
-						delete $scope.cartaservicioseleccionada;
+                                            $scope.objetivos = [];
+                                            delete $scope.cartaservicioseleccionada;
 					}
 				};
 				$scope.anualidad = new Date().getFullYear(); //temporalmente */
@@ -169,11 +168,32 @@
 						}
 					}
 				};
+                                $scope.recargarObjetivo = function(i){
+                                    console.log(i);
+                                    $scope.objetivos[i] = Objetivo.get( {id: $scope.objetivos[i]._id} );
+                                };
 				$scope.updateIndicador = function(indicadorid){
-					console.log($scope.indicadores[indicadorid]);
+					console.log($scope.indicadores[indicadorid], indicadorid);
                                         var f = function(indicadorid, desplegado){
                                             return function() {
+                                                console.log('tras actualizar ', indicadorid);
                                                 $scope.indicadores[indicadorid].desplegado = desplegado;
+                                                var indicadoresARecargar = [];
+                                                for (var i = 0, j = $scope.objetivos.length; i < j; i++){
+                                                    for(var k = 0, l = $scope.objetivos[i].formulas.length; k < l; k++){
+                                                        console.log($scope.objetivos[i].formulas[k].indicadores, indicadorid)
+                                                        console.log(typeof indicadorid)
+                                                        console.log(typeof $scope.objetivos[i].formulas[k].indicadores[0]);
+                                                        if ($scope.objetivos[i].formulas[k].indicadores.indexOf(indicadorid) > -1){
+                                                            indicadoresARecargar.push(i);
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                                console.log(indicadoresARecargar);
+                                                indicadoresARecargar.filter(function (e, i, arr) {
+    return arr.lastIndexOf(e) === i;
+}).forEach($scope.recargarObjetivo);
                                             };
                                         };
 					$scope.indicadores[indicadorid].$update(f(indicadorid, $scope.indicadores[indicadorid].desplegado));
