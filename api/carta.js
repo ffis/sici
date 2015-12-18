@@ -15,8 +15,15 @@
 		return parts;
 	}
 
+	function capitalizeFirst(a){
+		return a.charAt(0).toUpperCase() + a.slice(1);
+	}
+	function uncapitalizeFirst(a){
+		return a.charAt(0).toLowerCase() + a.slice(1);
+	}
 
 	function trytoparseFormula(formula, indicadores){
+
 		var partes = tokenizer(formula.human);
 		var frasesAReemplazar = [];
 		for(var i = 0, j = partes.length; i < j; i++){
@@ -43,27 +50,43 @@
 			}
 		}
 
+		if (frasesAReemplazar.length > 0){
+			var ultimoseparador = Math.max.apply(null, ['=', '≥', '≤'].map(function(s){
+				return formula.human.lastIndexOf(s);
+			}) );
+			if (ultimoseparador > 0){
+				var formulacomputer = formula.human.substr(0, ultimoseparador);
+				var e = [], fallo = false;
 
-		var ultimoseparador = Math.max.apply(null, ['=', '≥', '≤'].map(function(s){
-			return formula.human.lastIndexOf(s);
-		}) );
-		if (ultimoseparador > 0){
-			var formulacomputer = formula.human.substr(0, ultimoseparador);
-			for(var i = 0, j = frasesAReemplazar.length; i < j; i++){
-				formulacomputer = formulacomputer.replace(frasesAReemplazar[i].search, '@');
-			}
-			var arr = formulacomputer.split('@');
-			var e = [];
-			for(var i = 0, j = arr.length - 1; i < j; i++){
-				e.push(arr[i]);
-				var o = frasesAReemplazar.shift();
-				e.push(o.replace);
-			}
-			e.push(arr[ arr.length - 1]);
+				for(var i = 0, j = frasesAReemplazar.length; i < j; i++){
+					if (formulacomputer.indexOf(frasesAReemplazar[i].search) > -1){
+						formulacomputer = formulacomputer.replace(frasesAReemplazar[i].search, '@');
+					}else if (formulacomputer.indexOf(uncapitalizeFirst(frasesAReemplazar[i].search) ) > -1){
+						formulacomputer = formulacomputer.replace(uncapitalizeFirst(frasesAReemplazar[i].search), '@');
+					}else{
+						fallo = true;
+						console.log('No encontrado |' + frasesAReemplazar[i].search + '| en ' + formulacomputer);
+					}
+				}
+				if (!fallo){
+					var arr = formulacomputer.split('@');
 
-			formula.computer = e;
+					for(var i = 0, j = arr.length - 1; i < j; i++){
+						e.push(arr[i]);
+						if (frasesAReemplazar.length == 0){
+							fallo = true;
+							break;
+						}
+						var o = frasesAReemplazar.shift();
+						e.push(o.replace);
+					}
+					e.push(arr[ arr.length - 1]);
+					if (!fallo){
+						formula.computer = JSON.stringify(e);
+					}
+				}
+			}
 		}
-
 		return formula;
 	}
 
@@ -243,7 +266,7 @@
 					};
 					for (var i = 0, j = objetivo.formulas.length; i < j; i++){
 
-						if (objetivo.formulas[i].pendiente){
+						if (true /* || objetivo.formulas[i].pendiente */){
 							//objetivo.formulas[i].computer = JSON.stringify([ "ceil", "(", "(", "100","*", "/indicador/56716258771ad7a247dcedd8/valores/[anualidad]/[mes]",")", '/', "/indicador/56716258771ad7a247dcedde/valores/[anualidad]/[mes]", ")" ] );
 							var defer = Q.defer();
 							expresion.evalFormula(objetivo.formulas[i].computer, fn(defer, i));
@@ -256,7 +279,7 @@
 						//fallo con la formula
 						res.json(objetivo);
 						//res.status(500).json({'error': 'An error has occurred', details: error });
-					})
+					});
 				});
 				return;
 			}else if (req.query.carta === 'undefined'){
@@ -343,7 +366,14 @@
 							'indicadores': [],
 							'meta': extraeMeta(detalle),
 							'direccion': '',
-							'valores': {'a2016': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]}
+							'valores': {
+								'a2015': [
+									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0},
+									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}],
+								'a2016': [
+									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0},
+									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}]
+							}
 						};
 
 						formulas.push(formula);
@@ -478,15 +508,18 @@
 								res.status(500).json({'error': 'Empty page'});
 							}else{
 								module.exports.extractAndSaveIndicadores(data.idjerarquia, objetivos, indicadormodel, Q).then(function(objetivosConIndicadores){
+									console.log(objetivosConIndicadores);
 									var objetivosAAlmacenar = objetivosConIndicadores.objetivos;
 									for(var i = 0, j = objetivosAAlmacenar.length; i < j; i++){
 										for(var k = 0, l = objetivosAAlmacenar[i].formulas.length; k < l; k++){
-											objetivosAAlmacenar[i].formulas[k] = trytoparseFormula(objetivosAAlmacenar[i].formulas[k]);
+											objetivosAAlmacenar[i].formulas[k] = trytoparseFormula(objetivosAAlmacenar[i].formulas[k], objetivosConIndicadores.indicadoresobtenidos);
 										}
 										new objetivomodel(objetivosAAlmacenar[i]).save();
 										/* TODO: wait? */
 									}
 									res.json(objetivosConIndicadores);
+								}, function(errorI){
+									res.status(500).json({'error': 'Error during download', details: errorI});
 								});
 							}
 						}, function(error){
