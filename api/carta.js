@@ -266,7 +266,7 @@
 					};
 					for (var i = 0, j = objetivo.formulas.length; i < j; i++){
 
-						if (true /* || objetivo.formulas[i].pendiente */){
+						if (objetivo.formulas[i].computer !== ''){
 							//objetivo.formulas[i].computer = JSON.stringify([ "ceil", "(", "(", "100","*", "/indicador/56716258771ad7a247dcedd8/valores/[anualidad]/[mes]",")", '/', "/indicador/56716258771ad7a247dcedde/valores/[anualidad]/[mes]", ")" ] );
 							var defer = Q.defer();
 							expresion.evalFormula(objetivo.formulas[i].computer, fn(defer, i));
