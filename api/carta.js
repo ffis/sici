@@ -15,6 +15,58 @@
 		return parts;
 	}
 
+
+	function trytoparseFormula(formula, indicadores){
+		var partes = tokenizer(formula.human);
+		var frasesAReemplazar = [];
+		for(var i = 0, j = partes.length; i < j; i++){
+			for(var k = 0, l = indicadores.length; k < l; k++){
+				if (partes[i] === indicadores[k].nombre){
+					frasesAReemplazar.push({
+						search: partes[i],
+						replace: '/indicador/' + indicadores[k]._id + '/valores/[anualidad]/[mes]'
+					});
+					break;
+				}else if (partes[i] === 'x 100'){
+					frasesAReemplazar.push({
+						search: partes[i],
+						replace: '* 100'
+					});
+					break;
+				}else if (partes[i] === 'x100'){
+					frasesAReemplazar.push({
+						search: partes[i],
+						replace: '* 100'
+					});
+					break;
+				}
+			}
+		}
+
+
+		var ultimoseparador = Math.max.apply(null, ['=', '≥', '≤'].map(function(s){
+			return formula.human.lastIndexOf(s);
+		}) );
+		if (ultimoseparador > 0){
+			var formulacomputer = formula.human.substr(0, ultimoseparador);
+			for(var i = 0, j = frasesAReemplazar.length; i < j; i++){
+				formulacomputer = formulacomputer.replace(frasesAReemplazar[i].search, '@');
+			}
+			var arr = formulacomputer.split('@');
+			var e = [];
+			for(var i = 0, j = arr.length - 1; i < j; i++){
+				e.push(arr[i]);
+				var o = frasesAReemplazar.shift();
+				e.push(o.replace);
+			}
+			e.push(arr[ arr.length - 1]);
+
+			formula.computer = e;
+		}
+
+		return formula;
+	}
+
 	module.exports.indicador = function(models){
 		return function(req, res){
 			var indicadormodel = models.indicador();
