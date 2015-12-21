@@ -1,24 +1,35 @@
 <div class="panel panel-default">
     <div class="panel-heading">
         <span class="pull-right label label-primary" style="font-size: 10pt;">{{objetivo.estado}}</span>
-        <b>{{objetivo.denominacion}}</b>
+        <h6><b>Objetivo:</b> {{objetivo.denominacion}}</h6>
     </div>
     <div class="panel-body">
+        <form>
+            <div class="form-group">
+                <h4 class="text-danger">{{carta.denominacion}}</h4>
+            </div>
+            <div class="form-group">
+                <label for="denominacionObjetivo">Denominación del objetivo</label>
+                <input type="text" class="form-control" id="denominacionObjetivo" placeholder="Denominación del objetivo" ng-model="objetivo.denominacion" />
+            </div>
+        </form>
         <div class="panel panel-info" ng-repeat="formula in objetivo.formulas track by $index">
             <div class="panel-heading"><b>{{formula.human}}</b></div>
             <div class="panel-body">
                 <form>
                     <div class="form-group">
                         <label for="formulaHuman">Fórmula</label>
-                        <input type="formulaHuman" class="form-control" id="formulaHuman" placeholder="Fórmula" ng-model="formula.human" />
+                        <input type="text" class="form-control" id="formulaHuman" placeholder="Fórmula" ng-model="formula.human" />
                     </div>
                     <div class="form-group">
                         <label for="formulaHuman">Fórmula Computada</label>
-                        <h5>{{ formula.computer }}</h5>
+                        <h5>{{formula.computer}}</h5>
                     </div>
-                    <div class="form-group">
-                        <label>Meta</label>
-                        <h4><span class="label label-danger">{{ formula.meta }}</span></h4>
+                    <div class="form-group" style="width: 80px;">
+                        <label for="meta">Meta</label>
+                        <h4>
+                            <input type="number" class="form-control" id="meta" placeholder="Meta" ng-model="formula.meta" />
+                        </h4>
                     </div>
                 </form>
                 <br />
@@ -35,10 +46,26 @@
                         <tr ng-repeat="indicador in formula.indicadores track by $index">
                             <td>{{indicadores[indicador]._id}}</td>
                             <td>{{indicadores[indicador].nombre}}</td>
-                            <td><button title="Desvincular" class="btn btn-primary btn-sm" ng-click="desvincular(indiceExterno, $index)"><i class="fa fa-unlink"></i></button></td>
+                            <td>
+                                <button title="Desvincular" class="btn btn-primary btn-sm" ng-click="desvincular(indiceExterno, $index)"><i class="fa fa-unlink"></i></button>
+                                <button ng-if="$index !== 0" title="Subir posición" class="btn btn-default btn-sm" ng-click="subirOrden(formula, $index)"><i class="fa fa-arrow-circle-up"></i></button>
+                                <button ng-if="$index < formula.indicadores.length - 1" title="Bajar posición" class="btn btn-default btn-sm" ng-click="bajarOrden(formula, $index)"><i class="fa fa-arrow-circle-down"></i></button>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
+                <div>
+                    <label>Vincular indicador</label>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6">
+                            <input placeholder="Introduce el nombre del indicador" class="form-control" type="text" ng-model="nuevoIndicador" uib-typeahead="indicador as indicador.nombre for indicador in indicadoresNodo | filter:$viewValue | limitTo: 8" typeahead-editable="false" />
+                        </div>
+                        <div class="col-xs-12 col-sm-6">
+                            <button title="Añadir indicador" class="btn btn-sm btn-primary" ng-click="vincularIndicador(formula, nuevoIndicador)"><i class="fa fa-plus-square"></i> Añadir indicador</button>
+                        </div>
+                    </div>
+                </div>
+                <br /><br /><br />
                 <h4><span class="label label-warning">Intervalos</span></h4>
                 <table class="table table-bordered">
                     <thead>
@@ -52,14 +79,14 @@
                         </tr>
                     </thead>
                     <tbody ng-init="indiceExterno = $index">
-                        <tr ng-repeat="intervalo in formula.intervalos track by $index" ng-class="formula.intervalos[$index].color">
+                        <tr ng-repeat="intervalo in formula.intervalos track by $index" style="background-color: {{formula.intervalos[$index].color}}">
                             <td><input ng-model="formula.intervalos[$index].min" type="number" class="form-control"></td>
                             <td><input ng-model="formula.intervalos[$index].max" type="number" class="form-control"></td>
                             <td>
                                 <select ng-model="formula.intervalos[$index].color" ng-options="color.value as color.name for color in colores" class="form-control"></select>
                             </td>
                             <td>
-                                <select ng-model="formula.intervalos[$index].nivel" class="form-control">
+                                <select ng-model="formula.intervalos[$index].alerta" class="form-control">
                                     <option ng-repeat="level in [1, 2, 3, 4, 5]" value="{{level}}">{{level}}</option>
                                 </select>
                             </td>
@@ -71,6 +98,8 @@
                 <button class="btn btn-xs btn-danger" ng-click="crearNuevoIntervalo(objetivo.formulas[indiceExterno])"><i class="fa fa-plus"></i> Añadir intervalo</button>
             </div>
         </div>
-        <button title="Guardar" class="btn btn-danger btn-sm" ng-click="actualizar()"><i class="fa fa-save"></i> Guardar</button>
+        <div class="col-xs-12">
+            <button title="Guardar" class="btn btn-danger btn-sm" ng-click="actualizar()"><i class="fa fa-save"></i> Guardar</button>
+        </div>
     </div>
 </div>
