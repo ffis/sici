@@ -19,6 +19,7 @@
 					'Carta de Servicios del Servicio de Atención al Ciudadano': 85
 				};
 				$scope.indicadores = {};
+				$scope.superuser = $rootScope.superuser();
 
 				$scope.setJerarquiaById = function(idj){
 					if (!idj){ return; }

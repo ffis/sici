@@ -23,7 +23,7 @@
 		<div ng-if="cartasservicio.length" class="table-responsive">
 			<p>
 				<div class="btn-group">
-					<a class="btn btn-danger" ng-click="importarObjetivos()" ng-if="$root.superuser() && objetivos.$resolved && objetivos.length == 0">
+					<a class="btn btn-danger" ng-click="importarObjetivos()" ng-if="superuser && objetivos.$resolved && objetivos.length == 0">
 						<span class="glyphicon glyphicon-download"></span>
 					</a>
 					<a class="btn btn-default" target="_blank" href="{{cartaservicioseleccionada.url}}" title="Ver informaci&oacute;n publicada"><span class="glyphicon glyphicon-info-sign"></span></a>
@@ -125,7 +125,7 @@
 											</table>
 										</td>
 										<td style="text-align:center">
-											<div width="10em" ng-radial-gauge ranges="ranges" value="formula.valores[aanualidad][ formula.valores[aanualidad].length - 1 ].resultado.toFixed(0)" value-unit="unit" precision="precision" lower-limit="0" upper-limit="formula.meta"></div>
+											<div width="10em" ng-radial-gauge ranges="ranges" value="formula.valores[aanualidad][ formula.valores[aanualidad].length - 1 ].resultado ? formula.valores[aanualidad][ formula.valores[aanualidad].length - 1 ].resultado.toFixed(0) : 0" value-unit="unit" precision="precision" lower-limit="0" upper-limit="formula.meta"></div>
 											<!--
 											<canvas data-gauge-chart maxvalue="100" dato="gaugeChart[objetivo.i].data" value="gaugeChart[objetivo.i].data.val" data-options="gaugeChart[objetivo.i].options" style="width: 120px; height: 60px; " class=""></canvas>
 											{{gaugeChart[objetivo.i].data.val}}
