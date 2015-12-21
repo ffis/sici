@@ -57,8 +57,8 @@
 						<a href="permisos">Administrar permisos</a>
 					</li>
 					<li class="dropdown" ng-If="$root.permisoscalculados.superuser" >
-			          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Administrar <span class="caret"></span></a>
-			          	<ul class="dropdown-menu" role="menu">
+					  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Administrar <span class="caret"></span></a>
+						<ul class="dropdown-menu" role="menu">
 							<li ng-class="{active:$root.nav==navg.id}" ng-repeat="navg in $root.navegabilidadSuper">
 								<a href="{{navg.id}}"><i ng-if="navg.icon" class="fa fa-fw" ng-class="navg.icon"></i> {{navg.caption}}</a>
 							</li>
@@ -128,7 +128,7 @@
 		<script src="/bower_components/angularjs-toaster/toaster.js"></script>
 		<script src="/bower_components/d3/d3.js"></script>
 		<script src="/bower_components/nvd3/nv.d3.js"></script>
-		<script src="/bower_components/bernii/gauge.js/dist/gauge.min.js"></script>
+		<script src="/bower_components/ngRadialGauge/src/ng-radial-gauge-dir.js"></script>
 
 		<script src="/js/lib/feedback.js"></script>
 
@@ -138,7 +138,8 @@
 		<script src="/js/directives.js"></script>
 		<script src="/js/services.js"></script>
 		<script src="/js/translate.js"></script>
-		<script src="/js/ui.js"></script>
+		<!--
+		<script src="/js/ui.js"></script>-->
 
 		<script src="/js/controllers/root.js"></script>
 		<script src="/js/controllers/login.js"></script>
@@ -163,8 +164,8 @@
 		<script src="/js/controllers/feedback.js"></script>
 		<script src="/js/controllers/carta.js"></script>
 		<script src="/js/controllers/entidadobjeto.js"></script>
-                <script src="/js/controllers/objetivo.js"></script>
-                <script src="/js/controllers/indicador.js"></script>
+		<script src="/js/controllers/objetivo.js"></script>
+		<script src="/js/controllers/indicador.js"></script>
 
 		<script src="/bower_components/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.js"></script>
 		<script src="/bower_components/angularjs-nvd3-directives/dist/angularjs-nvd3-directives.js"></script>

@@ -5,10 +5,10 @@ var dependencies = [
     'ui.bootstrap',
     'easypiechart', 'nvd3ChartDirectives',
     'xeditable', 'colorpicker.module',
-    'sici.filters', 'sici.services', 'sici.directives', 'sici.login.util', 'sici.translate', 'sici.ui',
+    'sici.filters', 'sici.services', 'sici.directives', 'sici.login.util', 'sici.translate',
     'pascalprecht.translate',
     'autocomplete',
-    'toaster'
+    'toaster', 'ngRadialGauge'
 ];
 
 if (angularFileUploadLoaded){

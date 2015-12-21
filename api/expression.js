@@ -47,14 +47,19 @@
 
 	Math.prototype.evalFormula = function(str, cb){
 		var indicadormodel = this.models.indicador(),
-			i, j, anualidad, idIndicador,
-			partes = JSON.parse(str),
-			returnValue = {},
+			i, j, anualidad, idIndicador, partes;
+			try{
+			partes = JSON.parse(str);
+			}catch(err){
+				cb(err); return;
+			}
+		var	returnValue = {},
 			modoAnualidad = false,
 			modoMes = false,
 			promises = [], tokens = [],
-			indicadoresACargar = {}, variables = {};
-		console.log(partes.join(' '));
+			indicadoresACargar = {}, variables = {}, scope = {},
+			resultado;
+
 		for(i = 0, j = partes.length; i < j; i++){
 			if (partes[i].indexOf('[anualidad]') > -1){
 				modoAnualidad = true;
@@ -90,6 +95,7 @@
 			promises.push(defer.promise);
 		}
 
+		console.log(98, promises.length);
 		Q.all(promises).then(function(indicadores){
 			if (modoAnualidad){
 				//suponemos que ambos indicadores tienen las mismas anualidades
@@ -101,10 +107,15 @@
 						for(var mes in indicadoresACargar[idIndicador].valores[anualidad]){
 							variables.mes = mes;
 							var formula = partes.map(replace(indicadoresACargar)).join('');
-							var scope = {
+							scope = {
 								entero: function(v){ parseFloat(v).toFixed(0); }
 							};
-							var resultado = math.parse(formula).compile().eval(scope);
+							console.log(113, formula);
+							try{
+								resultado = math.parse(formula).compile().eval(scope);
+							}catch(e){
+								console.error(118, e);
+							}
 							returnValue[anualidad].push({formula: formula, resultado: resultado});
 						}
 					}

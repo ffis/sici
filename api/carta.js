@@ -34,16 +34,22 @@
 						replace: '/indicador/' + indicadores[k]._id + '/valores/[anualidad]/[mes]'
 					});
 					break;
-				}else if (partes[i] === 'x 100'){
+				}else if (partes[i].toLowerCase() === 'x 100'){
 					frasesAReemplazar.push({
 						search: partes[i],
 						replace: '* 100'
 					});
 					break;
-				}else if (partes[i] === 'x100'){
+				}else if (partes[i].toLowerCase() === 'x100'){
 					frasesAReemplazar.push({
 						search: partes[i],
 						replace: '* 100'
+					});
+					break;
+				}else if (partes[i].toLowerCase() === ') x 100'){
+					frasesAReemplazar.push({
+						search: partes[i],
+						replace: ') * 100'
 					});
 					break;
 				}
@@ -222,7 +228,19 @@
 						return;
 					}
 					if (objetivo){
-						res.json(req.body);
+						for(var attr in req.body){
+							//TODO: change this naive
+							objetivo[attr] = req.body[attr];
+						}
+						objetivo.save(function(err, doc){
+							if (err){
+								console.error(err);
+								res.status(500).json({'error': 'An error has occurred', details: error });
+							}else{
+								res.json(objetivo);
+							}
+						});
+
 					}else{
 						res.status(404).json({'error': 'Not found'});
 					}
@@ -235,6 +253,7 @@
 	module.exports.objetivo = function(models, Q){
 		return function(req, res){
 			var Objetivo = models.objetivo();
+			console.log(req.params.id)
 			if (typeof req.params.id !== 'undefined'){
 				Objetivo.findOne({ '_id': models.ObjectId(req.params.id) }, function(erro, objetivo){
 					if (erro){
@@ -246,6 +265,7 @@
 					var promises = [];
 					var fn = function(promise, idformula){
 						return function(err, val){
+							console.log(250, err, val);
 							if (err){
 								promise.reject(err);
 								return;
@@ -261,22 +281,34 @@
 								}
 							}
 							objetivo.formulas[idformula].valores = valoressimplicado;
+							objetivo.markModified('formulas');
 							promise.resolve();
 						};
 					};
 					for (var i = 0, j = objetivo.formulas.length; i < j; i++){
-
+						console.log(i, objetivo.formulas[i].computer);
 						if (objetivo.formulas[i].computer !== ''){
-							//objetivo.formulas[i].computer = JSON.stringify([ "ceil", "(", "(", "100","*", "/indicador/56716258771ad7a247dcedd8/valores/[anualidad]/[mes]",")", '/', "/indicador/56716258771ad7a247dcedde/valores/[anualidad]/[mes]", ")" ] );
+							console.log(272, objetivo.formulas[i].computer);
 							var defer = Q.defer();
 							expresion.evalFormula(objetivo.formulas[i].computer, fn(defer, i));
 							promises.push(defer.promise);
 						}
 					}
 					Q.all(promises).then(function(){
-						res.json(objetivo);
+						//guardar objetivo
+						console.log('calculo OK', objetivo);
+
+						Objetivo.update({ _id: objetivo._id }, objetivo).save(function (err, doc){
+							if (err){
+								console.error(err);
+								res.status(500).json({'error': 'An error has occurred', details: error });
+							}else{
+								res.json(objetivo);
+							}
+						});
 					}, function(error){
 						//fallo con la formula
+						console.error(error);
 						res.json(objetivo);
 						//res.status(500).json({'error': 'An error has occurred', details: error });
 					});
