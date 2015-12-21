@@ -4,7 +4,7 @@
 	module.exports.get = function (models) {
 		return function (req, res) {
 			var entidadobjeto = models.entidadobjeto(),
-				id = req.params._id;
+				id = req.params.id;
 			if (id){
 				entidadobjeto.findOne({'_id': id}, function (err, data) {
 					if (err) {
