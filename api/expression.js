@@ -95,7 +95,6 @@
 			promises.push(defer.promise);
 		}
 
-		console.log(98, promises.length);
 		Q.all(promises).then(function(indicadores){
 			if (modoAnualidad){
 				//suponemos que ambos indicadores tienen las mismas anualidades
@@ -110,7 +109,7 @@
 							scope = {
 								entero: function(v){ parseFloat(v).toFixed(0); }
 							};
-							console.log(113, formula);
+							resultado = 0;
 							try{
 								resultado = math.parse(formula).compile().eval(scope);
 							}catch(e){

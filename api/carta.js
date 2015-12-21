@@ -232,7 +232,7 @@
 							//TODO: change this naive
 							objetivo[attr] = req.body[attr];
 						}
-						objetivo.save(function(err, doc){
+						Objetivo.update({ _id: objetivo._id }, objetivo, function (err, doc){
 							if (err){
 								console.error(err);
 								res.status(500).json({'error': 'An error has occurred', details: error });
@@ -286,9 +286,7 @@
 						};
 					};
 					for (var i = 0, j = objetivo.formulas.length; i < j; i++){
-						console.log(i, objetivo.formulas[i].computer);
 						if (objetivo.formulas[i].computer !== ''){
-							console.log(272, objetivo.formulas[i].computer);
 							var defer = Q.defer();
 							expresion.evalFormula(objetivo.formulas[i].computer, fn(defer, i));
 							promises.push(defer.promise);
@@ -298,7 +296,7 @@
 						//guardar objetivo
 						console.log('calculo OK', objetivo);
 
-						Objetivo.update({ _id: objetivo._id }, objetivo).save(function (err, doc){
+						Objetivo.update({ _id: objetivo._id }, objetivo, function (err, doc){
 							if (err){
 								console.error(err);
 								res.status(500).json({'error': 'An error has occurred', details: error });
