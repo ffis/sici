@@ -131,14 +131,14 @@
 				var objetivomodel = models.objetivo();
 				var id = req.params.id;
 				if (req.user.permisoscalculados.superuser){
-					objetivomodel.find({'formulas.indicadores': id}, function(err, objetivos){
+					objetivomodel.find({'formulas.indicadores': models.ObjectId(id)}, function(err, objetivos){
 						if (err){
 							res.status(500).json({'error': 'An error has occurred', details: err});
 							return;
 						}
 						if (objetivos && objetivos.length > 0){
 							var vinculado = objetivos.map(function(o){ return o.denominacion; }).join(' | ');
-							res.status(401).json({'error': 'No se permite eliminar un indicador vinculado a un objetivo', details: vinculado});
+							res.status(403).json({'error': 'No se permite eliminar un indicador vinculado a un objetivo', details: vinculado});
 						}else{
 							var content = req.body;
 							indicadormodel.remove({'_id': id}, function(e){
@@ -151,7 +151,7 @@
 						}
 					});
 				}else{
-					res.status(401).json({'error': 'Not allowed'});
+					res.status(403).json({'error': 'Not allowed'});
 					/* not allowed */
 				}
 			}else{
@@ -335,7 +335,7 @@
 			return deferred.promise;
 		}
 
-		if (typeof Crawler === 'undefined'){
+		if (typeof Crawler != 'function'){
 			deferred.reject({error: 'Cannot download carta ' + carta.denominacion + ' because the crawler is not available'});
 			return deferred.promise;
 		}
@@ -377,14 +377,16 @@
 						enunciado = detalle;
 						formulas = [];
 					}else if (detalle.indexOf( '' + (parseInt(contador) + 1) ) === 0){
-						response.push({
-							denominacion: enunciado,
-							formulas: formulas,
-							carta: cartaid,
-							index: response.length + 1,
-							estado: 'Publicado',
-							objetivoestrategico: 1
-						});
+						if (formulas.length > 0){
+							response.push({
+								denominacion: enunciado,
+								formulas: formulas,
+								carta: cartaid,
+								index: contador,
+								estado: 'Publicado',
+								objetivoestrategico: 1
+							});
+						}
 						contador = '' + (parseInt(contador) + 1);
 						enunciado = detalle;
 						formulas = [];
@@ -399,10 +401,10 @@
 							'valores': {
 								'a2015': [
 									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0},
-									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}],
+									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}],
 								'a2016': [
 									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0},
-									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}]
+									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}]
 							}
 						};
 
@@ -410,9 +412,7 @@
 					}
 				}
 			}
-			if (response.length === 0){
-				console.error('No se han extraido compromisos', $html.length);
-			}
+
 			return response;
 		};
 		var cb = function(df, cartaid) {
@@ -422,8 +422,14 @@
 					df.reject({error: 'cb', e: error});
 					return;
 				}
-
-				df.resolve(extractCompromisos( jQuery('.contenido p,.contenido h3,.contenido h4'), jQuery, cartaid));
+				var compromisos = extractCompromisos( jQuery('.contenido em,.contenido h3,.contenido h4'), jQuery, cartaid);
+				if (compromisos.length === 0){
+					compromisos = extractCompromisos( jQuery('.contenido p,.contenido h3,.contenido h4'), jQuery, cartaid);
+				}
+				if (compromisos.length === 0){
+					console.error('No se han extraido compromisos', $html.length);
+				}
+				df.resolve(compromisos);
 			};
 		};
 
@@ -495,19 +501,20 @@
 	module.exports.extractAndSaveIndicadores = function(idjerarquia, objetivos, indicadormodel, Q){
 		var defer = Q.defer();
 		var promises = [];
-		var cbSetIndicador = function(idobjetivo, idformula){
+		var cbSetIndicador = function(idobjetivo, idformula, ordenindicador){
 			return function(indicador){
-				objetivos[idobjetivo].formulas[idformula].indicadores.push(indicador._id);
+				objetivos[idobjetivo].formulas[idformula].indicadores[ordenindicador] = indicador._id;
 			};
 		};
 		for(var i = 0, j = objetivos.length; i < j; i++){
 			for(var k = 0, l = objetivos[i].formulas.length; k < l; k++){
 				var formula = objetivos[i].formulas[k].human,
-					partes = tokenizer(formula);
+					partes = tokenizer(formula),
+					orden = 0;
 				for(var n = 0, m = partes.length; n < m; n++ ){
 					var parte = partes[n];
 					if (parte.indexOf('100') === -1){
-						var promiseIndicador = registerAndSetIndicador(idjerarquia, parte, indicadormodel, Q, cbSetIndicador(i, k) );
+						var promiseIndicador = registerAndSetIndicador(idjerarquia, parte, indicadormodel, Q, cbSetIndicador(i, k, orden++) );
 						promises.push(promiseIndicador);
 					}
 				}
