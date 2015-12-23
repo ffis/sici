@@ -83,7 +83,6 @@ modulo
 /* private services */
 
 modulo
-<<<<<<< HEAD
         .factory('PermisosList', ['$resource', function ($resource) {
                 return $resource('/api/v1/private/permisosList/:idjerarquia/:recursivo', {}, {query: {method: 'GET', isArray: false }}); }])
         .factory('PermisosDirectosProcedimientoList', ['$resource', function ($resource) {
