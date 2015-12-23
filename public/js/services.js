@@ -45,6 +45,10 @@ modulo
                 return $resource('/api/v1/public/procedimientoList/:idjerarquia/:recursivo', {}, {query: {method: 'GET', isArray: true }}); }])
         .factory('ProcedimientosSinExpedientes', ['$resource', function ($resource) {
                 return $resource('/api/v1/public/procedimientosSinExpedientes/:anualidad', {}, {}); }])
+        .factory('EntidadObjeto', ['$resource', function ($resource) {
+                return $resource('/api/v1/public/entidadobjeto/:codigo', {codigo: '@codigo' }, {get: {method: 'GET', isArray: false }, update: {method: 'PUT' }, create: {method: 'POST' }}); }])
+        .factory('EntidadesObjetoByResponsable', ['$resource', function ($resource) {
+                return $resource('/api/v1/public/entidadesObjetoByResponsable/:codplaza', {}, {query: {method: 'GET', isArray: true }}); }])
         .factory('Raw', ['$resource', function ($resource) {
                 return $resource('/api/v1/public/raw/:model', {}, {}); }])
         .factory('ResumenNodoJerarquia', ['$resource', function ($resource) {
@@ -55,6 +59,8 @@ modulo
                 return $resource('/api/v1/public/tramiteCount/:anualidad', {}, {}); }])
         .factory('TramitesMes', ['$resource', function ($resource) {
                 return $resource('/api/v1/public/tramitesMediaMes/:anualidad', {}, {}); }])
+        .factory('EntidadObjetoList', ['$resource', function ($resource) {
+                return $resource('/api/v1/public/entidadobjetoList/:idjerarquia/:recursivo', {}, {query: {method: 'GET', isArray: true }}); }])
         .factory('PeriodosStats', ['$resource', function ($resource) {
                 return $resource('/api/v1/public/mapReducePeriodos'); }])
 
@@ -110,6 +116,10 @@ modulo
                 return $resource('/api/v2/public/importarobjetivo/:idjerarquia', { idjerarquia: '@idjerarquia' }, {query: {method: 'GET', isArray: true }}); }])
         .factory('EntidadObjeto', ['$resource', function ($resource) {
                 return $resource('/api/v2/public/entidadobjeto/:id', {id: '@_id' }, {update: {method: 'PUT' }}); }])
+        .factory('PermisosDirectosEntidadObjetoList', ['$resource', function ($resource) {
+                return $resource('/api/v1/private/permisosDirectosProcedimientoList/:codigoentidadobjeto', {}, {query: {method: 'GET', isArray: true }}); }])
+        .factory('PermisosEntidadObjetoList', ['$resource', function ($resource) {
+                return $resource('/api/v1/private/permisosProcedimientoList/:codigoentidadobjeto', {}, {query: {method: 'GET', isArray: true }}); }])
 
         .factory('PastelColor', function(){
                 var colors = [];
