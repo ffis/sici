@@ -148,6 +148,7 @@
 		app.delete('/api/v1/restricted/feedback/:_id', feedback.remove(models));
 
 		app.get('/api/v1/restricted/excelgesper', persona.importarGesper(models, Q));
+               
 
 		/* funcionalidad grantuser */
 		setProgressMessage('Estableciendo rutas: rutas grantuser');
@@ -155,7 +156,10 @@
 		app.get('/api/v1/private/permisosList/:idjerarquia/:recursivo', permiso.permisosList(models, Q));
 
 		app.get('/api/v1/private/permisosDirectosProcedimientoList/:codigoprocedimiento', permiso.permisosDirectosProcedimientoList(models));
-		app.get('/api/v1/private/permisosProcedimientoList/:codigoprocedimiento', permiso.permisosProcedimientoList(models));
+		app.get('/api/v1/private/permisosProcedimientoList/:codigoprocedimiento', permiso.permisosProcedimientoList(models));		
+
+		app.get('/api/v1/private/permisosDirectosEntidadObjetoList/:codigoentidadobjeto', permiso.permisosDirectosEntidadObjetoList(models));
+		app.get('/api/v1/private/permisosEntidadObjetoList/:codigoentidadobjeto', permiso.permisosEntidadObjetoList(models));		
 
 		app.put('/api/v1/private/permisos/:id', permiso.update(models, recalculate, Q));
 		app.get('/api/v1/private/permisos/:id', permiso.get(models));
@@ -207,6 +211,9 @@
 		app.get('/api/v1/public/permisoscalculados', login.getpermisoscalculados(models));
 
 
+		app.get('/api/v1/public/entidadobjetoList/:idjerarquia', entidadobjeto.entidadobjetoList(models));
+		app.get('/api/v1/public/entidadobjetoList/:idjerarquia/:recursivo', entidadobjeto.entidadobjetoList(models, Q));		
+
 		app.get('/api/v1/public/procedimiento', procedimiento.procedimiento(models));
 		app.get('/api/v1/public/procedimiento/:codigo', procedimiento.procedimiento(models));
 		app.get('/api/v1/public/procedimientosByResponsable/:codplaza', procedimiento.procedimientosByResponsable(models));
@@ -246,6 +253,7 @@
 
 		app.get('/api/v2/public/entidadobjeto', entidadobjeto.get(models));
 		app.put('/api/v2/public/entidadobjeto/:id', entidadobjeto.update(models));
+        app.get('/api/v1/public/entidadesObjetoByResponsable/:codplaza', entidadobjeto.entidadobjetoByResponsable(models));
 		app.get('/api/v2/public/testDownloadCarta/:id', carta.testDownloadCarta(models, Crawler, Q));
 
 		//app.use('/api/v1/public/feedback', multer({ dest: path.join( __dirname, 'tmp') + path.sep}));
