@@ -16,6 +16,7 @@
     "jsonwebtoken": "",
     "kerberos": "0.0.17",
     "lodash": "^2.4.1",
+    "mathjs": "^2.5.0",
     "md5": "",
     "memwatch-next": "^0.2.10",
     "mongodb": "^2.1.0",

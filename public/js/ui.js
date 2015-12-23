@@ -1,4 +1,4 @@
-(function(angular, Donut, Gauge){
+(function(angular){
 	'use strict';
 function makeid()
 {
@@ -11,7 +11,10 @@ function makeid()
 
     return text;
 }
+
 	angular.module('sici.ui', [])
+	;
+	/*
 		.directive('gaugeChart', [
 			function() {
 				return {
@@ -50,7 +53,8 @@ function makeid()
 				};
 			}
 	]);
-})(angular, Donut, Gauge);
+*/	
+})(angular);
 /*
 https://github.com/bernii/gauge.js/blob/gh-pages/dist/gauge.js
 */

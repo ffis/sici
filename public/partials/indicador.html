@@ -1,0 +1,41 @@
+<div class="row">
+    <div class="col-lg-12">
+        <div style="clear:both" class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>REST URL</th>
+                        <th>Frecuencia</th>
+                        <th>Acumulador</th>
+                        <th>Operaciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="indicador in indicadores" ng-class="{'danger' :  indicador._id == idindicador}">
+                        <td>
+                            <input ng-model="indicador.nombre" class="form-control" />
+                        </td>
+                        <td>
+                            <input ng-model="indicador.resturl" class="form-control" />
+                        </td>
+                        <td>
+                            {{indicador.frecuencia}}
+                        </td>
+                        <td>
+                            <select ng-model="indicador.acumulador" ng-options="func.value as func.name for func in functions" class="form-control"></select>
+                        </td>
+                        <td>
+                            <button ng-click="actualizar(indicador)" class="btn btn-sm btn-primary" title="Actualizar">
+                                <i class="fa fa-save"></i>
+                            </button>
+                            <button ng-click="eliminar(indicador)" class="btn btn-sm btn-danger">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

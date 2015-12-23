@@ -1,5 +1,6 @@
 (function(module){
 	'use strict';
+	var Expression = require('./expression');
 
 	function tokenizer(str){
 		var parts = [];
@@ -12,6 +13,90 @@
 			return a !== '';
 		});
 		return parts;
+	}
+
+	function capitalizeFirst(a){
+		return a.charAt(0).toUpperCase() + a.slice(1);
+	}
+	function uncapitalizeFirst(a){
+		return a.charAt(0).toLowerCase() + a.slice(1);
+	}
+
+	function trytoparseFormula(formula, indicadores){
+
+		var partes = tokenizer(formula.human);
+		var frasesAReemplazar = [];
+		for(var i = 0, j = partes.length; i < j; i++){
+			for(var k = 0, l = indicadores.length; k < l; k++){
+				if (partes[i] === indicadores[k].nombre){
+					frasesAReemplazar.push({
+						search: partes[i],
+						replace: '/indicador/' + indicadores[k]._id + '/valores/[anualidad]/[mes]'
+					});
+					break;
+				}else if (partes[i].toLowerCase() === 'x 100'){
+					frasesAReemplazar.push({
+						search: partes[i],
+						replace: '* 100'
+					});
+					break;
+				}else if (partes[i].toLowerCase() === 'x100'){
+					frasesAReemplazar.push({
+						search: partes[i],
+						replace: '* 100'
+					});
+					break;
+				}else if (partes[i].toLowerCase() === ') x 100'){
+					frasesAReemplazar.push({
+						search: partes[i],
+						replace: ') * 100'
+					});
+					break;
+				}
+			}
+		}
+
+		if (frasesAReemplazar.length > 0){
+			var ultimoseparador = Math.max.apply(null, ['=', '≥', '≤'].map(function(s){
+				return formula.human.lastIndexOf(s);
+			}) );
+			if (ultimoseparador > 0){
+				var formulacomputer = formula.human.substr(0, ultimoseparador);
+				var e = [], fallo = false;
+
+				for(var i = 0, j = frasesAReemplazar.length; i < j; i++){
+					if (formulacomputer.indexOf(frasesAReemplazar[i].search) > -1){
+						formulacomputer = formulacomputer.replace(frasesAReemplazar[i].search, '@');
+					}else if (formulacomputer.indexOf(uncapitalizeFirst(frasesAReemplazar[i].search) ) > -1){
+						formulacomputer = formulacomputer.replace(uncapitalizeFirst(frasesAReemplazar[i].search), '@');
+					}else{
+						fallo = true;
+						console.log('No encontrado |' + frasesAReemplazar[i].search + '| en ' + formulacomputer);
+					}
+				}
+				if (!fallo){
+					var arr = formulacomputer.split('@');
+
+					for(var i = 0, j = arr.length - 1; i < j; i++){
+						e.push(arr[i]);
+						if (frasesAReemplazar.length == 0){
+							fallo = true;
+							break;
+						}
+						var o = frasesAReemplazar.shift();
+						e.push(o.replace);
+					}
+					e.push(arr[ arr.length - 1]);
+					if (!fallo){
+						e = e.filter(function(str){
+							return str.trim() != '';
+						});
+						formula.computer = JSON.stringify(e);
+					}
+				}
+			}
+		}
+		return formula;
 	}
 
 	module.exports.indicador = function(models){
@@ -49,14 +134,14 @@
 				var objetivomodel = models.objetivo();
 				var id = req.params.id;
 				if (req.user.permisoscalculados.superuser){
-					objetivomodel.find({'formulas.indicadores': id}, function(err, objetivos){
+					objetivomodel.find({'formulas.indicadores': models.ObjectId(id)}, function(err, objetivos){
 						if (err){
 							res.status(500).json({'error': 'An error has occurred', details: err});
 							return;
 						}
 						if (objetivos && objetivos.length > 0){
 							var vinculado = objetivos.map(function(o){ return o.denominacion; }).join(' | ');
-							res.status(401).json({'error': 'No se permite eliminar un indicador vinculado a un objetivo', details: vinculado});
+							res.status(403).json({'error': 'No se permite eliminar un indicador vinculado a un objetivo', details: vinculado});
 						}else{
 							var content = req.body;
 							indicadormodel.remove({'_id': id}, function(e){
@@ -69,7 +154,7 @@
 						}
 					});
 				}else{
-					res.status(401).json({'error': 'Not allowed'});
+					res.status(403).json({'error': 'Not allowed'});
 					/* not allowed */
 				}
 			}else{
@@ -136,19 +221,100 @@
 		};
 	};
 
-
-	module.exports.objetivo = function(models){
+	module.exports.actualizaobjetivo = function(models, Q){
 		return function(req, res){
 			var Objetivo = models.objetivo();
 			if (typeof req.params.id !== 'undefined'){
-                            Objetivo.findOne({ '_id': models.ObjectId(req.params.id) }, function(erro, objetivo){
-                                if (erro){
-                                        res.status(500).json({'error': 'An error has occurred', details: erro});
-                                        return;
-                                }
-                                res.json(objetivo);
-                            });
-                            return;
+				Objetivo.findOne({ '_id': models.ObjectId(req.params.id) }, function(erro, objetivo){
+					if (erro){
+						res.status(500).json({'error': 'An error has occurred', details: erro});
+						return;
+					}
+					if (objetivo){
+						for(var attr in req.body){
+							//TODO: change this naive
+							objetivo[attr] = req.body[attr];
+						}
+						Objetivo.update({ _id: objetivo._id }, objetivo, function (err, doc){
+							if (err){
+								console.error(err);
+								res.status(500).json({'error': 'An error has occurred', details: error });
+							}else{
+								res.json(objetivo);
+							}
+						});
+
+					}else{
+						res.status(404).json({'error': 'Not found'});
+					}
+				});
+			}else{
+				res.status(404).json({'error': 'Not found'});
+			}
+		};
+	};
+	module.exports.objetivo = function(models, Q){
+		return function(req, res){
+			var Objetivo = models.objetivo();
+			console.log(req.params.id)
+			if (typeof req.params.id !== 'undefined'){
+				Objetivo.findOne({ '_id': models.ObjectId(req.params.id) }, function(erro, objetivo){
+					if (erro){
+						res.status(500).json({'error': 'An error has occurred', details: erro});
+						return;
+					}
+					if (!objetivo){ res.json(objetivo); return; }
+					var expresion = new Expression(models);
+					var promises = [];
+					var fn = function(promise, idformula){
+						return function(err, val){
+							console.log(250, err, val);
+							if (err){
+								promise.reject(err);
+								return;
+							}
+							//disponible objeto con las anualidades
+							var valoressimplicado = {};
+							for(var anualidad in val){
+								if (typeof valoressimplicado[anualidad] === 'undefined'){
+									valoressimplicado[anualidad] = [];
+								}
+								for(var m in val[anualidad]){
+									valoressimplicado[anualidad].push(val[anualidad][m]);
+								}
+							}
+							objetivo.formulas[idformula].valores = valoressimplicado;
+							objetivo.markModified('formulas');
+							promise.resolve();
+						};
+					};
+					for (var i = 0, j = objetivo.formulas.length; i < j; i++){
+						if (objetivo.formulas[i].computer !== ''){
+							var defer = Q.defer();
+							expresion.evalFormula(objetivo.formulas[i].computer, fn(defer, i));
+							promises.push(defer.promise);
+						}
+					}
+					Q.all(promises).then(function(){
+						//guardar objetivo
+						console.log('calculo OK', objetivo);
+
+						Objetivo.update({ _id: objetivo._id }, objetivo, function (err, doc){
+							if (err){
+								console.error(err);
+								res.status(500).json({'error': 'An error has occurred', details: error });
+							}else{
+								res.json(objetivo);
+							}
+						});
+					}, function(error){
+						//fallo con la formula
+						console.error(error);
+						res.json(objetivo);
+						//res.status(500).json({'error': 'An error has occurred', details: error });
+					});
+				});
+				return;
 			}else if (req.query.carta === 'undefined'){
 				res.status(404).json({error: 'Not found.'});
 				return;
@@ -172,10 +338,33 @@
 			return deferred.promise;
 		}
 
-		if (typeof Crawler === 'undefined'){
+		if (typeof Crawler != 'function'){
 			deferred.reject({error: 'Cannot download carta ' + carta.denominacion + ' because the crawler is not available'});
 			return deferred.promise;
 		}
+		var extraeMeta = function(str){
+			var ultimoseparador = Math.max.apply(null, ['=', '≥', '≤'].map(function(s){
+				return str.lastIndexOf(s) + 1;
+			}) );
+			if (ultimoseparador > 0){
+				var finalstr = str.substr(ultimoseparador);
+				return parseInt(finalstr);
+			}
+			return 100;
+		};
+
+		var extraeIntervalos = function(valormeta){
+			var intervaloscalculados = [];
+			if (valormeta > 0){
+				intervaloscalculados = [
+					{'min': 0, 'max': valormeta/4, 'mensaje': 'Peligro', 'color': '#C50200', 'alerta': 4},
+					{'min': valormeta / 4, 'max': valormeta / 2, 'mensaje': 'Aviso', 'color': '#FF7700', 'alerta': 3},
+					{'min': valormeta / 2, 'max': valormeta / 4 + valormeta / 2, 'mensaje': 'Normal', 'color': '#FDC702', 'alerta': 2},
+					{'min': valormeta / 4 + valormeta / 2, 'max': valormeta, 'mensaje': 'Éxito', 'color': '#8DCA2F', 'alerta': 1}
+				];
+			}
+			return intervaloscalculados;
+		};
 		var extractCompromisos = function($html, $, cartaid){
 			var response = [];
 			var encontrado = false;
@@ -191,51 +380,77 @@
 					encontrado = false;
 					if (enunciado !== '' && formulas.length > 0){
 						response.push({
-							descripcion: enunciado,
+							denominacion: enunciado.replace('' + contador, ''),
 							formulas: formulas,
-							carta: cartaid
+							carta: cartaid,
+							index: contador,
+							estado: 'Publicado',
+							objetivoestrategico: 1
 						});
+						contador = '' + (parseInt(contador) + 1);
+						enunciado = detalle;
+						formulas = [];
 					}
 				}else if (encontrado){
 					if (detalle.indexOf(contador) === 0){
 						enunciado = detalle;
 						formulas = [];
 					}else if (detalle.indexOf( '' + (parseInt(contador) + 1) ) === 0){
-						response.push({
-							descripcion: enunciado,
-							formulas: formulas,
-							carta: cartaid
-						});
+						if (formulas.length > 0){
+							response.push({
+								denominacion: enunciado.replace('' + contador, ''),
+								formulas: formulas,
+								carta: cartaid,
+								index: contador,
+								estado: 'Publicado',
+								objetivoestrategico: 1
+							});
+						}
 						contador = '' + (parseInt(contador) + 1);
 						enunciado = detalle;
 						formulas = [];
 					}else if (detalle !== ''){
+						var meta = extraeMeta(detalle);
+						var intervalos = extraeIntervalos(meta);
 						var formula = {
 							'human': detalle,
+							'computer': '',
 							'frecuencia': 'mensual',
 							'indicadores': [],
-							'meta': 100,
+							'meta': meta,
 							'direccion': '',
-							'valores': {'a2016': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]}
+							'intervalos': intervalos,
+							'valores': {
+								'a2015': [
+									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0},
+									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}],
+								'a2016': [
+									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0},
+									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}]
+							}
 						};
-
 						formulas.push(formula);
 					}
 				}
 			}
-			if (response.length === 0){
-				response.push({ });
-			}
+
 			return response;
 		};
 		var cb = function(df, cartaid) {
-			return function(error, result, $) {
+			return function(error, result, jQuery) {
 				if (error){
+					console.error(error);
 					df.reject({error: 'cb', e: error});
 					return;
 				}
-
-				df.resolve(extractCompromisos( $('.contenido p,.contenido h3,.contenido h4'), $, cartaid));
+				var compromisos = extractCompromisos( jQuery('.contenido em,.contenido h3,.contenido h4'), jQuery, cartaid);
+				if (compromisos.length === 0){
+					compromisos = extractCompromisos( jQuery('.contenido p,.contenido h3,.contenido h4'), jQuery, cartaid);
+				}
+				if (compromisos.length === 0){
+					console.error('No se han extraido compromisos', $html.length);
+				}
+				df.resolve(compromisos);
 			};
 		};
 
@@ -307,19 +522,26 @@
 	module.exports.extractAndSaveIndicadores = function(idjerarquia, objetivos, indicadormodel, Q){
 		var defer = Q.defer();
 		var promises = [];
-		var cbSetIndicador = function(idobjetivo, idformula){
+		var cbSetIndicador = function(idobjetivo, idformula, ordenindicador){
 			return function(indicador){
-				objetivos[idobjetivo].formulas[idformula].indicadores.push(indicador._id);
+				objetivos[idobjetivo].formulas[idformula].indicadores[ordenindicador] = indicador._id;
 			};
 		};
 		for(var i = 0, j = objetivos.length; i < j; i++){
 			for(var k = 0, l = objetivos[i].formulas.length; k < l; k++){
 				var formula = objetivos[i].formulas[k].human,
-					partes = tokenizer(formula);
+					partes = tokenizer(formula),
+					orden = 0;
 				for(var n = 0, m = partes.length; n < m; n++ ){
-					var parte = partes[n];
+					var parte = partes[n].trim();
+					if (parte === ''){
+						continue;
+					}
+					if (parte[0] >= '0' && parte[0] <= '9' ){
+						continue;
+					}
 					if (parte.indexOf('100') === -1){
-						var promiseIndicador = registerAndSetIndicador(idjerarquia, parte, indicadormodel, Q, cbSetIndicador(i, k) );
+						var promiseIndicador = registerAndSetIndicador(idjerarquia, parte, indicadormodel, Q, cbSetIndicador(i, k, orden++) );
 						promises.push(promiseIndicador);
 					}
 				}
@@ -333,6 +555,49 @@
 		return defer.promise;
 	};
 
+	module.exports.dropCarta = function(models, Q){
+		return function(req, res){
+			var id = req.params.id,
+				indicadormodel = models.indicador(),
+				objetivomodel = models.objetivo(),
+				entidadobjetomodel = models.entidadobjeto();
+
+			if (id && req.user.permisoscalculados.superuser){
+				entidadobjetomodel.findOne({'_id': models.ObjectId(req.params.id) }, function (err, carta) {
+					if (err){
+						res.status(500).json({'error': 'An error has occurred', details: err});
+						return;
+					}else if (carta){
+						var defer = Q.defer(),
+							defer2 = Q.defer();
+						var fn = function(def){
+							return function(err){
+								if (err){
+									def.reject(err);
+								}else{
+									def.resolve();
+								}
+							};
+						};
+
+						indicadormodel.remove({ idjerarquia: carta.idjerarquia }, fn(defer));
+						objetivomodel.remove({ carta: carta._id }, fn(defer2));
+						Q.all([defer, defer2]).then(function(){
+							res.json('OK');
+						}, function(error){
+							res.status(500).json({'error': 'Error during dropCarta', details: error});
+						});
+
+					}else{
+						res.status(404).json({'error': 'Not found'});
+					}
+				});
+			}else{
+				res.status(404).json({'error': 'Not valid params'});
+			}
+		};
+	};
+
 	module.exports.testDownloadCarta = function(models, Crawler, Q){
 		return function(req, res){
 			var entidadobjeto = models.entidadobjeto(),
@@ -344,17 +609,27 @@
 					if (err){
 						res.status(500).json({'error': 'An error has occurred', details: err});
 						return;
-					}
-					if (data){
+					}else if (data){
 						module.exports.downloadCarta(data, Crawler, Q).then(function(objetivos){
-							module.exports.extractAndSaveIndicadores(data.idjerarquia, objetivos, indicadormodel, Q).then(function(objetivosConIndicadores){
-								var objetivosAAlmacenar = objetivosConIndicadores.objetivos;
-								for(var i = 0, j = objetivosAAlmacenar.length; i < j; i++){
-									new objetivomodel(objetivosAAlmacenar[i]).save();
-									/* TODO: wait? */
-								}
-								res.json(objetivosConIndicadores);
-							});
+							if (objetivos.length === 0){
+								res.status(500).json({'error': 'Empty page'});
+							}else{
+								module.exports.extractAndSaveIndicadores(data.idjerarquia, objetivos, indicadormodel, Q).then(function(objetivosConIndicadores){
+									var objetivosAAlmacenar = objetivosConIndicadores.objetivos;
+									for(var i = 0, j = objetivosAAlmacenar.length; i < j; i++){
+										for(var k = 0, l = objetivosAAlmacenar[i].formulas.length; k < l; k++){
+											objetivosAAlmacenar[i].formulas[k] = trytoparseFormula(objetivosAAlmacenar[i].formulas[k], objetivosConIndicadores.indicadoresobtenidos);
+										}
+										new objetivomodel(objetivosAAlmacenar[i]).save();
+										/* TODO: wait? */
+									}
+									res.json(objetivosConIndicadores);
+								}, function(errorI){
+									res.status(500).json({'error': 'Error during download', details: errorI});
+								});
+							}
+						}, function(error){
+							res.status(500).json({'error': 'Error during download', details: error});
 						});
 					}else{
 						res.status(404).json({'error': 'Not found'});

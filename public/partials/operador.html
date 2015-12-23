@@ -1,0 +1,48 @@
+<div class="row">
+	<div class="col-lg-12">
+		<div style="clear:both" class="table-responsive">
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Texto</th>
+						<th>Valor</th>
+						<th>Operaciones</th>
+					</tr>
+				</thead>
+				<tfoot style="background-color:#eee">
+					<tr>
+						<td>
+							<input ng-model="nuevo.texto" class="form-control"/>
+						</td>
+						<td>
+							<input ng-model="nuevo.valor" class="form-control"/>
+						</td>
+						<td>
+							<button ng-click="guardar(nuevo)" class="btn btn-default">
+								<span class="glyphicon glyphicon-ok"></span>
+							</button>
+						</td>
+					</tr>
+				</tfoot>
+				<tbody>
+					<tr ng-repeat="operador in operadores track by $index">
+						<td>
+							<input ng-model="operador.texto" class="form-control" ng-change="cambios[$index]=true"/>
+						</td>
+						<td>
+							<input ng-model="operador.valor" class="form-control" ng-change="cambios[$index]=true"/>
+						</td>
+						<td>
+							<button ng-click="actualizar(operador)" class="btn btn-default" ng-show="cambios[$index]">
+								<span class="glyphicon glyphicon-ok"></span>
+							</button>
+							<button ng-click="eliminar(operador)" class="btn btn-danger" >
+								<span class="glyphicon glyphicon-remove"></span>
+							</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>

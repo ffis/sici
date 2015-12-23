@@ -3,12 +3,12 @@
 	<div ng-class="{'col-lg-3': !oculto, 'col-md-4': !oculto, 'hidden': oculto}" class="left animated">
 		<div class="panel panel-default">
 		  <div class="panel-heading">
-		    <h3 class="panel-title">Temporalmente</h3>
+			<h3 class="panel-title">Temporalmente</h3>
 		  </div>
 		  <div class="panel-body">
-		  	<span ng-repeat="(t, v) in equivalencias" style="font-size:16px">
-		    	<span class="label label-default cursor" ng-click="setJerarquiaById(v)">{{t}}</span>
-		    </span>
+			<span ng-repeat="(t, v) in equivalencias" style="font-size:16px">
+				<a href="/carta/{{v}}" class="label label-default cursor">{{t}}</a>
+			</span>
 		  </div>
 		</div>
 		<organismos otitle="'Organismos con cartas de compromisos'" arbol="arbol" tipoelementos="'carta de compromisos'" attr="'numcartas'" setseleccionado="setSeleccionado" seleccionado="seleccionado" filtro="filtro"></organismos>
@@ -23,13 +23,13 @@
 		<div ng-if="cartasservicio.length" class="table-responsive">
 			<p>
 				<div class="btn-group">
-					<a class="btn btn-danger" ng-click="importarObjetivos()">
-						<span class="glyphicon glyphicon-info-sign"></span>
+					<a class="btn btn-danger" ng-click="importarObjetivos()" ng-if="superuser && objetivos.$resolved && objetivos.length == 0">
+						<span class="glyphicon glyphicon-download"></span>
 					</a>
 					<a class="btn btn-default" target="_blank" href="{{cartaservicioseleccionada.url}}" title="Ver informaci&oacute;n publicada"><span class="glyphicon glyphicon-info-sign"></span></a>
 					<div class="btn-group">
 					  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					    {{cartaservicioseleccionada.denominacion}} <span class="caret" ng-if="cartasservicio.length > 1"></span>
+						{{cartaservicioseleccionada.denominacion}} <span class="caret" ng-if="cartasservicio.length > 1"></span>
 					  </button>
 						<ul class="dropdown-menu" ng-if="cartasservicio.length > 1">
 							<li ng-if="cartaservicioseleccionada._id != c._id" ng-repeat="c in cartasservicio"><a href="{{c.urledicion}}">{{c.denominacion}}</a></li>
@@ -59,9 +59,9 @@
 						<th class="text-center">
 							<p>{{objetivo.index}}</p>
 							<div class="btn-group-vertical" role="group">
-                                                            <button type="button" class="btn btn-default" title="Editar" ng-click="navigate('/objetivo/'+objetivo._id)">
+								<a class="btn btn-default" title="Editar" href="/objetivo/{{ objetivo._id}}">
 									<span class="glyphicon glyphicon-pencil"></span>
-								</button>
+								</a>
 								<button type="button" class="btn btn-default" title="Comentar">
 									<span class="glyphicon glyphicon-comment" ng-class="claseComentarios(objetivo)" ng-click=""></span>
 								</button>
@@ -86,25 +86,35 @@
 														<th>{{anualidad}}</th>
 													</tr>
 												</thead>
+												<tfoot>
+													<tr>
+														<th colspan="{{1 + formula.valores[aanualidad].length}}"><p><strong>{{formula.computer}}</strong></p></th>
+													</tr>
+													<tr>
+														<th>Cálculo</th>
+														<th class="text-right" title="{{valor.formula}}" ng-repeat="valor in formula.valores[aanualidad] track by $index">{{valor.resultado.toFixed(0)}}</th>
+													</tr>
+												</tfoot>
 												<tbody>
 													<tr ng-repeat-start="indicadorid in formula.indicadores track by $index" ng-click="setIndicadorSeleccionado(indicadorid)" ng-class="{'danger' : indicadorSeleccionado === indicadorid}">
-														<td style="width:40%">
+														<td style="width:40%" class="menu-indicador">
 														<div class="pull-right">
-                                                                                                                    <span class="glyphicon glyphicon-comment" ng-click="indicadores[indicadorid].desplegado = !indicadores[indicadorid].desplegado" ng-class="{'color_note' : existeComentario(indicadores[indicadorid].observaciones['a2015'])}"></span>
+														<a title="Editar" href="/indicador/{{idjerarquia}}/{{indicadorid}}"><i class="fa fa-pencil"></i></a> <!--<a title="Desvincular" href=""><i class="fa fa-unlink text-danger"></i></a>-->
+														<span class="glyphicon glyphicon-comment" ng-click="indicadores[indicadorid].desplegado = !indicadores[indicadorid].desplegado" ng-class="{'color_note' : existeComentario(indicadores[indicadorid].observaciones[aanualidad])}"></span>
 														</div>
 														{{indicadores[indicadorid].nombre}}
 														</td>
-														<td ng-repeat="(v,a) in indicadores[indicadorid].valores['a2015'] track by $index">
-															<input ng-blur="updateIndicador(indicadorid)" type="text" style="width:3em; font-size:smaller; padding:1px" class="text-right form-control" ng-model="indicadores[indicadorid].valores['a2015'][v]" />
+														<td ng-repeat="(v,a) in indicadores[indicadorid].valores[aanualidad] track by $index">
+															<input ng-blur="updateIndicador(indicadorid)" type="text" style="width:3em; font-size:smaller; padding:1px" class="text-right form-control" ng-model="indicadores[indicadorid].valores[aanualidad][v]" />
 														</td>
 													</tr>
-                                                                                                        <tr ng-repeat-end ng-if="indicadores[indicadorid].desplegado">
+													<tr ng-repeat-end ng-if="indicadores[indicadorid].desplegado">
 														<td colspan="14">
 															<table class="table table-striped table-bordered table-condensed" style="width:100%">
 																<tbody>
 																	<tr ng-repeat="(v,a) in [0,1,2,3,4,5,6,7,8,9,10,11]">
-                                                                                                                                            <th style="width:20%;" class="text-right">{{$root.meses[a]}}</th>
-																		<td><input ng-blur="updateIndicador(indicadorid)" ng-model="indicadores[indicadorid].observaciones['a2015'][v]" type="text" class="form-control" style="width:90%" /></td>
+																		<th style="width:20%;" class="text-right">{{$root.meses[a]}}</th>
+																		<td><input ng-blur="updateIndicador(indicadorid)" ng-model="indicadores[indicadorid].observaciones[aanualidad][v]" type="text" class="form-control" style="width:90%" /></td>
 																	</tr>
 																</tbody>
 															</table>
@@ -114,9 +124,15 @@
 											</table>
 										</td>
 										<td style="text-align:center">
+											<div width="10em" ng-radial-gauge ranges="formula.intervalos" value="formula.valor[aanualidad]" value-unit="unit" precision="precision" lower-limit="0" upper-limit="formula.meta"></div>
+											<!--
 											<canvas data-gauge-chart maxvalue="100" dato="gaugeChart[objetivo.i].data" value="gaugeChart[objetivo.i].data.val" data-options="gaugeChart[objetivo.i].options" style="width: 120px; height: 60px; " class=""></canvas>
-											<br />
 											{{gaugeChart[objetivo.i].data.val}}
+											-->
+											<br />
+											<br />
+											<h4>{{ formula.valores[aanualidad][ formula.valores[aanualidad].length - 1 ].resultado.toFixed(0)  }}</h4>
+											<h5>{{ formula.meta }}</h5>
 										</td>
 									</tr>
 								</tbody>
@@ -134,29 +150,8 @@
 #cartastable tbody tr:hover th .btn-group-vertical{display: block; }
 #cartastable tbody tr th { vertical-align:middle; }
 #cartastable tbody tr    { page-break-inside:avoid; page-break-after: auto; }
-#cartastable tbody tr td div.formuladetails { page-break-inside:avoid; } /* This is the key */
+#cartastable tbody tr td div.formuladetails { page-break-inside:avoid; }
+.menu-indicador a {display: none;}
+.menu-indicador:hover a {display: inline;}
+/* This is the key */
 </style>
-<!--
-<td class="hidden">
-	<div class="progress">
-  		<div class="progress-bar {{getProgressClass(indicador.i)}}" role="progressbar" aria-valuenow="{{getProgress(indicador.i)}}" aria-valuemin="0" aria-valuemax="100" style="width: {{getProgress(indicador.i)}}%;">
-    	<span>{{getProgress(indicador.i)}}%</span>
-  		</div>
-	</div>
-</td>
-<div class="row" ng-if="cartas.length">
-	<div class="col-sm-6 col-md-4" ng-repeat="indicador in cartas">
-	    <div class="thumbnail">
-			<canvas data-gauge-chart data-data="gaugeChart[indicador.i].data" data-options="gaugeChart[indicador.i].options" style="width: 120px; height: 60px; " class=""></canvas>
-			<div class="caption">
-				<p>{{indicador.descripcion}}</p>
-				<ul>
-					<li style="list-style:none" ng-repeat="formula in indicador.formulas track by $index"><strong>{{formula}}</strong></li>
-		        </ul>
-		        <p><a href="#" class="btn btn-primary" role="button">Button</a> <a href="#" class="btn btn-default" role="button">Button</a></p>
-			</div>
-	    </div>
-	</div>
-</div>
-
--->

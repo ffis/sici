@@ -5,10 +5,10 @@ var dependencies = [
     'ui.bootstrap',
     'easypiechart', 'nvd3ChartDirectives',
     'xeditable', 'colorpicker.module',
-    'sici.filters', 'sici.services', 'sici.directives', 'sici.login.util', 'sici.translate', 'sici.ui',
+    'sici.filters', 'sici.services', 'sici.directives', 'sici.login.util', 'sici.translate',
     'pascalprecht.translate',
     'autocomplete',
-    'toaster'
+    'toaster', 'ngRadialGauge'
 ];
 
 if (angularFileUploadLoaded){
@@ -35,6 +35,7 @@ var app = angular.module('sici', dependencies).
         $routeProvider.when('/permisos', {templateUrl: 'partials/permisoscrud.html', controller: 'PermisoCtrl' });
         $routeProvider.when('/crearprocedimiento', {templateUrl: 'partials/procedimientocrud.html', controller: 'NewProcedimientoCtrl' });
         $routeProvider.when('/etiqueta', {templateUrl: 'partials/etiqueta.html', controller: 'EtiquetaCtrl' });
+        $routeProvider.when('/operador', {templateUrl: 'partials/operador.html', controller: 'OperadorCtrl' });
         $routeProvider.when('/periodos', {templateUrl: 'partials/periodos.html', controller: 'PeriodosCtrl' });
         $routeProvider.when('/testexpediente', {templateUrl: 'partials/testexpediente.html', controller: 'TestExpedienteCtrl' });
         $routeProvider.when('/loginas', {templateUrl: 'partials/loginas.html', controller: 'LoginAsCtrl' });
@@ -47,6 +48,7 @@ var app = angular.module('sici', dependencies).
         $routeProvider.when('/carta/:idjerarquia/:idcarta', {templateUrl: 'partials/carta.html', controller: 'CartaCtrl' });
         $routeProvider.when('/entidadobjeto', {templateUrl: 'partials/entidadobjeto.html', controller: 'EntidadObjetoCtrl' });
         $routeProvider.when('/objetivo/:idobjetivo', {templateUrl: 'partials/objetivo.html', controller: 'ObjetivoCtrl' });
+        $routeProvider.when('/indicador/:idjerarquia/:idindicador', {templateUrl: 'partials/indicador.html', controller: 'IndicadorCtrl' });
 
         $routeProvider.otherwise({redirectTo: '/welcome' });
         $locationProvider.html5Mode(true);

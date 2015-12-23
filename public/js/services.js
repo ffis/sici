@@ -17,6 +17,8 @@ modulo
                 return $resource('/api/v1/public/cr/:codigo', {}, {}); }])
         .factory('Etiqueta', ['$resource', function ($resource) {
                 return $resource('/api/v1/public/etiqueta/:id', {id: '@_id' }, {update: {method: 'PUT' }}); }])
+		.factory('Operador', ['$resource', function ($resource) {
+				return $resource('/api/v1/public/operador/:id', {id: '@_id' }, {update: {method: 'PUT' }}); }])
         .factory('ExportarInforme', ['$resource', function ($resource) {
                 return $resource('/api/v1/public/exportador/informe/:year', {year: '@year' }, {get: {method: 'GET', isArray: false }}); }])
         .factory('ExportarResultadosProcedimiento', ['$resource', function ($resource) {
@@ -63,25 +65,25 @@ modulo
                 return $resource('/api/v1/public/entidadobjetoList/:idjerarquia/:recursivo', {}, {query: {method: 'GET', isArray: true }}); }])
         .factory('PeriodosStats', ['$resource', function ($resource) {
                 return $resource('/api/v1/public/mapReducePeriodos'); }])
-
 ;
 /* restricted services */
 
 modulo
-        .factory('Anualidad', ['$resource', function ($resource) {
-                return $resource('/api/v1/restricted/anualidad/:anualidad', {}, { save: {method: 'POST' }, query: {method: 'GET', isArray: false }}); }])
-        .factory('ReglasInconsistencias', ['$resource', function ($resource) {
-                return $resource('/api/v1/restricted/reglasinconsistencias/:id', {id: '@_id' }, {update: {method: 'PUT' }}); }])
-        .factory('Periodo', ['$resource', function ($resource) {
-                return $resource('/api/v1/restricted/periodos/:id', {id: '@_id' }, {update: {method: 'PUT' }}); }])
-        .factory('Persona', ['$resource', function ($resource) {
-                return $resource('/api/v1/restricted/persona/:id', {id: '@id' }, {create: {method: 'POST' }, update: {method: 'PUT' }}); }])
-        .factory('Feedback', ['$resource', function ($resource) {
-                return $resource('/api/v1/restricted/feedback/:id', {id: '@id' }, {update: {method: 'PUT' }}); }])
+		.factory('Anualidad', ['$resource', function ($resource) {
+				return $resource('/api/v1/restricted/anualidad/:anualidad', {}, { save: {method: 'POST' }, query: {method: 'GET', isArray: false }}); }])
+		.factory('ReglasInconsistencias', ['$resource', function ($resource) {
+				return $resource('/api/v1/restricted/reglasinconsistencias/:id', {id: '@_id' }, {update: {method: 'PUT' }}); }])
+		.factory('Periodo', ['$resource', function ($resource) {
+				return $resource('/api/v1/restricted/periodos/:id', {id: '@_id' }, {update: {method: 'PUT' }}); }])
+		.factory('Persona', ['$resource', function ($resource) {
+				return $resource('/api/v1/restricted/persona/:id', {id: '@id' }, {create: {method: 'POST' }, update: {method: 'PUT' }}); }])
+		.factory('Feedback', ['$resource', function ($resource) {
+				return $resource('/api/v1/restricted/feedback/:id', {id: '@id' }, {update: {method: 'PUT' }}); }])
 ;
 /* private services */
 
 modulo
+<<<<<<< HEAD
         .factory('PermisosList', ['$resource', function ($resource) {
                 return $resource('/api/v1/private/permisosList/:idjerarquia/:recursivo', {}, {query: {method: 'GET', isArray: false }}); }])
         .factory('PermisosDirectosProcedimientoList', ['$resource', function ($resource) {
@@ -120,16 +122,22 @@ modulo
                 return $resource('/api/v1/private/permisosDirectosProcedimientoList/:codigoentidadobjeto', {}, {query: {method: 'GET', isArray: true }}); }])
         .factory('PermisosEntidadObjetoList', ['$resource', function ($resource) {
                 return $resource('/api/v1/private/permisosProcedimientoList/:codigoentidadobjeto', {}, {query: {method: 'GET', isArray: true }}); }])
-
-        .factory('PastelColor', function(){
-                var colors = [];
-                return function(i){
-                        if (typeof colors[i] === 'undefined'){
-                                var hue = Math.floor(Math.random() * 360);
-                                colors[i] = 'hsl(' + hue + ', 100%, 87.5%)';
-                        }
-                        return colors[i];
-                };
-        })
-        .value('version', '0.2')
+		.factory('PastelColor', function(){
+			var colors = [];
+			return function(i){
+					if (typeof colors[i] === 'undefined'){
+							var hue = Math.floor(Math.random() * 360);
+							colors[i] = 'hsl(' + hue + ', 100%, 87.5%)';
+					}
+					return colors[i];
+			};
+		})
+		.value('acumulatorFunctions', [
+				{name : 'Media', value: 'mean'},
+				{name : 'Suma', value: 'sum'},
+				{name : 'Máximo', value: 'max'},
+				{name : 'Mínimo', value: 'min'}
+			]
+		)
+		.value('version', '0.2')
 ;

@@ -27,6 +27,7 @@
 		reglainconsistencia = require('./api/reglainconsistencia'),
 		expediente = require('./api/expediente'),
 		etiqueta = require('./api/etiqueta'),
+		operador = require('./api/operador'),
 		periodos = require('./api/periodos'),
 		procedimiento = require('./api/procedimiento'),
 		persona = require('./api/persona'),
@@ -196,6 +197,11 @@
 		app.post('/api/v1/public/etiqueta/:id', etiqueta.newEtiqueta(models));
 		app.delete('/api/v1/public/etiqueta/:id', etiqueta.removeEtiqueta(models));
 
+		app.get('/api/v1/public/operador', operador.getOperador(models));
+		app.put('/api/v1/public/operador/:id', operador.updateOperador(models));
+		app.post('/api/v1/public/operador', operador.newOperador(models));
+		app.delete('/api/v1/public/operador/:id', operador.removeOperador(models));
+
 		app.get('/api/v1/public/exportador/informe/:year', exportador.exportarInforme(models, app, md5, Q, cfg));
 		app.get('/api/v1/public/exportador/jerarquia/:jerarquia', exportador.tablaResultadosJerarquia(models, app, md5, Q, cfg));
 		app.get('/api/v1/public/exportador/procedimiento/:codigo/:year', exportador.tablaResultadosProcedimiento(models, app, md5, Q, cfg));
@@ -243,8 +249,9 @@
 		app.get('/api/v1/public/tramitesMediaMes', procedimiento.mediaMesTramites(cfg, models));
 		app.get('/api/v1/public/tramitesMediaMes/:anualidad', procedimiento.mediaMesTramites(cfg, models));
 
-		app.get('/api/v2/public/objetivo', carta.objetivo(models));
-		app.get('/api/v2/public/objetivo/:id', carta.objetivo(models));
+		app.get('/api/v2/public/objetivo', carta.objetivo(models, Q));
+		app.get('/api/v2/public/objetivo/:id', carta.objetivo(models, Q));
+		app.put('/api/v2/public/objetivo/:id', carta.actualizaobjetivo(models, Q));
 
 		app.get('/api/v2/public/indicador', carta.indicador(models));
 		app.get('/api/v2/public/indicador/:id', carta.indicador(models));
@@ -252,9 +259,14 @@
 		app.delete('/api/v2/public/indicador/:id', carta.removeindicador(models));
 
 		app.get('/api/v2/public/entidadobjeto', entidadobjeto.get(models));
+		app.get('/api/v2/public/entidadobjeto/:id', entidadobjeto.get(models));
 		app.put('/api/v2/public/entidadobjeto/:id', entidadobjeto.update(models));
+
         app.get('/api/v1/public/entidadesObjetoByResponsable/:codplaza', entidadobjeto.entidadobjetoByResponsable(models));
-		app.get('/api/v2/public/testDownloadCarta/:id', carta.testDownloadCarta(models, Crawler, Q));
+		/*app.get('/api/v2/public/testDownloadCarta/:id', carta.testDownloadCarta(models, Crawler, Q));*/
+		app.post('/api/v2/public/testDownloadCarta/:id', carta.testDownloadCarta(models, Crawler, Q));
+		app.post('/api/v2/public/dropCarta/:id', carta.dropCarta(models, Q));
+
 
 		//app.use('/api/v1/public/feedback', multer({ dest: path.join( __dirname, 'tmp') + path.sep}));
 		app.post('/api/v1/public/feedback', feedback.log(models));
