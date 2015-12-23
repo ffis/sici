@@ -54,5 +54,98 @@
 		};
 	};
 
+	module.exports.entidadobjetoByResponsable = function(models)
+	 {
+			 return function(req, res){
+					 if (!(req.user.permisoscalculados && req.user.permisoscalculados.superuser)) {
+							 var msg = 'Error de permisos.';
+							 console.error(msg);
+							 res.status(403).send(msg).end();
+							 return;
+					 }
+					 var Entidadobjeto = models.entidadobjeto();
+					 if (typeof req.params.codplaza !== 'undefined' && req.params.codplaza !== '') {
+							 var cod_plaza = req.params.codplaza;
+							 var restriccion = {
+									 '$and': [
+											 {'cod_plaza': cod_plaza},
+											 {'$or': [
+															 {'oculto': {$exists: false}},
+															 {'$and': [
+																	 {'oculto': {'$exists': true}},
+																	 {'oculto': false}
+																	 ]}
+													 ]
+											 }
+									 ]
+							 };
+							 Entidadobjeto.find(restriccion, function(err, entidadesobjeto){
+									 if (err) {
+											 console.error(restriccion);
+											 console.error(err);
+											 res.status(500).end();
+									 } else{
+											 res.json(entidadesobjeto);
+									 }
+							 });
+					 } else {
+							 console.error(restriccion);
+							 res.status(400).end();
+					 }
+			 };
+	 };        
+
+
+	exports.entidadobjetoList = function (models) {
+		return function (req, res) {
+			var EntidadObjeto = models.entidadobjeto();
+			var Jerarquia = models.jerarquia();
+			var restriccion = {};
+			var fields = req.query.fields;
+			Jerarquia.findOne({'id':req.params.idjerarquia}, function(err, jerarquia){
+				if (err) {						
+					console.error(err);
+					res.status(500).end();
+					return;
+				} else{
+					var jdescendientes = jerarquia.descendientes.push(parseInt(req.params.idjerarquia));
+					
+					var restriccion =
+						(typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))) ?
+						(typeof req.params.recursivo === 'undefined' || JSON.parse(req.params.recursivo) ?
+							{'$and': [
+									{'idjerarquia': {'$in': jdescendientes}},
+									{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}},
+								]} :
+							{'$and': [
+									{'idjerarquia': parseInt(req.params.idjerarquia)},
+									{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}},
+								]}
+						)
+						:
+						{'$and': [
+								{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}},
+						]};
+
+					var cb = function (err, data) {
+						if (err) {
+							console.error(restriccion);
+							console.error(err);
+							res.status(500).end();
+							return;
+						}			
+						res.json(data);
+					};
+
+					var query = EntidadObjeto.find(restriccion);
+					if (typeof fields !== 'undefined') {
+						query.select(fields);
+					}
+					query.exec(cb);					
+				}
+			});
+		};
+	};
+
 })(module);
 
