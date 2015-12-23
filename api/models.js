@@ -43,11 +43,15 @@
 			'jerarquiaescritura': [Number],/*calculados, cacheados*/
 			'procedimientoslectura': [String],  /*calculados, cacheados*/
 			'procedimientosescritura': [String],  /*calculados, cacheados*/
+            'entidadobjetolectura': [String],  /*calculados, cacheados*/
+            'entidadobjetoescritura': [String], /*calculados, cacheados*/
 
 			'jerarquiadirectalectura': [Number], /*reales, asignados*/
 			'jerarquiadirectaescritura': [Number], /*reales, asignados*/
 			'procedimientosdirectalectura': [String], /*reales, asignados*/
 			'procedimientosdirectaescritura': [String], /*reales, asignados*/
+            'entidadobjetodirectalectura': [String],  /*reales, asignados*/
+            'entidadobjetodirectaescritura': [String], /*reales, asignados*/
 
 			'caducidad': Date,
 			'descripcion': String,
@@ -131,7 +135,7 @@
 			'fuera_plazo': [Number],
 			'pendientes': [Number],
 			'periodoscerrados': [Number],
-			'totalsolicitudes': Number,
+			'totalsolicitudes': Number, 
 			'Incidencias': {
 				'Se han resuelto expedientes fuera de Plazo': [Number],
 				'Aumenta el N de expedientes pendientes': [Number],
