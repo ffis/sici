@@ -88,6 +88,9 @@
 					}
 					e.push(arr[ arr.length - 1]);
 					if (!fallo){
+						e = e.filter(function(str){
+							return str.trim() != '';
+						});
 						formula.computer = JSON.stringify(e);
 					}
 				}
@@ -349,6 +352,19 @@
 			}
 			return 100;
 		};
+
+		var extraeIntervalos = function(valormeta){
+			var intervaloscalculados = [];
+			if (valormeta > 0){
+				intervaloscalculados = [
+					{'min': 0, 'max': valormeta/4, 'mensaje': 'Peligro', 'color': '#C50200', 'alerta': 4},
+					{'min': valormeta / 4, 'max': valormeta / 2, 'mensaje': 'Aviso', 'color': '#FF7700', 'alerta': 3},
+					{'min': valormeta / 2, 'max': valormeta / 4 + valormeta / 2, 'mensaje': 'Normal', 'color': '#FDC702', 'alerta': 2},
+					{'min': valormeta / 4 + valormeta / 2, 'max': valormeta, 'mensaje': 'Éxito', 'color': '#8DCA2F', 'alerta': 1}
+				];
+			}
+			return intervaloscalculados;
+		};
 		var extractCompromisos = function($html, $, cartaid){
 			var response = [];
 			var encontrado = false;
@@ -364,13 +380,16 @@
 					encontrado = false;
 					if (enunciado !== '' && formulas.length > 0){
 						response.push({
-							denominacion: enunciado,
+							denominacion: enunciado.replace('' + contador, ''),
 							formulas: formulas,
 							carta: cartaid,
-							index: response.length + 1,
+							index: contador,
 							estado: 'Publicado',
 							objetivoestrategico: 1
 						});
+						contador = '' + (parseInt(contador) + 1);
+						enunciado = detalle;
+						formulas = [];
 					}
 				}else if (encontrado){
 					if (detalle.indexOf(contador) === 0){
@@ -379,7 +398,7 @@
 					}else if (detalle.indexOf( '' + (parseInt(contador) + 1) ) === 0){
 						if (formulas.length > 0){
 							response.push({
-								denominacion: enunciado,
+								denominacion: enunciado.replace('' + contador, ''),
 								formulas: formulas,
 								carta: cartaid,
 								index: contador,
@@ -391,13 +410,16 @@
 						enunciado = detalle;
 						formulas = [];
 					}else if (detalle !== ''){
+						var meta = extraeMeta(detalle);
+						var intervalos = extraeIntervalos(meta);
 						var formula = {
 							'human': detalle,
 							'computer': '',
 							'frecuencia': 'mensual',
 							'indicadores': [],
-							'meta': extraeMeta(detalle),
+							'meta': meta,
 							'direccion': '',
+							'intervalos': intervalos,
 							'valores': {
 								'a2015': [
 									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0},
@@ -407,7 +429,6 @@
 									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}]
 							}
 						};
-
 						formulas.push(formula);
 					}
 				}
@@ -512,7 +533,13 @@
 					partes = tokenizer(formula),
 					orden = 0;
 				for(var n = 0, m = partes.length; n < m; n++ ){
-					var parte = partes[n];
+					var parte = partes[n].trim();
+					if (parte === ''){
+						continue;
+					}
+					if (parte[0] >= '0' && parte[0] <= '9' ){
+						continue;
+					}
 					if (parte.indexOf('100') === -1){
 						var promiseIndicador = registerAndSetIndicador(idjerarquia, parte, indicadormodel, Q, cbSetIndicador(i, k, orden++) );
 						promises.push(promiseIndicador);
@@ -526,6 +553,49 @@
 			defer.reject(err);
 		});
 		return defer.promise;
+	};
+
+	module.exports.dropCarta = function(models, Q){
+		return function(req, res){
+			var id = req.params.id,
+				indicadormodel = models.indicador(),
+				objetivomodel = models.objetivo(),
+				entidadobjetomodel = models.entidadobjeto();
+
+			if (id && req.user.permisoscalculados.superuser){
+				entidadobjetomodel.findOne({'_id': models.ObjectId(req.params.id) }, function (err, carta) {
+					if (err){
+						res.status(500).json({'error': 'An error has occurred', details: err});
+						return;
+					}else if (carta){
+						var defer = Q.defer(),
+							defer2 = Q.defer();
+						var fn = function(def){
+							return function(err){
+								if (err){
+									def.reject(err);
+								}else{
+									def.resolve();
+								}
+							};
+						};
+
+						indicadormodel.remove({ idjerarquia: carta.idjerarquia }, fn(defer));
+						objetivomodel.remove({ carta: carta._id }, fn(defer2));
+						Q.all([defer, defer2]).then(function(){
+							res.json('OK');
+						}, function(error){
+							res.status(500).json({'error': 'Error during dropCarta', details: error});
+						});
+
+					}else{
+						res.status(404).json({'error': 'Not found'});
+					}
+				});
+			}else{
+				res.status(404).json({'error': 'Not valid params'});
+			}
+		};
 	};
 
 	module.exports.testDownloadCarta = function(models, Crawler, Q){
@@ -545,7 +615,6 @@
 								res.status(500).json({'error': 'Empty page'});
 							}else{
 								module.exports.extractAndSaveIndicadores(data.idjerarquia, objetivos, indicadormodel, Q).then(function(objetivosConIndicadores){
-									console.log(objetivosConIndicadores);
 									var objetivosAAlmacenar = objetivosConIndicadores.objetivos;
 									for(var i = 0, j = objetivosAAlmacenar.length; i < j; i++){
 										for(var k = 0, l = objetivosAAlmacenar[i].formulas.length; k < l; k++){

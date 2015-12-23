@@ -35,6 +35,7 @@ var app = angular.module('sici', dependencies).
         $routeProvider.when('/permisos', {templateUrl: 'partials/permisoscrud.html', controller: 'PermisoCtrl' });
         $routeProvider.when('/crearprocedimiento', {templateUrl: 'partials/procedimientocrud.html', controller: 'NewProcedimientoCtrl' });
         $routeProvider.when('/etiqueta', {templateUrl: 'partials/etiqueta.html', controller: 'EtiquetaCtrl' });
+        $routeProvider.when('/operador', {templateUrl: 'partials/operador.html', controller: 'OperadorCtrl' });
         $routeProvider.when('/periodos', {templateUrl: 'partials/periodos.html', controller: 'PeriodosCtrl' });
         $routeProvider.when('/testexpediente', {templateUrl: 'partials/testexpediente.html', controller: 'TestExpedienteCtrl' });
         $routeProvider.when('/loginas', {templateUrl: 'partials/loginas.html', controller: 'LoginAsCtrl' });

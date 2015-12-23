@@ -28,7 +28,12 @@
 							<a href="#" editable-text="entidadobjeto[clave]" onaftersave="actualizar(entidadobjeto, clave)">{{entidadobjeto[clave]}}</a>
 						</td>
 						<td>
-							<span class="fa fa-arrow-down cursor" ng-click="download(entidadobjeto)" ></span>
+							<span class="btn btn-primary">
+								<span class="fa fa-arrow-down cursor" ng-click="download(entidadobjeto)" ></span>
+							</span>
+							<span class="btn btn-danger">
+								<span class="fa fa-trash cursor" ng-click="dropCarta(entidadobjeto)" ></span>
+							</span>
 						</td>
 					</tr>
 				</tbody>

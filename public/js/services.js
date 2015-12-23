@@ -17,6 +17,8 @@ modulo
 				return $resource('/api/v1/public/cr/:codigo', {}, {}); }])
 		.factory('Etiqueta', ['$resource', function ($resource) {
 				return $resource('/api/v1/public/etiqueta/:id', {id: '@_id' }, {update: {method: 'PUT' }}); }])
+		.factory('Operador', ['$resource', function ($resource) {
+				return $resource('/api/v1/public/operador/:id', {id: '@_id' }, {update: {method: 'PUT' }}); }])
 		.factory('ExportarInforme', ['$resource', function ($resource) {
 				return $resource('/api/v1/public/exportador/informe/:year', {year: '@year' }, {get: {method: 'GET', isArray: false }}); }])
 		.factory('ExportarResultadosProcedimiento', ['$resource', function ($resource) {

@@ -65,6 +65,10 @@
 							for (var i = 0, j = $scope.objetivos.length; i < j; i++) {
 								for (var k = 0, l = $scope.objetivos[i].formulas.length; k < l; k++) {
 									$scope.objetivos[i].formulas[k].indicadores.forEach(loadIndicador);
+									$scope.objetivos[i].formulas[k].valor = {};
+									for (var anu in $scope.objetivos[i].formulas[k].valores){
+										$scope.objetivos[i].formulas[k].valor[anu] = $scope.objetivos[i].formulas[k].valores[anu][ $scope.objetivos[i].formulas[k].valores[anu].length - 1 ].resultado;
+									}
 								}
 							}
 						});
@@ -100,55 +104,41 @@
 					return PastelColor(i);
 				};
 				$scope.importarObjetivos = function(){
-					$http.get('/api/v2/public/testDownloadCarta/' + $scope.cartaservicioseleccionada._id).then(function(dato){
+					$http.post('/api/v2/public/testDownloadCarta/' + $scope.cartaservicioseleccionada._id, {}).then(function(dato){
 						$rootScope.toaster('Carta de servicios importada correctamente. Registrados ' + dato.data.objetivos.length + ' objetivos y ' + dato.data.indicadoresobtenidos.length + ' indicador/es.');
-						//$scope.setCartaServicio( $scope.cartaservicioseleccionada );
+						$scope.setCartaServicio( $scope.cartaservicioseleccionada );
 					}, function(err){
 						$rootScope.toaster('Carta de servicios fallida: ' + err.data.error, 'Error', 'error');
 					});
 				};
 
-				$scope.generarIndicador = function(anterior){
-					var idrandom = parseInt(parseFloat(Math.random() * 10 + 1).toFixed(0));
-					if (anterior === idrandom){
-						idrandom++;
-					}
-					if (typeof $scope.indicadores[idrandom] === 'undefined'){
-						$scope.indicadores[idrandom] = Indicador.get({id: idrandom});
-					}
-					return idrandom;
-				};
-				$scope.mockIndicadores = function(){
-					for(var i = 0, j = $scope.objetivos.length; i < j; i++ ){
-						for(var k = 0, l = $scope.objetivos[i].formulas.length; k < l; k++){
-							var ind = $scope.generarIndicador(0), ind2 = $scope.generarIndicador(ind);
-							$scope.objetivos[i].formulas[k].indicadores.push(ind);
-							$scope.objetivos[i].formulas[k].indicadores.push(ind2);
-						}
-					}
-				};
 				$scope.recargarObjetivo = function(i){
-					console.log(i);
-					$scope.objetivos[i] = Objetivo.get( {id: $scope.objetivos[i]._id} );
+					var loadAndSetValores = function(obj, attr){
+						return function(loaded){
+							for(var i = 0, j = loaded.formulas.length; i < j; i++){
+								obj.formulas[i].valores = loaded.formulas[i].valores;
+								for (var anu in obj.formulas[i].valores){
+									formula.valor[anu] = obj.formulas[i].valores[anu][ obj.formulas[i].valores[anu].length - 1 ].resultado;
+								}
+							}
+						};
+					};
+					Objetivo.get( {id: $scope.objetivos[i]._id} , loadAndSetValores($scope.objetivos[i], 'formulas.valores') );
 				};
 				$scope.updateIndicador = function(indicadorid){
-					console.log($scope.indicadores[indicadorid], indicadorid);
 					var f = function(indicadorid, desplegado){
 						return function() {
-							console.log('tras actualizar ', indicadorid);
 							$scope.indicadores[indicadorid].desplegado = desplegado;
 							var indicadoresARecargar = [];
 							for (var i = 0, j = $scope.objetivos.length; i < j; i++){
 								for(var k = 0, l = $scope.objetivos[i].formulas.length; k < l; k++){
-									console.log($scope.objetivos[i].formulas[k].indicadores, indicadorid, typeof indicadorid);
-									console.log(typeof $scope.objetivos[i].formulas[k].indicadores[0]);
 									if ($scope.objetivos[i].formulas[k].indicadores.indexOf(indicadorid) > -1){
 										indicadoresARecargar.push(i);
 										break;
 									}
 								}
 							}
-							console.log(indicadoresARecargar);
+
 							indicadoresARecargar.filter(function (e, idx, arr) {
 								return arr.lastIndexOf(e) === idx;
 							}).forEach($scope.recargarObjetivo);
@@ -177,38 +167,11 @@
 				};
 
 
-				$scope.value = 1.5;
 				$scope.upperLimit = 100;
 				$scope.lowerLimit = 0;
 				$scope.unit = '';
 				$scope.precision = 2;
-				$scope.ranges = [
-					{
-						min: 0,
-						max: 20,
-						color: '#C50200'
-					},
-					{
-						min: 20,
-						max: 40,
-						color: '#FF7700'
-					},
-					{
-						min: 40,
-						max: 60,
-						color: '#FDC702'
-					},
-					{
-						min: 60,
-						max: 80,
-						color: '#9DDA3F'
-					},
-					{
-						min: 80,
-						max: 100,
-						color: '#8DCA2F'
-					}
-				];
+
 			}
 		]
 	);

@@ -233,6 +233,10 @@
 			'valores': 'Mixed',
 			'observaciones': 'Mixed',
 			'medidas': 'Mixed'
+		},
+		operador: {
+			'texto': String,
+			'valor': String
 		}
 	};
 
