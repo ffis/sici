@@ -24,7 +24,8 @@
 
 	function trytoparseFormula(formula, indicadores){
 
-		var partes = tokenizer(formula.human);
+		var partes = tokenizer(formula.human).map(function(a){ return a.trim(); }).filter(function(a){ return a != '';});
+
 		var frasesAReemplazar = [];
 		for(var i = 0, j = partes.length; i < j; i++){
 			for(var k = 0, l = indicadores.length; k < l; k++){
@@ -57,7 +58,7 @@
 		}
 
 		if (frasesAReemplazar.length > 0){
-			var ultimoseparador = Math.max.apply(null, ['=', '≥', '≤'].map(function(s){
+			var ultimoseparador = Math.max.apply(null, ['=', '≥', '≤', '&ge;', '&le;'].map(function(s){
 				return formula.human.lastIndexOf(s);
 			}) );
 			if (ultimoseparador > 0){
@@ -448,7 +449,8 @@
 					compromisos = extractCompromisos( jQuery('.contenido p,.contenido h3,.contenido h4'), jQuery, cartaid);
 				}
 				if (compromisos.length === 0){
-					console.error('No se han extraido compromisos', $html.length);
+					console.error('No se han extraido compromisos');
+					df.reject('No se han extraido compromisos');
 				}
 				df.resolve(compromisos);
 			};
@@ -529,15 +531,26 @@
 		};
 		for(var i = 0, j = objetivos.length; i < j; i++){
 			for(var k = 0, l = objetivos[i].formulas.length; k < l; k++){
-				var formula = objetivos[i].formulas[k].human,
-					partes = tokenizer(formula),
+				var formula = objetivos[i].formulas[k].human;
+
+				var ultimoseparador = Math.max.apply(null, ['=', '≥', '≤', '&ge;', '&le;'].map(function(s){
+					return formula.lastIndexOf(s);
+				}) );
+				if (ultimoseparador > 0){
+					formula = formula.substr(0, ultimoseparador);
+				}
+				var	partes = tokenizer(formula),
 					orden = 0;
+
 				for(var n = 0, m = partes.length; n < m; n++ ){
 					var parte = partes[n].trim();
 					if (parte === ''){
 						continue;
 					}
 					if (parte[0] >= '0' && parte[0] <= '9' ){
+						continue;
+					}
+					if (parte[0] === '='){
 						continue;
 					}
 					if (parte.indexOf('100') === -1){
@@ -553,6 +566,41 @@
 			defer.reject(err);
 		});
 		return defer.promise;
+	};
+
+	module.exports.updateFormula = function(models, Q){
+		return function(req, res){
+			var idobjetivo = req.body.idobjetivo,
+				indiceformula = req.body.indiceformula,
+				formula = req.body.indiceformula,
+				objetivomodel = models.objetivo();
+			if (id && req.user.permisoscalculados.superuser){
+				objetivomodel.findOne({'_id': models.ObjectId(idobjetivo) }, function (err, objetivo) {
+					if (err){
+						res.status(500).json({'error': 'An error has occurred', details: err});
+						return;
+					}else if (objetivo){
+						if (typeof objetivo.formulas[indiceformula] !== 'undefined'){
+							objetivo.formulas[indiceformula].computer = formula;
+							objetivo.update({'_id': objetivo._id}, objetivo, function(error){
+								if (error){
+									res.status(500).json({'error': 'Error during update', details: error});
+								}else{
+									res.json('OK');
+								}
+							});
+						}else{
+							res.status(404).json({'error': 'Not found'});
+						}
+					}else{
+						res.status(404).json({'error': 'Not found'});
+					}
+				});
+			} else {
+				res.status(404).json({'error': 'Not valid params'});
+			}
+
+		};
 	};
 
 	module.exports.dropCarta = function(models, Q){
