@@ -572,28 +572,30 @@
 		return function(req, res){
 			var idobjetivo = req.body.idobjetivo,
 				indiceformula = req.body.indiceformula,
-				formula = req.body.indiceformula,
+				formula = req.body.formula,
 				objetivomodel = models.objetivo();
-			if (id && req.user.permisoscalculados.superuser){
+				console.log(idobjetivo);
+			if (idobjetivo && req.user.permisoscalculados.superuser){
 				objetivomodel.findOne({'_id': models.ObjectId(idobjetivo) }, function (err, objetivo) {
 					if (err){
 						res.status(500).json({'error': 'An error has occurred', details: err});
 						return;
 					}else if (objetivo){
-						if (typeof objetivo.formulas[indiceformula] !== 'undefined'){
-							objetivo.formulas[indiceformula].computer = formula;
+						if (typeof objetivo.formulas[parseInt(indiceformula)] !== 'undefined'){
+							objetivo.formulas[parseInt(indiceformula)].computer = formula;
+							objetivo.markModified('formulas');
 							objetivo.update({'_id': objetivo._id}, objetivo, function(error){
 								if (error){
 									res.status(500).json({'error': 'Error during update', details: error});
 								}else{
-									res.json('OK');
+									res.json(objetivo);
 								}
 							});
 						}else{
-							res.status(404).json({'error': 'Not found'});
+							res.status(404).json({'error': 'Not found3'});
 						}
 					}else{
-						res.status(404).json({'error': 'Not found'});
+						res.status(404).json({'error': 'Not found2'});
 					}
 				});
 			} else {

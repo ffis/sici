@@ -22,8 +22,9 @@
                         <input type="text" class="form-control" id="formulaHuman" placeholder="Fórmula" ng-model="formula.human" />
                     </div>
                     <div class="form-group">
-                        <label for="formulaHuman">Fórmula Computada</label>
-                        <h5>{{formula.computer}}</h5>
+                        <label>Fórmula Computada</label>
+                        <h6>{{formula.computer}}</h6> <a href="/formula/{{objetivo._id}}/{{$index}}" class="btn btn-xs btn-primary"><i class="fa fa-pencil"></i> Editar fórmula</a>
+                        <!--<button title="Pegar indicador" class="btn btn-primary btn-sm" ng-click="pasteFromClipboard(formula)"><i class="fa fa-paste"></i> Pegar indicador</button>-->
                     </div>
                     <div class="form-group" style="width: 80px;">
                         <label for="meta">Meta</label>
@@ -48,8 +49,10 @@
                             <td>{{indicadores[indicador].nombre}}</td>
                             <td>
                                 <button title="Desvincular" class="btn btn-primary btn-sm" ng-click="desvincular(indiceExterno, $index)"><i class="fa fa-unlink"></i></button>
-                                <button ng-if="$index !== 0" title="Subir posición" class="btn btn-default btn-sm" ng-click="subirOrden(formula, $index)"><i class="fa fa-arrow-circle-up"></i></button>
-                                <button ng-if="$index < formula.indicadores.length - 1" title="Bajar posición" class="btn btn-default btn-sm" ng-click="bajarOrden(formula, $index)"><i class="fa fa-arrow-circle-down"></i></button>
+                                <!--<button title="Copiar" class="btn btn-danger btn-sm" ng-click="copyToClipboard(indicador)"><i class="fa fa-copy"></i></button>-->
+                                <!--<button title="Insertar en fórmula" class="btn btn-warning btn-sm" ng-click="insertarIndicador(formula, indicador)"><i class="fa fa-arrow-right"></i></button>-->
+                                <button ng-if="$index !== 0" title="Subir posición" class="btn btn-default btn-sm" ng-click="subirOrden(formula.indicadores, $index)"><i class="fa fa-arrow-circle-up"></i></button>
+                                <button ng-if="$index < formula.indicadores.length - 1" title="Bajar posición" class="btn btn-default btn-sm" ng-click="bajarOrden(formula.indicadores, $index)"><i class="fa fa-arrow-circle-down"></i></button>
                             </td>
                         </tr>
                     </tbody>
@@ -87,7 +90,7 @@
                             </td>
                             <td>
                                 <select ng-model="formula.intervalos[$index].alerta" class="form-control">
-                                    <option ng-repeat="level in [1, 2, 3, 4, 5]" value="{{level}}">{{level}}</option>
+                                    <option ng-repeat="level in [1, 2, 3, 4]" value="{{level}}">{{level}}</option>
                                 </select>
                             </td>
                             <td><input style="width: 100%;" ng-model="formula.intervalos[$index].mensaje" class="form-control"></td>
