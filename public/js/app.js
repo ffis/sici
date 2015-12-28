@@ -8,7 +8,7 @@ var dependencies = [
     'sici.filters', 'sici.services', 'sici.directives', 'sici.login.util', 'sici.translate',
     'pascalprecht.translate',
     'autocomplete',
-    'toaster', 'ngRadialGauge'
+    'toaster', 'ngRadialGauge', 'ngDraggable'
 ];
 
 if (angularFileUploadLoaded){
@@ -49,6 +49,7 @@ var app = angular.module('sici', dependencies).
         $routeProvider.when('/entidadobjeto', {templateUrl: 'partials/entidadobjeto.html', controller: 'EntidadObjetoCtrl' });
         $routeProvider.when('/objetivo/:idobjetivo', {templateUrl: 'partials/objetivo.html', controller: 'ObjetivoCtrl' });
         $routeProvider.when('/indicador/:idjerarquia/:idindicador', {templateUrl: 'partials/indicador.html', controller: 'IndicadorCtrl' });
+		$routeProvider.when('/formula/:idobjetivo/:index', {templateUrl: 'partials/formula.html', controller: 'FormulaCtrl' });
 
         $routeProvider.otherwise({redirectTo: '/welcome' });
         $locationProvider.html5Mode(true);

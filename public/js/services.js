@@ -139,4 +139,25 @@ modulo
 			]
 		)
 		.value('version', '0.2')
+		.factory('Util', function () {
+			return {
+				subirOrden: function (array, pos) {
+					if (pos === 0) {
+						return;
+					}
+					var temporal = array[pos - 1];
+					array[pos - 1] = array[pos];
+					array[pos] = temporal;
+				},
+				bajarOrden: function (array, pos) {
+					if (pos >= array.length) {
+						return;
+					}
+					var temporal = array[pos + 1];
+					array[pos + 1] = array[pos];
+					array[pos] = temporal;
+				}
+			};
+		})
+
 ;

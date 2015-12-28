@@ -35,7 +35,12 @@
     "angular-bootstrap": "~0.11.2",
     "jquery": "~2.1.1",
     "angularjs-toaster": "~0.4.10",
-    "ngRadialGauge": "*"
+    "ngRadialGauge": "*",
+    "ngclipboard": "~1.0.0",
+    "ngDraggable": "~0.1.8",
+    "font-awesome": "~4.5.0",
+    "bootstrap": "~3.3.6",
+    "angular-filter": "~0.5.8"
   },
   "resolutions": {
     "d3": "~3.4.13",
