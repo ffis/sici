@@ -21,10 +21,12 @@ $ sudo apt-get upgrade
 $ sudo apt-get install build-essential
 $ npm cache clean
 $ npm update
-$ npm install node-gyp eslint nodemon -g
+$ npm install node-gyp eslint nodemon bower -g
 $ git clone https://github.com/ffis/sici
 $ cd sici
 $ npm install
+$ git config --global url."https://".insteadOf git:// #restricción de la red CARM
+$ bower install
 $ cd node_modules/mongodb
 $ npm install # workaround bug mongodb bson module not found
 $ npm install -g braces #workaround bug 2
