@@ -257,7 +257,6 @@
 	module.exports.objetivo = function(models, Q){
 		return function(req, res){
 			var Objetivo = models.objetivo();
-			console.log(req.params.id)
 			if (typeof req.params.id !== 'undefined'){
 				Objetivo.findOne({ '_id': models.ObjectId(req.params.id) }, function(erro, objetivo){
 					if (erro){
@@ -584,7 +583,7 @@
 						if (typeof objetivo.formulas[parseInt(indiceformula)] !== 'undefined'){
 							objetivo.formulas[parseInt(indiceformula)].computer = formula;
 							objetivo.markModified('formulas');
-							objetivo.update({'_id': objetivo._id}, objetivo, function(error){
+							objetivomodel.update({'_id': models.ObjectId(objetivo._id)}, objetivo, function(error, e){
 								if (error){
 									res.status(500).json({'error': 'Error during update', details: error});
 								}else{
