@@ -37,7 +37,8 @@
     "angularjs-toaster": "~0.4.10",
     "ngRadialGauge": "*",
     "ngclipboard": "~1.0.0",
-    "ngDraggable": "~0.1.8"
+    "ngDraggable": "~0.1.8",
+    "font-awesome": "~4.5.0"
   },
   "resolutions": {
     "d3": "~3.4.13",
