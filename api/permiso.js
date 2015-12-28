@@ -47,18 +47,88 @@ function getPermisosByLoginPlaza(params, models, Q, login, codPlaza)
 		return df.promise;
 }
 
-module.exports.delegarpermisosProcedimiento = function(models){
+module.exports.delegarpermisosEntidadObjeto = function(models){
 	return function(req, res){
-		var proc = req.params.procedimiento;
-		if (!((req.user.permisoscalculados.grantoption ||
-			req.user.permisoscalculados.superuser) && req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura).indexOf(proc)) ){
+		var eo = req.params.entidadobjeto;
+		if (!((req.user.permisoscalculados.grantoption || req.user.permisoscalculados.superuser) 
+                       && req.user.permisoscalculados.entidadobjetolectura.concat(req.user.permisoscalculados.entidadobjetoescritura).indexOf(eo)) ){
 			res.status(500).end();
 			return;
 		}
 
 		var Permiso = models.permiso();
-		var Procedimiento = models.procedimiento();
-		var Jerarquia = models.jerarquia();
+		var EntidadObjeto = models.entidadobjeto();		
+		EntidadObjeto.findOne({'codigo': eo}, function(err, entidadobjeto){
+			if (err){
+				console.error('Imposible salvar nuevo permiso', err);
+				res.status(500).end();
+				return;
+			}
+			var idjerarquia = entidadobjeto.idjerarquia;
+			var ep = {};
+			if (req.params.cod_plaza && req.params.cod_plaza !== '-' && req.params.cod_plaza !== ''){
+				ep.codplaza = req.params.cod_plaza;
+			}
+			if (req.params.login && req.params.login !== '-' && req.params.login !== ''){
+				ep.login = req.params.login;
+			}
+			ep.jerarquialectura = [idjerarquia];
+			ep.jerarquiaescritura = [];
+			ep.jerarquiadirectalectura = [idjerarquia];
+			ep.jerarquiadirectaescritura = [];
+			ep.procedimientosescritura = [];
+			ep.procedimientoslectura = [];
+			ep.procedimientosdirectalectura = [];
+			ep.procedimientosdirectaescritura = [];
+			ep.entidadobjetolectura = [entidadobjeto.codigo];
+			ep.entidadobjetoescritura = [entidadobjeto.codigo];
+			ep.entidadobjetodirectalectura = [entidadobjeto.codigo];
+			ep.entidadobjetodirectaescritura = [entidadobjeto.codigo];
+			ep.superuser = 0;
+			ep.cod_plaza_grantt = req.user.login;
+			ep.descripcion = 'Permisos delegados por ' + ep.cod_plaza_grantt;
+			ep.grantoption = false;
+
+			Permiso.find({'$or': [{'entidadobjetoescritura': entidadobjeto.codigo}, {'entidadobjetodirectaescritura': entidadobjeto.codigo}]}, function(err, procs){
+				if (err) {
+					console.error('Imposible salvar nuevo permiso (5)', err); res.status(500).end(); return;
+				}
+				var caducidad = new Date();
+				caducidad.setFullYear(caducidad.getFullYear() + 2); ////////// PARCHE POR LAS CADUCIDADES A NULL
+				for(var i = 0; i < procs.length; i++){
+					var ptemp = procs[i];
+					if (ptemp.caducidad && ptemp.caducidad.getTime() > caducidad.getTime()){
+						caducidad = ptemp.caducidad;
+					}
+				}
+				ep.caducidad = caducidad;
+
+				var op = new Permiso(ep);
+				console.log(op);
+				op.save(function(erro){
+					if (err) {
+						console.error('Imposible salvar nuevo permiso (3)'); console.error(erro); res.status(500).end(); return;
+					} else {
+						res.json(op);
+					}
+				});
+			});
+			/*});*/
+		});
+	};	
+};
+
+module.exports.delegarpermisosProcedimiento = function(models){
+	return function(req, res){
+		var proc = req.params.procedimiento;
+		if (!((req.user.permisoscalculados.grantoption || req.user.permisoscalculados.superuser) 
+                       && req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura).indexOf(proc)) ){
+			res.status(500).end();
+			return;
+		}
+
+		var Permiso = models.permiso();
+		var Procedimiento = models.procedimiento();		
 		Procedimiento.findOne({'codigo': proc}, function(err, procedimiento){
 			if (err){
 				console.error('Imposible salvar nuevo permiso', err);
@@ -66,62 +136,52 @@ module.exports.delegarpermisosProcedimiento = function(models){
 				return;
 			}
 			var idjerarquia = procedimiento.idjerarquia;
-			Jerarquia.findOne({'id': idjerarquia}, function(err, jerarquia){
-				/*
+			var ep = {};
+			if (req.params.cod_plaza && req.params.cod_plaza !== '-' && req.params.cod_plaza !== ''){
+				ep.codplaza = req.params.cod_plaza;
+			}
+			if (req.params.login && req.params.login !== '-' && req.params.login !== ''){
+				ep.login = req.params.login;
+			}
+			ep.jerarquialectura = [idjerarquia];
+			ep.jerarquiaescritura = [];
+			ep.jerarquiadirectalectura = [idjerarquia];
+			ep.jerarquiadirectaescritura = [];
+			ep.procedimientosescritura = [procedimiento.codigo];
+			ep.procedimientoslectura = [procedimiento.codigo];
+			ep.procedimientosdirectalectura = [procedimiento.codigo];
+			ep.procedimientosdirectaescritura = [procedimiento.codigo];
+			ep.entidadobjetolectura = [];
+			ep.entidadobjetoescritura = [];
+			ep.entidadobjetodirectalectura = [];
+			ep.entidadobjetodirectaescritura = [];
+			ep.superuser = 0;
+			ep.cod_plaza_grantt = req.user.login;
+			ep.descripcion = 'Permisos delegados por ' + ep.cod_plaza_grantt;
+			ep.grantoption = false;
 
-				TODO: REVISAR ESTA CARGA, PARECE INNECESARIA, de hecho no se usa la jerarquia cargada
-
-				*/
-				if (err){
-					console.error('Imposible salvar nuevo permiso (2)');
-					console.error(err);
-					res.status(500).end();
-					return;
+			Permiso.find({'$or': [{'procedimientosescritura': procedimiento.codigo}, {'procedimientosdirectaescritura': procedimiento.codigo}]}, function(err, procs){
+				if (err) {
+					console.error('Imposible salvar nuevo permiso (5)', err); res.status(500).end(); return;
 				}
-
-				var ep = {};
-				if (req.params.cod_plaza && req.params.cod_plaza !== '-' && req.params.cod_plaza !== ''){
-					ep.codplaza = req.params.cod_plaza;
+				var caducidad = new Date();
+				caducidad.setFullYear(caducidad.getFullYear() + 2); ////////// PARCHE POR LAS CADUCIDADES A NULL
+				for(var i = 0; i < procs.length; i++){
+					var ptemp = procs[i];
+					if (ptemp.caducidad && ptemp.caducidad.getTime() > caducidad.getTime()){
+						caducidad = ptemp.caducidad;
+					}
 				}
-				if (req.params.login && req.params.login !== '-' && req.params.login !== ''){
-					ep.login = req.params.login;
-				}
-				ep.jerarquialectura = [idjerarquia];
-				ep.jerarquiaescritura = [idjerarquia];
-				ep.jerarquiadirectalectura = [idjerarquia];
-				ep.jerarquiadirectaescritura = [idjerarquia];
-				ep.procedimientosescritura = [procedimiento.codigo];
-				ep.procedimientoslectura = [procedimiento.codigo];
-				ep.procedimientosdirectalectura = [procedimiento.codigo];
-				ep.procedimientosdirectaescritura = [procedimiento.codigo];
-				ep.superuser = 0;
-				ep.cod_plaza_grantt = req.user.login;
-				ep.descripcion = 'Permisos delegados por ' + ep.cod_plaza_grantt;
-				ep.grantoption = false;
+				ep.caducidad = caducidad;
 
-				Permiso.find({'$or': [{'procedimientosescritura': procedimiento.codigo}, {'procedimientosdirectaescritura': procedimiento.codigo}]}, function(err, procs){
+				var op = new Permiso(ep);
+				console.log(op);
+				op.save(function(erro){
 					if (err) {
-							console.error('Imposible salvar nuevo permiso (5)', err); res.status(500).end(); return;
+						console.error('Imposible salvar nuevo permiso (3)'); console.error(erro); res.status(500).end(); return;
+					} else {
+						res.json(op);
 					}
-					var caducidad = new Date();
-					caducidad.setFullYear(caducidad.getFullYear() + 2); ////////// PARCHE POR LAS CADUCIDADES A NULL
-					for(var i = 0; i < procs.length; i++){
-						var ptemp = procs[i];
-						if (ptemp.caducidad && ptemp.caducidad.getTime() > caducidad.getTime()){
-							caducidad = ptemp.caducidad;
-						}
-					}
-					ep.caducidad = caducidad;
-
-					var op = new Permiso(ep);
-					console.log(op);
-					op.save(function(erro){
-						if (err) {
-							console.error('Imposible salvar nuevo permiso (3)'); console.error(erro); res.status(500).end(); return;
-						} else {
-							res.json(op);
-						}
-					});
 				});
 			});
 		});
@@ -230,6 +290,82 @@ module.exports.permisosByLoginPlaza = function(models, Q) {
 	};
 };
 
+module.exports.removePermisoCarta = function(models, Q, recalculate){
+	return function(req, res) {
+		if (typeof req.params.identidadobjeto !== 'undefined' && !isNaN(parseInt(req.params.identidadobjeto)) &&
+			typeof req.params.idpermiso !== 'undefined' )
+		{
+			var Permiso = models.permiso();
+			var idpermiso = req.params.idpermiso;
+			var identidadobjeto = req.params.identidadobjeto;
+
+			if (req.user.permisoscalculados.superuser ||
+				(req.user.permisoscalculados.grantoption && req.user.permisoscalculados.entidadobjetolectura.concat(req.user.permisoscalculados.entidadobjetoescritura).indexOf(identidadobjeto) !== -1)
+				)
+			{
+
+				Permiso.findById(idpermiso, function(err, permiso){
+					console.log(permiso);
+					if (err) {
+						console.error('Eliminando permiso sobre entidadobjeto'); console.error(err); res.status(500).end(); return;
+					}
+					if (permiso == null){
+						console.error('Eliminando permiso sobre entidadobjeto'); console.error('No se encuentra el permiso ' + idpermiso); res.status(500).end(); return;
+					}
+
+					var index_r = permiso.entidadobjetolectura.indexOf(identidadobjeto);
+					var index_w = permiso.entidadobjetodirectaescritura.indexOf(identidadobjeto);
+					/*
+					var index_rc = permiso.procedimientoslectura.indexOf(idprocedimiento);
+					var index_wc = permiso.jerarquiadirectaescritura.indexOf(idprocedimiento);
+					*/
+
+					if (index_r !== -1){
+						permiso.entidadobjetolectura.splice(index_r, 1);
+					}
+					if (index_w !== -1){
+						permiso.entidadobjetodirectaescritura.splice(index_w, 1);
+					}
+
+
+					recalculate.softCalculatePermiso(Q, models, permiso).then(function(permiso){
+						if (permiso.entidadobjetodirectalectura.length === 0 &&
+								(typeof permiso.jerarquiadirectalectura === 'undefined'
+								||
+								permiso.jerarquiadirectalectura.length === 0
+						))
+						{
+							Permiso.remove({'_id': idpermiso}, function(err){
+								if (err) {
+									console.error('Eliminando permiso sobre entidadobjeto'); console.error(err); res.status(500).end(); return;
+								} else {
+									res.json({});
+								}
+							});
+						} else {
+							Permiso.update({'_id': idpermiso}, permiso, {upsert: false}, function(err) {
+								if (err) {
+									console.error('Eliminando permiso sobre entidadobjeto'); console.error(err); res.status(500).end(); return;
+								} else {
+									res.json(permiso);
+								}
+							});
+						}
+					}, function(err){
+						console.error(err); res.status(500).end(); return;
+					});
+				});
+			}else{
+				res.status(500).send('No tiene permiso para realizar esta operación').end();
+				return;
+			}
+		} else {
+			console.error('Invocación inválida para la eliminación de un permiso'); res.status(400).end(); return;
+		}
+	};
+	
+};
+
 module.exports.removePermisoProcedimiento = function(models, Q, recalculate) {
 	return function(req, res) {
 		if (typeof req.params.idprocedimiento !== 'undefined' && !isNaN(parseInt(req.params.idprocedimiento)) &&
@@ -253,10 +389,12 @@ module.exports.removePermisoProcedimiento = function(models, Q, recalculate) {
 						console.error('Eliminando permiso sobre procedimiento'); console.error('No se encuentra el permiso ' + idpermiso); res.status(500).end(); return;
 					}
 
-					var index_r = permiso.procedimientosdirectalectura.indexOf(idprocedimiento);
+					var index_r = permiso.procedimientoslectura.indexOf(idprocedimiento);
 					var index_w = permiso.procedimientosdirectaescritura.indexOf(idprocedimiento);
+					/*
 					var index_rc = permiso.procedimientoslectura.indexOf(idprocedimiento);
 					var index_wc = permiso.jerarquiadirectaescritura.indexOf(idprocedimiento);
+					*/
 
 					if (index_r !== -1){
 						permiso.procedimientosdirectalectura.splice(index_r, 1);
@@ -551,6 +689,43 @@ module.exports.permisosDirectosList = function(models){
 	};
 };
 
+//// Devuelve las instancias de permiso que tienen concedido permiso directo sobre la entidadobjeto indicada
+module.exports.permisosDirectosEntidadObjetoList = function(models){
+	return function(req, res){
+		var Permiso = models.permiso();
+
+		if (typeof req.params.codigoentidadobjeto !== 'undefined') {
+				var idp = req.params.codigoentidadobjeto;
+
+				if (!
+					(req.user.permisoscalculados.grantoption || req.user.permisoscalculados.superuser) &&
+					req.user.permisoscalculados.entidadobjetolectura.concat(req.user.permisoscalculados.entidadobjetoescritura).indexOf(idp) !== -1
+					)
+				{
+					console.error('El usuario ha intentado realizar una operacion (permisosDirectosEntidadObjetoList) que no le está permitida');
+					res.status(500).send('No tiene permiso para operar sobre permisos');
+					res.end();
+					return;
+				}
+
+				var restriccion = {'entidadobjetodirectalectura': idp};
+				Permiso.find(restriccion, function(err, permisos){
+					if (err){
+						console.error(restriccion); console.error(err); res.status(500); res.end(); return;
+					}else{
+						res.json(permisos);
+					}
+				});
+		} else {
+			var err = 'Error. Código de entidadobjeto no presente o inválido';
+			console.error(restriccion);
+			console.error(err);
+			res.status(500).end(err);
+			return;
+		}
+	};
+	
+};
 //// Devuelve las instancias de permiso que tienen concedido permiso directo sobre el procedimiento indicado
 module.exports.permisosDirectosProcedimientoList = function(models){
 	return function(req, res){
@@ -588,6 +763,41 @@ module.exports.permisosDirectosProcedimientoList = function(models){
 	};
 };
 
+
+//// Devuelve las instancias de permiso que tienen concedido permiso sobre la entidadobjeto indicada
+module.exports.permisosEntidadObjetoList = function(models){
+	return function(req, res){
+		var Permiso = models.permiso();
+
+		console.log('Buscando entidadobjeto ' + req.params.codigoentidadobjeto);
+		if (typeof req.params.codigoentidadobjeto !== 'undefined') {
+				var idp = req.params.codigoentidadobjeto;
+				if (!
+					(req.user.permisoscalculados.grantoption ||
+					req.user.permisoscalculados.superuser)
+					&&
+					req.user.permisoscalculados.entidadobjetolectura.concat(req.user.permisoscalculados.entidadobjetoescritura).indexOf(idp) !== -1
+					)
+				{
+					console.error('El usuario ha intentado realizar una operacion (permisosDirectosEntidadObjetoList) que no le está permitida');
+					res.status(500).send('No tiene permiso para operar sobre permisos').end();
+					return;
+				}
+
+				var restriccion = {'entidadobjetolectura': idp};
+				Permiso.find(restriccion, function(erro, permisos){
+					if (erro) {
+						console.error(restriccion); console.error(erro); res.status(500).end(); return;
+					} else {
+						res.json(permisos);
+					}
+				});
+		} else {
+			var err = 'Error. Código de entidadobjeto no presente o inválido';
+			console.error(restriccion); console.error(err); res.status(500); res.end(); return;
+		}
+	};	
+}
 //// Devuelve las instancias de permiso que tienen concedido permiso sobre el procedimiento indicado
 module.exports.permisosProcedimientoList = function(models){
 	return function(req, res){
@@ -671,6 +881,7 @@ module.exports.create = function(models, Q, recalculate){
 	var Permiso = models.permiso();
 	var Persona = models.persona();
 	var argPermiso = req.body;
+	console.log(argPermiso);
 	var permiso = {
 		login: argPermiso.login,
 		codplaza: argPermiso.codplaza,
@@ -681,8 +892,12 @@ module.exports.create = function(models, Q, recalculate){
 		procedimientoslectura: (typeof argPermiso.procedimientoslectura !== 'undefined' ? argPermiso.procedimientoslectura : []),
 		procedimientosescritura: (typeof argPermiso.procedimientosescritura !== 'undefined' ? argPermiso.procedimientosescritura : []),
 		procedimientosdirectalectura: (typeof argPermiso.procedimientosdirectalectura !== 'undefined' ? argPermiso.procedimientosdirectalectura : []),
-		procedimientosdirectaescritura: (typeof argPermiso.procedimientosdirectaescritura !== 'undefined' ? argPermiso.procedimientosdirectaescritura : []),
-		caducidad: req.user.permisoscalculados.caducidad,
+		procedimientosdirectaescritura: (typeof argPermiso.procedimientosdirectaescritura !== 'undefined' ? argPermiso.procedimientosdirectaescritura : []),		
+		entidadobjetolectura: (typeof argPermiso.entidadobjetolectura !== 'undefined' ? argPermiso.entidadobjetolectura : []),
+		entidadobjetoescritura: (typeof argPermiso.entidadobjetoescritura !== 'undefined' ? argPermiso.entidadobjetoescritura : []),
+		entidadobjetodirectalectura: (typeof argPermiso.entidadobjetodirectalectura !== 'undefined' ? argPermiso.entidadobjetodirectalectura : []),
+		entidadobjetodirectaescritura: (typeof argPermiso.entidadobjetodirectaescritura !== 'undefined' ? argPermiso.entidadobjetodirectaescritura : []),		
+		caducidad: req.user.permisoscalculados.caducidad,		
 		descripcion: 'Permisos concedidos por ' + req.user.login,
 		grantoption: !!argPermiso.grantoption,
 		superuser: argPermiso.superuser ? 1 : 0,
@@ -724,6 +939,7 @@ module.exports.create = function(models, Q, recalculate){
 			});
 		}
 
+		console.log('Prerecalculo ');console.log(permiso);
 		recalculate.softCalculatePermiso(Q, models, permiso).then(
 			function(permiso){
 				var opermiso = new Permiso(permiso);

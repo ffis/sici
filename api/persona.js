@@ -43,6 +43,10 @@
 			var restriccion = {};
 			if (typeof req.params.cod_plaza !== 'undefined'){
 				restriccion.codplaza = req.params.cod_plaza;
+			} else {
+				console.error('Se esperaba parametro codplaza');
+				res.status(500).end();
+				return;				
 			}
 			Persona.find(restriccion, function (err, data) {
 				if (err) {
@@ -59,10 +63,15 @@
 
 	module.exports.personasByLogin = function (models) {
 		return function (req, res) {
+			console.log('Personas by login');
 			var Persona = models.persona();
 			var restriccion = {};
 			if (typeof req.params.login !== 'undefined'){
 				restriccion.login = req.params.login;
+			} else {
+				console.error('Se esperaba parametro login');
+				res.status(500).end();
+				return;				
 			}
 			Persona.find(restriccion, function (err, data) {
 				if (err) {

@@ -65,13 +65,25 @@
                 seleccionado: '=',
                 attr: '=',
                 title: '=otitle',
-                filtro: '=filtro'
+                filtro: '=filtro',
+                showprocedimientos: '=',
+                showcartas: '=',
+                setprocseleccionado: '=',
+                procseleccionado: '=',
+                setcartaseleccionada: '=',
+                cartaseleccionada: '='
             },
             templateUrl: '/partials/organismos.html',
             controller: ['$scope', '$rootScope', '$q', function($scope, $rootScope, $q){
                 $scope.setSeleccionado = function(i){
                     $scope.setseleccionado(i);
                 };
+                $scope.setProcSeleccionado = function(i){
+                    $scope.setprocseleccionado(i);
+                }
+                $scope.setCartaSeleccionada = function(i){
+                    $scope.setcartaseleccionada(i);
+                }
                 var defjerarquia = $q.defer();
                 $scope.pjerarquia = defjerarquia.promise;
                 $rootScope.jerarquialectura().then(function(j){

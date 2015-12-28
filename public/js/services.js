@@ -118,9 +118,9 @@ modulo
         .factory('EntidadObjeto', ['$resource', function ($resource) {
                 return $resource('/api/v2/public/entidadobjeto/:id', {id: '@_id' }, {update: {method: 'PUT' }}); }])
         .factory('PermisosDirectosEntidadObjetoList', ['$resource', function ($resource) {
-                return $resource('/api/v1/private/permisosDirectosProcedimientoList/:codigoentidadobjeto', {}, {query: {method: 'GET', isArray: true }}); }])
+                return $resource('/api/v1/private/permisosDirectosEntidadObjetoList/:codigoentidadobjeto', {}, {query: {method: 'GET', isArray: true }}); }])
         .factory('PermisosEntidadObjetoList', ['$resource', function ($resource) {
-                return $resource('/api/v1/private/permisosProcedimientoList/:codigoentidadobjeto', {}, {query: {method: 'GET', isArray: true }}); }])
+                return $resource('/api/v1/private/permisosEntidadObjetoList/:codigoentidadobjeto', {}, {query: {method: 'GET', isArray: true }}); }])
 		.factory('PastelColor', function(){
 			var colors = [];
 			return function(i){

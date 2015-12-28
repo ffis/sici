@@ -31,7 +31,8 @@ body {
 }
 
 ul.organica_proc {
-    margin: 0px 15px 0px 15px;
+    margin: -0.3em 15px 0px 15px;
+    padding-left:0.3em;
     margin-bottom:15px  !important;
 }
 
