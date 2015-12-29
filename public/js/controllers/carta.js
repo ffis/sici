@@ -19,8 +19,11 @@
 					'Carta de Servicios del Servicio de Atención al Ciudadano': 85
 				};
 				$scope.indicadores = {};
+				$scope.showformulas = false;
 				$scope.superuser = $rootScope.superuser();
-
+				$scope.mutexFormulas = function(){
+					$scope.showformulas = !$scope.showformulas; 
+				};
 				$scope.setJerarquiaById = function(idj){
 					if (!idj){ return; }
 					var setJ = function(nodo, idjerarquia){
@@ -113,17 +116,19 @@
 				};
 
 				$scope.recargarObjetivo = function(i){
-					var loadAndSetValores = function(obj, attr){
+					var loadAndSetValores = function(obj){
 						return function(loaded){
-							for(var i = 0, j = loaded.formulas.length; i < j; i++){
-								obj.formulas[i].valores = loaded.formulas[i].valores;
-								for (var anu in obj.formulas[i].valores){
-									formula.valor[anu] = obj.formulas[i].valores[anu][ obj.formulas[i].valores[anu].length - 1 ].resultado;
+							if (typeof loaded.formulas != 'undefined'){
+								for(var i = 0, j = loaded.formulas.length; i < j; i++){
+									obj.formulas[i].valores = loaded.formulas[i].valores;
+									for (var anu in obj.formulas[i].valores){
+										 obj.formulas[i].valor[anu] = obj.formulas[i].valores[anu][ obj.formulas[i].valores[anu].length - 1 ].resultado;
+									}
 								}
 							}
 						};
 					};
-					Objetivo.get( {id: $scope.objetivos[i]._id} , loadAndSetValores($scope.objetivos[i], 'formulas.valores') );
+					Objetivo.get( {id: $scope.objetivos[i]._id} , loadAndSetValores($scope.objetivos[i]) );
 				};
 				$scope.updateIndicador = function(indicadorid){
 					var f = function(indicadorid, desplegado){

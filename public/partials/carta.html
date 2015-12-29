@@ -27,6 +27,7 @@
 						<span class="glyphicon glyphicon-download"></span>
 					</a>
 					<a class="btn btn-default" target="_blank" href="{{cartaservicioseleccionada.url}}" title="Ver informaci&oacute;n publicada"><span class="glyphicon glyphicon-info-sign"></span></a>
+					<a class="btn btn-default" ng-click="mutexFormulas()" title="Ver f&oacute;rmulas"><span class="fa" ng-class="{'fa-toggle-on': showformulas, 'fa-toggle-off': !showformulas}"></span></a>
 					<div class="btn-group">
 					  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						{{cartaservicioseleccionada.denominacion}} <span class="caret" ng-if="cartasservicio.length > 1"></span>
@@ -62,13 +63,16 @@
 								<a class="btn btn-default" title="Editar" href="/objetivo/{{ objetivo._id}}">
 									<span class="glyphicon glyphicon-pencil"></span>
 								</a>
+								<!--
 								<button type="button" class="btn btn-default" title="Comentar">
 									<span class="glyphicon glyphicon-comment" ng-class="claseComentarios(objetivo)" ng-click=""></span>
 								</button>
+								
 								<button type="button" class="btn btn-default">
 									<span class="glyphicon glyphicon-link"></span>
 								</button>
-							</div>
+
+-->							</div>
 						</th>
 						<td class="text-left">
 							<div class="formuladetails">
@@ -87,7 +91,7 @@
 													</tr>
 												</thead>
 												<tfoot>
-													<tr class="hidden">
+													<tr ng-class="{'hidden': !showformulas}">
 														<th colspan="{{1 + formula.valores[aanualidad].length}}"><p><strong>{{formula.computer}}</strong></p></th>
 													</tr>
 													<tr>
