@@ -72,8 +72,12 @@
 		for(i = 0, j = partes.length; i < j; i++){
 			if (partes[i].indexOf('/indicador') === 0){
 				tokens = partes[i].split('/');
-				idIndicador = tokens[2];
-				indicadoresACargar[idIndicador] = false;
+				idIndicador = tokens[2].trim();
+				if (idIndicador.length == 24 || idIndicador.length == 12){
+					indicadoresACargar[idIndicador] = false;
+				}else{
+					cb({error: '_id mal formado:' + idIndicador});
+				}
 			}
 		}
 
