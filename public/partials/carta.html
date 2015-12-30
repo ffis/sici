@@ -1,19 +1,9 @@
 
 <div class="row">
-	<div ng-class="{'col-lg-3': !oculto, 'col-md-4': !oculto, 'hidden': oculto}" class="left animated">
-		<div class="panel panel-default">
-		  <div class="panel-heading">
-			<h3 class="panel-title">Temporalmente</h3>
-		  </div>
-		  <div class="panel-body">
-			<span ng-repeat="(t, v) in equivalencias" style="font-size:16px">
-				<a href="/carta/{{v}}" class="label label-default cursor">{{t}}</a>
-			</span>
-		  </div>
-		</div>
+	<div ng-class="{'col-lg-3': !oculto, 'col-md-4': !oculto, 'col-sm-4': !oculto, 'hidden': oculto}" class="left animated">
 		<organismos otitle="'Organismos con cartas de compromisos'" arbol="arbol" tipoelementos="'carta de compromisos'" attr="'numcartas'" setseleccionado="setSeleccionado" seleccionado="seleccionado" filtro="filtro"></organismos>
 	</div>
-	<div ng-class="{'col-lg-9': !oculto, 'col-md-8': !oculto, 'col-lg-12': oculto}" class="right animated" id="detallesjerarquia">
+	<div ng-class="{'col-lg-9': !oculto, 'col-md-8': !oculto, 'col-sm-8': !oculto, 'col-lg-12': oculto}" class="right animated" id="detallesjerarquia">
 		<div ng-click="oculto=!oculto" style="cursor:ew-resize">
 			<span class="glyphicon glyphicon-fullscreen pull-right">
 			</span>

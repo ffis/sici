@@ -7,17 +7,6 @@
 				$rootScope.nav = 'carta';
 				$scope.idjerarquia = ($routeParams.idjerarquia) ? parseInt( $routeParams.idjerarquia ) : false;
 				$scope.arbol = Arbol.query(function(){ $scope.setJerarquiaById($scope.idjerarquia); });
-				$scope.equivalencias = {
-					'Agencia Tributaria de la Región de Murcia': 636,
-					'Biblioteca Regional de Murcia': 279,
-					'DG Seguridad Ciudadana y Emergencias.': 378,
-					'DG de Ganadería y Pesca': 359,
-					'DG de Juventud y Deportes-Área de Deportes': 637,
-					'DG de Pensiones, Valoración y Programas de Inclusión': 1990,
-					'DG de Trabajo': 1746,
-					'DG de la Función Pública y Calidad de los Servicios': 18,
-					'Carta de Servicios del Servicio de Atención al Ciudadano': 85
-				};
 				$scope.indicadores = {};
 				$scope.showformulas = false;
 				$scope.superuser = $rootScope.superuser();
@@ -122,7 +111,7 @@
 								for(var i = 0, j = loaded.formulas.length; i < j; i++){
 									obj.formulas[i].valores = loaded.formulas[i].valores;
 									for (var anu in obj.formulas[i].valores){
-										 obj.formulas[i].valor[anu] = obj.formulas[i].valores[anu][ obj.formulas[i].valores[anu].length - 1 ].resultado;
+										obj.formulas[i].valor[anu] = obj.formulas[i].valores[anu][ obj.formulas[i].valores[anu].length - 1 ].resultado;
 									}
 								}
 							}
