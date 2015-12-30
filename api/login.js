@@ -11,6 +11,7 @@ function calcularPermisos(permisos) {
 
 	var now = new Date();
 	for(var i = 0, j = permisos.length; i < j; i++ ){
+		console.log('Cargando...'); console.log(permisos[i]);
 		if (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime())
 		{
 			permisoscalculados.superuser = permisoscalculados.superuser || permisos[i].superuser;

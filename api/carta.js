@@ -102,21 +102,23 @@
 
 	module.exports.indicador = function(models){
 		return function(req, res){
+			
 			var indicadormodel = models.indicador();
 			if (typeof req.params.id !== 'undefined'){
 				var id = req.params.id;
-				var restriccion = { _id : models.ObjectId(id) };
+				var restriccion = { _id : models.ObjectId(id) };				
 				if (!req.user.permisoscalculados.superuser) {
 					restriccion['$or'] = [
 						{
-							'idjerarquia': {'$in': req.user.permisoscalculados.jerarquiaescritura.concat(req.user.permisoscalculados.jerarquiadirectaescritura)}
+							'idjerarquia': {'$in': req.user.permisoscalculados.jerarquiaescritura.concat(req.user.permisoscalculados.jerarquialectura)}
 						},
 						{
-							'responsable': {'$in': req.user.permisoscalculados.entidadobjetodirectaescritura.concat(req.user.permisoscalculados.entidadobjetoescritura)}
+							'responsable': req.user.login
 						}];
-				}
+				}				
 				indicadormodel.findOne(restriccion, function(err, indicador){
 					if (err){
+						console.log('Error');
 						res.status(500).json({'error': 'An error has occurred', details: err});
 						return;
 					}
@@ -127,10 +129,10 @@
 				if (!req.user.permisoscalculados.superuser) {
 					restricciones['$or'] = [
 						{
-							'idjerarquia': {'$in': req.user.permisoscalculados.jerarquiaescritura.concat(req.user.permisoscalculados.jerarquiadirectaescritura)}
+							'idjerarquia': {'$in': req.user.permisoscalculados.jerarquiaescritura.concat(req.user.permisoscalculados.jerarquialectura)}
 						},
 						{
-							'responsable': {'$in': req.user.permisoscalculados.entidadobjetodirectaescritura.concat(req.user.permisoscalculados.entidadobjetoescritura)}
+							'responsable': req.user.login
 						}];
 				}
 				if (typeof req.query.idjerarquia !== 'undefined'){
@@ -168,8 +170,7 @@
 						return;						
 					}
 					if (req.user.permisoscalculados.superuser || 
-						req.user.permisoscalculados.jerarquiadirectalectura.indexOf(indicador.idjerarquia)!==-1 ||
-						req.user.permisoscalculados.jerarquialectura.indexOf(indicador.idjerarquia)!==-1){
+						req.user.permisoscalculados.jerarquiaescritura.indexOf(indicador.idjerarquia)!==-1){
 						objetivomodel.find({'formulas.indicadores': models.ObjectId(id)}, function(err, objetivos){
 							if (err){
 								res.status(500).json({'error': 'An error has occurred', details: err});
@@ -213,8 +214,7 @@
 					}
 					if (indicador && 
 							(req.user.permisoscalculados.superuser ||
-								req.user.permisoscalculados.jerarquiaescritura.indexOf(indicador.idjerarquia)!==-1 ||
-								req.user.permisoscalculados.jerarquiadirectaescritura.indexOf(indicador.idjerarquia)!==-1)
+								req.user.permisoscalculados.jerarquiaescritura.indexOf(indicador.idjerarquia)!==-1)
 						){
 						module.exports.saveVersion(models, Q, indicador).then(function(){
 
@@ -277,8 +277,7 @@
 						res.status(500).json({'error': 'An error has occurred', details: erro});
 						return;
 					}					
-					if (objetivo && (req.user.permisoscalculados.superuser || 
-								req.user.permisoscalculados.entidadobjetodirectaescritura.indexOf(''+objetivo.carta)!==-1 ||
+					if (objetivo && (req.user.permisoscalculados.superuser || 								
 								req.user.permisoscalculados.entidadobjetoescritura.indexOf(''+objetivo.carta)!==-1)){
 						for(var attr in req.body){
 							//TODO: change this naive
@@ -312,9 +311,8 @@
 						res.status(500).json({'error': 'An error has occurred', details: erro});
 						return;
 					}
-					if (!(req.user.permisoscalculados.superuser ||
-						req.user.permisoscalculados.entidadobjetodirectalectura.indexOf(''+objetivo.carta)!==-1 ||
-						req.user.permisoscalculados.entidadobjetolectura.indexOf(''+objetivo.carta))){
+					if (!(req.user.permisoscalculados.superuser ||						
+						req.user.permisoscalculados.entidadobjetoescritura.indexOf(''+objetivo.carta)!==-1)){
 						res.status(403).json({'error': 'Not allowed'});		
 						return;
 					}
@@ -639,7 +637,6 @@
 					if (objetivo){
 						
 						if (req.user.permisoscalculados.superuser ||
-							req.user.permisoscalculados.entidadobjetodirectaescritura.indexOf(''+objetivo.carta) || 
 							req.user.permisoscalculados.entidadobjetoescritura.indexOf(''+objetivo.carta)) {
 						
 							if (typeof objetivo.formulas[parseInt(indiceformula)] !== 'undefined'){
@@ -679,8 +676,7 @@
 
 			if (id && 
 					(req.user.permisoscalculados.superuser 
-						|| req.user.permisoscalculados.entidadobjetoescritura.indexOf(id)
-						|| req.user.permisoscalculados.entidadobjetodirectaescritura.indexOf(id)
+						|| req.user.permisoscalculados.entidadobjetoescritura.indexOf(id)						
 					)
 				){
 				entidadobjetomodel.findOne({'_id': models.ObjectId(req.params.id) }, function (err, carta) {
