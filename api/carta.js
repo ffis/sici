@@ -212,54 +212,60 @@
 						res.status(500).json({'error': 'An error has occurred', details: err});
 						return;
 					}
-					if (indicador && 
-							(req.user.permisoscalculados.superuser ||
-								req.user.permisoscalculados.jerarquiaescritura.indexOf(indicador.idjerarquia)!==-1)
-						){
-						module.exports.saveVersion(models, Q, indicador).then(function(){
+					if (indicador) { 
+						var permiso = req.user.permisoscalculados.superuser || req.user.permisoscalculados.jerarquiaescritura.indexOf(indicador.idjerarquia)!==-1;
+						if (permiso){
+							module.exports.saveVersion(models, Q, indicador).then(function(){
 
-							if (req.user.permisoscalculados.superuser){
-								indicador.nombre = actualizacion.nombre;
-								indicador.resturl = actualizacion.resturl;
-								indicador.vinculacion = actualizacion.vinculacion;
-								indicador.acumulador = actualizacion.acumulador;
-								indicador.frecuencia = actualizacion.frecuencia;
-								indicador.pendiente = actualizacion.pendiente;
-							}
+								if (permiso){
+									indicador.nombre = actualizacion.nombre;
+									indicador.resturl = actualizacion.resturl;
+									indicador.vinculacion = actualizacion.vinculacion;
+									indicador.acumulador = actualizacion.acumulador;
+									indicador.frecuencia = actualizacion.frecuencia;
+									indicador.pendiente = actualizacion.pendiente;
+								}
 
-							if (indicador.acumulador === 'sum'){
-								for(attr in indicador.valores){
-									var suma = 0;
-									for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
-										indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseInt(actualizacion.valores[attr][i]);
-										suma += indicador.valores[attr][i];
+								if (indicador.acumulador === 'sum'){
+									for(attr in indicador.valores){
+										var suma = 0;
+										for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
+											indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseInt(actualizacion.valores[attr][i]);
+											suma += indicador.valores[attr][i];
+										}
+										indicador.valores[attr][ indicador.valores[attr].length - 1 ] = suma;
 									}
-									indicador.valores[attr][ indicador.valores[attr].length - 1 ] = suma;
 								}
-							}
-							for(attr in indicador.observaciones){
-								for (i = 0, j = indicador.observaciones[attr].length; i < j; i++){
-									indicador.observaciones[attr][i] = actualizacion.observaciones[attr][i].trim();
+								for(attr in indicador.observaciones){
+									for (i = 0, j = indicador.observaciones[attr].length; i < j; i++){
+										indicador.observaciones[attr][i] = actualizacion.observaciones[attr][i].trim();
+									}
 								}
-							}
-							indicador.markModified('valores');
-							indicador.markModified('observaciones');
-							indicador.markModified('medidas');
-							indicador.fechaversion = new Date();
+								indicador.markModified('valores');
+								indicador.markModified('observaciones');
+								indicador.markModified('medidas');
+								indicador.fechaversion = new Date();
 
-							indicador.save(function(erro, doc){
-								if (erro){
-									res.status(500).json({'error': 'An error has occurred', details: erro});
-								}else{
-									res.json(doc);
-								}
+								indicador.save(function(erro, doc){
+									if (erro){
+										res.status(500).json({'error': 'An error has occurred', details: erro});
+									}else{
+										res.json(doc);
+									}
+								});
+							}, function(e){
+									res.status(500).json({'error': 'An error has occurred', details: e});
 							});
-						}, function(e){
-								res.status(500).json({'error': 'An error has occurred', details: e});
-						});
 
+						}else{
+							res.status(403).json({'error': 'Not allowed'});
+							console.log('permisos');
+							console.log(req.user.permisoscalculados.jerarquiaescritura);
+							console.log('indicador');
+							console.log(indicador);
+						}
 					}else{
-						res.status(404).json({'error': 'Not found'});
+							res.status(404).json({'error': 'Not found'});
 					}
 				});
 			}else{
