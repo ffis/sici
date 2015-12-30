@@ -33,7 +33,7 @@
     "allmighty-autocomplete": "*",
     "angular-bootstrap-colorpicker": "~3.0.8",
     "angular-bootstrap": "~0.11.2",
-    "jquery": "~2.1.1",
+    "jquery": "~2.1.4",
     "angularjs-toaster": "~0.4.10",
     "ngRadialGauge": "*",
     "ngclipboard": "~1.0.0",
