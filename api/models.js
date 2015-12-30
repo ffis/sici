@@ -10,6 +10,7 @@
 		settings: { version: Number, 'secret': String, 'secret2': String, 'anyo': String, 'port': Number, 'urlbasedecrypt': String, logincarm: Boolean, ws_url: String, ws_user: String, ws_pwd: String, downloadhashprefix: String },
 		reglasinconsistencias: { 'titulo': String, 'restriccion': String},
 		historico: {},
+		historicoindicador: {},
 		//periodo: { a2013:[Number], a2014:[Number], a2015:[Number] },
 		periodo: {},
 		feedback: {

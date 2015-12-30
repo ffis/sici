@@ -257,7 +257,7 @@
 
 		app.get('/api/v2/public/indicador', carta.indicador(models));
 		app.get('/api/v2/public/indicador/:id', carta.indicador(models));
-		app.put('/api/v2/public/indicador/:id', carta.actualizaindicador(models));
+		app.put('/api/v2/public/indicador/:id', carta.actualizaindicador(models, Q));
 		app.delete('/api/v2/public/indicador/:id', carta.removeindicador(models));
 
 		app.get('/api/v2/public/entidadobjeto', entidadobjeto.get(models));

@@ -22,7 +22,7 @@
 		'procedimientosdirectalectura' : [Number],
 		'procedimientosdirectaescritura' : [Number],
 		 */
-		console.log('@1'); console.log(permiso);
+		
 
 		var deferred = Q.defer();
 		var deferredProcedimiento = Q.defer();

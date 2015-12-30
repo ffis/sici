@@ -28,7 +28,7 @@ function getPermisosByLoginPlaza(params, models, Q, login, codPlaza)
 			restriccion.codplaza = codPlaza;
 		}
 
-		console.log(restriccion);
+		
 
 		var df = Q.defer();
 
@@ -104,7 +104,7 @@ module.exports.delegarpermisosEntidadObjeto = function(models){
 				ep.caducidad = caducidad;
 
 				var op = new Permiso(ep);
-				console.log(op);
+				//console.log(op);
 				op.save(function(erro){
 					if (err) {
 						console.error('Imposible salvar nuevo permiso (3)'); console.error(erro); res.status(500).end(); return;
@@ -175,7 +175,7 @@ module.exports.delegarpermisosProcedimiento = function(models){
 				ep.caducidad = caducidad;
 
 				var op = new Permiso(ep);
-				console.log(op);
+				//console.log(op);
 				op.save(function(erro){
 					if (err) {
 						console.error('Imposible salvar nuevo permiso (3)'); console.error(erro); res.status(500).end(); return;
@@ -305,7 +305,7 @@ module.exports.removePermisoCarta = function(models, Q, recalculate){
 			{
 
 				Permiso.findById(idpermiso, function(err, permiso){
-					console.log(permiso);
+					//console.log(permiso);
 					if (err) {
 						console.error('Eliminando permiso sobre entidadobjeto'); console.error(err); res.status(500).end(); return;
 					}
@@ -381,7 +381,7 @@ module.exports.removePermisoProcedimiento = function(models, Q, recalculate) {
 			{
 
 				Permiso.findById(idpermiso, function(err, permiso){
-					console.log(permiso);
+					//console.log(permiso);
 					if (err) {
 						console.error('Eliminando permiso sobre procedimiento'); console.error(err); res.status(500).end(); return;
 					}
@@ -473,7 +473,7 @@ module.exports.removePermisoJerarquia = function(models, Q, recalculate) {
 				if (permiso === null) {
 					console.error('Eliminando permiso sobre jerarquia'); console.error('No se encuentra el permiso ', idpermiso); res.status(500).end(); return;
 				}
-				console.log(permiso._id + ' findById ');
+				//console.log(permiso._id + ' findById ');
 
 				var index_r = permiso.jerarquiadirectalectura.indexOf(idjerarquia);
 				var index_w = permiso.jerarquiadirectaescritura.indexOf(idjerarquia);
@@ -593,7 +593,7 @@ module.exports.permisosList = function(models, Q){
 						procedimientos.forEach(function(value){
 							idsprocedimientos.push(value.codigo);
 						});
-						console.log(idsprocedimientos.length);
+						//console.log(idsprocedimientos.length);
 
 						var restriccion = {
 							'$or': [
