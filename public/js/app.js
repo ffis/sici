@@ -12,7 +12,7 @@ var dependencies = [
 ];
 
 if (angularFileUploadLoaded){
-    dependencies.push('angularFileUpload');
+    dependencies.push('ngFileUpload');
 }
 
 var app = angular.module('sici', dependencies).
