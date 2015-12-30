@@ -1,39 +1,45 @@
+<ol class="breadcrumb">
+	<li><a href="/carta/{{carta.idjerarquia}}">{{carta.denominacion}}</a></li>
+	<li><a href="/objetivo/{{objetivo._id}}">{{objetivo.denominacion}}</a></li>
+	<li class="active">{{formula.human}}</li>
+</ol>
+
 <div class="panel panel-primary">
-    <div class="panel-heading">
-        <b>Objetivo:</b> {{objetivo.denominacion}}
-    </div>
-    <h4 class="text-center">Fórmula <span class="label label-danger">{{formula.human}}</span></h4>
-    <div class="panel-body">
-        <h4><span class="label label-primary"><i class="fa fa-slack"></i> Operadores</span></h4>
-        <div ng-drop="true">
-            <div ng-repeat="obj in operators" ng-drag="true" ng-drag-data="obj">
-                {{obj.texto}}
-            </div>
-        </div>
-        <br />
 
-        <h4><span class="label label-primary"><i class="fa fa-pie-chart"></i> Indicadores</span></h4>
-        <div ng-drop="true" class="drag-indicador">
-            <div ng-repeat="obj in indicadores" ng-drag="true" ng-drag-data="obj">
-                {{obj.texto}}
-            </div>
-        </div>
-        <br />
-        
-        <h4><span class="label label-primary"><i class="fa fa-calculator"></i> Fórmula</span></h4>
-        <div class="row">
-            <div class="col-xs-1 drag-formula" ng-repeat="obj in formulaObjects track by $index" ng-drop="true" ng-drop-success="onDropFormula($index, $data, $event)">
-                <div ng-drag="true" ng-drag-data="obj" style="background-color: {{obj.color}} !important">
-                    {{obj.texto}}
-                </div>
-            </div>
-        </div>
+	<div class="panel-heading">
+		<b>Objetivo:</b> {{objetivo.denominacion}}
+	</div>
+	<h4 class="text-center">Fórmula <span class="label label-danger">{{formula.human}}</span></h4>
+	<div class="panel-body">
+		<h4><span class="label label-primary"><i class="fa fa-slack"></i> Operadores</span></h4>
+		<div ng-drop="true">
+			<div ng-repeat="obj in operators" ng-drag="true" ng-drag-data="obj">
+				{{obj.texto}}
+			</div>
+		</div>
+		<br />
 
+		<h4><span class="label label-primary"><i class="fa fa-pie-chart"></i> Indicadores</span></h4>
+		<div ng-drop="true" class="drag-indicador">
+			<div ng-repeat="obj in indicadores" ng-drag="true" ng-drag-data="obj">
+				{{obj.texto}}
+			</div>
+		</div>
+		<br />
+		
+		<h4><span class="label label-primary"><i class="fa fa-calculator"></i> Fórmula</span></h4>
+		<div class="row">
+			<div class="col-xs-2 drag-formula" ng-repeat="obj in formulaObjects track by $index" ng-drop="true" ng-drop-success="onDropFormula($index, $data, $event)">
+				<div ng-drag="true" ng-drag-data="obj" style="background-color: {{obj.color}} !important">
+					{{obj.texto}}
+				</div>
+			</div>
+		</div>
 
-        <div class="drag-eliminar" ng-drop="true" style="background-color: white; width: 300px;" ng-drop-success="onDropEliminar($data)">
-            <h3 style="text-align: center;"><span class="label label-danger"><i class="fa fa-trash"></i> Arrastre aquí para eliminar</span></h3>
-        </div>
+		<div class="drag-eliminar" ng-drop="true" style="background-color: white; width: 300px;" ng-drop-success="onDropEliminar($data)">
+			<h3 style="text-align: center;"><span class="label label-danger"><i class="fa fa-trash"></i> Arrastre aquí para eliminar</span></h3>
+		</div>
 
-        <button class="btn btn-primary" ng-click="guardarFormula()"><i class="fa fa-save"></i> Guardar fórmula</button>
-    </div>
+		<button class="btn btn-primary" ng-click="guardarFormula()"><i class="fa fa-save"></i> Guardar fórmula</button>
+	</div>
 </div>

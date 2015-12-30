@@ -1,8 +1,11 @@
-(function (angular, $) {
+(function (angular) {
 	'use strict';
 	angular.module('sici')
-			.controller('FormulaCtrl', ['$http', '$q', '$rootScope', '$scope', '$routeParams', 'Objetivo', 'Operador', 'Indicador',
-				function ($http, $q, $rootScope, $scope, $routeParams, Objetivo, Operador, Indicador) {
+			.controller('FormulaCtrl', ['$http', '$q', '$rootScope', '$scope', '$routeParams', 'EntidadObjeto', 'Objetivo', 'Operador', 'Indicador',
+				function ($http, $q, $rootScope, $scope, $routeParams, EntidadObjeto, Objetivo, Operador, Indicador) {
+
+					$scope.indexFormula = typeof $routeParams.index === 'undefined' ? 0 : parseInt($routeParams.index);
+					$scope.idobjetivo = $routeParams.idobjetivo;
 
 					$scope.draggableObjects = Operador.query(function () {
 						$scope.operators = $scope.draggableObjects.slice();
@@ -20,8 +23,8 @@
 						};
 					};
 					var defers = [];
-					$scope.objetivo = Objetivo.get({id: $routeParams.idobjetivo}, function () {
-						$scope.formula = $scope.objetivo.formulas[$routeParams.index];
+					$scope.objetivo = Objetivo.get({id: $scope.idobjetivo }, function () {
+						$scope.formula = $scope.objetivo.formulas[$scope.indexFormula];
 						for (var i = 0, j = $scope.formula.indicadores.length; i < j; i++) {
 							var defer = $q.defer();
 							defers.push(defer.promise);
@@ -30,10 +33,11 @@
 						$q.all(defers).then(function () {
 							$scope.parseFormula();
 						});
+						$scope.carta = EntidadObjeto.get({id: $scope.objetivo.carta });
 					});
 
 					$scope.parseFormula = function () {
-						if (typeof $scope.formula.computer !== 'undefined' && $scope.formula.computer.trim() !== "") {
+						if (typeof $scope.formula.computer !== 'undefined' && $scope.formula.computer.trim() !== '') {
 							var formula = JSON.parse($scope.formula.computer);
 							formula.filter(function(elem) { if (elem.trim() !== '') { return elem; }}).forEach(function (elem) {
 								var encontrado = false;
@@ -55,16 +59,15 @@
 						}
 					};
 
-					$scope.onDropFormula = function (index, data, evt) {
+					$scope.onDropFormula = function (index, data) {
 						if (data._id) {
-							$scope.formulaObjects[index] = {texto: data.texto, valor: data.valor, indicador: data.indicador};
+							$scope.formulaObjects[index] = { texto: data.texto, valor: data.valor, indicador: data.indicador};
 						} else {
 							var otherObj = $scope.formulaObjects[index];
 							var otherIndex = $scope.formulaObjects.indexOf(data);
 							$scope.formulaObjects[index] = data;
 							$scope.formulaObjects[otherIndex] = otherObj;
 						}
-
 					};
 
 					$scope.onDropEliminar = function (data) {
@@ -75,26 +78,34 @@
 					$scope.guardarFormula = function () {
 						var formula = [];
 						var fnFilter = function (elem) {
-							if (elem.texto !== '') {
-								return elem;
+							if (!elem || !elem.texto){
+								return false;
 							}
+							return (elem.texto !== '');
 						};
 
 						$scope.formulaObjects.filter(fnFilter).forEach(function (elem) {
 							if (elem.indicador) {
-								formula.push("/indicador/" + elem.valor + "/valores/[anualidad]/[mes]");
+								if (elem.valor.indexOf('/') < 0){
+									formula.push('/indicador/' + elem.valor + '/valores/[anualidad]/[mes]');
+								}else{
+									formula.push(elem.valor);
+								}
 							} else {
 								formula.push(elem.valor);
 							}
 						});
-						var parameters = {idobjetivo: $routeParams.idobjetivo, indiceformula: $routeParams.index, formula: JSON.stringify(formula)};
+						var parameters = {idobjetivo: $scope.idobjetivo, indiceformula: $scope.indexFormula, formula: JSON.stringify(formula) };
 						$http.put('/api/v2/public/updateformula', parameters).then(function() {
 							$rootScope.toaster('Fórmula actualizada correctamente', 'Éxito', 'success');
 						}, function(err) {
-							$rootScope.toaster('No se ha podido actualizar la fórmula', 'Error', 'error');
+							if (typeof err.error != 'undefined'){
+								err = err.error;
+							}
+							$rootScope.toaster('No se ha podido actualizar la fórmula. ' + err, 'Error', 'error');
 						});
 						
 					};
 
 				}]);
-})(angular, $);
+})(angular);
