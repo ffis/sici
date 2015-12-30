@@ -22,7 +22,7 @@
   "dependencies": {
     "ng-file-upload": "~2.2.2",
     "jquery.easy-pie-chart": "~2.1.4",
-    "d3": "~3.4.13",
+    "d3": "~3.5.12",
     "angular": "1.4.x",
     "angular-route": "1.4.x",
     "angular-resource": "1.4.x",
