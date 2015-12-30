@@ -41,7 +41,8 @@
     "font-awesome": "~4.5.0",
     "bootstrap": "~3.3.6",
     "angular-filter": "~0.5.8",
-    "requirejs": "~2.1.22"
+    "requirejs": "~2.1.22",
+    "AngularJS-Toaster": "angularjs-toaster#~0.4.181"
   },
   "resolutions": {
     "d3": "~3.4.13",
