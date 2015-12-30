@@ -2,12 +2,17 @@
 	'use strict';
 	angular.module('sici')
 		.controller('PermisoCtrl',
-			['$rootScope', '$scope', '$location', '$window', 'Arbol', 'Session', 'PermisosList', 'PersonasSearchList', 'ProcedimientoList', 'PermisosProcedimientoList', 'PermisosDirectosProcedimientoList', 'Jerarquia', 'Permiso', 'PersonasByPuesto', 'PersonasByLogin', 'PersonasByRegexp', 'Persona', '$q', 'Procedimiento', 'PermisosDelegar', 'PermisosByLoginPlaza', 'PermisosDelegarSeleccionado', 'PermisoToDelete', 'PermisoProcedimientoToDelete', 'ProcedimientosByResponsable', '$http', '$log',
-				function ($rootScope, $scope, $location, $window, Arbol, Session, PermisosList, PersonasSearchList, ProcedimientoList, PermisosProcedimientoList, PermisosDirectosProcedimientoList, Jerarquia, Permiso, PersonasByPuesto, PersonasByLogin, PersonasByRegexp, Persona, $q, Procedimiento, PermisosDelegar, PermisosByLoginPlaza, PermisosDelegarSeleccionado, PermisoToDelete, PermisoProcedimientoToDelete, ProcedimientosByResponsable, $http, $log) {
+			['$rootScope', '$scope', '$location', '$window', 'Arbol', 'Session', 'PermisosList', 'PersonasSearchList', 'ProcedimientoList','EntidadObjetoList', 'PermisosProcedimientoList', 'PermisosDirectosProcedimientoList', 'PermisosEntidadObjetoList', 'PermisosDirectosEntidadObjetoList','Jerarquia', 'Permiso', 'PersonasByPuesto', 'PersonasByLogin', 'PersonasByRegexp', 'Persona', '$q', 'Procedimiento', 'EntidadObjeto', 'PermisosDelegar', 'PermisosByLoginPlaza', 'PermisosDelegarSeleccionado', 'PermisoToDelete', 'PermisoProcedimientoToDelete', 'ProcedimientosByResponsable','EntidadesObjetoByResponsable',   '$http', '$log',
+				function ($rootScope, $scope, $location, $window, Arbol, Session, PermisosList, PersonasSearchList, ProcedimientoList, EntidadObjetoList, PermisosProcedimientoList, PermisosDirectosProcedimientoList, PermisosEntidadObjetoList, PermisosDirectosEntidadObjetoList, Jerarquia, Permiso, PersonasByPuesto, PersonasByLogin, PersonasByRegexp, Persona, $q, Procedimiento, EntidadObjeto, PermisosDelegar, PermisosByLoginPlaza, PermisosDelegarSeleccionado, PermisoToDelete, PermisoProcedimientoToDelete, ProcedimientosByResponsable, EntidadesObjetoByResponsable, $http, $log) {
 		$rootScope.nav = 'permisos';
-		$rootScope.setTitle('Permisos');
+		$rootScope.setTitle('Permisos');              
 
-		$scope.arbol = Arbol.query();
+		$scope.arbol = Arbol.query({},function(){
+                    /* alteramos el arbol para añadirle un atribuyo calculado */
+                    for(var i=0;i<$scope.arbol.length;i++){
+                       $scope.addSumatorioCartasProcedimientos($scope.arbol[i]);                     
+                    }
+                });
 		$scope.oculto = false;
 		$scope.is_show_recursive_users = false;
 		$scope.is_show_inherited_users = false;
@@ -18,7 +23,9 @@
 		$scope.show_details_permiso = false;
 		$scope.logincarm = '';
 		$scope.procedimiento_seleccionado = undefined;
+		$scope.carta_seleccionada = undefined;
 		$scope.seleccionado_organica = false;
+		$scope.seleccionado_procedimiento = false;
 		$scope.nodo_jerarquia = null;
 		$scope.usuarioencontrado = false;
 		$scope.nuevousuario = {};
@@ -32,8 +39,25 @@
 		$scope.cachejerarquias = {};
 		$scope.cachepersonas = {};
 		$scope.filtrosocultos = false;
+		
+		$scope.indexcontrolorganica = 0;
+		$scope.indexcontrolprocedimiento = 1;
+		$scope.indexcontrolentidadobjeto = 2;
+		$scope.variablescontrolpermisos = {
+			controlvars : ['seleccionado_organica', 'seleccionado_procedimiento', 'carta_seleccionada'],
+			seleccionado : ['seleccionado', 'procedimiento_seleccionado', 'carta_seleccionada'],
+			denominacion_objeto : ['jerarquia', 'procedimiento', 'entidadobjeto'],
+			setSeleccionado : ['setSeleccionado', 'setProcSeleccionado', 'setCartaSeleccionada'],
+			texto_determinante : ['la','el','la'],
+			array_permiso : {
+				directalectura : ['jerarquiadirectalectura', 'procedimientosdirectalectura', 'entidadobjetodirectalectura'],
+				directaescritura: ['jerarquiadirectaescritura', 'procedimientosdirectaescritura', 'entidadobjetodirectaescritura'],
+				lectura : ['jerarquialectura', 'procedimientoslectura', 'entidadobjetolectura'],
+				escritura: ['jerarquiaescritura', 'procedimientosescritura', 'entidadobjetoescritura']
+			}
+		};
 
-		$scope.superuser = $rootScope.superuser();
+		$scope.superuser = $rootScope.superuser();                              
 		$rootScope.superuser().then(function(superuser){
 			if (!superuser) {
 				var login = $rootScope.session.login || '-';
@@ -48,6 +72,22 @@
 				});
 			}
 		});
+                
+		$scope.addSumatorioCartasProcedimientos = function(nodo){
+			nodo.sumatorio = 0;
+			if (typeof nodo.numcartas !== 'undefined'){
+				nodo.sumatorio += nodo.numcartas;
+			}                   
+			if (typeof nodo.numprocedimientos !== 'undefined'){
+				nodo.sumatorio += nodo.numprocedimientos;
+			}
+			if (typeof nodo.nodes !== 'undefined' && nodo.nodes != null){
+				for(var i=0;i<nodo.nodes.length;i++){
+					$scope.addSumatorioCartasProcedimientos(nodo.nodes[i]);
+				}
+			}
+		};
+
 
 		$scope.insersect_safe = function(a, b){
 			var ai = 0, bi = 0;
@@ -92,14 +132,32 @@
 							$window.alert('Permiso delegado correctamente');
 							if ($scope.seleccionado_organica){
 								$scope.setSeleccionado($scope.seleccionado);
-							} else if ($scope.procedimiento_seleccionado) {
+							} else if ($scope.seleccionado_procedimiento){
 								$scope.setProcSeleccionado($scope.procedimiento_seleccionado);
+							} else {
+								$scope.setCartaSeleccionada($scope.carta_seleccionada);
 							}
 						});
 					}else{
 						$window.alert('No tiene permiso sobre el procedimiento');
 					}
-				} else {
+				} else if ( !$rootScope.permisoscalculados.superuser && $scope.carta_seleccionada && !$scope.seleccionado_organica && $window.confirm('Ha seleccionado una entidad-objeto. ¿Delegar unicamente sobre la entidad-objeto?')){
+					if ($rootScope.permisoscalculados.entidadobjetoescritura.indexOf($scope.carta_seleccionada._id) >= 0){
+						PermisosDelegarSeleccionado.query({login: login, cod_plaza: cod_plaza, entidadobjeto: $scope.carta_seleccionada._id}, function(){
+							$window.alert('Permiso delegado correctamente');
+							if ($scope.seleccionado_organica){
+								$scope.setSeleccionado($scope.seleccionado);
+							} else if ($scope.seleccionado_procedimiento){
+								$scope.setProcSeleccionado($scope.procedimiento_seleccionado);
+							} else {
+								$scope.setCartaSeleccionada($scope.carta_seleccionada);
+							}
+						});
+					}else{
+						$window.alert('No tiene permiso sobre la carta');
+					}
+				}
+				else {
 					if ($rootScope.permisoscalculados.jerarquialectura.indexOf($scope.seleccionado.id) >= 0 ||
 						$rootScope.permisoscalculados.jerarquiaescritura.indexOf($scope.seleccionado.id) >= 0
 					){
@@ -108,8 +166,10 @@
 							if ($scope.seleccionado_organica){
 								$scope.setSeleccionado($scope.seleccionado);
 							}
-							else if ($scope.procedimiento_seleccionado){
+							else if ($scope.seleccionado_procedimiento){
 								$scope.setProcSeleccionado($scope.procedimiento_seleccionado);
+							} else {
+								$scope.setCartaSeleccionada($scope.carta_seleccionada);
 							}
 						});
 					} else {
@@ -140,10 +200,11 @@
 			if ($scope.seleccionado_organica){
 				$scope.setSeleccionado($scope.seleccionado);
 			}
-			else{
+			else if ($scope.seleccionado_procedimiento){
 				$scope.setProcSeleccionado($scope.procedimiento_seleccionado);
-			}
-		};
+			} else {
+				$scope.setCartaSeleccionada($scope.carta_seleccionada);
+			}		};
 
 		$scope.getPersonas = function(viewValue) {
 			if (viewValue.length > 2) {
@@ -161,7 +222,11 @@
 			$scope.is_show_recursive_users = false;
 
 			if ($scope.seleccionado_organica){ $scope.setSeleccionado($scope.seleccionado); }
-			else{ $scope.setProcSeleccionado( $scope.procedimiento_seleccionado); }
+			else if ($scope.seleccionado_procedimiento){
+				$scope.setProcSeleccionado($scope.procedimiento_seleccionado);
+			} else {
+				$scope.setCartaSeleccionada($scope.carta_seleccionada);
+			}
 		};
 
 		$scope.show_normal = function(){
@@ -170,8 +235,10 @@
 
 			if ($scope.seleccionado_organica){
 				$scope.setSeleccionado($scope.seleccionado);
-			}else{
+			}else if ($scope.seleccionado_procedimiento){
 				$scope.setProcSeleccionado($scope.procedimiento_seleccionado);
+			} else {
+				$scope.setCartaSeleccionada($scope.carta_seleccionada);
 			}
 		};
 
@@ -251,6 +318,7 @@
 
 			$scope.usuariodetalle = item;
 			$scope.seleccionado_organica = false;
+			$scope.seleccionado_procedimiento = false;
 			$scope.showDetailsPermiso();
 			$scope.permisostotales = {};
 			var peraux = {};
@@ -265,6 +333,9 @@
 			$scope.permisos = PermisosByLoginPlaza.query(args, function(){
 				$scope.permisostotales.permisos = $scope.permisos;
 				$scope.procedimientos = [];
+				$scope.cartas = [];
+				var peraux = {};
+				var perauxc = {};
 				for(var i = 0; i < $scope.permisos.length; i++){
 					var p = $scope.permisos[i];
 					for(var j = 0; j < p.procedimientosdirectalectura.length; j++){
@@ -289,15 +360,51 @@
 							});
 						}
 					}
+					for(var j = 0; j < p.entidadobjetodirectalectura.length; j++){
+						var cod = p.entidadobjetodirectalectura[i];
+						if (typeof peraux[cod] !== 'undefined') {
+							var eo = EntidadObjeto.get(cod, function(){
+								if (eo.responsable == p.codplaza) {
+									perauxc[cod] = p;
+									$scope.cartas.push(p);
+								}
+							});
+						}
+					}
+					for(var j = 0; j < p.entidadobjetodirectaescritura.length; j++){
+						var cod = p.entidadobjetodirectaescritura[i];
+						if (typeof peraux[cod] !== 'undefined') {
+							var eo = EntidadObjeto.get(cod, function(){
+								if (eo.responsable == p.codplaza) {
+									perauxc[cod] = p;
+									$scope.cartas.push(p);
+								}
+							});
+						}
+					}					
 				}
 
 				$scope.permisostotales.procedimientos = item.codplaza ? ProcedimientosByResponsable.query({codplaza: item.codplaza}) : [];
 				$scope.procedimientos = $scope.permisostotales.procedimientos;
+				$scope.permisostotales.entidadesobjeto = item.codplaza ? EntidadesObjetoByResponsable.query({codplaza: item.codplaza}) : [];
+				$scope.cartas = $scope.permisostotales.entidadesobjeto;
+				
 			});
 		};
 
 		$scope.getJerarquia = function(idjerarquia){
 			return Jerarquia.query({'id': idjerarquia});
+		};
+
+		$scope.habilitaPersonas = function(codplaza){
+			var per = PersonasByPuesto.query({'cod_plaza': codplaza}, function(){
+				for(var i = 0; i < per.length; i++){
+					per.habilitado = true;
+					per.$update(function(){
+						$log.debug('Persona habilitada');
+					});
+				}
+			});			
 		};
 
 		$scope.crearpermiso2 = function(spersona, w_option, grantoption, psuperuser, permisoallogin){
@@ -313,7 +420,9 @@
 				return;
 			}
 			var loginpersona = partes[0];
-			if ($scope.procedimiento_seleccionado
+			
+			// Cambio de responsable del procedimiento / entidadobjeto
+			if ($scope.seleccionado_procedimiento
 				&& $scope.propietario
 				&& $rootScope.permisoscalculados.procedimientosescritura.indexOf($scope.procedimiento_seleccionado.codigo) > 0 ){
 
@@ -325,27 +434,39 @@
 				var proc = Procedimiento.get({'codigo': $scope.procedimiento_seleccionado.codigo}, function(){
 					proc.cod_plaza = codplaza;
 					proc.$update(function(){
-						var per = PersonasByPuesto.query({'cod_plaza': codplaza}, function(){
-							for(var i = 0; i < per.length; i++){
-								per.habilitado = true;
-								per.$update(function(){
-									$log.debug('Persona habilitada');
-								});
-							}
-						});
+						$scope.habilitaPersonas(codplaza);
 					});
 				});
 				return;
-			} else if ($rootScope.permisoscalculados.jerarquiaescritura.indexOf($scope.seleccionado.id) === -1
+			} else if ($scope.carta_seleccionada
+					&& $scope.propietario //¿?
+					&& $rootScope.permisoscalculados.entidadobjetoescritura.indexOf($scope.carta_seleccionada._id) > 0 ){
+
+				if (partes.length < 2) {
+					$window.alert('No se encuentra el código de plaza de la persona buscada');
+					return;
+				}
+				
+				var codplaza = partes[1];
+				var eo = EntidadObjeto.get({'_id': $scope.carta_seleccionada._id}, function(){
+					eo.responsable = codplaza;
+					eo.$update(function(){
+						$scope.habilitaPersonas(codplaza);
+					});
+				});
+				return;				
+			} 
+			else if ($rootScope.permisoscalculados.jerarquiaescritura.indexOf($scope.seleccionado.id) === -1
 					&& $rootScope.permisoscalculados.jerarquialectura.indexOf($scope.seleccionado.id) === -1){
 				$window.alert('No tiene permiso sobre este nodo');
 				return;
 			}
 
+			// Caso en que no se trata de un cambio de responsable.
 			var permiso, persona;
 			var deferred = $q.defer();
 			var promise = deferred.promise;
-
+			// buscamos la persona a la que tenemos que aplicar el permiso.
 			if (loginpersona !== '' && $scope.permisoallogin) {
 				persona = PersonasByLogin.query({login: loginpersona}, function(){
 					if (persona.length){
@@ -364,34 +485,41 @@
 				});
 			} else {
 				$log.log('ERROR ' + loginpersona + ' ; ' + $scope.permisoallogin);
+				deferred.reject();
 			}
 
-
+			// localizada la persona, asignamos el permiso
 			promise.then(function(persona){
 				permiso = {};
-
+				// si no es un permiso al login, se asigna a la plaza
 				if (!$scope.permisoallogin && persona.codplaza) {
 					permiso.codplaza = persona.codplaza;
+				// permiso al login
 				} else {
 					permiso.login = persona.login;
 				}
-
+				
+				// ¿tiene permiso de cesión de permisos?
 				if ($scope.cb_grantoption){
 					permiso.grantoption = true;
 				}
-
+				console.log('Dando permisos');
+				console.log($scope.carta_seleccionada);
+				// ¿es super user?
 				permiso.superuser = !!$scope.psuperuser;
-
+				// si se aplica a un nodo de orgánica, le atizamos un nodo de organica para lectura al menos
 				if ($scope.seleccionado_organica && $scope.seleccionado) {
 					permiso.jerarquiadirectalectura = [ $scope.seleccionado.id ];
 					permiso.jerarquialectura = [ $scope.seleccionado.id ];
+					// si tiene permiso de escritura, le atizamos permiso de escritura
 					if ($scope.w_option){
 						permiso.jerarquiadirectaescritura = [ $scope.seleccionado.id ];
 						permiso.jerarquiaescritura = [ $scope.seleccionado.id ];
 					}
 					permiso.procedimientosdirectalectura = [];
 					permiso.procedimientosdirectaescritura = [];
-				} else if ($scope.procedimiento_seleccionado) {
+				// idem para el caso de procedimientos
+				} else if ($scope.seleccionado_procedimiento) {
 					permiso.jerarquiadirectaescritura = [ ];
 					permiso.jerarquiadirectalectura = [ ];
 					permiso.procedimientosdirectalectura = [ $scope.procedimiento_seleccionado.codigo ];
@@ -400,8 +528,18 @@
 						permiso.procedimientosdirectaescritura = [ $scope.procedimiento_seleccionado.codigo ];
 						permiso.procedimientosescritura = [ $scope.procedimiento_seleccionado.codigo ];
 					}
+				} else if ($scope.carta_seleccionada) {
+					console.log('SE trata de una carta. Atizando permiso.')
+					permiso.jerarquiadirectaescritura = [ ];
+					permiso.jerarquiadirectalectura = [ ];
+					permiso.entidadobjetodirectalectura = [ $scope.carta_seleccionada._id ];
+					permiso.entidadobjetolectura = [ $scope.carta_seleccionada._id ];
+					if ($scope.w_option) {
+						permiso.entidadobjetodirectaescritura = [ $scope.carta_seleccionada._id ];
+						permiso.entidadobjetoescritura = [ $scope.carta_seleccionada._id ];
+					}
 				}
-
+				console.log(permiso);
 				Permiso.create(permiso, function(){
 					delete $scope.usuarioseleccionado;
 					$scope.nuevousuario = {};
@@ -411,6 +549,8 @@
 						$scope.setSeleccionado($scope.seleccionado);
 					}else if ($scope.procedimiento_seleccionado){
 						$scope.setProcSeleccionado($scope.procedimiento_seleccionado);
+					} else if ($scope.carta_seleccionada){
+						$scope.setCartaSeleccionada($scope.carta_seleccionada);
 					}
 					$window.alert('Permiso creado.');
 				});
@@ -427,9 +567,9 @@
 				$window.alert('No ha seleccionado ninguna persona');
 			}
 		};
-
+		
 		$scope.eliminarPermiso = function(permiso) {
-			if ($window.confirm('Si continúa se eliminará el permiso sobre el nodo ' + $scope.seleccionado.title)){
+			if ($window.confirm('Si continúa se eliminará el permiso sobre el nodo ')){
 				if ($scope.seleccionado_organica) {
 					$log.log('!$seleccionado_organica.. cargando proc ... so:' + $scope.seleccionado_organica + ' ; sdp ' + $scope.show_details_permiso);
 					PermisoToDelete.delete_permiso({'idpermiso': permiso._id, 'idjerarquia': $scope.seleccionado.id}, function(){
@@ -457,9 +597,12 @@
 						} else if ($scope.show_details_permiso){
 							$log.log('provocando usuariobuscando_selected');
 							$scope.on_usuariobuscado_selected($scope.usuariodetalle, null, null);
-						} else {
+						} else if ($scope.seleccionado_procedimiento){
 							$log.log('!$show_details_permiso.. cargando proc');
 							$scope.setProcSeleccionado($scope.procedimiento_seleccionado);
+						} else if ($scope.carta_seleccionada){
+							$log.log('cargando entidadobjeto') ;
+							$scope.setCartaSeleccionada($scope.carta_seleccionada);
 						}
 					}, function(err){
 						$log.error(err);
@@ -629,6 +772,9 @@
 				$scope.setSeleccionGenerico();
 				$scope.seleccionado = seleccionad;
 				$scope.seleccionado_organica = true;
+				$scope.seleccionado_procedimiento = false;
+				$scope.procedimiento_seleccionado = null;
+				$scope.carta_seleccionada = null;
 				$rootScope.setTitle(seleccionad.title);
 
 				//$scope.procedimientos = ProcedimientoList.query({idjerarquia:seleccionad.id});
@@ -640,9 +786,19 @@
 				var filtroRequest = {id: $scope.seleccionado.id};
 				$scope.nodo_jerarquia = Jerarquia.query(filtroRequest);
 				// si no están cargados los procedimientos del nodo actual, los cargamos
-				if (!$scope.seleccionado.procedimientos){
+				console.log('¿Tiene procedimientos o están cargados?')
+				console.log($scope.seleccionado);
+				if (!$scope.seleccionado.procedimientos || $scope.seleccionado.procedimientos.length !== $scope.seleccionado.numprocedimientos){
+					console.log('cargando procedimientos');
 					for(var i = 0; i < $scope.arbol.length; i++){
 						$scope.loadProcedimientos($scope.seleccionado, $scope.arbol[i]);
+					}				
+					console.log($scope.arbol);
+				} else console.log('Se supone que están cargados');
+				if (!$scope.seleccionado.cartas || $scope.seleccionado.cartas.length !== $scope.seleccionado.numcartas){
+					console.log('cargando cartas');
+					for(var i = 0;i < $scope.arbol.length; i++){
+						$scope.loadCartas($scope.seleccionado, $scope.arbol[i]);
 					}
 				}
 			}
@@ -653,11 +809,13 @@
 				$scope.setSeleccionGenerico();
 				$scope.procedimiento_seleccionado = procedimiento;
 				$scope.seleccionado_organica = false;
+				$scope.seleccionado_procedimiento = true;
+				$scope.carta_seleccionada = null;
 				$rootScope.setTitle('[' + procedimiento.codigo + '] ' + procedimiento.description);
 				var procesar_permisos_procedimiento = function(){
 					$scope.permisos = $scope.permisostotales;
 					$scope.procedimientos = [procedimiento];
-				};
+				};				
 				if ($scope.is_show_inherited_users) {
 					$scope.permisostotales = PermisosProcedimientoList.query({'codigoprocedimiento': $scope.procedimiento_seleccionado.codigo}, procesar_permisos_procedimiento);
 				} else {
@@ -665,6 +823,28 @@
 				}
 			}
 		};
+                
+		$scope.setCartaSeleccionada = function(carta){
+			if (carta){
+				$scope.setSeleccionGenerico();
+				$scope.carta_seleccionada = carta;                        
+				$scope.seleccionado_organica = false;
+				$scope.seleccionado_procedimiento = false;
+				$rootScope.setTitle('[' +  carta.codigo + '] ' + carta.denominacion);
+				var procesar_permisos_carta = function() {
+					$scope.permisos = $scope.permisostotales;
+					$scope.cartas = [carta];
+				};
+				
+				console.log('Solicitando permisos para la entidad '+$scope.carta_seleccionada._id);
+				console.log($scope.carta_seleccionada);
+				if ($scope.is_show_inherited_users){
+					$scope.permisostotales = PermisosEntidadObjetoList.query({'codigoentidadobjeto': $scope.carta_seleccionada._id}, procesar_permisos_carta);                         
+				} else {					
+					$scope.permisostotales = PermisosDirectosEntidadObjetoList.query({'codigoentidadobjeto':$scope.carta_seleccionada._id}, procesar_permisos_carta);
+				}
+			}
+		}
 
 		$scope.setSeleccionGenerico = function(){
 			$scope.show_form_add_permiso = false;
@@ -681,7 +861,7 @@
 		};
 
 		$scope.loadProcedimientos = function(seleccionado, nodo){
-			if (!seleccionado.procedimientos){
+			if (!seleccionado.procedimientos || seleccionado.procedimientos.length!==seleccionado.numprocedimientos){
 				if (seleccionado.id == nodo.id) {
 					// cargamos los procedimientos directamente asignados a este nodo. No recursivamente.
 					seleccionado.procedimientos = ProcedimientoList.query({idjerarquia: seleccionado.id, recursivo: 0});
@@ -691,11 +871,28 @@
 							$scope.loadProcedimientos(seleccionado, nodo.nodes[i]);
 						}
 					}
+					$scope.arbol = $scope.arbol;
 				}
 			} else{
-				$log.log('Ya están cargados');
+				$log.log('Ya están cargados... o no');
 			}
 		};
+                
+		$scope.loadCartas = function(seleccionado, nodo){
+			if (!seleccionado.cartas){
+				if (seleccionado.id == nodo.id){
+					seleccionado.cartas = EntidadObjetoList.query({idjerarquia:seleccionado.id, recursivo:0});
+				} else {
+					if (nodo.nodes){
+						for(var i=0;i<nodo.nodes.length;i++){
+							$scope.loadCartas(seleccionado, nodo.nodes[i]);
+						}
+					}
+				}
+			} else {
+				$log.log('Ya están cargadas')
+			}
+		}
 
 		$scope.colorText = $rootScope.colorText;
 
@@ -712,12 +909,18 @@
 					&& Array.isArray(permiso.jerarquiaescritura)
 					&& permiso.jerarquiaescritura.indexOf($scope.seleccionado.id) !== -1;
 			}
-			else {
+			else if ($scope.seleccionado_procedimiento) {
 				return typeof $scope.procedimiento_seleccionado !== 'undefined'
 					&& typeof $scope.procedimiento_seleccionado.codigo !== 'undefined'
 					&& typeof permiso.procedimientosescritura !== 'undefined'
 					&& Array.isArray(permiso.procedimientosescritura)
 					&& permiso.procedimientosescritura.indexOf($scope.procedimiento_seleccionado.codigo) !== -1;
+			} else if ($scope.carta_seleccionada){
+				return typeof $scope.carta_seleccionada !== 'undefined'
+					&& typeof $scope.carta_seleccionada._id !== 'undefined'
+					&& typeof permiso.entidadobjetoescritura !== 'undefined'
+					&& Array.isArray(permiso.entidadobjetoescritura)
+					&& permiso.entidadobjetoescritura.indexOf($scope.carta_seleccionada._id) !== -1;
 			}
 		};
 
@@ -729,50 +932,42 @@
 			e.preventDefault();
 		};
 
+		$scope.changeW_remove_w__template = function(permiso, attr_array_permiso, seleccionado, attr_id, nombre_entidad ) {
+			if (!Array.isArray(permiso[attr_array_permiso]) || permiso[attr_array_permiso].indexOf(seleccionado[attr_id]) === -1){
+				$window.alert('Este usuario no tiene un permiso directo sobre este '+nombre_entidad+'. Se trata de un permiso heredado. La operación no puede realizarse.');
+			} else if (Array.isArray(permiso[attr_array_permiso])) {
+				permiso[attr_array_permiso].splice(permiso[attr_array_permiso].indexOf(seleccionado[attr_id]), 1);
+			}
+		}
+		
+		$scope.changeW_add_w__template = function(permiso, attr_array_permiso, seleccionado, attr_id) {
+			if (Array.isArray(permiso[attr_array_permiso])){
+				if (permiso[attr_array_permiso].indexOf(seleccionado[attr_id]) === -1){
+					// esto no sería necesario si todo fuera sincronizado. Pero puede que ande esperando a que se haya actualizado 'jerarquiaescritura' en el servidor
+					permiso[attr_array_permiso].push(seleccionado[attr_id]);
+				}
+			}
+			else{
+				permiso[attr_array_permiso] = [ seleccionado[attr_id] ];
+			}			
+		}
+		
 		$scope.changeW = function(permiso) {
 			if ($scope.isW(permiso)) {
-				switch ($scope.seleccionado_organica) {
-					case true:
-						if (!Array.isArray(permiso.jerarquiadirectaescritura) || permiso.jerarquiadirectaescritura.indexOf($scope.seleccionado.id) === -1){
-							$window.alert('Este usuario no tiene un permiso directo sobre esta orgánica. Se trata de un permiso heredado. La operación no puede realizarse.');
-						} else if (Array.isArray(permiso.jerarquiadirectaescritura)) {
-							permiso.jerarquiadirectaescritura.splice(permiso.jerarquiadirectaescritura.indexOf($scope.seleccionado.id), 1);
-						}
-						break;
-					case false:
-						if (!Array.isArray(permiso.procedimientosdirectaescritura) || permiso.procedimientosdirectaescritura.indexOf($scope.procedimiento_seleccionado.codigo) === -1){
-							$window.alert('Este usuario no tiene un permiso directo sobre este procedimiento. Se trata de un permiso heredado. La operación no puede realizarse.');
-						} else if (Array.isArray(permiso.procedimientosdirectaescritura)){
-							permiso.procedimientosdirectaescritura.splice(permiso.procedimientosdirectaescritura.indexOf($scope.procedimiento_seleccionado.codigo), 1);
-						}
-						break;
+				if ($scope.seleccionado_organica) {
+					$scope.changeW_remove_w__template(permiso, 'jerarquiadirectaescritura', $scope.seleccionado, 'id', 'nodo de orgánica');
+				} else if ($scope.seleccionado_procedimiento){
+					$scope.changeW_remove_w__template(permiso, 'procedimientosdirectaescritura', $scope.procedimiento_seleccionado, 'codigo', 'procedimiento' );
+				} else if ($scope.carta_seleccionada){
+					$scope.changeW_remove_w__template(permiso, 'entidadobjetodirectaescritura', $scope.carta_seleccionada, '_id', 'carta');
 				}
 			} else {
-				switch ($scope.seleccionado_organica) {
-					case true:
-							if (Array.isArray(permiso.jerarquiadirectaescritura)){
-								if (permiso.jerarquiadirectaescritura.indexOf($scope.seleccionado.id) === -1){
-									// esto no sería necesario si todo fuera sincronizado. Pero puede que ande esperando a que se haya actualizado 'jerarquiaescritura' en el servidor
-									permiso.jerarquiadirectaescritura.push($scope.seleccionado.id);
-								}
-							}
-							else{
-								permiso.jerarquiadirectaescritura = [ $scope.seleccionado.id ];
-							}
-
-						break;
-					case false:
-							if (Array.isArray(permiso.procedimientosdirectaescritura)){
-								if (permiso.procedimientosdirectaescritura.indexOf($scope.seleccionado.id) === -1){
-									// esto no sería necesario si todo fuera sincronizado. Pero puede que ande esperando a que se haya actualizado 'procedimientoescritura' en el servidor
-									permiso.procedimientosdirectaescritura.push($scope.procedimiento_seleccionado.codigo);
-								}
-							}
-							else{
-								permiso.procedimientosdirectaescritura = [$scope.procedimiento_seleccionado.codigo];
-							}
-
-						break;
+				if ($scope.seleccionado_organica) {
+					$scope.changeW_add_w__template(permiso, 'jerarquiadirectaescritura', $scope.seleccionado, 'id');
+				} else if ($scope.seleccionado_procedimiento) {
+					$scope.changeW_add_w__template(permiso, 'procedimientosdirectaescritura', $scope.procedimiento_seleccionado, 'codigo');
+				} else if ($scope.carta_seleccionada){
+					$scope.changeW_add_w__template(permiso, 'entidadobjetodirectaescritura', $scope.carta_seleccionada, '_id');
 				}
 			}
 			Permiso.update({id: permiso._id}, permiso, function(npermiso){
@@ -780,10 +975,14 @@
 					permiso.jerarquiadirectaescritura = npermiso.jerarquiadirectaescritura;
 					permiso.jerarquiaescritura = npermiso.jerarquiaescritura;
 					$scope.setSeleccionado($scope.seleccionado);
-				} else if ($scope.procedimiento_seleccionado){
+				} else if ($scope.seleccionado_procedimiento){
 					permiso.procedimientosdirectaescritura = npermiso.procedimientosdirectaescritura;
 					permiso.procedimientosescritura = npermiso.procedimientosescritura;
 					$scope.setProcSeleccionado($scope.procedimiento_seleccionado);
+				} else if ($scope.carta_seleccionada){
+					permiso.entidadobjetodirectaescritura = npermiso.entidadobjetodirectaescritura;
+					permiso.entidadobjetoescritura = npermiso.entidadobjetoescritura;
+					$scope.setCartaSeleccionada($scope.carta_seleccionada);
 				}
 			});
 		};
@@ -826,6 +1025,10 @@
 				$scope.cachepersonas = [];
 			}
 
+			if (busqueda===null){
+				return '';
+			}
+
 			if (typeof $scope.cachepersonas[busqueda] !== 'undefined') {
 				p = $scope.cachepersonas[busqueda];
 				$log.log('devolviendo de cache para busqueda: ' + busqueda);
@@ -854,11 +1057,20 @@
 				TODO: bug, p no es lo que aparenta en las líneas señaladas, para entonces p ya ha sido retornado.
 			*/
 		};
-		$scope.getResponsable = function(procedimiento){
+		
+		$scope.getResponsable = function(procedimiento_o_carta){
 			var p = [];
-			if (typeof procedimiento.cod_plaza !== 'undefined' && procedimiento.cod_plaza){
-				p = PersonasByPuesto.query({'cod_plaza': procedimiento.cod_plaza});
+			var procedimiento;
+			var entidadobjeto;
+			// si es un procedimiento
+			if (typeof procedimiento_o_carta.cod_plaza !== 'undefined' && procedimiento_o_carta.cod_plaza){
+				p = PersonasByPuesto.query({'cod_plaza': procedimiento_o_carta.cod_plaza});
+			// si es una entidadobjeto
+			} else if (procedimiento_o_carta && typeof procedimiento_o_carta.responsable !== 'undefined' && procedimiento_o_carta.responsable ){
+				console.log('Solicitando permisos para carta con código plaza : '+ procedimiento_o_carta.responsable);
+				p = PersonasByPuesto.query({'cod_plaza': procedimiento_o_carta.responsable});
 			}
+			
 			return p;
 		};
 
@@ -877,7 +1089,7 @@
 					persona.habilitado = true;
 				});
 			}
-		};
+		};                                
 	}]);
 
 })(angular);

@@ -10,6 +10,7 @@
 		settings: { version: Number, 'secret': String, 'secret2': String, 'anyo': String, 'port': Number, 'urlbasedecrypt': String, logincarm: Boolean, ws_url: String, ws_user: String, ws_pwd: String, downloadhashprefix: String },
 		reglasinconsistencias: { 'titulo': String, 'restriccion': String},
 		historico: {},
+		historicoindicador: {},
 		//periodo: { a2013:[Number], a2014:[Number], a2015:[Number] },
 		periodo: {},
 		feedback: {
@@ -43,11 +44,15 @@
 			'jerarquiaescritura': [Number],/*calculados, cacheados*/
 			'procedimientoslectura': [String],  /*calculados, cacheados*/
 			'procedimientosescritura': [String],  /*calculados, cacheados*/
+            'entidadobjetolectura': [String],  /*calculados, cacheados*/
+            'entidadobjetoescritura': [String], /*calculados, cacheados*/
 
 			'jerarquiadirectalectura': [Number], /*reales, asignados*/
 			'jerarquiadirectaescritura': [Number], /*reales, asignados*/
 			'procedimientosdirectalectura': [String], /*reales, asignados*/
 			'procedimientosdirectaescritura': [String], /*reales, asignados*/
+            'entidadobjetodirectalectura': [String],  /*reales, asignados*/
+            'entidadobjetodirectaescritura': [String], /*reales, asignados*/
 
 			'caducidad': Date,
 			'descripcion': String,
@@ -131,7 +136,7 @@
 			'fuera_plazo': [Number],
 			'pendientes': [Number],
 			'periodoscerrados': [Number],
-			'totalsolicitudes': Number,
+			'totalsolicitudes': Number, 
 			'Incidencias': {
 				'Se han resuelto expedientes fuera de Plazo': [Number],
 				'Aumenta el N de expedientes pendientes': [Number],

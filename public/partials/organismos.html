@@ -50,13 +50,120 @@
 											<span ng-class="{'bg-danger':elem.id==seleccionado.id }" ng-click="setSeleccionado(elem)" class="cursor" title="{{elem.title}}">
 												{{elem.title}}
 											</span>
-											</p>
+                                                                                </p>
+                                                                                <ul ng-if="showprocedimientos && elem.procedimientos" style="clear:both;padding-left:0.3em" class="list-group">
+                                                                                    <li ng-repeat="proc in elem.procedimientos | filter:texto " ng-show="elem.id == seleccionado.id" class="organica_proc list-group-item list-group-item-warning">
+                                                                                            <p>
+                                                                                                    <strong>
+                                                                                                            [{{proc.codigo}}] &nbsp;
+                                                                                                    </strong>
+                                                                                                    <span  ng-click="setProcSeleccionado(proc)" class="cursor">
+                                                                                                            {{proc.denominacion}}
+                                                                                                    </span>
+                                                                                            </p>
+                                                                                    </li>                                                                            
+                                                                                    <li ng-if="!elem.procedimientos"><i>Cargando...</i></li>                                                                            
+                                                                                </ul>
+                                                                                <ul ng-if="showcartas && elem.cartas" style="clear:both;padding-left:0.3em;" class="list-group">
+                                                                                    <li ng-repeat="carta in elem.cartas | filter:texto " ng-show="elem.id == seleccionado.id" class="organica_proc list-group-item list-group-item-info">
+                                                                                            <p>
+                                                                                                    <strong>
+                                                                                                            [{{carta.codigo}}] &nbsp;
+                                                                                                    </strong>
+                                                                                                    <span  ng-click="setCartaSeleccionada(carta)" class="cursor">
+                                                                                                            {{carta.denominacion}}
+                                                                                                    </span>
+                                                                                            </p>
+                                                                                    </li>                                                                            
+                                                                                    <li ng-if="!elem.cartas"><i>Cargando...</i></li>                                                                            
+                                                                                </ul>                                                                        
+                                                                                
 										</li>
 									</ul>
+                                                                        <ul ng-if="showprocedimientos && eleme.procedimientos" style="clear:both;padding-left:0.3em" class="list-group">
+                                                                            <li ng-repeat="proc in eleme.procedimientos | filter:texto " ng-show="eleme.id == seleccionado.id" class="organica_proc list-group-item list-group-item-warning">
+                                                                                    <p>
+                                                                                            <strong>
+                                                                                                    [{{proc.codigo}}] &nbsp;
+                                                                                            </strong>
+                                                                                            <span  ng-click="setProcSeleccionado(proc)" class="cursor">
+                                                                                                    {{proc.denominacion}}
+                                                                                            </span>
+                                                                                    </p>
+                                                                            </li>                                                                            
+                                                                            <li ng-if="!eleme.procedimientos"><i>Cargando...</i></li>                                                                            
+                                                                        </ul>
+                                                                        <ul ng-if="showcartas && eleme.cartas" style="clear:both;padding-left:0.3em; " class="list-group">
+                                                                            <li ng-repeat="carta in eleme.cartas | filter:texto " ng-show="eleme.id == seleccionado.id" class="organica_proc list-group-item list-group-item-info">
+                                                                                    <p>
+                                                                                            <strong>
+                                                                                                    [{{carta.codigo}}] &nbsp;
+                                                                                            </strong>
+                                                                                            <span  ng-click="setCartaSeleccionada(carta)" class="cursor">
+                                                                                                    {{carta.denominacion}}
+                                                                                            </span>
+                                                                                    </p>
+                                                                            </li>                                                                            
+                                                                            <li ng-if="!eleme.cartas"><i>Cargando...</i></li>                                                                            
+                                                                        </ul>                                                                        
 								</li>
 							</ul>
+                                                        <ul ng-if="showprocedimientos && elemen.procedimientos" style="clear:both;padding-left:0.3em" class="list-group">
+                                                            <li ng-repeat="proc in elemen.procedimientos | filter:texto " ng-show="elemen.id == seleccionado.id" class="organica_proc list-group-item list-group-item-warning">
+                                                                    <p>
+                                                                            <strong>
+                                                                                    [{{proc.codigo}}] &nbsp;
+                                                                            </strong>
+                                                                            <span  ng-click="setProcSeleccionado(proc)" class="cursor">
+                                                                                    {{proc.denominacion}}
+                                                                            </span>
+                                                                    </p>
+                                                            </li>
+                                                            <li ng-if="!elemen.procedimientos"><i>Cargando...</i></li>                                                                            
+                                                        </ul>
+                                                        <ul ng-if="showcartas && elemen.cartas" style="clear:both;padding-left:0.3em; " class="list-group">
+                                                            <li ng-repeat="carta in elemen.cartas | filter:texto " ng-show="elemen.id == seleccionado.id" class="organica_proc list-group-item list-group-item-info">
+                                                                    <p>
+                                                                            <strong>
+                                                                                    [{{carta.codigo}}] &nbsp;
+                                                                            </strong>
+                                                                            <span  ng-click="setCartaSeleccionada(carta)" class="cursor">
+                                                                                    {{carta.denominacion}}
+                                                                            </span>
+                                                                    </p>
+                                                            </li>                                                                            
+                                                            <li ng-if="!elemen.cartas"><i>Cargando...</i></li>                                                                            
+                                                        </ul>                                                                        
+                                                        
 						</li>
 					</ul>
+                                        <ul ng-if="showprocedimientos && element.procedimientos" style="clear:both;padding-left:0.3em" class="list-group">
+                                            <li ng-repeat="proc in element.procedimientos | filter:texto " ng-show="element.id == seleccionado.id" class="organica_proc list-group-item list-group-item-warning">
+                                                    <p>
+                                                            <strong>
+                                                                    [{{proc.codigo}}] &nbsp;
+                                                            </strong>
+                                                            <span  ng-click="setProcSeleccionado(proc)" class="cursor">
+                                                                    {{proc.denominacion}}
+                                                            </span>
+                                                    </p>
+                                            </li>
+                                            <li ng-if="!element.procedimientos"><i>Cargando...</i></li>                                                                            
+                                        </ul>
+                                        <ul ng-if="showcartas && element.cartas" style="clear:both;padding-left:0.3em; " class="list-group">
+                                            <li ng-repeat="carta in element.cartas | filter:texto " ng-show="element.id == seleccionado.id" class="organica_proc list-group-item list-group-item-info">
+                                                    <p>
+                                                            <strong>
+                                                                    [{{carta.codigo}}] &nbsp;
+                                                            </strong>
+                                                            <span  ng-click="setCartaSeleccionada(carta)" class="cursor">
+                                                                    {{carta.denominacion}}
+                                                            </span>
+                                                    </p>
+                                            </li>                                                                            
+                                            <li ng-if="!element.cartas"><i>Cargando...</i></li>                                                                            
+                                        </ul>                                                                        
+                                        
 				</li>
 			</ul>
 		</div>

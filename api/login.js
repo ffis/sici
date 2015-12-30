@@ -4,6 +4,7 @@ function calcularPermisos(permisos) {
 	var permisoscalculados = {
 		jerarquialectura: [], jerarquiaescritura: [],
 		procedimientoslectura: [], procedimientosescritura: [],
+		entidadobjetolectura : [], entidadobjetoescritura: [],
 		superuser: false,
 		grantoption: false
 	};
@@ -15,6 +16,7 @@ function calcularPermisos(permisos) {
 			permisoscalculados.superuser = permisoscalculados.superuser || permisos[i].superuser;
 			permisoscalculados.jerarquiaescritura = permisoscalculados.jerarquiaescritura.concat( permisos[i].jerarquiaescritura);
 			permisoscalculados.procedimientosescritura = permisoscalculados.procedimientosescritura.concat( permisos[i].procedimientosescritura);
+			permisoscalculados.entidadobjetoescritura = permisoscalculados.entidadobjetoescritura.concat ( permisos[i].entidadobjetoescritura);
 			permisoscalculados.grantoption = permisoscalculados.grantoption || permisos[i].grantoption;
 			//o.permisos.push( permisos[i] );
 		}
@@ -33,6 +35,13 @@ function calcularPermisos(permisos) {
 				permisoscalculados.procedimientoslectura.push( permisos[i].procedimientoslectura[k]);
 			}
 		}
+		for(k = 0, l = permisos[i].entidadobjetolectura.length; k < l; k++){
+			if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime()) &&
+				(permisoscalculados.entidadobjetoescritura.indexOf(permisos[i].entidadobjetolectura[k]) === -1 ) )
+			{
+				permisoscalculados.entidadobjetolectura.push( permisos[i].entidadobjetolectura[k]);
+			}
+		}		
 	}
 
 	return permisoscalculados;

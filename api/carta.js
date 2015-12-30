@@ -105,7 +105,17 @@
 			var indicadormodel = models.indicador();
 			if (typeof req.params.id !== 'undefined'){
 				var id = req.params.id;
-				indicadormodel.findOne({_id: id}, function(err, indicador){
+				var restriccion = { _id : models.ObjectId(id) };
+				if (!req.user.permisoscalculados.superuser) {
+					restriccion['$or'] = [
+						{
+							'idjerarquia': {'$in': req.user.permisoscalculados.jerarquiaescritura.concat(req.user.permisoscalculados.jerarquiadirectaescritura)}
+						},
+						{
+							'responsable': {'$in': req.user.permisoscalculados.entidadobjetodirectaescritura.concat(req.user.permisoscalculados.entidadobjetoescritura)}
+						}];
+				}
+				indicadormodel.findOne(restriccion, function(err, indicador){
 					if (err){
 						res.status(500).json({'error': 'An error has occurred', details: err});
 						return;
@@ -114,8 +124,26 @@
 				});
 			}else{
 				var restricciones = {};
+				if (!req.user.permisoscalculados.superuser) {
+					restricciones['$or'] = [
+						{
+							'idjerarquia': {'$in': req.user.permisoscalculados.jerarquiaescritura.concat(req.user.permisoscalculados.jerarquiadirectaescritura)}
+						},
+						{
+							'responsable': {'$in': req.user.permisoscalculados.entidadobjetodirectaescritura.concat(req.user.permisoscalculados.entidadobjetoescritura)}
+						}];
+				}
 				if (typeof req.query.idjerarquia !== 'undefined'){
-					restricciones.idjerarquia = parseInt(req.query.idjerarquia);
+					if (typeof restricciones['$or'] !== 'undefined'){
+						var restriccionesaux = {};
+						restriccionesaux['$and'] = [
+							restricciones,
+							{'idjerarquia': parseInt(req.query.idjerarquia)}
+						];
+						restricciones = restriccionesaux;
+					} else {
+						restricciones.idjerarquia = parseInt(req.query.idjerarquia);
+					}
 				}
 				indicadormodel.find(restricciones, function(err, indicadores){
 					if (err){
@@ -133,85 +161,103 @@
 			if (typeof req.params.id !== 'undefined'){
 				var indicadormodel = models.indicador();
 				var objetivomodel = models.objetivo();
-				var id = req.params.id;
-				if (req.user.permisoscalculados.superuser){
-					objetivomodel.find({'formulas.indicadores': models.ObjectId(id)}, function(err, objetivos){
-						if (err){
-							res.status(500).json({'error': 'An error has occurred', details: err});
-							return;
-						}
-						if (objetivos && objetivos.length > 0){
-							var vinculado = objetivos.map(function(o){ return o.denominacion; }).join(' | ');
-							res.status(403).json({'error': 'No se permite eliminar un indicador vinculado a un objetivo', details: vinculado});
-						}else{
-							var content = req.body;
-							indicadormodel.remove({'_id': id}, function(e){
-								if (e){
-									res.status(400).json({'error': 'An error has occurred'});
-								}else{
-									res.json(content);
-								}
-							});
-						}
-					});
-				}else{
-					res.status(403).json({'error': 'Not allowed'});
-					/* not allowed */
-				}
+				var id = req.params.id;		
+				indicadormodel.findOne({_id: models.ObjectId(id)}, function(err, indicador){
+					if (err){
+						res.status(500).json({'error': 'An error has occurred', details: err});
+						return;						
+					}
+					if (req.user.permisoscalculados.superuser || 
+						req.user.permisoscalculados.jerarquiadirectalectura.indexOf(indicador.idjerarquia)!==-1 ||
+						req.user.permisoscalculados.jerarquialectura.indexOf(indicador.idjerarquia)!==-1){
+						objetivomodel.find({'formulas.indicadores': models.ObjectId(id)}, function(err, objetivos){
+							if (err){
+								res.status(500).json({'error': 'An error has occurred', details: err});
+								return;
+							}
+							if (objetivos && objetivos.length > 0){
+								var vinculado = objetivos.map(function(o){ return o.denominacion; }).join(' | ');
+								res.status(403).json({'error': 'No se permite eliminar un indicador vinculado a un objetivo', details: vinculado});
+							}else{
+								var content = req.body;
+								indicadormodel.remove({'_id': models.ObjectId(id)}, function(e){
+									if (e){
+										res.status(400).json({'error': 'An error has occurred'});
+									}else{
+										res.json(content);
+									}
+								});
+							}
+						});
+					}else{
+						res.status(403).json({'error': 'Not allowed'});
+						/* not allowed */
+					}
+				});							
 			}else{
 				res.status(404).json({'error': 'Not found'});
 			}
 		};
 	};
-	module.exports.actualizaindicador = function(models){
+	module.exports.actualizaindicador = function(models, Q){
 		return function(req, res){
 			if (typeof req.params.id !== 'undefined'){
 				var attr, i, j,
 					indicadormodel = models.indicador(),
 					id = req.params.id,
 					actualizacion = req.body;
-				indicadormodel.findOne({_id: id}, function(err, indicador){
+				indicadormodel.findOne({_id: models.ObjectId(id)}, function(err, indicador){
 					if (err){
 						res.status(500).json({'error': 'An error has occurred', details: err});
 						return;
 					}
-					if (indicador){
-						if (req.user.permisoscalculados.superuser){
-							indicador.nombre = actualizacion.nombre;
-							indicador.resturl = actualizacion.resturl;
-							indicador.vinculacion = actualizacion.vinculacion;
-							indicador.acumulador = actualizacion.acumulador;
-							indicador.frecuencia = actualizacion.frecuencia;
-							indicador.pendiente = actualizacion.pendiente;
-						}
+					if (indicador && 
+							(req.user.permisoscalculados.superuser ||
+								req.user.permisoscalculados.jerarquiaescritura.indexOf(indicador.idjerarquia)!==-1 ||
+								req.user.permisoscalculados.jerarquiadirectaescritura.indexOf(indicador.idjerarquia)!==-1)
+						){
+						module.exports.saveVersion(models, Q, indicador).then(function(){
 
-						if (indicador.acumulador === 'sum'){
-							for(attr in indicador.valores){
-								var suma = 0;
-								for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
-									indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseInt(actualizacion.valores[attr][i]);
-									suma += indicador.valores[attr][i];
+							if (req.user.permisoscalculados.superuser){
+								indicador.nombre = actualizacion.nombre;
+								indicador.resturl = actualizacion.resturl;
+								indicador.vinculacion = actualizacion.vinculacion;
+								indicador.acumulador = actualizacion.acumulador;
+								indicador.frecuencia = actualizacion.frecuencia;
+								indicador.pendiente = actualizacion.pendiente;
+							}
+
+							if (indicador.acumulador === 'sum'){
+								for(attr in indicador.valores){
+									var suma = 0;
+									for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
+										indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseInt(actualizacion.valores[attr][i]);
+										suma += indicador.valores[attr][i];
+									}
+									indicador.valores[attr][ indicador.valores[attr].length - 1 ] = suma;
 								}
-								indicador.valores[attr][ indicador.valores[attr].length - 1 ] = suma;
 							}
-						}
-						for(attr in indicador.observaciones){
-							for (i = 0, j = indicador.observaciones[attr].length; i < j; i++){
-								indicador.observaciones[attr][i] = actualizacion.observaciones[attr][i].trim();
+							for(attr in indicador.observaciones){
+								for (i = 0, j = indicador.observaciones[attr].length; i < j; i++){
+									indicador.observaciones[attr][i] = actualizacion.observaciones[attr][i].trim();
+								}
 							}
-						}
-						indicador.markModified('valores');
-						indicador.markModified('observaciones');
-						indicador.markModified('medidas');
-						indicador.fechaversion = new Date();
+							indicador.markModified('valores');
+							indicador.markModified('observaciones');
+							indicador.markModified('medidas');
+							indicador.fechaversion = new Date();
 
-						indicador.save(function(erro, doc){
-							if (erro){
-								res.status(500).json({'error': 'An error has occurred', details: erro});
-							}else{
-								res.json(doc);
-							}
+							indicador.save(function(erro, doc){
+								if (erro){
+									res.status(500).json({'error': 'An error has occurred', details: erro});
+								}else{
+									res.json(doc);
+								}
+							});
+						}, function(e){
+								res.status(500).json({'error': 'An error has occurred', details: e});
 						});
+
 					}else{
 						res.status(404).json({'error': 'Not found'});
 					}
@@ -230,8 +276,10 @@
 					if (erro){
 						res.status(500).json({'error': 'An error has occurred', details: erro});
 						return;
-					}
-					if (objetivo){
+					}					
+					if (objetivo && (req.user.permisoscalculados.superuser || 
+								req.user.permisoscalculados.entidadobjetodirectaescritura.indexOf(''+objetivo.carta)!==-1 ||
+								req.user.permisoscalculados.entidadobjetoescritura.indexOf(''+objetivo.carta)!==-1)){
 						for(var attr in req.body){
 							//TODO: change this naive
 							objetivo[attr] = req.body[attr];
@@ -258,9 +306,16 @@
 		return function(req, res){
 			var Objetivo = models.objetivo();
 			if (typeof req.params.id !== 'undefined'){
-				Objetivo.findOne({ '_id': models.ObjectId(req.params.id) }, function(erro, objetivo){
+				var restriccion = { '_id': models.ObjectId(req.params.id) };
+				Objetivo.findOne(restriccion, function(erro, objetivo){
 					if (erro){
 						res.status(500).json({'error': 'An error has occurred', details: erro});
+						return;
+					}
+					if (!(req.user.permisoscalculados.superuser ||
+						req.user.permisoscalculados.entidadobjetodirectalectura.indexOf(''+objetivo.carta)!==-1 ||
+						req.user.permisoscalculados.entidadobjetolectura.indexOf(''+objetivo.carta))){
+						res.status(403).json({'error': 'Not allowed'});		
 						return;
 					}
 					if (!objetivo){ res.json(objetivo); return; }
@@ -574,28 +629,39 @@
 				formula = req.body.formula,
 				objetivomodel = models.objetivo();
 				console.log(idobjetivo);
-			if (idobjetivo && req.user.permisoscalculados.superuser){
+			if (idobjetivo){
 				objetivomodel.findOne({'_id': models.ObjectId(idobjetivo) }, function (err, objetivo) {
 					if (err){
 						res.status(500).json({'error': 'An error has occurred', details: err});
 						return;
-					}else if (objetivo){
-						if (typeof objetivo.formulas[parseInt(indiceformula)] !== 'undefined'){
-							objetivo.formulas[parseInt(indiceformula)].computer = formula;
-							objetivo.markModified('formulas');
-							objetivomodel.update({'_id': models.ObjectId(objetivo._id)}, objetivo, function(error, e){
-								if (error){
-									res.status(500).json({'error': 'Error during update', details: error});
-								}else{
-									res.json(objetivo);
-								}
-							});
-						}else{
-							res.status(404).json({'error': 'Not found3'});
+					}
+					
+					if (objetivo){
+						
+						if (req.user.permisoscalculados.superuser ||
+							req.user.permisoscalculados.entidadobjetodirectaescritura.indexOf(''+objetivo.carta) || 
+							req.user.permisoscalculados.entidadobjetoescritura.indexOf(''+objetivo.carta)) {
+						
+							if (typeof objetivo.formulas[parseInt(indiceformula)] !== 'undefined'){
+								objetivo.formulas[parseInt(indiceformula)].computer = formula;
+								objetivo.markModified('formulas');
+								objetivomodel.update({'_id': models.ObjectId(objetivo._id)}, objetivo, function(error, e){
+									if (error){
+										res.status(500).json({'error': 'Error during update', details: error});
+									}else{
+										res.json(objetivo);
+									}
+								});
+							}else{
+								res.status(404).json({'error': 'Not found3'});
+							}
+
+						} else {
+							res.status(403).json({'error': 'Not allowed'});
 						}
 					}else{
 						res.status(404).json({'error': 'Not found2'});
-					}
+					}						
 				});
 			} else {
 				res.status(404).json({'error': 'Not valid params'});
@@ -611,7 +677,12 @@
 				objetivomodel = models.objetivo(),
 				entidadobjetomodel = models.entidadobjeto();
 
-			if (id && req.user.permisoscalculados.superuser){
+			if (id && 
+					(req.user.permisoscalculados.superuser 
+						|| req.user.permisoscalculados.entidadobjetoescritura.indexOf(id)
+						|| req.user.permisoscalculados.entidadobjetodirectaescritura.indexOf(id)
+					)
+				){
 				entidadobjetomodel.findOne({'_id': models.ObjectId(req.params.id) }, function (err, carta) {
 					if (err){
 						res.status(500).json({'error': 'An error has occurred', details: err});
@@ -642,7 +713,7 @@
 					}
 				});
 			}else{
-				res.status(404).json({'error': 'Not valid params'});
+				res.status(403).json({'error': 'Not allowed'});
 			}
 		};
 	};
@@ -653,7 +724,7 @@
 				id = req.params.id,
 				indicadormodel = models.indicador(),
 				objetivomodel = models.objetivo();
-			if (id){
+			if (id && req.user.permisoscalculados.superuser){
 				entidadobjeto.findOne({'_id': id}, function (err, data) {
 					if (err){
 						res.status(500).json({'error': 'An error has occurred', details: err});
@@ -689,5 +760,23 @@
 			}
 		};
 	};
+	
+	module.exports.saveVersion = function (models, Q, indicador) {
+		var defer = Q.defer();
+		var Historico = models.historicoindicador();
+		var v = JSON.parse(JSON.stringify(indicador));
+		delete v._id;
+		var version = new Historico(v);
+		version.save(function (err) {
+			if (err){
+				defer.reject(err);
+			}
+			else{
+				defer.resolve();
+			}
+		});
+		return defer.promise;
+	};
+	
 
 })(module);

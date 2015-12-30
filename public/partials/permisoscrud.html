@@ -11,132 +11,10 @@
 				</div>
 			</div>
 		</div>
-		<br/>
-		<div class="panel panel-danger">
-			<div class="panel-heading">
-				<h3 class="panel-title">
-					Organismos
-				</h3>
-			</div>
-			<div class="panel-body">
-				<input type="text" ng-model="texto.$" placeholder="Filtro" style="margin-bottom:1em" class="form-control"/>
-				<ul ng-if="arbol.length" style="padding-left:0.6em">
-					<li ng-repeat="element in arbol |filter:texto| filter:filtrojerarquia" ng-class="{'list-group-item-warning':element.id==seleccionado.id}">
-						<p>
-						<strong>
-							[{{element.id}}] &nbsp;
-						</strong>
-						<span ng-click="setSeleccionado(element)" class="cursor"  title="Engloba {{element.numprocedimientos}} procedimientos">
-							{{element.title}}
-						</span>
-						<span class="badge pull-right">{{element.numprocedimientos}}</span>
-						</p>
-						<ul ng-if="element.id == seleccionado.id" class="bg-warning organica_proc">
-							<li ng-repeat="proc in element.procedimientos | filter:texto " ng-show="element.id == seleccionado.id" class="organica_proc list-group-item-warning">
-								<p>
-									<strong>
-										[{{proc.codigo}}] &nbsp;
-									</strong>
-									<span ng-class="{'bg-warning':element.id==seleccionado.id }" ng-click="setProcSeleccionado(proc)" class="cursor">
-										{{proc.denominacion}}
-									</span>
-								</p>
-							</li>
-
-							<li ng-if="!element.procedimientos"><i>Cargando...</i></li>
-						</ul>
-						<ul class="list-group" ng-if="element.nodes" style="clear:both">
-							<li class="list-group-item" ng-repeat="elemen in element.nodes |filter:texto | filter:filtrojerarquia" ng-class="{'list-group-item-danger':elemen.id==seleccionado.id}">
-							<p>
-								<strong>
-									[{{elemen.id}}] &nbsp;
-								</strong>
-								<span ng-click="setSeleccionado(elemen)" class="cursor" title="Engloba {{elemen.numprocedimientos}} procedimientos">
-									{{elemen.title}}
-								</span>
-								<span class="badge pull-right">{{elemen.numprocedimientos}}</span>
-								<ul ng-if="elemen.id == seleccionado.id" class="bg-warning organica_proc">
-								</p>
-									<li ng-repeat="proc in elemen.procedimientos | filter:texto " ng-show="elemen.id == seleccionado.id" class="organica_proc list-group-item-warning">
-										<p>
-											<strong>
-												[{{proc.codigo}}] &nbsp;
-											</strong>
-											<span ng-class="{'bg-warning':elemen.id==seleccionado.id }" ng-click="setProcSeleccionado(proc)" class="cursor">
-												{{proc.denominacion}}
-											</span>
-										</p>
-									</li>
-
-									<li ng-if="!elemen.procedimientos"><i>Cargando...</i></li>
-								</ul>
-								<ul ng-if="elemen.nodes" style="clear:both">
-									<li ng-repeat="eleme in elemen.nodes |filter:texto |filter:filtrojerarquia"  ng-class="{'list-group-item-danger':eleme.id==seleccionado.id}" >
-									<p>
-										<strong>
-											[{{eleme.id}}] &nbsp;
-										</strong>
-										<span ng-class="{'bg-danger':eleme.id==seleccionado.id }" ng-click="setSeleccionado(eleme)" class="cursor" title="Engloba {{eleme.numprocedimientos}} procedimientos">
-											{{eleme.title}}
-										</span>
-										<!--<span class="badge alert-success pull-right">
-											<a href="#" ng-click="addPermiso(eleme)" class="addPermiso">
-												<span class="glyphicon glyphicon glyphicon-plus-sign" ></span>
-											</a>
-										</span>-->
-										<span class="badge pull-right">{{eleme.numprocedimientos}}</span>
-										</p>
-											<ul ng-if="eleme.id == seleccionado.id" class="bg-warning organica_proc">
-												<li ng-repeat="proc in eleme.procedimientos | filter:texto " ng-show="eleme.id == seleccionado.id" class="organica_proc list-group-item-warning">
-													<p>
-														<strong>
-															[{{proc.codigo}}] &nbsp;
-														</strong>
-														<span ng-class="{'bg-warning':eleme.id==seleccionado.id }" ng-click="setProcSeleccionado(proc)" class="cursor">
-															{{proc.denominacion}}
-														</span>
-													</p>
-												</li>
-
-												<li ng-if="!eleme.procedimientos"><i>Cargando...</i></li>
-											</ul>
-										<ul ng-if="eleme.nodes" style="clear:both">
-											<li ng-repeat="elem in eleme.nodes |filter:texto |filter:filtrojerarquia" ng-class="{'list-group-item-danger':elem.id==seleccionado.id}">
-											<p>
-												<strong>
-													[{{elem.id}}] &nbsp;
-												</strong>
-												<span ng-class="{'bg-danger':elem.id==seleccionado.id }" ng-click="setSeleccionado(elem)" class="cursor"  title="Engloba {{elem.numprocedimientos}} procedimientos">
-													{{elem.title}}
-												</span>
-												<span class="badge pull-right">{{elem.numprocedimientos}}</span>
-											</p>
-
-												<ul ng-if="elem.id == seleccionado.id" class="bg-warning organica_proc">
-													<li ng-repeat="proc in elem.procedimientos | filter:texto " ng-show="elem.id == seleccionado.id" class="organica_proc list-group-item-warning">
-														<p>
-															<strong>
-																[{{proc.codigo}}] &nbsp;
-															</strong>
-															<span  ng-click="setProcSeleccionado(proc)" class="cursor">
-																{{proc.denominacion}}
-															</span>
-														</p>
-													</li>
-													<li ng-if="elem.procedimientos && !elem.procedimientos.length"><i>No hay procedimientos</i></li>
-													<li ng-if="!elem.procedimientos"><i>Cargando...</i></li>
-												</ul>
-											</li>
-										</ul>
-									</li>
-								</ul>
-							</li>
-						</ul>
-					</li>
-				</ul>
-			</div>
-		</div>
+		<br/> 
+		<organismos otitle="'Organismos'" arbol="arbol" tipoelementos="'subelementos (procedimientos y cartas de servicio)'" attr="'sumatorio'" setseleccionado="setSeleccionado" seleccionado="seleccionado" filtro="filtro" showprocedimientos="true" showcartas="true" setprocseleccionado="setProcSeleccionado" procseleccionado="procedimiento_seleccionado" setcartaseleccionada="setCartaSeleccionada" cartaseleccionada="carta_seleccionada"></organismos>                              
 	</div>
+        <!-- PERMISOS DE UN USUARIO -->
 	<div ng-if="show_details_permiso && $root.permisoscalculados.superuser" ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated" >
 		<h2 class="center">Permisos de
 			<span class="hidden-sm hidden-xs">{{usuariodetalle.nombre}} {{usuariodetalle.apellidos}}</span>
@@ -151,7 +29,7 @@
 						<span class="hidden-lg hidden-md">Plaza</span>
 					</th>
 					<th><span class="hidden-sm hidden-xs hidden-md">Nombre</span></th>
-					<th>Org&aacute;nica / Procedimiento</th>
+					<th>Org&aacute;nica / Procedimiento / Carta</th>
 					<th>
 						<span class="visible-lg visible-md hidden-sm hidden-xs">Responsable</span>
 						<span class="hidden-lg hidden-md visible-sm hidden-xs">Resp.</span>
@@ -173,7 +51,7 @@
 					<th></th>
 				</tr>
 			</thead>
-			<tbody ng-if="permisos.length || procedimientos.length " id="LISTADO PERMISOS DE UN USUARIO">
+			<tbody ng-if="permisos.length || procedimientos.length || cartas.length " id="LISTADO_PERMISOS_DE_UN_USUARIO">
 
 				<tr ng-repeat="permiso in permisos" ng-if="permisos.length" ng-init="objetopermiso=getObjetoPermisoUsuario(permiso)" >
 					<td>{{permiso.login}}</td>
@@ -188,7 +66,7 @@
 						</span>
 						<ul ng-if="objetopermiso && objetopermiso.length && objetopermiso.length>1">
 							<li ng-repeat="obj in objetopermiso">{{obj.nombre}} </li>
-						<ul>
+                                                </ul>
 
 					</td>
 					<td><span class="burdeos glyphicon glyphicon-remove"></span></td>
@@ -242,11 +120,29 @@
 						  -->
 					</td>
 				</tr>
+				<tr ng-repeat="carta in cartas" class="responsable">
+					<td>
+						<span style="font-size:smaller" class="badge" ng-repeat="r in getResponsable(carta.responsable)" ng-if="carta.responsable" title="{{r.nombre}} {{r.apellidos}}">
+							{{r.login}} &nbsp;&nbsp;
+						</span>
+						<span style="font-size:smaller" class="badge alert-warning" ng-if="!carta.responsable"><i>No disponible</i></span>
+					</td>
+					<td>{{carta.responsable}}</td>
+					<td>{{usuariodetalle.nombre}} {{usuariodetalle.apellidos}}</td>
+					<td><a href="/carta/{{carta._id}}" title="codigo: {{carta.codigo}} ; id: {{carta._id}}">[{{carta._id}}] <span class="visible-lg visible-md">{{carta.denominacion}}</span></a></td>
+					<td><span class="glyphicon glyphicon-ok gray"></span></td>
+					<td><span class="glyphicon glyphicon-ok gray"></span></td>
+					<td><span class="glyphicon glyphicon-ok gray"></span></td>
+					<td><span class="glyphicon glyphicon-ok gray"></span></td>
+					<td>
+
+					</td>
+				</tr>                                
 			</tbody>
 			<tfoot></tfoot>
 		</table>
 	</div>
-
+        <!-- PERMISOS APLICADOS SOBRE EL NODO SELECCIONADO -->
 	<div ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated" ng-if="!show_details_permiso">
 		<h2 class="center">Permisos</h2>
 		<table class="table table-striped table-bordered table-condensed table-hover">
@@ -390,7 +286,7 @@
 					<th></th>
 				</tr>
 			</thead>
-			<tbody ng-if="permisos.length || procedimientos.length">
+			<tbody ng-if="permisos.length || procedimientos.length || cartas.length">
 				<tr ng-if="show_details_permiso">
 					<th colspan="{{ !is_show_inherited_users && !is_show_recursive_users && !procedimientos.length? 8 : 9 }}">
 					</th>
@@ -404,7 +300,7 @@
 						<span ng-if="objetopermiso && objetopermiso.length==1">{{objetopermiso[0].nombre}}</span>
 						<ul ng-if="objetopermiso && objetopermiso.length>1">
 							<li ng-repeat="obj in objetopermiso">{{obj.nombre}} </li>
-						<ul>
+						</ul>
 
 						<span ng-if="objetopermiso && !objetopermiso.length">{{objetopermiso.nombre}}</span>
 					</td>
@@ -432,7 +328,7 @@
 						<div>-->
 					</td>
 				</tr>
-				<tr ng-repeat="procedimiento in procedimientos" class="responsable">
+				<tr ng-repeat="procedimiento in procedimientos" class="responsable" ng-if="seleccionado_procedimiento || seleccionado_organica">
 					<td>
 						<span style="font-size:smaller" class="badge" ng-repeat="r in procedimiento.responsables" ng-if="procedimiento.responsables && procedimiento.cod_plaza" title="{{r.nombre}} {{r.apellidos}}">
 							{{r.login}} &nbsp;&nbsp;
@@ -447,26 +343,30 @@
 					<td><span class="glyphicon glyphicon-ok gray"></span></td>
 					<td><span class="glyphicon glyphicon-ok gray"></span></td>
 					<td>
-						<!--
-						<div class="btn-group pull-right">
-						  <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-						    <span class="glyphicon glyphicon glyphicon-remove"></span>&nbsp;<span class="caret"></span>
-						  </button>
-						  <ul class="dropdown-menu" role="menu">
-						    <li><a href="" ng-click="eliminarPermiso(permiso)">Eliminar permiso sobre el nodo.</a></li>
-						    <li><a href="" ng-click="eliminarDefinitivamentePermiso(permiso)">Eliminar permiso completo.</a></li>
-						  </ul>
-						</div>
-						<button type="button" class="btn btn-xs btn-default dropdown-toggle" ng-click="eliminarPermiso(permiso)" ng-if="!$root.permisoscalculados.superuser">
-						  <span class="glyphicon glyphicon glyphicon-remove"></span>
-						</button>
-						-->
 					</td>
 				</tr>
+				<tr ng-repeat="carta in cartas" class="responsable" ng-if="!seleccionado_procedimiento">
+					<td>
+						<span style="font-size:smaller" class="badge" ng-repeat="r in getResponsable(carta)" ng-if="carta.responsable" title="{{r.nombre}} {{r.apellidos}}">
+							{{r.login}} &nbsp;&nbsp;
+						</span>
+						<span style="font-size:smaller" class="badge alert-warning" ng-if="!carta.responsable"><i>No disponible</i></span>
+					</td>
+					<td>{{carta.responsable}}</td>
+					<td ><span ng-if="carta.responsable" class="hidden-sm hidden-xs hidden-md" ng-init="persona=getResponsable(carta)">{{persona[0].nombre}} {{ persona[0].apellidos}}</span></td>
+					<td><a href="/carta/{{carta._id}}" title="código: {{carta.codigo}} ; id: {{carta._id}}">[{{carta._id}}] <span class="visible-lg visible-md">{{carta.denominacion}}</span></a></td>
+					<td><span class="glyphicon glyphicon-ok gray"></span></td>
+					<td><span class="glyphicon glyphicon-ok gray"></span></td>
+					<td><span class="glyphicon glyphicon-ok gray"></span></td>
+					<td><span class="glyphicon glyphicon-ok gray"></span></td>
+					<td>
+
+					</td>
+				</tr>                                
 			</tbody>
-			<tbody ng-if="!permisos.length && !procedimientos.length">
+			<tbody ng-if="!permisos.length && !procedimientos.length && !cartas.length">
 				<tr>
-					<td ng-if="is_show_recursive_users" colspan="8">
+ 					<td ng-if="is_show_recursive_users" colspan="8">
 						No hay permisos asignados a este nivel de jerarquía o en los descendientes.
 					</td>
 					<td ng-if="!is_show_recursive_users" colspan="7">

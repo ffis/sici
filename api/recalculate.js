@@ -13,6 +13,7 @@
 	module.exports.softCalculatePermiso = function (Q, models, permiso) {
 		var Jerarquia = models.jerarquia();
 		var Procedimiento = models.procedimiento();
+		var EntidadObjeto = models.entidadobjeto();
 		var Persona = models.persona();
 		/*
 		 origen de datos:
@@ -21,14 +22,19 @@
 		'procedimientosdirectalectura' : [Number],
 		'procedimientosdirectaescritura' : [Number],
 		 */
+		
 
 		var deferred = Q.defer();
 		var deferredProcedimiento = Q.defer();
+		var deferredEntidadObjeto = Q.defer();
+		var defsPEO = [ deferredProcedimiento.promise, deferredEntidadObjeto.promise];
 
 		permiso.jerarquialectura = [];
 		permiso.jerarquiaescritura = [];
 		permiso.procedimientoslectura = [];
 		permiso.procedimientosescritura = [];
+		permiso.entidadobjetolectura = [];
+		permiso.entidadobjetoescritura = [];
 
 		/**** PARCHE PARA HABILITAR A LAS PERSONAS CON ALGÚN PERMISO ***/
 		var restriccionPersona = {};
@@ -61,17 +67,33 @@
 				]
 			};
 		}
+		//ideam para las entidadesobjeto
+		superarray = (Array.isArray(permiso.entidadobjetodirectalectura) ? permiso.entidadobjetodirectalectura : []);
+		superarray = superarray.concat(Array.isArray(permiso.entidadobjetodirectaescritura) ? permiso.entidadobjetodirectaescritura : []);
+		var restriccion_eo = null;
+		if (superarray.length > 0){
+			restriccion_eo = {
+				'$or' : [
+					{ '_id' : {'$in' : superarray}}
+				]
+			};
+		}
 
 		// si el permiso es otorgado a un codigo de plaza...
 		if (permiso.codplaza && permiso.codplaza !== '') {
 			if (restriccion_proc != null){
-				restriccion_proc['$or'].push({cod_plaza: permiso.codplaza});
+				restriccion_proc['$or'].push({cod_plaza: permiso.codplaza});				
 			}
 			else{
-				restriccion_proc = {cod_plaza: permiso.codplaza};
+				restriccion_proc = {cod_plaza: permiso.codplaza};				
+			}
+			if (restriccion_eo != null){
+				restriccion_eo['$or'].push({cod_plaza: permiso.codplaza});
+			} else {
+				restriccion_eo = {cod_plaza: permiso.codplaza};
 			}
 		}
-
+		
 
 		if (restriccion_proc)
 		{
@@ -106,8 +128,42 @@
 		} else {
 			deferredProcedimiento.resolve();
 		}
+		// idem para entidades objeto
+		if (restriccion_eo)
+		{
+			//buscamos los procedimientos cuyo responsable sea el del permiso
+			EntidadObjeto.find(restriccion_eo).select('idjerarquia responsable codigo').exec(function (err, entidadesobjeto) {
+				if (err) {
+					console.error(err);
+					console.error(32);
+					deferredEntidadObjeto.reject(err);
+					return;
+				}
+				// para cada entidadobjeto cuyo responsable sea el del permiso dado, comprobamos que el permiso especifica tal relación, es decir, que
+				// existe permisos explícito, y de no ser así se incluye. Esto significa establecer como permiso calculado de lecutra y escritura.
+				// siendo solo en el calculado, de cambiar el propietario del procedimiento, desaparecerá su permiso explícito en cuanto se alcancen las
+				// labores de mantenimiento
+				entidadesobjeto.forEach(function (entidadobjeto) {
+					if (permiso.jerarquialectura.indexOf(entidadobjeto.idjerarquia) < 0){
+						permiso.jerarquialectura.push(entidadobjeto.idjerarquia);
+					}
 
-		deferredProcedimiento.promise.then(function () {
+					if (entidadobjeto.cod_plaza === permiso.codplaza) {
+						if (permiso.entidadobjetolectura.indexOf(entidadobjeto._id) === -1){
+							permiso.entidadobjetolectura.push(entidadobjeto._id);
+						}
+						if (permiso.entidadobjetoescritura.indexOf(entidadobjeto._id) === -1){
+							permiso.entidadobjetoescritura.push(entidadobjeto._id);
+						}
+					}
+				});
+				deferredEntidadObjeto.resolve();
+			});
+		} else {
+			deferredEntidadObjeto.resolve();
+		}		
+
+		Q.all(defsPEO).then(function () {
 
 			var attrsOrigenjerarquia = ['jerarquiadirectalectura', 'jerarquiadirectaescritura'];
 			var attrsjerarquia = ['jerarquialectura', 'jerarquiaescritura'];
@@ -156,26 +212,43 @@
 				var attrsOrigenjerarquia = ['jerarquialectura', 'jerarquiaescritura'];
 				var attrprocedimientos = ['procedimientoslectura', 'procedimientosescritura'];
 				var attrprocedimientosDirecto = ['procedimientosdirectalectura', 'procedimientosdirectaescritura'];
+				var attrentidadesobjeto = [ 'entidadobjetolectura', 'entidadobjetoescritura'];
+				var attrentidadesobjetoDirecto = [ 'entidadobjetodirectalectura', 'entidadobjetodirectaescritura'];
 
 				attrprocedimientos.forEach(function (attr, idx) {
-
+					// si no existe el atributo de permisos para procedimientos lo creamos. Creamos un array vacio
 					if (!permiso [ attrprocedimientosDirecto[idx] ]){
 						permiso [ attrprocedimientosDirecto[idx] ] = [];
 					}
-
+					// idem para entidades objetos
+					if (!permiso [ attrentidadesobjetoDirecto[idx] ]){
+						permiso [ attrentidadesobjetoDirecto[idx] ] = [];
+					}
+					
+					// el calculado siempre incluye al directo
 					permiso[ attr ] = permiso[ attr ].concat(permiso [ attrprocedimientosDirecto[idx] ]);
-
+					// elimina duplicados
 					permiso[ attr ] = permiso[ attr ].filter(function (value, index, self) {
 						return self.indexOf(value) === index;
 					});
-
+					
+					//ideam para entidades objeto
+					var attreo = attrentidadesobjeto[idx];
+					permiso[ attreo ] = permiso[ attreo ].concat(permiso [ attrentidadesobjetoDirecto[idx] ]);
+					permiso[ attreo ] = permiso[ attreo ].filter(function (value, index, self) {
+						return self.indexOf(value) === index;
+					});
+					
+					
 					var idsjerarquia = permiso[ attrsOrigenjerarquia[idx] ];
 					if (idsjerarquia && idsjerarquia.length === 0){
 						return;
 					}
 
 					var def = Q.defer();
-					var f = function (def, attr) {
+					var defeo = Q.defer();
+					
+					var f = function (def, attr, idprop) {
 						return function (err, procedimientos) {
 							if (err) {
 								console.error(err);
@@ -185,23 +258,30 @@
 							}
 
 							procedimientos.forEach(function (procedimiento) {
-								if (permiso[ attr ].indexOf('' + procedimiento.codigo) < 0)
+								if (permiso[ attr ].indexOf('' + procedimiento[idprop]) < 0)
 								{
-									permiso[ attr ].push('' + procedimiento.codigo);
+									permiso[ attr ].push('' + procedimiento[idprop]);
 								}
 							});
 							def.resolve();
 						};
 					};
 
-					Procedimiento.find({idjerarquia: {'$in': idsjerarquia}}, { codigo: true}, f(def, attr));
+					Procedimiento.find({idjerarquia: {'$in': idsjerarquia}}, { codigo: true}, f(def, attr,'codigo'));
+					EntidadObjeto.find({idjerarquia: {'$in': idsjerarquia}}, { codigo: true}, f(defeo, attreo,'_id'));
 					defs2.push(def.promise);
+					defs2.push(defeo.promise);
 				});
 
 
 				Q.all(defs2).then(function () {
-				attrprocedimientos.forEach(function (attr) {
+					attrprocedimientos.forEach(function (attr) {
 						permiso[ attr ] = permiso[ attr ].filter(function (value, index, self) {
+							return self.indexOf(value) === index;
+						});
+					});
+					attrentidadesobjeto.forEach(function(attreo){
+						permiso[ attreo ] = permiso[ attreo ].filter(function (value, index, self){
 							return self.indexOf(value) === index;
 						});
 					});

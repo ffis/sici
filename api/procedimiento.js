@@ -659,7 +659,7 @@ exports.procedimientoList = function (models) {
 				console.error(err);
 				res.status(500).end();
 				return;
-			}
+			}			
 			res.json(data);
 		};
 
