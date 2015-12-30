@@ -23,12 +23,12 @@
     "ng-file-upload": "~2.2.2",
     "jquery.easy-pie-chart": "~2.1.4",
     "d3": "~3.5.12",
-    "angular": "1.4.x",
-    "angular-route": "1.4.x",
-    "angular-resource": "1.4.x",
+    "angular": "*",
+    "angular-route": "~1.4.8",
+    "angular-resource": "~1.4.8",
     "angularjs-nvd3-directives": "~0.0.7",
-    "angular-xeditable": "~0.1.8",
-    "angular-translate": "~2.4.1",
+    "angular-xeditable": "~0.1.9",
+    "angular-translate": "~2.8.1",
     "nvd3": "~1.1.15-beta",
     "allmighty-autocomplete": "*",
     "angular-bootstrap-colorpicker": "~3.0.8",
@@ -42,11 +42,15 @@
     "bootstrap": "~3.3.6",
     "angular-filter": "~0.5.8",
     "requirejs": "~2.1.22",
-    "AngularJS-Toaster": "angularjs-toaster#~0.4.181"
+    "AngularJS-Toaster": "angularjs-toaster#~0.4.181",
+    "angular-animate": "~1.4.8",
+    "angular-cookies": "~1.4.8",
+    "angular-sanitize": "~1.4.8"
   },
   "resolutions": {
     "d3": "~3.4.13",
     "ng-file-upload": "~2.2.2",
-    "angular": "1.4.x"
+    "angular": "1.4.x",
+    "angular-translate": "~2.8.1"
   }
 }
