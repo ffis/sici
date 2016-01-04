@@ -38,10 +38,10 @@
 							ultimaAnualidad = parseInt(ua) + 1;
 						}
 					}
-
+					console.log(ultimaAnualidad)
 					if (ultimaAnualidad < 2014){ return; }
 
-					if (ultimaAnualidad > n && $window.confirm('Si confirma se creará la anualidad correspondiente al año ' + ultimaAnualidad )){
+					if (ultimaAnualidad >= n && $window.confirm('Si confirma se creará la anualidad correspondiente al año ' + ultimaAnualidad )){
 						var a = new Anualidad();
 						a.anualidad = ultimaAnualidad;
 						a.$save($scope.load);

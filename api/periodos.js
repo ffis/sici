@@ -94,7 +94,7 @@ exports.removePeriodo = function (models) {
 	};
 };
 
-exports.nuevaAnualidad = function (models) {
+exports.nuevaAnualidad = function (models, Q) {
 	return function (req, res) {
 		var Plantillaanualidad = models.plantillaanualidad();
 		var Procedimiento = models.procedimiento();
@@ -142,16 +142,18 @@ exports.nuevaAnualidad = function (models) {
 						restriccion[periodos_periodo] = {'$exists': false };
 						set['$set'] = {};
 						set['$set'][periodos_periodo] = nuevoperiodo;
-						//BUG: Error de doble respuesta
+
+						var deferActualizacionProcedimiento = Q.defer();
+						var deferActualizacionPeriodo = Q.defer();
+
 						Procedimiento.update(restriccion, set, {upsert: false, multi: true}, function (erro) {
 							if (erro) {
 								console.error('nuevaAnualidad...');
 								console.error(erro);
-								res.status(500).end();
-								return;
+								deferActualizacionProcedimiento.reject(erro);
 							} else {
-								res.json({});
 								console.log('Actualizados procedimientos de mentira');
+								deferActualizacionPeriodo.resolve();
 							}
 						});
 						var restriccion_periodo = {};
@@ -163,11 +165,17 @@ exports.nuevaAnualidad = function (models) {
 							if (error) {
 								console.error('nuevaAnualidad...');
 								console.error(error);
-								res.status(500).end();
+								deferActualizacionPeriodo.reject(error);
 								return;
 							} else {
 								console.log('Actualizados periodos');
+								deferActualizacionPeriodo.resolve();
 							}
+						});
+						Q.all([deferActualizacionProcedimiento, deferActualizacionPeriodo]).then(function(){
+							res.json({});
+						}, function(error){
+							res.status(500).json({error: error});
 						});
 					}
 				});

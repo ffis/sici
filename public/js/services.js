@@ -70,7 +70,7 @@ modulo
 
 modulo
 		.factory('Anualidad', ['$resource', function ($resource) {
-				return $resource('/api/v1/restricted/anualidad/:anualidad', {}, { save: {method: 'POST' }, query: {method: 'GET', isArray: false }}); }])
+				return $resource('/api/v1/restricted/anualidad/:anualidad', {anualidad: '@anualidad'}, { save: {method: 'POST' }, query: {method: 'GET', isArray: false }}); }])
 		.factory('ReglasInconsistencias', ['$resource', function ($resource) {
 				return $resource('/api/v1/restricted/reglasinconsistencias/:id', {id: '@_id' }, {update: {method: 'PUT' }}); }])
 		.factory('Periodo', ['$resource', function ($resource) {

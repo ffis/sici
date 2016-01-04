@@ -126,7 +126,7 @@
 		app.post('/api/v1/restricted/periodos/:id', periodos.newPeriodo(models));
 		app.delete('/api/v1/restricted/periodos/:id', periodos.removePeriodo(models));
 
-		app.post('/api/v1/restricted/anualidad/:anyo', periodos.nuevaAnualidad(models));
+		app.post('/api/v1/restricted/anualidad/:anyo', periodos.nuevaAnualidad(models, Q));
 
 		app.post('/api/v1/restricted/pretend/:username', login.pretend({secret: cfg.secret, jwt: jwt, models: models}));
 
