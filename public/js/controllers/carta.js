@@ -99,15 +99,19 @@
 					$http.post('/api/v2/public/testDownloadCarta/' + $scope.cartaservicioseleccionada._id, {}).then(function(dato){
 						$rootScope.toaster('Carta de servicios importada correctamente. Registrados ' + dato.data.objetivos.length + ' objetivos y ' + dato.data.indicadoresobtenidos.length + ' indicador/es.');
 						$scope.setCartaServicio( $scope.cartaservicioseleccionada );
-					}, function(err){
-						$rootScope.toaster('Carta de servicios fallida: ' + err.data.error, 'Error', 'error');
+					}, function(e){
+						if (typeof e.data !== 'undefined' && typeof e.data.error !== 'undefined'){
+							$rootScope.toaster('Error durante la importación: ' + e.data.error, 'Error', 'error');
+						}else{
+							$rootScope.toaster('Error durante la importación', 'Error', 'error');
+						}
 					});
 				};
 
 				$scope.recargarObjetivo = function(i){
 					var loadAndSetValores = function(obj){
 						return function(loaded){
-							if (typeof loaded.formulas != 'undefined'){
+							if (typeof loaded.formulas !== 'undefined'){
 								for(var i = 0, j = loaded.formulas.length; i < j; i++){
 									obj.formulas[i].valores = loaded.formulas[i].valores;
 									for (var anu in obj.formulas[i].valores){
@@ -138,7 +142,13 @@
 							}).forEach($scope.recargarObjetivo);
 						};
 					};
-					$scope.indicadores[indicadorid].$update(f(indicadorid, $scope.indicadores[indicadorid].desplegado));
+					$scope.indicadores[indicadorid].$update(f(indicadorid, $scope.indicadores[indicadorid].desplegado), function(e){
+						if (typeof e.data !== 'undefined' && typeof e.data.error !== 'undefined'){
+							$rootScope.toaster('Error durante la actualización: ' + e.data.error, 'Error', 'error');
+						}else{
+							$rootScope.toaster('Error durante la actualización', 'Error', 'error');
+						}
+					});
 				};
 				$scope.existeComentario = function(observaciones) {
 					if (typeof observaciones === 'undefined') {
