@@ -136,15 +136,17 @@
 			$scope.sparkline = function(){
 				$timeout( function(){
 					$('.sparkline').each( function(){
-						var obj = $(this).html();
+						var obj = $(this).data('value');
+						var t;
 						try{
-							var t = JSON.parse( obj );
+							t = JSON.parse( obj );
 							$(this).sparkline( t, {type: 'bar', barColor: '#a94442'});
 						}catch(e){
-							$log.error('sparkline mal formed VALUE WAS:' + t );
+							/*$log.error('sparkline mal formed VALUE WAS:' + t , obj);*/
+							$(this).sparkline( [0,0,0,0,0,0,0,0,0,0,0,0], {type: 'bar', barColor: '#a94442'});
 						}
 					});
-				}, 10);
+				}, 5);
 			};
 
 			$scope.filtrotxtprocedimiento = {};

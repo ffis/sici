@@ -7,7 +7,7 @@
 		<div ng-click="oculto=!oculto" style="cursor:ew-resize">
 			<span class="glyphicon glyphicon-fullscreen pull-right">
 			</span>
-			<h2>{{seleccionado.title}}</h2>
+			<h3>{{seleccionado.title}}</h3>
 		</div>
 		<div ng-if="procedimientos.length" class="panel panel-danger">
 			<div ng-click="filtrosocultos=!filtrosocultos" class="panel-heading" style="cursor:ns-resize">
@@ -91,7 +91,7 @@
 				</tfoot>
 				<tbody>
 					<tr ng-repeat="proc in procedimientosfiltrados |filter:filtrotxtprocedimiento | orderBy : orderby : reverse | pagination : currentPage*itemsPerPage | limitTo: itemsPerPage">
-						<td class="text-center"><span class="sparkline">{{proc.periodos[anualidad].solicitados | json}}</span></td>
+						<td class="text-center"><span class="sparkline ng-cloak" data-value="{{proc.periodos[anualidad].solicitados | json}}"></span></td>
 						<th class="text-center">{{proc.codigo}}</th>
 						<td><a href="/procedimiento/{{proc.codigo}}">{{proc.denominacion}}</a></td>
 						<td class="text-center">{{proc.cod_plaza}}</td>
