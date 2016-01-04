@@ -1079,14 +1079,26 @@
 				return;
 			}
 			if (persona.habilitado){
-				$http.post('/api/v1/restricted/habilitar/persona/' + persona._id, { habilitado: false }, function(){
-					$window.alert('Usuario deshabilitado');
+				$http.post('/api/v1/restricted/habilitar/persona/' + persona._id, { habilitado: false }).then(function(){
 					persona.habilitado = false;
+					$rootScope.toaster('Usuario deshabilitado');
+				}, function(err){
+					if (typeof e.data !== 'undefined' && typeof e.data.error !== 'undefined'){
+						$rootScope.toaster('Error durante la habilitación: ' + e.data.error, 'Error', 'error');
+					}else{
+						$rootScope.toaster('Error durante la habilitación', 'Error', 'error');
+					}
 				});
 			}else{
-				$http.post('/api/v1/restricted/habilitar/persona/' + persona._id, { habilitado: true }, function(){
-					$window.alert('Usuario habilitado');
+				$http.post('/api/v1/restricted/habilitar/persona/' + persona._id, { habilitado: true }).then(function(){
 					persona.habilitado = true;
+					$rootScope.toaster('Usuario habilitado');
+				}, function(err){
+					if (typeof e.data !== 'undefined' && typeof e.data.error !== 'undefined'){
+						$rootScope.toaster('Error durante la habilitación: ' + e.data.error, 'Error', 'error');
+					}else{
+						$rootScope.toaster('Error durante la habilitación', 'Error', 'error');
+					}
 				});
 			}
 		};                                

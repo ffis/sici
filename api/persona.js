@@ -90,12 +90,12 @@
 			var Persona = models.persona(),
 				id = req.params.id,
 				content = req.body,
-				habilitado = content.habilitado ? content.habilitado === 'true' : false;
+				habilitado = content.habilitado ? content.habilitado === 'true' ||  content.habilitado === true : false;
 			Persona.update({'_id': id}, {'$set': { habilitado: habilitado } }, function(e) {
 				if (e){
-					res.status(500).json({'error': 'An error has occurred'});
+					res.status(500).json({'error': 'An error has occurred during update', details: e});
 				} else {
-					res.json({habilitado: habilitado});
+					res.json({habilitado: habilitado, id: id});
 				}
 			});
 		};
