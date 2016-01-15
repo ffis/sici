@@ -1,10 +1,10 @@
 (function(angular){ 'use strict';
-angular.module('sici.filters', [])
-	.filter('interpolate', ['version', function (version) {
-				return function (text) {
-					return String(text).replace(/\%VERSION\%/mg, version);
-				};
-			}])
+	angular.module('sici.filters', [])
+		.filter('interpolate', ['version', function (version) {
+			return function (text) {
+				return String(text).replace(/\%VERSION\%/mg, version);
+			};
+		}])
 		.filter('treatAsHTML', function () {
 			return function (state) {
 				return state;
@@ -14,7 +14,7 @@ angular.module('sici.filters', [])
 			return function (value, fieldpath) {
 				if (value[fieldpath]){
 					return value[fieldpath];
-		}
+				}
 				var parts = fieldpath.split('.');
 				for (var i = 0, j = parts.length; i < j; i++) {
 					if (typeof value[parts[i]] !== 'undefined')
@@ -77,6 +77,6 @@ angular.module('sici.filters', [])
 					return 0;
 				}
 				return Object.keys(input).length;
-			}
+			};
 		});
 })(angular);
