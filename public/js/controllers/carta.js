@@ -169,7 +169,24 @@
 				$scope.navigate = function(url) {
 					$location.path(url);
 				};
-
+				$scope.bgColorResultado = function(resultado, formula){
+					var result = '';
+					for(var i = 0, j = formula.intervalos.length; i < j; i++){
+						if (resultado >= formula.intervalos[i].min && resultado <= formula.intervalos[i].max){
+							result = formula.intervalos[i].color;
+						}
+					}
+					return {'background-color': result};
+				};
+				$scope.mini = function(){
+					var minval = arguments[i];
+					for(var i = 1; i < arguments.length; i++) {
+						if (minval > arguments[i]){
+							minval = arguments[i]; 
+						}
+					}
+					return minval;
+				};
 
 				$scope.upperLimit = 100;
 				$scope.lowerLimit = 0;

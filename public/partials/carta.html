@@ -50,7 +50,7 @@
 						<th class="text-center">
 							<p>{{objetivo.index}}</p>
 							<div class="btn-group-vertical" role="group">
-								<a class="btn btn-default" title="Editar" href="/objetivo/{{ objetivo._id}}">
+								<a ng-If="!!$root.permisoscalculados.superuser" class="btn btn-default" title="Editar" href="/objetivo/{{ objetivo._id}}">
 									<span class="glyphicon glyphicon-pencil"></span>
 								</a>
 								<!--
@@ -86,17 +86,18 @@
 													</tr>
 													<tr>
 														<th>Cálculo</th>
-														<th class="text-right" title="{{valor.formula}}" ng-repeat="valor in formula.valores[aanualidad] track by $index">{{valor.resultado.toFixed(0)}}</th>
+														<th class="text-right" title="{{valor.formula}}" ng-style="bgColorResultado(valor.resultado, formula)" ng-repeat="valor in formula.valores[aanualidad] track by $index">{{valor.resultado.toFixed(0)}}</th>
 													</tr>
 												</tfoot>
 												<tbody>
 													<tr ng-repeat-start="indicadorid in formula.indicadores track by $index" ng-click="setIndicadorSeleccionado(indicadorid)" ng-class="{'danger' : indicadorSeleccionado === indicadorid}">
 														<td style="width:40%" class="menu-indicador">
-														<div class="pull-right">
-														<a title="Editar" href="/indicador/{{idjerarquia}}/{{indicadorid}}"><i class="fa fa-pencil"></i></a> <!--<a title="Desvincular" href=""><i class="fa fa-unlink text-danger"></i></a>-->
-														<span class="glyphicon glyphicon-comment" ng-click="indicadores[indicadorid].desplegado = !indicadores[indicadorid].desplegado" ng-class="{'color_note' : existeComentario(indicadores[indicadorid].observaciones[aanualidad])}"></span>
-														</div>
-														{{indicadores[indicadorid].nombre}}
+															<div class="pull-right">
+																<a ng-If="!!$root.permisoscalculados.superuser" title="Editar" href="/indicador/{{idjerarquia}}/{{indicadorid}}"><i class="fa fa-pencil"></i></a>
+																<!--<a title="Desvincular" href=""><i class="fa fa-unlink text-danger"></i></a>-->
+																<span class="glyphicon glyphicon-comment" ng-click="indicadores[indicadorid].desplegado = !indicadores[indicadorid].desplegado" ng-class="{'color_note' : existeComentario(indicadores[indicadorid].observaciones[aanualidad])}"></span>
+															</div>
+															{{indicadores[indicadorid].nombre}}
 														</td>
 														<td ng-repeat="(v,a) in indicadores[indicadorid].valores[aanualidad] track by $index">
 															<input ng-blur="updateIndicador(indicadorid)" type="text" style="width:3em; font-size:smaller; padding:1px" class="text-right form-control" ng-model="indicadores[indicadorid].valores[aanualidad][v]" />
@@ -118,7 +119,7 @@
 											</table>
 										</td>
 										<td style="text-align:center">
-											<div width="10em" ng-radial-gauge ranges="formula.intervalos" value="formula.valor[aanualidad]" value-unit="unit" precision="precision" lower-limit="0" upper-limit="formula.meta"></div>
+											<div width="10em" ng-radial-gauge ranges="formula.intervalos" value="mini(formula.valor[aanualidad], formula.meta)" value-unit="unit" precision="precision" lower-limit="0" upper-limit="formula.meta"></div>
 											<!--
 											<canvas data-gauge-chart maxvalue="100" dato="gaugeChart[objetivo.i].data" value="gaugeChart[objetivo.i].data.val" data-options="gaugeChart[objetivo.i].options" style="width: 120px; height: 60px; " class=""></canvas>
 											{{gaugeChart[objetivo.i].data.val}}

@@ -197,7 +197,8 @@
 			'fechaalta': Date,
 			'fechafin': Date,
 			'fechaversion': { type: Date, default: Date.now },
-			'eliminado': Boolean
+			'eliminado': Boolean,
+			'expediente': String,
 		},
 		objetivo: {
 			//'carta': Schema.Types.ObjectId,

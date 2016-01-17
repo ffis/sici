@@ -4,10 +4,10 @@
 			<h3>Entidades objeto</h3>
 			<table class="table table-striped" ng-If="!!$root.permisoscalculados.superuser">
 				<caption>
-				<div class="pull-right">
-					<input type="text" class="form-control" placeholder="Filtro..." ng-model="filtro" />
-				</div>
-				Entidades objeto
+					<div class="pull-right">
+						<input type="text" class="form-control" placeholder="Filtro..." ng-model="filtro" />
+					</div>
+					Entidades objeto
 				</caption>
 				<thead>
 					<tr>
@@ -24,21 +24,20 @@
 				<tbody ng-repeat="entidadobjeto in entidades | filter:filtro">
 					<tr>
 						<th>{{entidadobjeto._id}}</th>
-						<td  ng-If="clave!='_id'" ng-repeat="(clave, valor) in entidadobjeto" style="overflow:auto; max-width:200px">
-							<a href="#" editable-text="entidadobjeto[clave]" onaftersave="actualizar(entidadobjeto, clave)">{{entidadobjeto[clave]}}</a>
+						<td ng-If="clave!='_id'" ng-repeat="(clave, valor) in entidadobjeto" style="overflow:auto; max-width:200px">
+							<input class="form-control" type="text" style="width:100%" ng-model="entidadobjeto[clave]" ng-blur="actualizar(entidadobjeto, clave)" />
 						</td>
 						<td>
 							<span class="btn btn-primary">
-								<span class="fa fa-arrow-down cursor" ng-click="download(entidadobjeto)" ></span>
+								<span class="fa fa-arrow-down cursor" ng-click="download(entidadobjeto)"></span>
 							</span>
 							<span class="btn btn-danger">
-								<span class="fa fa-trash cursor" ng-click="dropCarta(entidadobjeto)" ></span>
+								<span class="fa fa-trash cursor" ng-click="dropCarta(entidadobjeto)"></span>
 							</span>
 						</td>
 					</tr>
 				</tbody>
 			</table>
-
 		</div>
 	</div>
 </div>
