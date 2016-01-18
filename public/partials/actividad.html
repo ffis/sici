@@ -1,9 +1,9 @@
 
 <div class="row">
-	<div ng-class="{'col-lg-3': !oculto, 'col-md-4': !oculto, 'hidden': oculto}" class="left animated">
-		<organismos otitle="'Organismos con procedimientos'" arbol="arbol" tipoelementos="'procedimiento/s'" attr="'numprocedimientos'" setseleccionado="setSeleccionado" seleccionado="seleccionado"></organismos>
+	<div ng-class="{'col-lg-3': !oculto, 'col-md-4': !oculto, 'col-sm-4': !oculto, 'hidden': oculto}" class="left animated">
+		<organismos otitle="'Organismos con procedimientos'" arbol="arbol" tipoelementos="'procedimiento/s'" attr="'numprocedimientos'" setseleccionado="goToJerarquia" seleccionado="seleccionado"></organismos>
 	</div>
-	<div ng-class="{'col-lg-9': !oculto, 'col-md-8': !oculto, 'col-lg-12': oculto}" class="right animated" id="detallesjerarquia">
+	<div ng-class="{'col-lg-9': !oculto, 'col-md-8': !oculto, 'col-sm-8': !oculto, 'col-lg-12': oculto}" class="right animated" id="detallesjerarquia">
 		<div ng-click="oculto=!oculto" style="cursor:ew-resize">
 			<span class="glyphicon glyphicon-fullscreen pull-right">
 			</span>

@@ -1,8 +1,8 @@
 (function(angular){
 	'use strict';
 	angular.module('sici')
-		.controller('WelcomeCtrl', [ '$rootScope', '$scope', '$window', 'Aggregate', 'ProcedimientoCount', 'TramitesCount', 'PorcentajeTramitesResultos', 'ProcedimientosSinExpedientes', 'Objetivo',
-			function ($rootScope, $scope, $window, Aggregate, ProcedimientoCount, TramitesCount, PorcentajeTramitesResultos, ProcedimientosSinExpedientes, Objetivo){
+		.controller('WelcomeCtrl', [ '$rootScope', '$scope', '$window', 'Aggregate', 'ProcedimientoCount', 'TramitesCount', 'PorcentajeTramitesResultos', 'ProcedimientosSinExpedientes',
+			function ($rootScope, $scope, $window, Aggregate, ProcedimientoCount, TramitesCount, PorcentajeTramitesResultos, ProcedimientosSinExpedientes){
 
 				$rootScope.nav = 'inicio';
 				$rootScope.setTitle('Portada');
@@ -34,16 +34,16 @@
 				$scope.anyoPeriodoAnterior = $scope.mesActual === 0 ? $scope.anyoActual - 1 : $scope.anyoActual;
 
 				$scope.pendientes = Aggregate.query({
-						anualidad: $scope.anyoActual,
-						campo: JSON.stringify({'codigo': '$codigo', 'denominacion': '$denominacion'}),
-						restriccion: '{"periodos.a' + $scope.anyoPeriodoAnterior + '.actualizado.' + $scope.mesPeriodoAnterior + '" : {"$lt":1}}'
+					anualidad: $scope.anyoActual,
+					campo: JSON.stringify({'codigo': '$codigo', 'denominacion': '$denominacion'}),
+					restriccion: '{"periodos.a' + $scope.anyoPeriodoAnterior + '.actualizado.' + $scope.mesPeriodoAnterior + '" : {"$lt":1}}'
 				});
 				$scope.inconsistencias = Aggregate.query({
-						anualidad: $scope.anyoActual,
-						campo: JSON.stringify({'codigo': '$codigo', 'denominacion': '$denominacion'}),
-						restriccion: '{"periodos.a' + $scope.anyoActual + '.pendientes":{"$lt":0}}'
+					anualidad: $scope.anyoActual,
+					campo: JSON.stringify({'codigo': '$codigo', 'denominacion': '$denominacion'}),
+					restriccion: '{"periodos.a' + $scope.anyoActual + '.pendientes":{"$lt":0}}'
 				});
-				Objetivo.get({id: "56716258771ad7a247dcede9"});
-		}
-	]);
+			}
+		]
+	);
 })(angular);

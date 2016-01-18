@@ -52,5 +52,6 @@
 					}).progress(progressfn).success(successfn);
 				}
 			});
-	}]);
+		}
+	]);
 })(angular);

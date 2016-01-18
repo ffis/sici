@@ -23,7 +23,7 @@
 				</tfoot>
 				<tbody ng-repeat="entidadobjeto in entidades | filter:filtro">
 					<tr>
-						<th>{{entidadobjeto._id}}</th>
+						<th>{{entidadobjeto._id}}<br />{{entidadobjeto.denominacion}}</th>
 						<td ng-If="clave!='_id'" ng-repeat="(clave, valor) in entidadobjeto" style="overflow:auto; max-width:200px">
 							<input class="form-control" type="text" style="width:100%" ng-model="entidadobjeto[clave]" ng-blur="actualizar(entidadobjeto, clave)" />
 						</td>

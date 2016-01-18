@@ -71,6 +71,9 @@
 				};
 				$scope.anualidad = new Date().getFullYear(); //temporalmente */
 				$scope.aanualidad = 'a' + $scope.anualidad;
+				$scope.goToJerarquia = function(selection){
+					$location.path('/carta/' + selection.id);
+				};
 				$scope.setSeleccionado = function(selection){
 					if (selection) {
 						$scope.idjerarquia = selection.id;
@@ -171,6 +174,9 @@
 				};
 				$scope.bgColorResultado = function(resultado, formula){
 					var result = '';
+					if (!resultado || resultado === 0 || resultado === ''){
+						return '';
+					}
 					for(var i = 0, j = formula.intervalos.length; i < j; i++){
 						if (resultado >= formula.intervalos[i].min && resultado <= formula.intervalos[i].max){
 							result = formula.intervalos[i].color;
@@ -188,8 +194,6 @@
 					return minval;
 				};
 
-				$scope.upperLimit = 100;
-				$scope.lowerLimit = 0;
 				$scope.unit = '';
 				$scope.precision = 2;
 

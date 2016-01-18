@@ -124,6 +124,9 @@
 					}, 20);
 				}
 			};
+			$scope.goToJerarquia = function(selection){
+				$location.path('/actividad/' + selection.id);
+			};
 
 			$scope.colorText = $rootScope.colorText;
 

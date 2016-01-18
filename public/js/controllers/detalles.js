@@ -119,23 +119,37 @@
 				$scope.updateGraphKeys = function(anualidad) {
 					var anualidadAnterior = anualidad - 1;
 					var graphskeys = [
-						{caption: 'RESUMEN DE DATOS DE GESTIÓN ' + anualidad, keys: [
+						{
+							caption: 'RESUMEN DE DATOS DE GESTIÓN ' + anualidad,
+							keys: [
 								{caption: 'Solicitados', vals: 'periodos.a' + anualidad + '.solicitados', maxx: $scope.mesActual},
 								{caption: 'Iniciados', vals: 'periodos.a' + anualidad + '.iniciados', maxx: $scope.mesActual},
 								{caption: 'Pendientes', vals: 'periodos.a' + anualidad + '.pendientes', maxx: $scope.mesActual},
 								{caption: 'Total resueltos', vals: 'periodos.a' + anualidad + '.total_resueltos', maxx: $scope.mesActual},
-								{caption: 'Total resueltos ' + anualidadAnterior, vals: 'periodos.a' + anualidadAnterior + '.total_resueltos', maxx: 12} ]},
-						{caption: 'RESUELTOS EN PLAZO ' + anualidad, keys: [
+								{caption: 'Total resueltos ' + anualidadAnterior, vals: 'periodos.a' + anualidadAnterior + '.total_resueltos', maxx: 12}
+							]
+						},
+						{
+							caption: 'RESUELTOS EN PLAZO ' + anualidad,
+							keys: [
 								{caption: 'En plazo', vals: 'periodos.a' + anualidad + '.en_plazo', maxx: $scope.mesActual},
-								{caption: 'Fuera de plazo', vals: 'periodos.a' + anualidad + '.fuera_plazo', maxx: $scope.mesActual} ]},
-						{caption: 'DESESTIMIENTOS/RENUNCIAS Y PRESCRITOS/CADUCADOS ' + anualidad, keys: [
+								{caption: 'Fuera de plazo', vals: 'periodos.a' + anualidad + '.fuera_plazo', maxx: $scope.mesActual}
+							]
+						},
+						{
+							caption: 'DESESTIMIENTOS/RENUNCIAS Y PRESCRITOS/CADUCADOS ' + anualidad,
+							keys: [
 								{caption: 'Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)', vals: 'periodos.a' + anualidad + '.resueltos_desistimiento_renuncia_caducidad', maxx: $scope.mesActual},
 								{caption: 'Resueltos por Prescripcion/Caducidad (Resp_Admon)', vals: 'periodos.a' + anualidad + '.resueltos_prescripcion', maxx: $scope.mesActual}
-							]},
-						{caption: 'QUEJAS Y RECURSOS CONTRA EL PROCEDIMIENTO ' + anualidad, keys: [
+							]
+						},
+						{
+							caption: 'QUEJAS Y RECURSOS CONTRA EL PROCEDIMIENTO ' + anualidad,
+							keys: [
 								{caption: 'Quejas presentadas en el mes', vals: 'periodos.a' + anualidad + '.quejas', maxx: $scope.mesActual},
 								{caption: 'Recursos presentados en el mes', vals: 'periodos.a' + anualidad + '.recursos', maxx: $scope.mesActual}
-							]}
+							]
+						}
 					];
 					$scope.graphskeys = graphskeys;
 					$scope.graphs = [];

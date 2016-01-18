@@ -1,4 +1,4 @@
-(function(process, console){
+(function(process, logger){
 	'use strict';
 	var os = require('os'),
 		express = require('express'),
@@ -49,7 +49,7 @@
 
 	app.set('mongosrv', process.env.MONGOSVR || 'mongodb://mongosvr/sici');
 
-	console.log('Estableciendo conexión a ' + app.get('mongosrv'));
+	logger.log('Estableciendo conexión a ' + app.get('mongosrv'));
 	//Inicialización mongoose
 	mongoose.connect(app.get('mongosrv'));
 	models.init(mongoose);
@@ -61,7 +61,7 @@
 		if (err){
 			throw err;
 		}
-		console.log('Cargada configuración de forma exitosa');
+		logger.log('Cargada configuración de forma exitosa');
 
 		var tmpdirectory = path.join(__dirname, 'tmp') + path.sep;
 		var cfg = cfgs[0];
@@ -264,11 +264,10 @@
 		app.get('/api/v2/public/entidadobjeto/:id', entidadobjeto.get(models));
 		app.put('/api/v2/public/entidadobjeto/:id', entidadobjeto.update(models));
 
-        app.get('/api/v1/public/entidadesObjetoByResponsable/:codplaza', entidadobjeto.entidadobjetoByResponsable(models));
+		app.get('/api/v1/public/entidadesObjetoByResponsable/:codplaza', entidadobjeto.entidadobjetoByResponsable(models));
 		/*app.get('/api/v2/public/testDownloadCarta/:id', carta.testDownloadCarta(models, Crawler, Q));*/
 		app.post('/api/v2/public/testDownloadCarta/:id', carta.testDownloadCarta(models, Crawler, Q));
 		app.post('/api/v2/public/dropCarta/:id', carta.dropCarta(models, Q));
-
 
 		//app.use('/api/v1/public/feedback', multer({ dest: path.join( __dirname, 'tmp') + path.sep}));
 		app.post('/api/v1/public/feedback', feedback.log(models));
@@ -294,12 +293,12 @@
 		app.get('/', routes.index);
 		app.get('*', routes.index);//devolver el index.html del raiz
 
-		console.log('Establecidas las rutas.                                                                         ');
+		logger.log('Establecidas las rutas.                                                                         ');
 
 		var server = http.createServer(app);
 		server.listen(app.get('port'), function () {
 			require('./api/socketioconsole')(server);
-			console.log('Servidor escuchando en puerto ' + app.get('port'));
+			logger.log('Servidor escuchando en puerto ' + app.get('port'));
 		});
 	});
 })(process, console);

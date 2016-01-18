@@ -92,26 +92,36 @@
 					$log.log('voy a dibujar anualidad=' + anualidad);
 					var anualidadAnterior = anualidad - 1;
 					var graphskeys = [
-						{caption: 'RESUMEN DE DATOS DE GESTIÓN ' + anualidad, keys: [
+						{
+							caption: 'RESUMEN DE DATOS DE GESTIÓN ' + anualidad,
+							keys: [
 								{caption: 'Solicitados', vals: '' + anualidad + '.solicitados', maxx: $scope.mesActual},
 								{caption: 'Iniciados', vals: '' + anualidad + '.iniciados', maxx: $scope.mesActual},
 								{caption: 'Pendientes', vals: '' + anualidad + '.pendientes', maxx: $scope.mesActual},
 								{caption: 'Total resueltos', vals: '' + anualidad + '.total_resueltos', maxx: $scope.mesActual},
 								{caption: 'Total resueltos ' + anualidadAnterior, vals: '' + anualidadAnterior + '.total_resueltos', maxx: 12}
-							]},
-						{caption: 'RESUELTOS EN PLAZO ' + anualidad, keys: [
+							]
+						},
+						{
+							caption: 'RESUELTOS EN PLAZO ' + anualidad,
+							keys: [
 								{caption: 'En plazo', vals: '' + anualidad + '.en_plazo', maxx: $scope.mesActual},
 								{caption: 'Fuera de plazo', vals: '' + anualidad + '.fuera_plazo', maxx: $scope.mesActual}
-							]},
-						{caption: 'DESESTIMIENTOS/RENUNCIAS Y PRESCRITOS/CADUCADOS ' + anualidad, keys: [
+							]
+						},
+						{
+							caption: 'DESESTIMIENTOS/RENUNCIAS Y PRESCRITOS/CADUCADOS ' + anualidad,
+							keys: [
 								{caption: 'Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)', vals: '' + anualidad + '.resueltos_desistimiento_renuncia_caducidad', maxx: $scope.mesActual},
 								{caption: 'Resueltos por Prescripcion/Caducidad (Resp_Admon)', vals: '' + anualidad + '.resueltos_prescripcion', maxx: $scope.mesActual}
-							]},
-						{caption: 'QUEJAS Y RECURSOS CONTRA EL PROCEDIMIENTO ' + anualidad, keys: [
+							]
+						},
+						{
+							caption: 'QUEJAS Y RECURSOS CONTRA EL PROCEDIMIENTO ' + anualidad, keys: [
 								{caption: 'Quejas presentadas en el mes', vals: '' + anualidad + '.quejas', maxx: $scope.mesActual},
 								{caption: 'Recursos presentados en el mes', vals: '' + anualidad + '.recursos', maxx: $scope.mesActual}
-							]}
-
+							]
+						}
 					];
 					$scope.graphskeys = graphskeys;
 					$scope.graphs = [];
@@ -161,8 +171,10 @@
 
 
 				$scope.resumenJerarquiaSeleccionada = ResumenNodoJerarquia.get({jerarquia: $routeParams.idjerarquia},
-					function(){$scope.updateGraphKeys($scope.anualidad.replace('a', ''));
-				});
+					function(){
+						$scope.updateGraphKeys($scope.anualidad.replace('a', ''));
+					}
+				);
 
 				$scope.jerarquiaSeleccionada = Jerarquia.get({id: $routeParams.idjerarquia}, function () {
 					$rootScope.setTitle('$scope.jerarquiaSeleccionada.nombrelargo');
@@ -213,7 +225,7 @@
 
 				$scope.graficasgrandes = false;
 				$scope.xAxisTickValuesFunction = function () {
-					return function (d) {
+					return function () {
 						return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 					};
 				};

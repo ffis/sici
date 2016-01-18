@@ -1,4 +1,4 @@
-(function(){
+(function(logger){
 	'use strict';
 	var fs = require('fs'),
 		path = require('path'),
@@ -32,11 +32,11 @@
 	var registros = transformarCartas(cartas);
 	function volcarJSON(){
 		fs.writeFile(path.join(__dirname, 'data', 'output.json'), JSON.stringify(registros), function(){
-			console.log(registros.length + ' registros');
-			console.log("\tmongoimport --host localhost --db test --collection entidadobjeto --file data/output.json --jsonArray --drop");
+			logger.log(registros.length + ' registros');
+			logger.log("\tmongoimport --host localhost --db test --collection entidadobjeto --file data/output.json --jsonArray --drop");
 		});
 	}
 
 	volcarJSON();
 
-})();
+})(console);

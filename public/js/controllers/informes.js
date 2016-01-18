@@ -26,8 +26,9 @@
 						$scope.jerarquia = data[0].concat(data[1]);
 						$scope.pjerarquia.resolve($scope.jerarquia);
 						/*$scope.filtrojerarquia*/
-					}, function(err){
-						$window.console.error(err);
+					},
+					function(err){
+						$log.error(err);
 					}
 				);
 
@@ -67,7 +68,8 @@
 						return;
 					}
 					$scope.actualizando++;
-					switch(cmd){
+					switch(cmd)
+					{
 						case 'descargarexcel':
 							if (!anyoSelected || !anyoSelected.code || anyoSelected.code === '') {
 								$scope.actualizando--;
@@ -76,19 +78,21 @@
 								});
 								return;
 							}
-							ExportarInforme.get({year: anyoSelected.code}, function (token) {
-								$scope.actualizando--;
-								$scope.respuestas.push({
-									clase: 'alert-success', mensaje: 'Ha funcionado perfectamente.'
-								});
-								var url = '/download/' + token.time + '/' + token.hash;
-								$window.location = url;
-							}, function() {
-								$scope.actualizando--;
-								$scope.respuestas.push({
-									clase: 'alert-warning', mensaje: 'Error al descargar el informe.'
-								});
-							});
+							ExportarInforme.get({year: anyoSelected.code},
+								function (token) {
+									$scope.actualizando--;
+									$scope.respuestas.push({
+										clase: 'alert-success', mensaje: 'Ha funcionado perfectamente.'
+									});
+									var url = '/download/' + token.time + '/' + token.hash;
+									$window.location = url;
+								}, function() {
+									$scope.actualizando--;
+									$scope.respuestas.push({
+										clase: 'alert-warning', mensaje: 'Error al descargar el informe.'
+									});
+								}
+							);
 						break;
 						case 'periodosStats':
 							$scope.arbol = Arbol.query();
