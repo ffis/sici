@@ -1,12 +1,12 @@
-(function(angular, $){
+(function(angular, $, Math){
 	'use strict';
 	angular.module('sici')
 		.controller('CartaCtrl',
-			['$q', '$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', '$log', '$http', 'Arbol', 'Objetivo', 'EntidadObjeto', 'PastelColor', 'ImportarObjetivo', 'Indicador',
-			function ($q, $rootScope, $scope, $location, $window, $routeParams, $timeout, $log, $http, Arbol, Objetivo, EntidadObjeto, PastelColor, ImportarObjetivo, Indicador) {
+			['$q', '$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', '$log', '$http', 'ArbolWithEmptyNodes', 'Objetivo', 'EntidadObjeto', 'PastelColor', 'ImportarObjetivo', 'Indicador',
+			function ($q, $rootScope, $scope, $location, $window, $routeParams, $timeout, $log, $http, ArbolWithEmptyNodes  , Objetivo, EntidadObjeto, PastelColor, ImportarObjetivo, Indicador) {
 				$rootScope.nav = 'carta';
 				$scope.idjerarquia = ($routeParams.idjerarquia) ? parseInt( $routeParams.idjerarquia ) : false;
-				$scope.arbol = Arbol.query(function(){ $scope.setJerarquiaById($scope.idjerarquia); });
+				$scope.arbol = ArbolWithEmptyNodes.query(function(){ $scope.setJerarquiaById($scope.idjerarquia); });
 				$scope.indicadores = {};
 				$scope.showformulas = false;
 				$scope.superuser = $rootScope.superuser();
@@ -54,6 +54,7 @@
 							}
 						};
 						$scope.objetivos = Objetivo.query(restrictions, function(){
+							var maxValuePerFormula = 0;
 							for (var i = 0, j = $scope.objetivos.length; i < j; i++) {
 								for (var k = 0, l = $scope.objetivos[i].formulas.length; k < l; k++) {
 									$scope.objetivos[i].formulas[k].indicadores.forEach(loadIndicador);
@@ -61,6 +62,13 @@
 									for (var anu in $scope.objetivos[i].formulas[k].valores){
 										$scope.objetivos[i].formulas[k].valor[anu] = $scope.objetivos[i].formulas[k].valores[anu][ $scope.objetivos[i].formulas[k].valores[anu].length - 1 ].resultado;
 									}
+									maxValuePerFormula = 0;
+									for (var y = 0, u = $scope.objetivos[i].formulas[k].intervalos.length; y < u; y++){
+										if ( $scope.objetivos[i].formulas[k].intervalos[y].max > maxValuePerFormula){
+											maxValuePerFormula = $scope.objetivos[i].formulas[k].intervalos[y].max;
+										}
+									}
+									$scope.objetivos[i].formulas[k].uppervalue = Math.max($scope.objetivos[i].formulas[k].valor[anu], $scope.objetivos[i].formulas[k].meta, maxValuePerFormula);
 								}
 							}
 						});
@@ -80,6 +88,7 @@
 						$scope.cartasservicio = EntidadObjeto.query({'tipoentidad': 'CS', 'idjerarquia': $scope.idjerarquia}, function(){
 							for(var i = 0, j = $scope.cartasservicio.length; i < j; i++){
 								$scope.cartasservicio[i].urledicion = '/carta/' + $scope.idjerarquia + '/' + $scope.cartasservicio[i]._id;
+								$scope.cartasservicio[i].urlprintable = '/carta-printable/' + $scope.idjerarquia + '/' + $scope.cartasservicio[i]._id;
 							}
 							if ($scope.cartasservicio.length > 0){
 								$scope.setCartaServicio($scope.cartasservicio[0]);
@@ -114,12 +123,20 @@
 				$scope.recargarObjetivo = function(i){
 					var loadAndSetValores = function(obj){
 						return function(loaded){
+							var maxValuePerFormula = 0;
 							if (typeof loaded.formulas !== 'undefined'){
 								for(var i = 0, j = loaded.formulas.length; i < j; i++){
 									obj.formulas[i].valores = loaded.formulas[i].valores;
 									for (var anu in obj.formulas[i].valores){
 										obj.formulas[i].valor[anu] = obj.formulas[i].valores[anu][ obj.formulas[i].valores[anu].length - 1 ].resultado;
 									}
+									maxValuePerFormula = 0;
+									for (var k = 0, l = obj.formulas[i].intervalos.length; k < l; k++){
+										if ( obj.formulas[i].intervalos[k].max > maxValuePerFormula){
+											maxValuePerFormula = obj.formulas[i].intervalos[k].max;
+										}
+									}
+									obj.formulas[i].uppervalue = Math.max(obj.formulas[i].valor[anu], obj.formulas[i].meta, maxValuePerFormula);
 								}
 							}
 						};
@@ -200,4 +217,4 @@
 			}
 		]
 	);
-})(angular, $);
+})(angular, $, Math);

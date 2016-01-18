@@ -2,12 +2,12 @@
 	'use strict';
 	angular.module('sici')
 		.controller('PermisoCtrl',
-			['$rootScope', '$scope', '$location', '$window', 'Arbol', 'Session', 'PermisosList', 'PersonasSearchList', 'ProcedimientoList','EntidadObjetoList', 'PermisosProcedimientoList', 'PermisosDirectosProcedimientoList', 'PermisosEntidadObjetoList', 'PermisosDirectosEntidadObjetoList','Jerarquia', 'Permiso', 'PersonasByPuesto', 'PersonasByLogin', 'PersonasByRegexp', 'Persona', '$q', 'Procedimiento', 'EntidadObjeto', 'PermisosDelegar', 'PermisosByLoginPlaza', 'PermisosDelegarSeleccionado', 'PermisoToDelete', 'PermisoProcedimientoToDelete', 'ProcedimientosByResponsable','EntidadesObjetoByResponsable',   '$http', '$log',
-				function ($rootScope, $scope, $location, $window, Arbol, Session, PermisosList, PersonasSearchList, ProcedimientoList, EntidadObjetoList, PermisosProcedimientoList, PermisosDirectosProcedimientoList, PermisosEntidadObjetoList, PermisosDirectosEntidadObjetoList, Jerarquia, Permiso, PersonasByPuesto, PersonasByLogin, PersonasByRegexp, Persona, $q, Procedimiento, EntidadObjeto, PermisosDelegar, PermisosByLoginPlaza, PermisosDelegarSeleccionado, PermisoToDelete, PermisoProcedimientoToDelete, ProcedimientosByResponsable, EntidadesObjetoByResponsable, $http, $log) {
+			['$rootScope', '$scope', '$location', '$window', 'ArbolWithEmptyNodes', 'Session', 'PermisosList', 'PersonasSearchList', 'ProcedimientoList','EntidadObjetoList', 'PermisosProcedimientoList', 'PermisosDirectosProcedimientoList', 'PermisosEntidadObjetoList', 'PermisosDirectosEntidadObjetoList','Jerarquia', 'Permiso', 'PersonasByPuesto', 'PersonasByLogin', 'PersonasByRegexp', 'Persona', '$q', 'Procedimiento', 'EntidadObjeto', 'PermisosDelegar', 'PermisosByLoginPlaza', 'PermisosDelegarSeleccionado', 'PermisoToDelete', 'PermisoProcedimientoToDelete', 'ProcedimientosByResponsable','EntidadesObjetoByResponsable',   '$http', '$log',
+				function ($rootScope, $scope, $location, $window, ArbolWithEmptyNodes, Session, PermisosList, PersonasSearchList, ProcedimientoList, EntidadObjetoList, PermisosProcedimientoList, PermisosDirectosProcedimientoList, PermisosEntidadObjetoList, PermisosDirectosEntidadObjetoList, Jerarquia, Permiso, PersonasByPuesto, PersonasByLogin, PersonasByRegexp, Persona, $q, Procedimiento, EntidadObjeto, PermisosDelegar, PermisosByLoginPlaza, PermisosDelegarSeleccionado, PermisoToDelete, PermisoProcedimientoToDelete, ProcedimientosByResponsable, EntidadesObjetoByResponsable, $http, $log) {
 					$rootScope.nav = 'permisos';
 					$rootScope.setTitle('Permisos');              
 
-					$scope.arbol = Arbol.query({},
+					$scope.arbol = ArbolWithEmptyNodes.query({},
 						function(){
 							/* alteramos el arbol para añadirle un atribuyo calculado */
 							for(var i=0;i<$scope.arbol.length;i++){

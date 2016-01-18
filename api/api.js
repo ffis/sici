@@ -26,7 +26,7 @@ module.exports.arbol = function(Q, models){
 		var hijos = [];
 		var filterfn;
 		if (typeof req.params.withemptynodes === 'undefined'){
-			filterfn = function(jerarquia){ return jerarquia.numprocedimientos; };
+			filterfn = function(jerarquia){ return jerarquia.numprocedimientos + jerarquia.numcartas; };
 		}
 		else{
 			filterfn = function(){ return true; };

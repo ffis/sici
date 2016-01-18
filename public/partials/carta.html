@@ -19,10 +19,11 @@
 						<span class="glyphicon glyphicon-download"></span>
 					</a>
 					<a class="btn btn-default" target="_blank" href="{{cartaservicioseleccionada.url}}" title="Ver informaci&oacute;n publicada"><span class="glyphicon glyphicon-info-sign"></span></a>
+					<a class="btn btn-default" target="_blank" href="{{cartaservicioseleccionada.urlprintable}}" title="Ver versi&oacute;n imprimible"><span class="glyphicon glyphicon-print"></span></a>
 					<a class="btn btn-default" ng-click="mutexFormulas()" title="Ver f&oacute;rmulas"><span class="fa" ng-class="{'fa-toggle-on': showformulas, 'fa-toggle-off': !showformulas}"></span></a>
 					<div class="btn-group">
 						<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						{{cartaservicioseleccionada.denominacion}} <span class="caret" ng-if="cartasservicio.length > 1"></span>
+						{{cartaservicioseleccionada.expediente}} {{cartaservicioseleccionada.denominacion}} <span class="caret" ng-if="cartasservicio.length > 1"></span>
 						</button>
 						<ul class="dropdown-menu" ng-if="cartasservicio.length > 1">
 							<li ng-if="cartaservicioseleccionada._id != c._id" ng-repeat="c in cartasservicio"><a href="{{c.urledicion}}">{{c.expediente}} {{c.denominacion}}</a></li>
@@ -83,12 +84,12 @@
 													</tr>
 												</thead>
 												<tfoot>
-													<tr ng-class="{'hidden': !showformulas}">
+													<tr ng-show="showformulas">
 														<th colspan="{{1 + formula.valores[aanualidad].length}}"><p><strong>{{formula.computer}}</strong></p></th>
 													</tr>
 													<tr>
 														<th>Cálculo</th>
-														<th class="text-right" title="{{valor.formula}}" ng-style="bgColorResultado(valor.resultado, formula)" ng-repeat="valor in formula.valores[aanualidad] track by $index">{{valor.resultado.toFixed(0)}}</th>
+														<th class="text-right" title="{{valor.formula}}" ng-style="bgColorResultado(valor.resultado, formula)" ng-repeat="valor in formula.valores[aanualidad] track by $index">{{valor.resultado |number:0}}</th>
 													</tr>
 												</tfoot>
 												<tbody>
@@ -121,7 +122,7 @@
 											</table>
 										</td>
 										<td style="text-align:center">
-											<div width="10em" ng-radial-gauge ranges="formula.intervalos" value="formula.valor[aanualidad]" value-unit="unit" precision="precision" lower-limit="0" upper-limit="formula.meta"></div>
+											<div width="10em" ng-radial-gauge ranges="formula.intervalos" value="formula.valor[aanualidad]" value-unit="unit" precision="precision" lower-limit="0" upper-limit="formula.uppervalue"></div>
 											<!--
 											<canvas data-gauge-chart maxvalue="100" dato="gaugeChart[objetivo.i].data" value="gaugeChart[objetivo.i].data.val" data-options="gaugeChart[objetivo.i].options" style="width: 120px; height: 60px; " class=""></canvas>
 											{{gaugeChart[objetivo.i].data.val}}
@@ -129,6 +130,7 @@
 											<br />
 											<br />
 											<h4>{{ formula.valores[aanualidad][ formula.valores[aanualidad].length - 1 ].resultado.toFixed(0)  }}</h4>
+											<h4 style="color:red" ng-show="showformulas">{{formula.valor[aanualidad]}}</h4>
 											<h5>{{ formula.meta }}</h5>
 										</td>
 									</tr>

@@ -96,7 +96,7 @@
                             </td>
                             <td>
                                 <select ng-model="formula.intervalos[$index].alerta" class="form-control">
-                                    <option ng-repeat="level in [1, 2, 3, 4]" value="{{level}}">{{level}}</option>
+                                    <option ng-repeat="level in [0, 1, 2, 3, 4]" value="{{level}}">{{level}}</option>
                                 </select>
                             </td>
                             <td><input style="width: 100%;" ng-model="formula.intervalos[$index].mensaje" class="form-control"></td>

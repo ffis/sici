@@ -11,7 +11,8 @@
 					{name: 'Peligro', value: '#C50200'},
 					{name: 'Aviso', value: '#FF7700'},
 					{name: 'Normal', value: '#FDC702'},
-					{name: 'Éxito', value: '#8DCA2F'}
+					{name: 'Éxito', value: '#8DCA2F'},
+					{name: 'Superado éxito', value: '#C6E497'}
 				];
 
 				$scope.indicadores = [];

@@ -47,6 +47,7 @@
 				$routeProvider.when('/carta', {templateUrl: 'partials/carta.html', controller: 'CartaCtrl' });
 				$routeProvider.when('/carta/:idjerarquia', {templateUrl: 'partials/carta.html', controller: 'CartaCtrl' });
 				$routeProvider.when('/carta/:idjerarquia/:idcarta', {templateUrl: 'partials/carta.html', controller: 'CartaCtrl' });
+				$routeProvider.when('/carta-printable/:idjerarquia/:idcarta', {templateUrl: 'partials/carta-printable.html', controller: 'CartaPrintableCtrl' });
 				$routeProvider.when('/entidadobjeto', {templateUrl: 'partials/entidadobjeto.html', controller: 'EntidadObjetoCtrl' });
 				$routeProvider.when('/objetivo/:idobjetivo', {templateUrl: 'partials/objetivo.html', controller: 'ObjetivoCtrl' });
 				$routeProvider.when('/indicador/:idjerarquia/:idindicador', {templateUrl: 'partials/indicador.html', controller: 'IndicadorCtrl' });
