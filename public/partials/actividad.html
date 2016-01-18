@@ -4,12 +4,15 @@
 		<organismos otitle="'Organismos con procedimientos'" arbol="arbol" tipoelementos="'procedimiento/s'" attr="'numprocedimientos'" setseleccionado="goToJerarquia" seleccionado="seleccionado"></organismos>
 	</div>
 	<div ng-class="{'col-lg-9': !oculto, 'col-md-8': !oculto, 'col-sm-8': !oculto, 'col-lg-12': oculto}" class="right animated" id="detallesjerarquia">
-		<div ng-click="oculto=!oculto" style="cursor:ew-resize">
-			<span class="glyphicon glyphicon-fullscreen pull-right">
-			</span>
+		<div>
+			<div class="pull-left" ng-click="oculto=!oculto" style="cursor:ew-resize; margin-right:1em" ng-show="seleccionado" title="Pulse para maximizar/restaurar esta vista">
+				<div class="btn btn-default">
+					<i class="fa fa-bars"></i>
+				</div>
+			</div>
 			<h3>{{seleccionado.title}}</h3>
 		</div>
-		<div ng-if="procedimientos.length" class="panel panel-danger">
+		<div ng-if="procedimientos.length" class="panel panel-danger" style="clear:both">
 			<div ng-click="filtrosocultos=!filtrosocultos" class="panel-heading" style="cursor:ns-resize">
 				<span ng-class="{&quot;glyphicon-collapse-down&quot;:!filtrosocultos,&quot;glyphicon-expand&quot;:filtrosocultos}" class="glyphicon pull-right">
 				</span>

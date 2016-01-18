@@ -480,9 +480,6 @@
 							'direccion': '',
 							'intervalos': intervalos,
 							'valores': {
-								'a2015': [
-									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0},
-									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}],
 								'a2016': [
 									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0},
 									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}]
@@ -531,11 +528,9 @@
 			nombre: txt,
 			resturl: '/indicador/' + counterIndicador,
 			valores: {
-				'a2015': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ], /* 13 elementos */
-				'a2016': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+				'a2016': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ] /* 13 elementos */
 			},
 			observaciones: {
-				'a2015': ['', '', '', '', '', '', '', '', '', '', '', '', '' ],
 				'a2016': ['', '', '', '', '', '', '', '', '', '', '', '', '' ]
 			},
 			fechaversion: new Date(),

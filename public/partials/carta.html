@@ -4,7 +4,7 @@
 		<organismos otitle="'Organismos con cartas de compromisos'" arbol="arbol" tipoelementos="'carta de compromisos'" attr="'numcartas'" setseleccionado="goToJerarquia" seleccionado="seleccionado" filtro="filtro"></organismos>
 	</div>
 	<div ng-class="{'col-lg-9': !oculto, 'col-md-8': !oculto, 'col-sm-8': !oculto, 'col-lg-11': oculto}" class="right animated" id="detallesjerarquia">
-		<div class="pull-left" ng-click="oculto=!oculto" style="cursor:ew-resize; margin-right:1em">
+		<div class="pull-left" ng-click="oculto=!oculto" style="cursor:ew-resize; margin-right:1em" ng-show="seleccionado" title="Pulse para maximizar/restaurar esta vista">
 			<br />
 			<div class="btn btn-default">
 				<i class="fa fa-bars"></i>
