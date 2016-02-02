@@ -24,11 +24,10 @@
 
 	function trytoparseFormula(formula, indicadores){
 
-		var partes = tokenizer(formula.human).map(function(a){ return a.trim(); }).filter(function(a){ return a != '';});
-
+		var partes = tokenizer(formula.human).map(function(a){ return a.trim(); }).filter(function(a){ return a !== ''; });
 		var frasesAReemplazar = [];
-		for(var i = 0, j = partes.length; i < j; i++){
-			for(var k = 0, l = indicadores.length; k < l; k++){
+		for (var i = 0, j = partes.length; i < j; i++){
+			for (var k = 0, l = indicadores.length; k < l; k++){
 				if (partes[i] === indicadores[k].nombre){
 					frasesAReemplazar.push({
 						search: partes[i],
@@ -65,7 +64,7 @@
 				var formulacomputer = formula.human.substr(0, ultimoseparador);
 				var e = [], fallo = false;
 
-				for(var i = 0, j = frasesAReemplazar.length; i < j; i++){
+				for (var i = 0, j = frasesAReemplazar.length; i < j; i++){
 					if (formulacomputer.indexOf(frasesAReemplazar[i].search) > -1){
 						formulacomputer = formulacomputer.replace(frasesAReemplazar[i].search, '@');
 					}else if (formulacomputer.indexOf(uncapitalizeFirst(frasesAReemplazar[i].search) ) > -1){
@@ -78,9 +77,9 @@
 				if (!fallo){
 					var arr = formulacomputer.split('@');
 
-					for(var i = 0, j = arr.length - 1; i < j; i++){
+					for (var i = 0, j = arr.length - 1; i < j; i++){
 						e.push(arr[i]);
-						if (frasesAReemplazar.length == 0){
+						if (frasesAReemplazar.length === 0){
 							fallo = true;
 							break;
 						}
@@ -102,11 +101,10 @@
 
 	module.exports.indicador = function(models){
 		return function(req, res){
-			
 			var indicadormodel = models.indicador();
 			if (typeof req.params.id !== 'undefined'){
 				var id = req.params.id;
-				var restriccion = { _id : models.ObjectId(id) };				
+				var restriccion = { _id : models.ObjectId(id) };
 				if (!req.user.permisoscalculados.superuser) {
 					restriccion['$or'] = [
 						{
@@ -115,7 +113,7 @@
 						{
 							'responsable': req.user.login
 						}];
-				}				
+				}
 				indicadormodel.findOne(restriccion, function(err, indicador){
 					if (err){
 						console.log('Error');
@@ -124,7 +122,7 @@
 					}
 					res.json(indicador);
 				});
-			}else{
+			} else {
 				var restricciones = {};
 				if (!req.user.permisoscalculados.superuser) {
 					restricciones['$or'] = [
@@ -163,13 +161,13 @@
 			if (typeof req.params.id !== 'undefined'){
 				var indicadormodel = models.indicador();
 				var objetivomodel = models.objetivo();
-				var id = req.params.id;		
+				var id = req.params.id;
 				indicadormodel.findOne({_id: models.ObjectId(id)}, function(err, indicador){
 					if (err){
 						res.status(500).json({'error': 'An error has occurred', details: err});
-						return;						
+						return;
 					}
-					if (req.user.permisoscalculados.superuser || 
+					if (req.user.permisoscalculados.superuser ||
 						req.user.permisoscalculados.jerarquiaescritura.indexOf(indicador.idjerarquia)!==-1){
 						objetivomodel.find({'formulas.indicadores': models.ObjectId(id)}, function(err, objetivos){
 							if (err){
@@ -184,18 +182,18 @@
 								indicadormodel.remove({'_id': models.ObjectId(id)}, function(e){
 									if (e){
 										res.status(400).json({'error': 'An error has occurred'});
-									}else{
+									} else {
 										res.json(content);
 									}
 								});
 							}
 						});
-					}else{
+					} else {
 						res.status(403).json({'error': 'Not allowed'});
 						/* not allowed */
 					}
-				});							
-			}else{
+				});
+			} else {
 				res.status(404).json({'error': 'Not found'});
 			}
 		};
@@ -212,7 +210,7 @@
 						res.status(500).json({'error': 'An error has occurred', details: err});
 						return;
 					}
-					if (indicador) { 
+					if (indicador) {
 						var permiso = req.user.permisoscalculados.superuser || req.user.permisoscalculados.jerarquiaescritura.indexOf(indicador.idjerarquia)!==-1;
 						if (permiso){
 							module.exports.saveVersion(models, Q, indicador).then(function(){
@@ -227,7 +225,7 @@
 								}
 
 								if (indicador.acumulador === 'sum'){
-									for(attr in indicador.valores){
+									for (attr in indicador.valores){
 										var suma = 0;
 										for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
 											indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseInt(actualizacion.valores[attr][i]);
@@ -236,7 +234,7 @@
 										indicador.valores[attr][ indicador.valores[attr].length - 1 ] = suma;
 									}
 								}
-								for(attr in indicador.observaciones){
+								for (attr in indicador.observaciones){
 									for (i = 0, j = indicador.observaciones[attr].length; i < j; i++){
 										indicador.observaciones[attr][i] = actualizacion.observaciones[attr][i].trim();
 									}
@@ -254,7 +252,7 @@
 									}
 								});
 							}, function(e){
-									res.status(500).json({'error': 'An error has occurred', details: e});
+								res.status(500).json({'error': 'An error has occurred', details: e});
 							});
 
 						}else{
@@ -264,11 +262,11 @@
 							console.log('indicador');
 							console.log(indicador);
 						}
-					}else{
-							res.status(404).json({'error': 'Not found'});
+					} else {
+						res.status(404).json({'error': 'Not found'});
 					}
 				});
-			}else{
+			} else {
 				res.status(404).json({'error': 'Not found'});
 			}
 		};
@@ -282,8 +280,8 @@
 					if (erro){
 						res.status(500).json({'error': 'An error has occurred', details: erro});
 						return;
-					}					
-					if (objetivo && (req.user.permisoscalculados.superuser || 								
+					}
+					if (objetivo && (req.user.permisoscalculados.superuser ||
 								req.user.permisoscalculados.entidadobjetoescritura.indexOf(''+objetivo.carta)!==-1)){
 						for(var attr in req.body){
 							//TODO: change this naive
@@ -293,16 +291,16 @@
 							if (err){
 								console.error(err);
 								res.status(500).json({'error': 'An error has occurred', details: error });
-							}else{
+							} else {
 								res.json(objetivo);
 							}
 						});
 
-					}else{
+					} else {
 						res.status(404).json({'error': 'Not found'});
 					}
 				});
-			}else{
+			} else {
 				res.status(404).json({'error': 'Not found'});
 			}
 		};
@@ -317,9 +315,9 @@
 						res.status(500).json({'error': 'An error has occurred', details: erro});
 						return;
 					}
-					if (!(req.user.permisoscalculados.superuser ||						
+					if (!(req.user.permisoscalculados.superuser ||
 						req.user.permisoscalculados.entidadobjetoescritura.indexOf(''+objetivo.carta)!==-1)){
-						res.status(403).json({'error': 'Not allowed'});		
+						res.status(403).json({'error': 'Not allowed'});
 						return;
 					}
 					if (!objetivo){ res.json(objetivo); return; }
@@ -334,11 +332,11 @@
 							}
 							//disponible objeto con las anualidades
 							var valoressimplicado = {};
-							for(var anualidad in val){
+							for (var anualidad in val){
 								if (typeof valoressimplicado[anualidad] === 'undefined'){
 									valoressimplicado[anualidad] = [];
 								}
-								for(var m in val[anualidad]){
+								for (var m in val[anualidad]){
 									valoressimplicado[anualidad].push(val[anualidad][m]);
 								}
 							}
@@ -397,7 +395,7 @@
 			return deferred.promise;
 		}
 
-		if (typeof Crawler != 'function'){
+		if (typeof Crawler !== 'function'){
 			deferred.reject({error: 'Cannot download carta ' + carta.denominacion + ' because the crawler is not available'});
 			return deferred.promise;
 		}
@@ -416,11 +414,11 @@
 			var intervaloscalculados = [];
 			if (valormeta > 0){
 				intervaloscalculados = [
-					{'min': 0, 'max': valormeta/4, 'mensaje': 'Peligro', 'color': '#C50200', 'alerta': 4},
+					{'min': 0, 'max': valormeta / 4, 'mensaje': 'Peligro', 'color': '#C50200', 'alerta': 4},
 					{'min': valormeta / 4, 'max': valormeta / 2, 'mensaje': 'Aviso', 'color': '#FF7700', 'alerta': 3},
 					{'min': valormeta / 2, 'max': valormeta / 4 + valormeta / 2, 'mensaje': 'Normal', 'color': '#FDC702', 'alerta': 2},
 					{'min': valormeta / 4 + valormeta / 2, 'max': valormeta, 'mensaje': 'Éxito', 'color': '#8DCA2F', 'alerta': 1},
-					{'min': valormeta, 'max': valormeta * 2, 'mensaje': 'Superado éxito', 'color': '#C6E497', 'alerta': 0},
+					{'min': valormeta, 'max': valormeta * 2, 'mensaje': 'Superado éxito', 'color': '#C6E497', 'alerta': 0}
 				];
 			}
 			return intervaloscalculados;
@@ -431,7 +429,7 @@
 			var contador = '1';
 			var enunciado = '';
 			var formulas = [];
-			for(var i = 0, j = $html.length; i < j; i++){
+			for (var i = 0, j = $html.length; i < j; i++){
 				var $descripcion = $($html[i]);
 				var detalle = $descripcion.text().trim();
 				if (detalle.indexOf('COMPROMISOS DE CALIDAD E INDICADORES') >= 0){
@@ -546,14 +544,14 @@
 		indicadormodel.findOne({idjerarquia: idjerarquia, nombre: txt}, function(err, obj){
 			if (err){
 				defer.reject(err);
-			}else{
+			} else {
 				if (obj){
 					defer.resolve(obj);
-				}else{
+				} else {
 					new indicadormodel(indicador).save(function(erro, obj2){
 						if (erro){
 							defer.reject(erro);
-						}else{
+						} else {
 							defer.resolve(obj2);
 						}
 					});
@@ -583,20 +581,23 @@
 				objetivos[idobjetivo].formulas[idformula].indicadores[ordenindicador] = indicador._id;
 			};
 		};
-		for(var i = 0, j = objetivos.length; i < j; i++){
-			for(var k = 0, l = objetivos[i].formulas.length; k < l; k++){
+		var cbMap = function(formula){
+			return function(s){
+				return formula.lastIndexOf(s);
+			};
+		};
+		for (var i = 0, j = objetivos.length; i < j; i++){
+			for (var k = 0, l = objetivos[i].formulas.length; k < l; k++){
 				var formula = objetivos[i].formulas[k].human;
 
-				var ultimoseparador = Math.max.apply(null, ['=', '≥', '≤', '&ge;', '&le;'].map(function(s){
-					return formula.lastIndexOf(s);
-				}) );
+				var ultimoseparador = Math.max.apply(null, ['=', '≥', '≤', '&ge;', '&le;'].map(cbMap(formula) ) );
 				if (ultimoseparador > 0){
 					formula = formula.substr(0, ultimoseparador);
 				}
 				var	partes = tokenizer(formula),
 					orden = 0;
 
-				for(var n = 0, m = partes.length; n < m; n++ ){
+				for (var n = 0, m = partes.length; n < m; n++ ){
 					var parte = partes[n].trim();
 					if (parte === ''){
 						continue;
@@ -635,32 +636,32 @@
 						res.status(500).json({'error': 'An error has occurred', details: err});
 						return;
 					}
-					
+
 					if (objetivo){
-						
+
 						if (req.user.permisoscalculados.superuser ||
 							req.user.permisoscalculados.entidadobjetoescritura.indexOf(''+objetivo.carta)) {
-						
+
 							if (typeof objetivo.formulas[parseInt(indiceformula)] !== 'undefined'){
 								objetivo.formulas[parseInt(indiceformula)].computer = formula;
 								objetivo.markModified('formulas');
 								objetivomodel.update({'_id': models.ObjectId(objetivo._id)}, objetivo, function(error, e){
 									if (error){
 										res.status(500).json({'error': 'Error during update', details: error});
-									}else{
+									} else {
 										res.json(objetivo);
 									}
 								});
-							}else{
+							} else {
 								res.status(404).json({'error': 'Not found3'});
 							}
 
 						} else {
 							res.status(403).json({'error': 'Not allowed'});
 						}
-					}else{
+					} else {
 						res.status(404).json({'error': 'Not found2'});
-					}						
+					}
 				});
 			} else {
 				res.status(404).json({'error': 'Not valid params'});
@@ -676,9 +677,9 @@
 				objetivomodel = models.objetivo(),
 				entidadobjetomodel = models.entidadobjeto();
 
-			if (id && 
-					(req.user.permisoscalculados.superuser 
-						|| req.user.permisoscalculados.entidadobjetoescritura.indexOf(id)						
+			if (id &&
+					(req.user.permisoscalculados.superuser
+						|| req.user.permisoscalculados.entidadobjetoescritura.indexOf(id)
 					)
 				){
 				entidadobjetomodel.findOne({'_id': models.ObjectId(req.params.id) }, function (err, carta) {
@@ -692,7 +693,7 @@
 							return function(err){
 								if (err){
 									def.reject(err);
-								}else{
+								} else {
 									def.resolve();
 								}
 							};
@@ -706,11 +707,11 @@
 							res.status(500).json({'error': 'Error during dropCarta', details: error});
 						});
 
-					}else{
+					} else {
 						res.status(404).json({'error': 'Not found'});
 					}
 				});
-			}else{
+			} else {
 				res.status(403).json({'error': 'Not allowed'});
 			}
 		};
@@ -731,11 +732,11 @@
 						module.exports.downloadCarta(data, Crawler, Q).then(function(objetivos){
 							if (objetivos.length === 0){
 								res.status(500).json({'error': 'Empty page'});
-							}else{
+							} else {
 								module.exports.extractAndSaveIndicadores(data.idjerarquia, objetivos, indicadormodel, Q).then(function(objetivosConIndicadores){
 									var objetivosAAlmacenar = objetivosConIndicadores.objetivos;
-									for(var i = 0, j = objetivosAAlmacenar.length; i < j; i++){
-										for(var k = 0, l = objetivosAAlmacenar[i].formulas.length; k < l; k++){
+									for (var i = 0, j = objetivosAAlmacenar.length; i < j; i++){
+										for (var k = 0, l = objetivosAAlmacenar[i].formulas.length; k < l; k++){
 											objetivosAAlmacenar[i].formulas[k] = trytoparseFormula(objetivosAAlmacenar[i].formulas[k], objetivosConIndicadores.indicadoresobtenidos);
 										}
 										new objetivomodel(objetivosAAlmacenar[i]).save();
@@ -749,16 +750,16 @@
 						}, function(error){
 							res.status(500).json({'error': 'Error during download', details: error});
 						});
-					}else{
+					} else {
 						res.status(404).json({'error': 'Not found'});
 					}
 				});
-			}else{
+			} else {
 				res.status(404).json({'error': 'Not valid params'});
 			}
 		};
 	};
-	
+
 	module.exports.saveVersion = function (models, Q, indicador) {
 		var defer = Q.defer();
 		var Historico = models.historicoindicador();
@@ -768,13 +769,11 @@
 		version.save(function (err) {
 			if (err){
 				defer.reject(err);
-			}
-			else{
+			} else {
 				defer.resolve();
 			}
 		});
 		return defer.promise;
 	};
-	
 
 })(module);

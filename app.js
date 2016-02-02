@@ -47,7 +47,7 @@
 		process.stdout.write( msg + '\u000d' );
 	}
 
-	app.set('mongosrv', process.env.MONGOSVR || 'mongodb://mongosvr/sici');
+	app.set('mongosrv', process.env.MONGOSVR || 'mongodb://mongosvr/sici_cs');
 
 	logger.log('Estableciendo conexión a ' + app.get('mongosrv'));
 	//Inicialización mongoose
@@ -90,21 +90,21 @@
 
 		if (cfg.logincarm){
 			app.post('/authenticate', logincarm.uncrypt(cfg.urlbasedecrypt), login.authenticate({secret: cfg.secret, jwt: jwt, models: models, crypto: crypto}));
-		}else{
+		} else {
 			app.post('/authenticate', login.authenticate({secret: cfg.secret, jwt: jwt, models: models, crypto: crypto}));
 		}
 
 		app.use('/api/v1/restricted/', function(req, res, next){
 			if (req.user.permisoscalculados.superuser){ if (next){ next(); } }
-			else{ res.status(403).json({error: 'Unathorized'}); }
+			else { res.status(403).json({error: 'Unathorized'}); }
 		});
 		app.use('/api/v1/private/', function(req, res, next){
 			if (req.user.permisoscalculados.superuser || req.user.permisoscalculados.grantoption){ if (next){ next(); } }
-			else{ res.status(403).json({error: 'Unathorized'}); }
+			else { res.status(403).json({error: 'Unathorized'}); }
 		});
 		app.use('/bot/', function(req, res, next){
 			if (req.ip === '127.0.0.1' || req.ip === '::ffff:127.0.0.1' ){ if (next){ next(); } }
-			else{ res.status(403).json({ error: 'Unathorized' }); }
+			else { res.status(403).json({ error: 'Unathorized' }); }
 		});
 
 		setProgressMessage('Estableciendo rutas: restricciones permisos 2/2');
@@ -149,7 +149,7 @@
 		app.delete('/api/v1/restricted/feedback/:_id', feedback.remove(models));
 
 		app.get('/api/v1/restricted/excelgesper', persona.importarGesper(models, Q));
-               
+
 
 		/* funcionalidad grantuser */
 		setProgressMessage('Estableciendo rutas: rutas grantuser');
@@ -157,10 +157,10 @@
 		app.get('/api/v1/private/permisosList/:idjerarquia/:recursivo', permiso.permisosList(models, Q));
 
 		app.get('/api/v1/private/permisosDirectosProcedimientoList/:codigoprocedimiento', permiso.permisosDirectosProcedimientoList(models));
-		app.get('/api/v1/private/permisosProcedimientoList/:codigoprocedimiento', permiso.permisosProcedimientoList(models));		
+		app.get('/api/v1/private/permisosProcedimientoList/:codigoprocedimiento', permiso.permisosProcedimientoList(models));
 
 		app.get('/api/v1/private/permisosDirectosEntidadObjetoList/:codigoentidadobjeto', permiso.permisosDirectosEntidadObjetoList(models));
-		app.get('/api/v1/private/permisosEntidadObjetoList/:codigoentidadobjeto', permiso.permisosEntidadObjetoList(models));		
+		app.get('/api/v1/private/permisosEntidadObjetoList/:codigoentidadobjeto', permiso.permisosEntidadObjetoList(models));
 
 		app.put('/api/v1/private/permisos/:id', permiso.update(models, recalculate, Q));
 		app.get('/api/v1/private/permisos/:id', permiso.get(models));
@@ -218,7 +218,7 @@
 
 
 		app.get('/api/v1/public/entidadobjetoList/:idjerarquia', entidadobjeto.entidadobjetoList(models));
-		app.get('/api/v1/public/entidadobjetoList/:idjerarquia/:recursivo', entidadobjeto.entidadobjetoList(models, Q));		
+		app.get('/api/v1/public/entidadobjetoList/:idjerarquia/:recursivo', entidadobjeto.entidadobjetoList(models, Q));
 
 		app.get('/api/v1/public/procedimiento', procedimiento.procedimiento(models));
 		app.get('/api/v1/public/procedimiento/:codigo', procedimiento.procedimiento(models));

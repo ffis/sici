@@ -31,7 +31,7 @@
 
 	function run_tests(){
 		var i = 0, j = 0;
-		for(i = 0, j = registros.length; i < j; i++){
+		for (i = 0, j = registros.length; i < j; i++){
 			assert( checkRegistroNumerico(registros[i], 'id'), 'El campo ID debe existir y ser numérico. Línea:' + (i + 1));
 			assert( checkRegistroNumerico(registros[i], 'ancestrodirecto'), 'El campo ancestrodirecto debe existir y ser numérico. Línea:' + (i + 1));
 			assert( checkRegistroString(registros[i], 'nombre'), 'El campo nombre debe existir y ser texto. Línea:' + (i + 1));
@@ -42,11 +42,11 @@
 
 		//comprobar que existen todos
 		var registrosXId = {};
-		for(i = 0, j = registros.length; i < j; i++){
+		for (i = 0, j = registros.length; i < j; i++){
 			registrosXId[ registros[i].id ] = registros[i];
 		}
 
-		for(i = 0, j = registros.length; i < j; i++){
+		for (i = 0, j = registros.length; i < j; i++){
 			var ancestrodirecto = registros[i].ancestrodirecto;
 			if (ancestrodirecto){
 				assert(typeof registrosXId[ ancestrodirecto ] === 'object', 'El campo ancestrodirecto debe existir entre los importados. Línea:' + (i + 1));
@@ -60,7 +60,7 @@
 
 
 	function transformar(){
-		for(var i = 0, j = registros.length; i < j; i++){
+		for (var i = 0, j = registros.length; i < j; i++){
 			registros[i].id = parseInt(registros[i].id);
 			registros[i].ancestrodirecto = registros[i].ancestrodirecto ? parseInt(registros[i].ancestrodirecto) : null;
 			registros[i].numprocedimientos = 0;
@@ -91,12 +91,12 @@
 		if (record && record.length > 0){
 			if (campos.length === 0) //cabecera
 			{
-				for(i = 0, j = record.length; i < j; i++){
+				for (i = 0, j = record.length; i < j; i++){
 					campos.push(record[i].trim());
 				}
-			}else{
+			} else {
 				registro = {};
-				for(i = 0, j = record.length; i < j; i++){
+				for (i = 0, j = record.length; i < j; i++){
 					registro[ campos[i] ] = record[i].trim();
 				}
 				registros.push(registro);

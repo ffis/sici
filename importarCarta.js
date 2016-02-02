@@ -9,7 +9,7 @@
 		var returnValue = [];
 		var fecha = new Date();
 		fecha.setDate(1);
-		for(var i = 0, j = cs.length; i < j; i++){
+		for (var i = 0, j = cs.length; i < j; i++){
 			var carta = cs[i];
 
 			var obj = {
