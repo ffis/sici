@@ -257,10 +257,10 @@
 								res.status(500).json({'error': 'An error has occurred', details: e});
 							});
 
-						}else{
+						} else {
 							res.status(403).json({'error': 'Not allowed'});
 							console.log('permisos');
-							console.log(req.user.permisoscalculados.jerarquiaescritura);
+							console.log(req.user.permisoscalculados);
 							console.log('indicador');
 							console.log(indicador);
 						}
@@ -629,13 +629,12 @@
 		return defer.promise;
 	};
 
-	module.exports.updateFormula = function(models, Q){
+	module.exports.updateFormula = function(models){
 		return function(req, res){
 			var idobjetivo = req.body.idobjetivo,
 				indiceformula = req.body.indiceformula,
 				formula = req.body.formula,
 				objetivomodel = models.objetivo();
-				console.log(idobjetivo);
 			if (idobjetivo){
 				objetivomodel.findOne({'_id': models.ObjectId(idobjetivo) }, function (err, objetivo) {
 					if (err){
@@ -646,12 +645,12 @@
 					if (objetivo){
 
 						if (req.user.permisoscalculados.superuser ||
-							req.user.permisoscalculados.entidadobjetoescritura.indexOf(''+objetivo.carta)) {
+							req.user.permisoscalculados.entidadobjetoescritura.indexOf('' + objetivo.carta)) {
 
 							if (typeof objetivo.formulas[parseInt(indiceformula)] !== 'undefined'){
 								objetivo.formulas[parseInt(indiceformula)].computer = formula;
 								objetivo.markModified('formulas');
-								objetivomodel.update({'_id': models.ObjectId(objetivo._id)}, objetivo, function(error, e){
+								objetivomodel.update({'_id': models.ObjectId(objetivo._id)}, objetivo, function(error){
 									if (error){
 										res.status(500).json({'error': 'Error during update', details: error});
 									} else {
@@ -672,7 +671,6 @@
 			} else {
 				res.status(404).json({'error': 'Not valid params'});
 			}
-
 		};
 	};
 
