@@ -2,16 +2,16 @@
 	'use strict';
 	angular.module('sici')
 		.controller('CartaCtrl',
-			['$q', '$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', '$log', '$http', 'ArbolWithEmptyNodes', 'Objetivo', 'EntidadObjeto', 'PastelColor', 'ImportarObjetivo', 'Indicador',
-			function ($q, $rootScope, $scope, $location, $window, $routeParams, $timeout, $log, $http, ArbolWithEmptyNodes  , Objetivo, EntidadObjeto, PastelColor, ImportarObjetivo, Indicador) {
+			['$q', '$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', '$log', '$http', 'Arbol', 'Objetivo', 'EntidadObjeto', 'PastelColor', 'ImportarObjetivo', 'Indicador',
+			function ($q, $rootScope, $scope, $location, $window, $routeParams, $timeout, $log, $http, Arbol, Objetivo, EntidadObjeto, PastelColor, ImportarObjetivo, Indicador) {
 				$rootScope.nav = 'carta';
 				$scope.idjerarquia = ($routeParams.idjerarquia) ? parseInt( $routeParams.idjerarquia ) : false;
-				$scope.arbol = ArbolWithEmptyNodes.query(function(){ $scope.setJerarquiaById($scope.idjerarquia); });
+				$scope.arbol = Arbol.query(function(){ $scope.setJerarquiaById($scope.idjerarquia); });
 				$scope.indicadores = {};
 				$scope.showformulas = false;
 				$scope.superuser = $rootScope.superuser();
 				$scope.mutexFormulas = function(){
-					$scope.showformulas = !$scope.showformulas; 
+					$scope.showformulas = !$scope.showformulas;
 				};
 				$scope.setJerarquiaById = function(idj){
 					if (!idj){ return; }
@@ -21,14 +21,14 @@
 							return true;
 						}
 						if (!nodo.nodes) { return false; }
-						for(var i = 0, j = nodo.nodes.length; i < j; i++){
+						for (var i = 0, j = nodo.nodes.length; i < j; i++){
 							if (setJ(nodo.nodes[i], idjerarquia)) {
 								return true;
 							}
 						}
 						return false;
 					};
-					for(var idx = 0, idxmax = $scope.arbol.length; idx < idxmax; idx++){
+					for (var idx = 0, idxmax = $scope.arbol.length; idx < idxmax; idx++){
 						if (setJ( $scope.arbol[idx], idj)){ break; }
 					}
 				};
@@ -72,7 +72,7 @@
 								}
 							}
 						});
-					}else{
+					} else {
 						$scope.objetivos = [];
 						delete $scope.cartaservicioseleccionada;
 					}
@@ -86,13 +86,13 @@
 					if (selection) {
 						$scope.idjerarquia = selection.id;
 						$scope.cartasservicio = EntidadObjeto.query({'tipoentidad': 'CS', 'idjerarquia': $scope.idjerarquia}, function(){
-							for(var i = 0, j = $scope.cartasservicio.length; i < j; i++){
+							for (var i = 0, j = $scope.cartasservicio.length; i < j; i++){
 								$scope.cartasservicio[i].urledicion = '/carta/' + $scope.idjerarquia + '/' + $scope.cartasservicio[i]._id;
 								$scope.cartasservicio[i].urlprintable = '/carta-printable/' + $scope.idjerarquia + '/' + $scope.cartasservicio[i]._id;
 							}
 							if ($scope.cartasservicio.length > 0){
 								$scope.setCartaServicio($scope.cartasservicio[0]);
-							}else{
+							} else {
 								$scope.setCartaServicio();
 							}
 						});
@@ -114,7 +114,7 @@
 					}, function(e){
 						if (typeof e.data !== 'undefined' && typeof e.data.error !== 'undefined'){
 							$rootScope.toaster('Error durante la importación: ' + e.data.error, 'Error', 'error');
-						}else{
+						} else {
 							$rootScope.toaster('Error durante la importación', 'Error', 'error');
 						}
 					});
@@ -125,7 +125,7 @@
 						return function(loaded){
 							var maxValuePerFormula = 0;
 							if (typeof loaded.formulas !== 'undefined'){
-								for(var i = 0, j = loaded.formulas.length; i < j; i++){
+								for (var i = 0, j = loaded.formulas.length; i < j; i++){
 									obj.formulas[i].valores = loaded.formulas[i].valores;
 									for (var anu in obj.formulas[i].valores){
 										obj.formulas[i].valor[anu] = obj.formulas[i].valores[anu][ obj.formulas[i].valores[anu].length - 1 ].resultado;
@@ -141,7 +141,7 @@
 							}
 						};
 					};
-					Objetivo.get( {id: $scope.objetivos[i]._id} , loadAndSetValores($scope.objetivos[i]) );
+					Objetivo.get( {id: $scope.objetivos[i]._id}, loadAndSetValores($scope.objetivos[i]) );
 				};
 				$scope.updateIndicador = function(indicadorid){
 					var f = function(indicadorid, desplegado){
@@ -149,7 +149,7 @@
 							$scope.indicadores[indicadorid].desplegado = desplegado;
 							var indicadoresARecargar = [];
 							for (var i = 0, j = $scope.objetivos.length; i < j; i++){
-								for(var k = 0, l = $scope.objetivos[i].formulas.length; k < l; k++){
+								for (var k = 0, l = $scope.objetivos[i].formulas.length; k < l; k++){
 									if ($scope.objetivos[i].formulas[k].indicadores.indexOf(indicadorid) > -1){
 										indicadoresARecargar.push(i);
 										break;
@@ -165,7 +165,7 @@
 					$scope.indicadores[indicadorid].$update(f(indicadorid, $scope.indicadores[indicadorid].desplegado), function(e){
 						if (typeof e.data !== 'undefined' && typeof e.data.error !== 'undefined'){
 							$rootScope.toaster('Error durante la actualización: ' + e.data.error, 'Error', 'error');
-						}else{
+						} else {
 							$rootScope.toaster('Error durante la actualización', 'Error', 'error');
 						}
 					});
@@ -174,7 +174,7 @@
 					if (typeof observaciones === 'undefined') {
 						return false;
 					}
-					for(var i = 0, j = observaciones.length; i < j; i++) {
+					for (var i = 0, j = observaciones.length; i < j; i++) {
 						if (typeof observaciones[i] !== 'undefined') {
 							if (observaciones[i].length !== 0) {
 								return true;
@@ -194,7 +194,7 @@
 					if (!resultado || resultado === 0 || resultado === ''){
 						return '';
 					}
-					for(var i = 0, j = formula.intervalos.length; i < j; i++){
+					for (var i = 0, j = formula.intervalos.length; i < j; i++){
 						if (resultado >= formula.intervalos[i].min && resultado <= formula.intervalos[i].max){
 							result = formula.intervalos[i].color;
 						}
@@ -203,9 +203,9 @@
 				};
 				$scope.mini = function(){
 					var minval = arguments[i];
-					for(var i = 1; i < arguments.length; i++) {
+					for (var i = 1; i < arguments.length; i++) {
 						if (minval > arguments[i]){
-							minval = arguments[i]; 
+							minval = arguments[i];
 						}
 					}
 					return minval;
@@ -213,7 +213,6 @@
 
 				$scope.unit = '';
 				$scope.precision = 2;
-
 			}
 		]
 	);

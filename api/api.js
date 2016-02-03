@@ -37,7 +37,24 @@
 			var hijos = [];
 			var filterfn;
 			if (typeof req.params.withemptynodes === 'undefined' || !req.params.withemptynodes){
-				filterfn = function(jerarquia){ return jerarquia.numprocedimientos + jerarquia.numcartas; };
+				filterfn = function(jerarquia){
+					if (jerarquia.numprocedimientos > 0){
+						return true;
+					}
+					if (jerarquia.numcartas > 0){
+						return true;
+					}
+					if (!hijos[jerarquia.id]){
+						return false;
+					}
+					var hijosj = hijos[jerarquia.id];
+					for (var i = 0, j = hijosj.length; i < j; i++){
+						if (filterfn(hijosj[i])){
+							return true;
+						}
+					}
+					return false;
+				};
 			}
 			else {
 				filterfn = function(){ return true; };
