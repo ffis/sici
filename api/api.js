@@ -1,6 +1,12 @@
 (function(module, log){
+	/** @module api */
 	'use strict';
 
+	/**
+	 * Log de actividad. Helper para expressjs.
+	 * Registra el usuario que realiza la petición, la fecha, la url, las cabeceras de la petición así como el cuerpo de la misma.
+	 * El almacenamiento se realiza en un objeto del modelo Registroactividad.
+	 */
 	module.exports.log = function(models){
 		return function(req, res, next){
 			var Registroactividad = models.registroactividad();
@@ -18,14 +24,19 @@
 		};
 	};
 
+	/**
+	 * Estructura de árbol para seleccionar entidades
+	 * @param {boolean} withemptynodes - Si es verdadero muestra todos los nodos. Por defecto es falso.
+	 * @returns {Array} Un array de objetos con esta estructura
+     * { _id: number, id: number, title: string, nodes: [], numprocedimientos: number, numcartas: number}
+	 */
 	module.exports.arbol = function(Q, models){
 		return function(req, res){
-
 			var Jerarquia = models.jerarquia();
 			var returnValue = [];
 			var hijos = [];
 			var filterfn;
-			if (typeof req.params.withemptynodes === 'undefined'){
+			if (typeof req.params.withemptynodes === 'undefined' || !req.params.withemptynodes){
 				filterfn = function(jerarquia){ return jerarquia.numprocedimientos + jerarquia.numcartas; };
 			}
 			else {

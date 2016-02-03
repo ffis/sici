@@ -1,4 +1,5 @@
 (function(module){
+	/** @module carta */
 	'use strict';
 	var Expression = require('./expression');
 
@@ -26,7 +27,8 @@
 
 		var partes = tokenizer(formula.human).map(function(a){ return a.trim(); }).filter(function(a){ return a !== ''; });
 		var frasesAReemplazar = [];
-		for (var i = 0, j = partes.length; i < j; i++){
+		var i = 0, j = 0;
+		for (i = 0, j = partes.length; i < j; i++){
 			for (var k = 0, l = indicadores.length; k < l; k++){
 				if (partes[i] === indicadores[k].nombre){
 					frasesAReemplazar.push({
@@ -64,12 +66,12 @@
 				var formulacomputer = formula.human.substr(0, ultimoseparador);
 				var e = [], fallo = false;
 
-				for (var i = 0, j = frasesAReemplazar.length; i < j; i++){
+				for (i = 0, j = frasesAReemplazar.length; i < j; i++){
 					if (formulacomputer.indexOf(frasesAReemplazar[i].search) > -1){
 						formulacomputer = formulacomputer.replace(frasesAReemplazar[i].search, '@');
 					}else if (formulacomputer.indexOf(uncapitalizeFirst(frasesAReemplazar[i].search) ) > -1){
 						formulacomputer = formulacomputer.replace(uncapitalizeFirst(frasesAReemplazar[i].search), '@');
-					}else{
+					} else {
 						fallo = true;
 						console.log('No encontrado |' + frasesAReemplazar[i].search + '| en ' + formulacomputer);
 					}
@@ -77,7 +79,7 @@
 				if (!fallo){
 					var arr = formulacomputer.split('@');
 
-					for (var i = 0, j = arr.length - 1; i < j; i++){
+					for (i = 0, j = arr.length - 1; i < j; i++){
 						e.push(arr[i]);
 						if (frasesAReemplazar.length === 0){
 							fallo = true;
@@ -89,7 +91,7 @@
 					e.push(arr[ arr.length - 1]);
 					if (!fallo){
 						e = e.filter(function(str){
-							return str.trim() != '';
+							return str.trim() !== '';
 						});
 						formula.computer = JSON.stringify(e);
 					}
@@ -168,7 +170,7 @@
 						return;
 					}
 					if (req.user.permisoscalculados.superuser ||
-						req.user.permisoscalculados.jerarquiaescritura.indexOf(indicador.idjerarquia)!==-1){
+						req.user.permisoscalculados.jerarquiaescritura.indexOf(indicador.idjerarquia) !== -1){
 						objetivomodel.find({'formulas.indicadores': models.ObjectId(id)}, function(err, objetivos){
 							if (err){
 								res.status(500).json({'error': 'An error has occurred', details: err});
@@ -177,7 +179,7 @@
 							if (objetivos && objetivos.length > 0){
 								var vinculado = objetivos.map(function(o){ return o.denominacion; }).join(' | ');
 								res.status(403).json({'error': 'No se permite eliminar un indicador vinculado a un objetivo', details: vinculado});
-							}else{
+							} else {
 								var content = req.body;
 								indicadormodel.remove({'_id': models.ObjectId(id)}, function(e){
 									if (e){
@@ -211,7 +213,7 @@
 						return;
 					}
 					if (indicador) {
-						var permiso = req.user.permisoscalculados.superuser || req.user.permisoscalculados.jerarquiaescritura.indexOf(indicador.idjerarquia)!==-1;
+						var permiso = req.user.permisoscalculados.superuser || req.user.permisoscalculados.jerarquiaescritura.indexOf(indicador.idjerarquia) !== -1;
 						if (permiso){
 							module.exports.saveVersion(models, Q, indicador).then(function(){
 
@@ -247,7 +249,7 @@
 								indicador.save(function(erro, doc){
 									if (erro){
 										res.status(500).json({'error': 'An error has occurred', details: erro});
-									}else{
+									} else {
 										res.json(doc);
 									}
 								});
@@ -272,7 +274,11 @@
 		};
 	};
 
-	module.exports.actualizaobjetivo = function(models, Q){
+	/**
+	 * Actualización de objetivo. Helper expressjs. Realiza comprobación de permisos.
+	 * @param {string} id - Identificador del registro mongodb.
+	 */
+	module.exports.actualizaobjetivo = function(models){
 		return function(req, res){
 			var Objetivo = models.objetivo();
 			if (typeof req.params.id !== 'undefined'){
@@ -282,22 +288,21 @@
 						return;
 					}
 					if (objetivo && (req.user.permisoscalculados.superuser ||
-								req.user.permisoscalculados.entidadobjetoescritura.indexOf(''+objetivo.carta)!==-1)){
-						for(var attr in req.body){
+								req.user.permisoscalculados.entidadobjetoescritura.indexOf('' + objetivo.carta) !== -1)){
+						for (var attr in req.body){
 							//TODO: change this naive
 							objetivo[attr] = req.body[attr];
 						}
-						Objetivo.update({ _id: objetivo._id }, objetivo, function (err, doc){
+						Objetivo.update({ _id: objetivo._id }, objetivo, function (err){
 							if (err){
-								console.error(err);
-								res.status(500).json({'error': 'An error has occurred', details: error });
+								res.status(500).json({'error': 'An error has occurred', details: err });
 							} else {
 								res.json(objetivo);
 							}
 						});
 
 					} else {
-						res.status(404).json({'error': 'Not found'});
+						res.status(403).json({'error': 'Not allowed'});
 					}
 				});
 			} else {
@@ -316,7 +321,7 @@
 						return;
 					}
 					if (!(req.user.permisoscalculados.superuser ||
-						req.user.permisoscalculados.entidadobjetoescritura.indexOf(''+objetivo.carta)!==-1)){
+						req.user.permisoscalculados.entidadobjetoescritura.indexOf('' + objetivo.carta) !== -1)){
 						res.status(403).json({'error': 'Not allowed'});
 						return;
 					}
@@ -359,7 +364,7 @@
 						Objetivo.update({ _id: objetivo._id }, objetivo, function (err, doc){
 							if (err){
 								console.error(err);
-								res.status(500).json({'error': 'An error has occurred', details: error });
+								res.status(500).json({'error': 'An error has occurred', details: err });
 							}else{
 								res.json(objetivo);
 							}
@@ -388,6 +393,7 @@
 		};
 	};
 
+	/** Descarga de la url asociada a una carta sus objetivos e indicadores. */
 	module.exports.downloadCarta = function(carta, Crawler, Q){
 		var deferred = Q.defer();
 		if (!carta || !carta.url){

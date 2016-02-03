@@ -38,7 +38,9 @@
 		csvsici = require('./api/csvsici'),
 		feedback = require('./api/feedback'),
 		carta = require('./api/carta'),
-		entidadobjeto = require('./api/entidadobjeto');
+		entidadobjeto = require('./api/entidadobjeto'),
+		/* config */
+		config = require('./config.json');
 		/* app */
 	var	app = module.exports = express();
 
@@ -47,7 +49,7 @@
 		process.stdout.write( msg + '\u000d' );
 	}
 
-	app.set('mongosrv', process.env.MONGOSVR || 'mongodb://mongosvr/sici_cs');
+	app.set('mongosrv', process.env.MONGOSVR || config.mongodb.connectionString );
 
 	logger.log('Estableciendo conexión a ' + app.get('mongosrv'));
 	//Inicialización mongoose
@@ -63,14 +65,14 @@
 		}
 		logger.log('Cargada configuración de forma exitosa');
 
-		var tmpdirectory = path.join(__dirname, 'tmp') + path.sep;
+		var tmpdirectory = path.join(__dirname, config.tmpdir) + path.sep;
 		var cfg = cfgs[0];
 
 		app.disable('x-powered-by');
 		app.set('port', process.env.PORT || cfg.port || 6000);
 		app.set('prefixtmp', tmpdirectory);
 		app.use(compress());
-		app.use(serveStatic( path.join(__dirname, 'public')) );
+		app.use(serveStatic( path.join(__dirname, config.publicdir )) );
 
 		mongoose.set('debug', false);
 
