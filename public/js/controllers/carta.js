@@ -46,7 +46,6 @@
 				$scope.refreshAnualidad = function(anualidad){
 					$scope.anualidad = anualidad;
 					$scope.aanualidad = 'a' + $scope.anualidad;
-					console.log($scope.anualidad, $scope.aanualidad);
 				};
 				$scope.setCartaServicio = function(cartaservicio){
 					if (typeof cartaservicio !== 'undefined'){
