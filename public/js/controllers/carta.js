@@ -10,6 +10,7 @@
 				$scope.indicadores = {};
 				$scope.showformulas = false;
 				$scope.superuser = $rootScope.superuser();
+				$scope.aanualidad = '';
 				$scope.mutexFormulas = function(){
 					$scope.showformulas = !$scope.showformulas;
 				};
@@ -36,12 +37,16 @@
 					return true;/*elemento elemento.numobjetivos; */
 				};
 
-
 				$scope.filtropartes = function(a){
 					return a.indexOf('100') === -1;
 				};
 				$scope.claseComentarios = function(indicador){
 					return indicador.i % 2 === 0 ? 'text-danger' : '';
+				};
+				$scope.refreshAnualidad = function(anualidad){
+					$scope.anualidad = anualidad;
+					$scope.aanualidad = 'a' + $scope.anualidad;
+					console.log($scope.anualidad, $scope.aanualidad);
 				};
 				$scope.setCartaServicio = function(cartaservicio){
 					if (typeof cartaservicio !== 'undefined'){
@@ -54,12 +59,14 @@
 							}
 						};
 						$scope.objetivos = Objetivo.query(restrictions, function(){
+							var anualidades = {};
 							var maxValuePerFormula = 0;
 							for (var i = 0, j = $scope.objetivos.length; i < j; i++) {
 								for (var k = 0, l = $scope.objetivos[i].formulas.length; k < l; k++) {
 									$scope.objetivos[i].formulas[k].indicadores.forEach(loadIndicador);
 									$scope.objetivos[i].formulas[k].valor = {};
 									for (var anu in $scope.objetivos[i].formulas[k].valores){
+										anualidades[anu] = parseInt(anu.replace('a', ''));
 										$scope.objetivos[i].formulas[k].valor[anu] = $scope.objetivos[i].formulas[k].valores[anu][ $scope.objetivos[i].formulas[k].valores[anu].length - 1 ].resultado;
 									}
 									maxValuePerFormula = 0;
@@ -69,6 +76,14 @@
 										}
 									}
 									$scope.objetivos[i].formulas[k].uppervalue = Math.max($scope.objetivos[i].formulas[k].valor[anu], $scope.objetivos[i].formulas[k].meta, maxValuePerFormula);
+								}
+							}
+							if (Object.keys(anualidades).length > 0){
+								$scope.anualidad = parseInt(anu.replace('a', ''));
+								$scope.aanualidad = 'a' + $scope.anualidad;
+								$scope.anualidades = [];
+								for (var a in anualidades){
+									$scope.anualidades.push(anualidades[a]);
 								}
 							}
 						});

@@ -2,16 +2,16 @@
 	'use strict';
 	angular.module('sici')
 		.controller('PermisoCtrl',
-			['$rootScope', '$scope', '$location', '$window', 'ArbolWithEmptyNodes', 'Session', 'PermisosList', 'PersonasSearchList', 'ProcedimientoList','EntidadObjetoList', 'PermisosProcedimientoList', 'PermisosDirectosProcedimientoList', 'PermisosEntidadObjetoList', 'PermisosDirectosEntidadObjetoList','Jerarquia', 'Permiso', 'PersonasByPuesto', 'PersonasByLogin', 'PersonasByRegexp', 'Persona', '$q', 'Procedimiento', 'EntidadObjeto', 'PermisosDelegar', 'PermisosByLoginPlaza', 'PermisosDelegarSeleccionado', 'PermisoToDelete', 'PermisoProcedimientoToDelete', 'ProcedimientosByResponsable','EntidadesObjetoByResponsable',   '$http', '$log',
+			['$rootScope', '$scope', '$location', '$window', 'ArbolWithEmptyNodes', 'Session', 'PermisosList', 'PersonasSearchList', 'ProcedimientoList', 'EntidadObjetoList', 'PermisosProcedimientoList', 'PermisosDirectosProcedimientoList', 'PermisosEntidadObjetoList', 'PermisosDirectosEntidadObjetoList', 'Jerarquia', 'Permiso', 'PersonasByPuesto', 'PersonasByLogin', 'PersonasByRegexp', 'Persona', '$q', 'Procedimiento', 'EntidadObjeto', 'PermisosDelegar', 'PermisosByLoginPlaza', 'PermisosDelegarSeleccionado', 'PermisoToDelete', 'PermisoProcedimientoToDelete', 'ProcedimientosByResponsable', 'EntidadesObjetoByResponsable', '$http', '$log',
 				function ($rootScope, $scope, $location, $window, ArbolWithEmptyNodes, Session, PermisosList, PersonasSearchList, ProcedimientoList, EntidadObjetoList, PermisosProcedimientoList, PermisosDirectosProcedimientoList, PermisosEntidadObjetoList, PermisosDirectosEntidadObjetoList, Jerarquia, Permiso, PersonasByPuesto, PersonasByLogin, PersonasByRegexp, Persona, $q, Procedimiento, EntidadObjeto, PermisosDelegar, PermisosByLoginPlaza, PermisosDelegarSeleccionado, PermisoToDelete, PermisoProcedimientoToDelete, ProcedimientosByResponsable, EntidadesObjetoByResponsable, $http, $log) {
 					$rootScope.nav = 'permisos';
-					$rootScope.setTitle('Permisos');              
+					$rootScope.setTitle('Permisos');
 
 					$scope.arbol = ArbolWithEmptyNodes.query({},
 						function(){
 							/* alteramos el arbol para añadirle un atribuyo calculado */
-							for(var i=0;i<$scope.arbol.length;i++){
-								$scope.addSumatorioCartasProcedimientos($scope.arbol[i]);                     
+							for (var i = 0; i < $scope.arbol.length; i++){
+								$scope.addSumatorioCartasProcedimientos($scope.arbol[i]);
 							}
 						});
 					$scope.oculto = false;
@@ -40,7 +40,7 @@
 					$scope.cachejerarquias = {};
 					$scope.cachepersonas = {};
 					$scope.filtrosocultos = false;
-					
+
 					$scope.indexcontrolorganica = 0;
 					$scope.indexcontrolprocedimiento = 1;
 					$scope.indexcontrolentidadobjeto = 2;
@@ -49,7 +49,7 @@
 						seleccionado : ['seleccionado', 'procedimiento_seleccionado', 'carta_seleccionada'],
 						denominacion_objeto : ['jerarquia', 'procedimiento', 'entidadobjeto'],
 						setSeleccionado : ['setSeleccionado', 'setProcSeleccionado', 'setCartaSeleccionada'],
-						texto_determinante : ['la','el','la'],
+						texto_determinante : ['la', 'el', 'la'],
 						array_permiso : {
 							directalectura : ['jerarquiadirectalectura', 'procedimientosdirectalectura', 'entidadobjetodirectalectura'],
 							directaescritura: ['jerarquiadirectaescritura', 'procedimientosdirectaescritura', 'entidadobjetodirectaescritura'],
@@ -58,14 +58,14 @@
 						}
 					};
 
-					$scope.superuser = $rootScope.superuser();                              
+					$scope.superuser = $rootScope.superuser();
 					$rootScope.superuser().then(function(superuser){
 						if (!superuser) {
 							var login = $rootScope.session.login || '-';
 							var cod_plaza = $rootScope.session.codplaza || '-';
 							var permisosaux = PermisosByLoginPlaza.query({login: login, 'cod_plaza': cod_plaza}, function(){
 								$scope.normal_user_permisos = [];
-								for(var i = 0; i < permisosaux.length; i++) {
+								for (var i = 0; i < permisosaux.length; i++) {
 									if (permisosaux[i].grantoption) {
 										$scope.normal_user_permisos.push(permisosaux[i]);
 									}
@@ -73,17 +73,17 @@
 							});
 						}
 					});
-							
+
 					$scope.addSumatorioCartasProcedimientos = function(nodo){
 						nodo.sumatorio = 0;
 						if (typeof nodo.numcartas !== 'undefined'){
 							nodo.sumatorio += nodo.numcartas;
-						}                   
+						}
 						if (typeof nodo.numprocedimientos !== 'undefined'){
 							nodo.sumatorio += nodo.numprocedimientos;
 						}
-						if (typeof nodo.nodes !== 'undefined' && nodo.nodes != null){
-							for(var i=0;i<nodo.nodes.length;i++){
+						if (typeof nodo.nodes !== 'undefined' && nodo.nodes !== null){
+							for (var i = 0; i < nodo.nodes.length;i++){
 								$scope.addSumatorioCartasProcedimientos(nodo.nodes[i]);
 							}
 						}
@@ -94,9 +94,9 @@
 						var ai = 0, bi = 0;
 						var result = [];
 
-						for(ai = 0; ai < a.length; ai++){
-							for(bi = 0; bi < b.length; bi++){
-								if (a[ai] == b[bi]){
+						for (ai = 0; ai < a.length; ai++){
+							for (bi = 0; bi < b.length; bi++){
+								if (a[ai] === b[bi]){
 									result.push(a[ai]);
 								}
 							}
@@ -248,23 +248,23 @@
 							var partes = _new.split('-');
 							var pd = $q.defer();
 							var pp = pd.promise;
-							var p;
 							if (partes[0] && partes[0] !== ''){
-								p = PersonasByLogin.query({login: partes[0]}, function(){
+								PersonasByLogin.query({login: partes[0]}, function(p){
 									if (p.length){
 										pd.resolve(p[0]);
-									}else{ pd.reject();
-									}
-								});
-							} else if (partes.length > 1 && partes[1] !== '') {
-								p = PersonasByPuesto.query({'cod_plaza': partes[1]}, function(){
-									if (p.length){
-										pd.resolve(p[0]);
-									} else{
+									} else {
 										pd.reject();
 									}
 								});
-							} else{
+							} else if (partes.length > 1 && partes[1] !== '') {
+								PersonasByPuesto.query({'cod_plaza': partes[1]}, function(p){
+									if (p.length){
+										pd.resolve(p[0]);
+									} else {
+										pd.reject();
+									}
+								});
+							} else {
 								pd.reject();
 							}
 
@@ -325,10 +325,10 @@
 
 						var args = {'login': (item.login ? item.login : '-'), 'cod_plaza':(item.codplaza ? item.codplaza : '-')};
 
-						/*
-							TODO:
-								mal uso de definición de funciones dentro del bucle,
-								es probable que no accedan a los datos que aparenta.
+						/**
+						*	TODO:
+						*		mal uso de definición de funciones dentro del bucle,
+						*		es probable que no accedan a los datos que aparenta.
 						*/
 						$scope.permisos = PermisosByLoginPlaza.query(args, function(){
 							var i = 0, j = 0, p, cod, proc, eo;
@@ -337,9 +337,9 @@
 							$scope.cartas = [];
 							var peraux = {};
 							var perauxc = {};
-							for(i = 0; i < $scope.permisos.length; i++){
+							for (i = 0; i < $scope.permisos.length; i++){
 								p = $scope.permisos[i];
-								for(j = 0; j < p.procedimientosdirectalectura.length; j++){
+								for (j = 0; j < p.procedimientosdirectalectura.length; j++){
 									cod = p.procedimientosdirectalectura[i];
 									if (typeof peraux[cod] !== 'undefined') {
 										proc = Procedimiento.get(cod, function(){
@@ -350,7 +350,7 @@
 										});
 									}
 								}
-								for(j = 0; j < p.procedimientosdirectaescritura.length; j++){
+								for (j = 0; j < p.procedimientosdirectaescritura.length; j++){
 									cod = p.procedimientosdirectaescritura[i];
 									if (typeof peraux[cod] !== 'undefined') {
 										proc = Procedimiento.get(cod, function(){
@@ -361,7 +361,7 @@
 										});
 									}
 								}
-								for(j = 0; j < p.entidadobjetodirectalectura.length; j++){
+								for (j = 0; j < p.entidadobjetodirectalectura.length; j++){
 									cod = p.entidadobjetodirectalectura[i];
 									if (typeof peraux[cod] !== 'undefined') {
 										eo = EntidadObjeto.get(cod, function(){
@@ -372,7 +372,7 @@
 										});
 									}
 								}
-								for(j = 0; j < p.entidadobjetodirectaescritura.length; j++){
+								for (j = 0; j < p.entidadobjetodirectaescritura.length; j++){
 									cod = p.entidadobjetodirectaescritura[i];
 									if (typeof peraux[cod] !== 'undefined') {
 										eo = EntidadObjeto.get(cod, function(){
@@ -382,14 +382,13 @@
 											}
 										});
 									}
-								}					
+								}
 							}
 
 							$scope.permisostotales.procedimientos = item.codplaza ? ProcedimientosByResponsable.query({codplaza: item.codplaza}) : [];
 							$scope.procedimientos = $scope.permisostotales.procedimientos;
 							$scope.permisostotales.entidadesobjeto = item.codplaza ? EntidadesObjetoByResponsable.query({codplaza: item.codplaza}) : [];
 							$scope.cartas = $scope.permisostotales.entidadesobjeto;
-							
 						});
 					};
 
@@ -398,14 +397,17 @@
 					};
 
 					$scope.habilitaPersonas = function(codplaza){
+						var logging = function(persona){
+							return function(){
+								$log.debug('Persona habilitada', persona);
+							};
+						};
 						var per = PersonasByPuesto.query({'cod_plaza': codplaza}, function(){
-							for(var i = 0; i < per.length; i++){
+							for (var i = 0; i < per.length; i++){
 								per.habilitado = true;
-								per.$update(function(){
-									$log.debug('Persona habilitada');
-								});
+								per.$update(logging(per));
 							}
-						});			
+						});
 					};
 
 					$scope.crearpermiso2 = function(spersona, w_option, grantoption, psuperuser, permisoallogin){
@@ -422,7 +424,7 @@
 							return;
 						}
 						var loginpersona = partes[0];
-						
+
 						// Cambio de responsable del procedimiento / entidadobjeto
 						if ($scope.seleccionado_procedimiento
 							&& $scope.propietario
@@ -448,7 +450,7 @@
 								$window.alert('No se encuentra el código de plaza de la persona buscada');
 								return;
 							}
-							
+
 							codplaza = partes[1];
 							var eo = EntidadObjeto.get({'_id': $scope.carta_seleccionada._id}, function(){
 								eo.responsable = codplaza;
@@ -456,8 +458,8 @@
 									$scope.habilitaPersonas(codplaza);
 								});
 							});
-							return;				
-						} 
+							return;
+						}
 						else if ($rootScope.permisoscalculados.jerarquiaescritura.indexOf($scope.seleccionado.id) === -1
 								&& $rootScope.permisoscalculados.jerarquialectura.indexOf($scope.seleccionado.id) === -1){
 							$window.alert('No tiene permiso sobre este nodo');
@@ -467,13 +469,12 @@
 						// Caso en que no se trata de un cambio de responsable.
 						var permiso, persona;
 						var deferred = $q.defer();
-						var promise = deferred.promise;
 						// buscamos la persona a la que tenemos que aplicar el permiso.
 						if (loginpersona !== '' && $scope.permisoallogin) {
 							persona = PersonasByLogin.query({login: loginpersona}, function(){
 								if (persona.length){
 									deferred.resolve(persona[0]);
-								}else{
+								} else {
 									deferred.reject();
 								}
 							});
@@ -481,7 +482,7 @@
 							persona = PersonasByPuesto.query({'cod_plaza': partes[1]}, function(){
 								if (persona.length){
 									deferred.resolve(persona[0]);
-								}else{
+								} else {
 									deferred.reject();
 								}
 							});
@@ -491,7 +492,7 @@
 						}
 
 						// localizada la persona, asignamos el permiso
-						promise.then(function(persona){
+						deferred.promise.then(function(persona){
 							permiso = {};
 							// si no es un permiso al login, se asigna a la plaza
 							if (!$scope.permisoallogin && persona.codplaza) {
@@ -500,7 +501,7 @@
 							} else {
 								permiso.login = persona.login;
 							}
-							
+
 							// ¿tiene permiso de cesión de permisos?
 							if ($scope.cb_grantoption){
 								permiso.grantoption = true;
@@ -569,7 +570,7 @@
 							$window.alert('No ha seleccionado ninguna persona');
 						}
 					};
-					
+
 					$scope.eliminarPermiso = function(permiso) {
 						if ($window.confirm('Si continúa se eliminará el permiso sobre el nodo ')){
 							if ($scope.seleccionado_organica) {
@@ -653,7 +654,7 @@
 							return true;
 						}
 						if (item.nodes){
-							for(var i = 0; i < item.nodes.length; i++){
+							for (var i = 0; i < item.nodes.length; i++){
 								if ($scope.filtrojerarquia(item.nodes[i])){
 									return true;
 								}
@@ -687,7 +688,7 @@
 							$log.log('resultado:');
 							$log.log(resultado);
 							var oresultado = [];
-							for(var i = 0; i < resultado.length; i++){
+							for (var i = 0; i < resultado.length; i++){
 								oresultado.push(Jerarquia.query({id: resultado[i]}));
 							}
 							return oresultado;
@@ -740,26 +741,26 @@
 								var objs = [];
 								if ( Array.isArray(jl) && Array.isArray(je) && Array.isArray(array_interseccion_permisos) ) {
 									/* objs = intersect_safe(permiso.jerarquiadirectalectura.concat(permiso.jerarquiadirectaescritura),array_interseccion_permisos); */
-										objs = objs.concat(je);
-										for(i = 0; i < jl.length; i++){
-											if (objs.indexOf(jl[i]) === -1){
-												objs.push(jl[i]);
-											}
+									objs = objs.concat(je);
+									for (i = 0; i < jl.length; i++){
+										if (objs.indexOf(jl[i]) === -1){
+											objs.push(jl[i]);
 										}
+									}
 
-										objs = $scope.insersect_safe(objs, array_interseccion_permisos);
+									objs = $scope.insersect_safe(objs, array_interseccion_permisos);
 								} else {
 									$log.error('Error, alguno de los arrays no es tal');
 									return objs;
 								}
 
 								var resultado = [];
-								for(i = 0; i < objs.length; i++){
+								for (i = 0; i < objs.length; i++){
 									if (typeof $scope.cachejerarquias['idx' + objs[i]] !== 'undefined'){
 										resultado[i] = $scope.cachejerarquias['idx' + objs[i]];
 									} else {
-										var rj = Jerarquia.query({'id': objs[i]});
-										$scope.cachejerarquias[ 'idx' + objs[i] ] = rj;
+										var rja = Jerarquia.query({'id': objs[i]});
+										$scope.cachejerarquias[ 'idx' + objs[i] ] = rja;
 										resultado[i] = rj;
 									}
 								}
@@ -792,16 +793,16 @@
 							$log.log($scope.seleccionado);
 							if (!$scope.seleccionado.procedimientos || $scope.seleccionado.procedimientos.length !== $scope.seleccionado.numprocedimientos){
 								$log.log('cargando procedimientos');
-								for(i = 0; i < $scope.arbol.length; i++){
+								for (i = 0; i < $scope.arbol.length; i++){
 									$scope.loadProcedimientos($scope.seleccionado, $scope.arbol[i]);
-								}				
+								}
 								$log.log($scope.arbol);
-							} else{
+							} else {
 								$log.log('Se supone que están cargados');
 							}
 							if (!$scope.seleccionado.cartas || $scope.seleccionado.cartas.length !== $scope.seleccionado.numcartas){
 								$log.log('cargando cartas');
-								for(i = 0; i < $scope.arbol.length; i++){
+								for (i = 0; i < $scope.arbol.length; i++){
 									$scope.loadCartas($scope.seleccionado, $scope.arbol[i]);
 								}
 							}
@@ -819,7 +820,7 @@
 							var procesar_permisos_procedimiento = function(){
 								$scope.permisos = $scope.permisostotales;
 								$scope.procedimientos = [procedimiento];
-							};				
+							};
 							if ($scope.is_show_inherited_users) {
 								$scope.permisostotales = PermisosProcedimientoList.query({'codigoprocedimiento': $scope.procedimiento_seleccionado.codigo}, procesar_permisos_procedimiento);
 							} else {
@@ -827,25 +828,25 @@
 							}
 						}
 					};
-							
+
 					$scope.setCartaSeleccionada = function(carta){
 						if (carta){
 							$scope.setSeleccionGenerico();
-							$scope.carta_seleccionada = carta;                        
+							$scope.carta_seleccionada = carta;
 							$scope.seleccionado_organica = false;
 							$scope.seleccionado_procedimiento = false;
-							$rootScope.setTitle('[' +  carta.codigo + '] ' + carta.denominacion);
+							$rootScope.setTitle('[' + carta.codigo + '] ' + carta.denominacion);
 							var procesar_permisos_carta = function() {
 								$scope.permisos = $scope.permisostotales;
 								$scope.cartas = [carta];
 							};
-							
-							$log.log('Solicitando permisos para la entidad '+$scope.carta_seleccionada._id);
+
+							$log.log('Solicitando permisos para la entidad ' + $scope.carta_seleccionada._id);
 							$log.log($scope.carta_seleccionada);
 							if ($scope.is_show_inherited_users){
-								$scope.permisostotales = PermisosEntidadObjetoList.query({'codigoentidadobjeto': $scope.carta_seleccionada._id}, procesar_permisos_carta);                         
-							} else {					
-								$scope.permisostotales = PermisosDirectosEntidadObjetoList.query({'codigoentidadobjeto':$scope.carta_seleccionada._id}, procesar_permisos_carta);
+								$scope.permisostotales = PermisosEntidadObjetoList.query({'codigoentidadobjeto': $scope.carta_seleccionada._id}, procesar_permisos_carta);
+							} else {
+								$scope.permisostotales = PermisosDirectosEntidadObjetoList.query({'codigoentidadobjeto': $scope.carta_seleccionada._id}, procesar_permisos_carta);
 							}
 						}
 					};
@@ -865,30 +866,30 @@
 					};
 
 					$scope.loadProcedimientos = function(seleccionado, nodo){
-						if (!seleccionado.procedimientos || seleccionado.procedimientos.length!==seleccionado.numprocedimientos){
-							if (seleccionado.id == nodo.id) {
+						if (!seleccionado.procedimientos || seleccionado.procedimientos.length !== seleccionado.numprocedimientos){
+							if (seleccionado.id === nodo.id) {
 								// cargamos los procedimientos directamente asignados a este nodo. No recursivamente.
 								seleccionado.procedimientos = ProcedimientoList.query({idjerarquia: seleccionado.id, recursivo: 0});
 							} else {
 								if (nodo.nodes){
-									for(var i = 0; i < nodo.nodes.length; i++){
+									for (var i = 0; i < nodo.nodes.length; i++){
 										$scope.loadProcedimientos(seleccionado, nodo.nodes[i]);
 									}
 								}
 								$scope.arbol = $scope.arbol;
 							}
-						} else{
+						} else {
 							$log.log('Ya están cargados... o no');
 						}
 					};
-							
+
 					$scope.loadCartas = function(seleccionado, nodo){
 						if (!seleccionado.cartas){
-							if (seleccionado.id == nodo.id){
+							if (seleccionado.id === nodo.id){
 								seleccionado.cartas = EntidadObjetoList.query({idjerarquia:seleccionado.id, recursivo:0});
 							} else {
 								if (nodo.nodes){
-									for(var i=0;i<nodo.nodes.length;i++){
+									for (var i = 0;i < nodo.nodes.length; i++){
 										$scope.loadCartas(seleccionado, nodo.nodes[i]);
 									}
 								}
@@ -938,24 +939,23 @@
 
 					$scope.changeW_remove_w__template = function(permiso, attr_array_permiso, seleccionado, attr_id, nombre_entidad ) {
 						if (!Array.isArray(permiso[attr_array_permiso]) || permiso[attr_array_permiso].indexOf(seleccionado[attr_id]) === -1){
-							$window.alert('Este usuario no tiene un permiso directo sobre este '+nombre_entidad+'. Se trata de un permiso heredado. La operación no puede realizarse.');
+							$window.alert('Este usuario no tiene un permiso directo sobre este ' + nombre_entidad + '. Se trata de un permiso heredado. La operación no puede realizarse.');
 						} else if (Array.isArray(permiso[attr_array_permiso])) {
 							permiso[attr_array_permiso].splice(permiso[attr_array_permiso].indexOf(seleccionado[attr_id]), 1);
 						}
 					};
-					
+
 					$scope.changeW_add_w__template = function(permiso, attr_array_permiso, seleccionado, attr_id) {
 						if (Array.isArray(permiso[attr_array_permiso])){
 							if (permiso[attr_array_permiso].indexOf(seleccionado[attr_id]) === -1){
 								// esto no sería necesario si todo fuera sincronizado. Pero puede que ande esperando a que se haya actualizado 'jerarquiaescritura' en el servidor
 								permiso[attr_array_permiso].push(seleccionado[attr_id]);
 							}
-						}
-						else{
+						} else {
 							permiso[attr_array_permiso] = [ seleccionado[attr_id] ];
-						}			
+						}
 					};
-					
+
 					$scope.changeW = function(permiso) {
 						if ($scope.isW(permiso)) {
 							if ($scope.seleccionado_organica) {
@@ -996,12 +996,12 @@
 					};
 
 					$scope.isFiltroSelected = function(filtro, key, fa){
-						return (typeof filtro[key] !== 'undefined' && fa.name == filtro[key]);
+						return (typeof filtro[key] !== 'undefined' && fa.name === filtro[key]);
 					};
 
 					var personas_plazas_aux = PersonasSearchList.query({}, function(){
 						$scope.personas_plazas = [];
-						for(var i = 0; i < personas_plazas_aux.length; i++){
+						for (var i = 0; i < personas_plazas_aux.length; i++){
 							$scope.personas_plazas.push(personas_plazas_aux[i].data);
 						}
 					});
@@ -1019,7 +1019,7 @@
 							busquedabylogin = true;
 						}else if (typeof permiso.codplaza !== 'undefined' && permiso.codplaza !== ''){
 							busqueda = permiso.codplaza;
-						}else{
+						} else {
 							return '';
 						}
 
@@ -1040,7 +1040,7 @@
 							if (busquedabylogin){
 								$log.log('buscando por login: ' + busqueda);
 								p = PersonasByLogin.query({'login': busqueda}, function(){
-									if (p == null || p.length) {
+									if (p === null || p.length) {
 										$log.log('no encontrado, buscando por regex (desde login): ' + busqueda);
 										p = PersonasByRegexp.query({regex: busqueda}); /* <---- */
 									}
@@ -1048,7 +1048,7 @@
 							} else {
 								$log.log('buscando por plaza: ' + busqueda);
 								p = PersonasByPuesto.query({'cod_plaza': busqueda}, function(){
-									if (p == null || p.length) {
+									if (p === null || p.length) {
 										$log.log('no encontrado, buscando por regex (desde plaza): ' + busqueda);
 										p = PersonasByRegexp.query({regex: busqueda}); /* <---- */
 									}
@@ -1061,7 +1061,7 @@
 							TODO: bug, p no es lo que aparenta en las líneas señaladas, para entonces p ya ha sido retornado.
 						*/
 					};
-					
+
 					$scope.getResponsable = function(procedimiento_o_carta){
 						var p = [];
 						// si es un procedimiento
@@ -1069,10 +1069,10 @@
 							p = PersonasByPuesto.query({'cod_plaza': procedimiento_o_carta.cod_plaza});
 						// si es una entidadobjeto
 						} else if (procedimiento_o_carta && typeof procedimiento_o_carta.responsable !== 'undefined' && procedimiento_o_carta.responsable ){
-							$log.log('Solicitando permisos para carta con código plaza : '+ procedimiento_o_carta.responsable);
+							$log.log('Solicitando permisos para carta con código plaza : ' + procedimiento_o_carta.responsable);
 							p = PersonasByPuesto.query({'cod_plaza': procedimiento_o_carta.responsable});
 						}
-						
+
 						return p;
 					};
 
@@ -1087,18 +1087,18 @@
 							}, function(e){
 								if (typeof e.data !== 'undefined' && typeof e.data.error !== 'undefined'){
 									$rootScope.toaster('Error durante la habilitación: ' + e.data.error, 'Error', 'error');
-								}else{
+								} else {
 									$rootScope.toaster('Error durante la habilitación', 'Error', 'error');
 								}
 							});
-						}else{
+						} else {
 							$http.post('/api/v1/restricted/habilitar/persona/' + persona._id, { habilitado: true }).then(function(){
 								persona.habilitado = true;
 								$rootScope.toaster('Usuario habilitado');
 							}, function(e){
 								if (typeof e.data !== 'undefined' && typeof e.data.error !== 'undefined'){
 									$rootScope.toaster('Error durante la habilitación: ' + e.data.error, 'Error', 'error');
-								}else{
+								} else {
 									$rootScope.toaster('Error durante la habilitación', 'Error', 'error');
 								}
 							});

@@ -8,16 +8,20 @@
 				$scope.mensaje = false;
 				$scope.fake = function(login){
 					if (login !== ''){
-						$http.post('/api/v1/restricted/pretend/' + login, {username: login}).
-							success(function(data) {
+						$http.post('/api/v1/restricted/pretend/' + login, {username: login})
+							.then(function(data) {
 								$scope.datosusuario = data;
 								$scope.actualuser = JSON.parse($window.localStorage.client_session);
 								$scope.mensaje = false;
-							}).
-							error(function() {
-								$scope.mensaje = 'Error descargando datos. Pruebe con otro usuario.';
+							}, function(response) {
+								if (typeof response.data !== 'undefined' && typeof response.data.error !== 'undefined'){
+									$rootScope.toaster('Error descargando datos. Pruebe con otro usuario.: ' + response.data.error, 'Error', 'error');
+								} else {
+									$rootScope.toaster('Error descargando datos. Pruebe con otro usuario.', 'Error', 'error');
+								}
+								$scope.mensaje = '';
 							});
-					}else{
+					} else {
 						$scope.mensaje = 'Error descargando datos. Seleccione un usuario.';
 					}
 				};

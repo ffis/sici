@@ -153,7 +153,7 @@
 		}
 
 		return function(req, res){
-			if (!req.user.permisoscalculados || !req.user || !!req.user.permisoscalculados.superuser) {
+			if (!req.user || !req.user.permisoscalculados || !req.user.permisoscalculados.superuser) {
 				res.status(403).json({'error': 'Not allowed'}); /* provoca perdida de sesión */
 			}else if (typeof req.body.username === 'undefined'){
 				res.status(404).json({'error': 'Fallo de petición'});

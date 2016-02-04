@@ -28,6 +28,7 @@
 						<ul class="dropdown-menu" ng-if="cartasservicio.length > 1">
 							<li ng-if="cartaservicioseleccionada._id != c._id" ng-repeat="c in cartasservicio"><a href="{{c.urledicion}}">{{c.expediente}} {{c.denominacion}}</a></li>
 						</ul>
+						<select ng-model="anualidad" class="btn btn-default" ng-change="refreshAnualidad(anualidad)" ng-options='o as o for o in anualidades'></select>
 					</div>
 				</div>
 				<br style="clear:both" />
@@ -60,7 +61,6 @@
 								<button type="button" class="btn btn-default" title="Comentar">
 									<span class="glyphicon glyphicon-comment" ng-class="claseComentarios(objetivo)" ng-click=""></span>
 								</button>
-								
 								<button type="button" class="btn btn-default">
 									<span class="glyphicon glyphicon-link"></span>
 								</button>
