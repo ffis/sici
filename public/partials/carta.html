@@ -102,8 +102,14 @@
 															</div>
 															{{indicadores[indicadorid].nombre}}
 														</td>
-														<td ng-repeat="(v,a) in indicadores[indicadorid].valores[aanualidad] track by $index">
+														<td ng-repeat="(v,a) in indicadores[indicadorid].valores[aanualidad] track by $index" style="white-space:nowrap" class="text-center">
 															<input ng-blur="updateIndicador(indicadorid)" type="text" style="width:3em; font-size:smaller; padding:1px" class="text-right form-control" ng-model="indicadores[indicadorid].valores[aanualidad][v]" />
+															<span ng-if="$index == indicadores[indicadorid].valores[aanualidad].length - 1">
+																<span ng-show="indicadores[indicadorid].acumulador === 'sum' ">∑</span>
+																<span ng-show="indicadores[indicadorid].acumulador === 'mean' ">x&#772;</span>
+																<span ng-show="indicadores[indicadorid].acumulador === 'min' ">&#8863;</span>
+																<span ng-show="indicadores[indicadorid].acumulador === 'max' ">&#8862;</span>
+															</span>
 														</td>
 													</tr>
 													<tr ng-repeat-end ng-show="indicadores[indicadorid].desplegado">

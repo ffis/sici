@@ -99,7 +99,7 @@ angular.module('sici.login.util', ['ngResource'])
 								$log.info('Contraseña no válida');
 								delete $window.localStorage.token;
 							});
-					}else{
+					} else {
 						var urlconsulta = '/SICI_SSO/LoginSSO';
 						var urllogin = '/SICI_SSO/';
 						var deferred = $q.defer();
@@ -109,7 +109,7 @@ angular.module('sici.login.util', ['ngResource'])
 									$log.info('URL sesión no iniciada');
 									var full = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
 									$window.location.href = full + urllogin;
-								}else{
+								} else {
 									/** hacemos un post a la dirección del login. Esperamos respuesta. Si statusCode=401 hay error de autenticación **/
 									$http.post('/authenticate', data)
 										.success(function (httpdata) {
@@ -180,6 +180,7 @@ angular.module('sici.login.util', ['ngResource'])
 					if (response.status === 401) { // handle the case where the user is not authenticated
 						return $q.reject(response);
 					}
+
 					return response || $q.when(response);
 				},
 				responseError: function (response) {
