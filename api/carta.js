@@ -203,7 +203,7 @@
 	module.exports.actualizaindicador = function(models, Q){
 		return function(req, res){
 			if (typeof req.params.id !== 'undefined'){
-				var attr, i, j,
+				var attr, i, j, suma = 0, min = 0, max = 0,
 					indicadormodel = models.indicador(),
 					id = req.params.id,
 					actualizacion = req.body;
@@ -228,12 +228,45 @@
 
 								if (indicador.acumulador === 'sum'){
 									for (attr in indicador.valores){
-										var suma = 0;
+										suma = 0;
 										for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
-											indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseInt(actualizacion.valores[attr][i]);
+											indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i]);
 											suma += indicador.valores[attr][i];
 										}
 										indicador.valores[attr][ indicador.valores[attr].length - 1 ] = suma;
+									}
+								} else if (indicador.acumulador === 'mean'){
+									for (attr in indicador.valores){
+										suma = 0;
+										var nindicadoresdistintosde0 = 0;
+										for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
+											indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i]);
+											suma += indicador.valores[attr][i];
+											if (!isNaN(actualizacion.valores[attr][i]) && parseInt(actualizacion.valores[attr][i]) !== 0 ){
+												nindicadoresdistintosde0++;
+											}
+										}
+										indicador.valores[attr][ indicador.valores[attr].length - 1 ] = (nindicadoresdistintosde0 > 0) ? suma / nindicadoresdistintosde0 : 0;
+									}
+								} else if (indicador.acumulador === 'max'){
+									for (attr in indicador.valores){
+										max = 0;
+										for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
+											indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i]);
+											max = (max < indicador.valores[attr][i]) ? indicador.valores[attr][i] : max;
+										}
+										indicador.valores[attr][ indicador.valores[attr].length - 1 ] = max;
+									}
+								} else if (indicador.acumulador === 'min'){
+									for (attr in indicador.valores){
+										min = false;
+										for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
+											indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i]);
+											if (indicador.valores[attr][i] !== 0 && (!min || min > indicador.valores[attr][i])){
+												min = indicador.valores[attr][i];
+											}
+										}
+										indicador.valores[attr][ indicador.valores[attr].length - 1 ] = min;
 									}
 								}
 								for (attr in indicador.observaciones){
@@ -503,7 +536,6 @@
 		var cb = function(df, cartaid) {
 			return function(error, result, jQuery) {
 				if (error){
-					console.error(error);
 					df.reject({error: 'cb', e: error});
 					return;
 				}
@@ -512,7 +544,6 @@
 					compromisos = extractCompromisos( jQuery('.contenido p,.contenido h3,.contenido h4'), jQuery, cartaid);
 				}
 				if (compromisos.length === 0){
-					console.error('No se han extraido compromisos');
 					df.reject('No se han extraido compromisos');
 				}
 				df.resolve(compromisos);
@@ -569,7 +600,6 @@
 				}
 			}
 		});
-
 		return defer.promise;
 	};
 
@@ -646,9 +676,7 @@
 						res.status(500).json({'error': 'An error has occurred', details: err});
 						return;
 					}
-
 					if (objetivo){
-
 						if (req.user.permisoscalculados.superuser ||
 							req.user.permisoscalculados.entidadobjetoescritura.indexOf('' + objetivo.carta)) {
 
@@ -742,19 +770,20 @@
 							if (objetivos.length === 0){
 								res.status(500).json({'error': 'Empty page'});
 							} else {
-								module.exports.extractAndSaveIndicadores(data.idjerarquia, objetivos, indicadormodel, Q).then(function(objetivosConIndicadores){
-									var objetivosAAlmacenar = objetivosConIndicadores.objetivos;
-									for (var i = 0, j = objetivosAAlmacenar.length; i < j; i++){
-										for (var k = 0, l = objetivosAAlmacenar[i].formulas.length; k < l; k++){
-											objetivosAAlmacenar[i].formulas[k] = trytoparseFormula(objetivosAAlmacenar[i].formulas[k], objetivosConIndicadores.indicadoresobtenidos);
+								module.exports.extractAndSaveIndicadores(data.idjerarquia, objetivos, indicadormodel, Q)
+									.then(function(objetivosConIndicadores){
+										var objetivosAAlmacenar = objetivosConIndicadores.objetivos;
+										for (var i = 0, j = objetivosAAlmacenar.length; i < j; i++){
+											for (var k = 0, l = objetivosAAlmacenar[i].formulas.length; k < l; k++){
+												objetivosAAlmacenar[i].formulas[k] = trytoparseFormula(objetivosAAlmacenar[i].formulas[k], objetivosConIndicadores.indicadoresobtenidos);
+											}
+											new objetivomodel(objetivosAAlmacenar[i]).save();
+											/* TODO: wait? */
 										}
-										new objetivomodel(objetivosAAlmacenar[i]).save();
-										/* TODO: wait? */
-									}
-									res.json(objetivosConIndicadores);
-								}, function(errorI){
-									res.status(500).json({'error': 'Error during download', details: errorI});
-								});
+										res.json(objetivosConIndicadores);
+									}, function(errorI){
+										res.status(500).json({'error': 'Error during download', details: errorI});
+									});
 							}
 						}, function(error){
 							res.status(500).json({'error': 'Error during download', details: error});
