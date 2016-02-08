@@ -19,27 +19,27 @@
 					indicador = variables[idIndicador],
 
 					obj = indicador;
-				for(var i = 3, j = partes.length; i < j; i++){
+				for (var i = 3, j = partes.length; i < j; i++){
 					if (partes[i].indexOf('[') === 0 && partes[i].indexOf(']') === partes[i].length - 1 ){
 						//se busca el valor en el diccionario de variables
 						var nombrevariable = partes[i].substr(1, partes[i].length - 2);
 						if (typeof variables[nombrevariable] !== 'undefined'){
 							valor = variables[nombrevariable];
-						}else{
+						} else {
 							console.error('No existe la variable:' + nombrevariable);
 							valor = partes[i];
 						}
-					}else{
+					} else {
 						valor = partes[i];
 					}
 					if (typeof obj[ valor ] !== 'undefined'){
 						obj = obj[ valor ];
-					}else{
+					} else {
 						return expresion;
 					}
 				}
 				return obj;
-			}else{
+			} else {
 				return expresion;
 			}
 		};
@@ -48,11 +48,12 @@
 	Math.prototype.evalFormula = function(str, cb){
 		var indicadormodel = this.models.indicador(),
 			i, j, anualidad, idIndicador, partes;
-			try{
+		try {
 			partes = JSON.parse(str);
-			}catch(err){
-				cb(err); return;
-			}
+		} catch (err){
+			cb(err);
+			return;
+		}
 		var	returnValue = {},
 			modoAnualidad = false,
 			modoMes = false,
@@ -60,7 +61,7 @@
 			indicadoresACargar = {}, variables = {}, scope = {},
 			resultado;
 
-		for(i = 0, j = partes.length; i < j; i++){
+		for (i = 0, j = partes.length; i < j; i++){
 			if (partes[i].indexOf('[anualidad]') > -1){
 				modoAnualidad = true;
 			}
@@ -69,13 +70,13 @@
 			}
 		}
 
-		for(i = 0, j = partes.length; i < j; i++){
+		for (i = 0, j = partes.length; i < j; i++){
 			if (partes[i].indexOf('/indicador') === 0){
 				tokens = partes[i].split('/');
 				idIndicador = tokens[2].trim();
-				if (idIndicador.length == 24 || idIndicador.length == 12){
+				if (idIndicador.length === 24 || idIndicador.length === 12){
 					indicadoresACargar[idIndicador] = false;
-				}else{
+				} else {
 					cb({error: '_id mal formado:' + idIndicador});
 				}
 			}
@@ -85,9 +86,9 @@
 			return function(erro, indicador){
 				if (erro){
 					promise.reject(erro);
-				}else if (!indicador){
+				} else if (!indicador){
 					promise.reject({'error': 'Not found', idIndicador: idIndicadorDb});
-				}else{
+				} else {
 					indicadoresACargar[indicador._id] = indicador;
 					promise.resolve(indicador);
 				}
@@ -104,19 +105,24 @@
 				//suponemos que ambos indicadores tienen las mismas anualidades
 				variables = indicadoresACargar;
 				for (idIndicador in indicadoresACargar){
-					for(anualidad in indicadoresACargar[idIndicador].valores){
+					for (anualidad in indicadoresACargar[idIndicador].valores){
 						returnValue[anualidad] = [];
 						variables.anualidad = anualidad;
-						for(var mes in indicadoresACargar[idIndicador].valores[anualidad]){
+						for (var mes in indicadoresACargar[idIndicador].valores[anualidad]){
 							variables.mes = mes;
-							var formula = partes.map(replace(indicadoresACargar)).join('');
+							var formula = partes.map(replace(indicadoresACargar));
+							var formulastr = formula.join('');
 							scope = {
 								entero: function(v){ parseFloat(v).toFixed(0); }
 							};
 							resultado = 0;
-							try{
-								resultado = math.parse(formula).compile().eval(scope);
-							}catch(e){
+							try {
+								if (formula.filter(function(a){ return a === null; }).length === 0){
+									resultado = math.parse(formulastr).compile().eval(scope);
+								} else {
+									resultado = null;
+								}
+							} catch (e) {
 								console.error(118, e);
 							}
 							returnValue[anualidad].push({formula: formula, resultado: resultado});

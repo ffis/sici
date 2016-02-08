@@ -73,7 +73,6 @@
 						formulacomputer = formulacomputer.replace(uncapitalizeFirst(frasesAReemplazar[i].search), '@');
 					} else {
 						fallo = true;
-						console.log('No encontrado |' + frasesAReemplazar[i].search + '| en ' + formulacomputer);
 					}
 				}
 				if (!fallo){
@@ -118,7 +117,6 @@
 				}
 				indicadormodel.findOne(restriccion, function(err, indicador){
 					if (err){
-						console.log('Error');
 						res.status(500).json({'error': 'An error has occurred', details: err});
 						return;
 					}
@@ -230,8 +228,12 @@
 									for (attr in indicador.valores){
 										suma = 0;
 										for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
-											indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i]);
-											suma += indicador.valores[attr][i];
+											if (actualizacion.valores[attr][i] === null || actualizacion.valores[attr][i] === ''){
+												indicador.valores[attr][i] = null;
+											} else {
+												indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i]);
+												suma += indicador.valores[attr][i];
+											}
 										}
 										indicador.valores[attr][ indicador.valores[attr].length - 1 ] = suma;
 									}
@@ -240,10 +242,14 @@
 										suma = 0;
 										var nindicadoresdistintosde0 = 0;
 										for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
-											indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i]);
-											suma += indicador.valores[attr][i];
-											if (!isNaN(actualizacion.valores[attr][i]) && parseInt(actualizacion.valores[attr][i]) !== 0 ){
-												nindicadoresdistintosde0++;
+											if (actualizacion.valores[attr][i] === null || actualizacion.valores[attr][i] === ''){
+												indicador.valores[attr][i] = null;
+											} else {
+												indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i]);
+												suma += indicador.valores[attr][i];
+												if (!actualizacion.valores[attr][i] !== null && !isNaN(actualizacion.valores[attr][i]) && parseInt(actualizacion.valores[attr][i]) !== 0 ){
+													nindicadoresdistintosde0++;
+												}
 											}
 										}
 										indicador.valores[attr][ indicador.valores[attr].length - 1 ] = (nindicadoresdistintosde0 > 0) ? suma / nindicadoresdistintosde0 : 0;
@@ -252,8 +258,12 @@
 									for (attr in indicador.valores){
 										max = 0;
 										for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
-											indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i]);
-											max = (max < indicador.valores[attr][i]) ? indicador.valores[attr][i] : max;
+											if (actualizacion.valores[attr][i] === null || actualizacion.valores[attr][i] === ''){
+												indicador.valores[attr][i] = null;
+											} else {
+												indicador.valores[attr][i] = actualizacion.valores[attr][i] === null || isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i]);
+												max = (max < indicador.valores[attr][i]) ? indicador.valores[attr][i] : max;
+											}
 										}
 										indicador.valores[attr][ indicador.valores[attr].length - 1 ] = max;
 									}
@@ -261,9 +271,13 @@
 									for (attr in indicador.valores){
 										min = false;
 										for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
-											indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i]);
-											if (indicador.valores[attr][i] !== 0 && (!min || min > indicador.valores[attr][i])){
-												min = indicador.valores[attr][i];
+											if (actualizacion.valores[attr][i] === null || actualizacion.valores[attr][i] === ''){
+												indicador.valores[attr][i] = null;
+											} else {
+												indicador.valores[attr][i] = actualizacion.valores[attr][i] === null || isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i]);
+												if (indicador.valores[attr][i] !== 0 && (!min || min > indicador.valores[attr][i])){
+													min = indicador.valores[attr][i];
+												}
 											}
 										}
 										indicador.valores[attr][ indicador.valores[attr].length - 1 ] = min;
@@ -291,11 +305,11 @@
 							});
 
 						} else {
-							res.status(403).json({'error': 'Not allowed'});
+							res.status(403).json({'error': 'Not allowed'});/*
 							console.log('permisos');
 							console.log(req.user.permisoscalculados);
 							console.log('indicador');
-							console.log(indicador);
+							console.log(indicador);*/
 						}
 					} else {
 						res.status(404).json({'error': 'Not found'});
@@ -519,11 +533,11 @@
 							'intervalos': intervalos,
 							'valores': {
 								'a2015': [
-									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0},
-									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}],
+									{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null},
+									{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}],
 								'a2016': [
-									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0},
-									{formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}, {formula: '', resultado: 0}]
+									{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null},
+									{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}]
 							}
 						};
 						formulas.push(formula);
@@ -567,8 +581,8 @@
 			nombre: txt,
 			resturl: '/indicador/' + counterIndicador,
 			valores: {
-				'a2015': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ], /* 13 elementos */
-				'a2016': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ] /* 13 elementos */
+				'a2015': [null, null, null, null, null, null, null, null, null, null, null, null, null ], /* 13 elementos */
+				'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null ] /* 13 elementos */
 			},
 			observaciones: {
 				'a2015': ['', '', '', '', '', '', '', '', '', '', '', '', '' ],
