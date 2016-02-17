@@ -66,10 +66,11 @@
 							if (typeof objetivo.formulas[k].gaugevalue === 'undefined'){
 								objetivo.formulas[k].gaugevalue = {};
 							}
-							objetivo.formulas[k].gaugevalue[anu] = objetivo.formulas[k].valor[anu] ? objetivo.formulas[k].valor[anu] : 0;
-							/*	objetivo.formulas[k].valor[anu] > maxValuePerFormula ? maxValuePerFormula : objetivo.formulas[k].valor[anu];*/
+							objetivo.formulas[k].gaugevalue[anu] = !objetivo.formulas[k].valor[anu] ? 0 :
+								(objetivo.formulas[k].valor[anu] > maxValuePerFormula ? maxValuePerFormula : objetivo.formulas[k].valor[anu]);
+							/*: objetivo.formulas[k].valor[anu];*/
 						}
-						objetivo.formulas[k].uppervalue = Math.max(objetivo.formulas[k].valor[anu], objetivo.formulas[k].meta, maxValuePerFormula);
+						objetivo.formulas[k].uppervalue = Math.max(/* objetivo.formulas[k].valor[anu],*/ objetivo.formulas[k].meta, maxValuePerFormula);
 					}
 					getAnualidades();
 				};
@@ -165,11 +166,13 @@
 							if (typeof loaded.formulas !== 'undefined'){
 								for (var i = 0, j = loaded.formulas.length; i < j; i++){
 									obj.formulas[i].valores = loaded.formulas[i].valores;
+									if (typeof loaded.formulas[i].gaugevalue !== 'undefined'){
+										for (var anu in loaded.formulas[i].gaugevalue){
+											obj.formulas[i].gaugevalue[anu] = loaded.formulas[i].gaugevalue[anu];
+										}
+									}
+									obj.formulas[i].uppervalue = loaded.formulas[i].uppervalue;
 								}
-								for (var anu in loaded.formulas[i].gaugevalue){
-									obj.formulas[i].gaugevalue[anu] = loaded.formulas[i].gaugevalue[anu];
-								}
-								obj.formulas[i].uppervalue = loaded.formulas[i].uppervalue;
 							}
 
 							/*
