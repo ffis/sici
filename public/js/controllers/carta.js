@@ -66,8 +66,8 @@
 							if (typeof objetivo.formulas[k].gaugevalue === 'undefined'){
 								objetivo.formulas[k].gaugevalue = {};
 							}
-							objetivo.formulas[k].gaugevalue[anu] =
-								objetivo.formulas[k].valor[anu] > maxValuePerFormula ? maxValuePerFormula : objetivo.formulas[k].valor[anu];
+							objetivo.formulas[k].gaugevalue[anu] = objetivo.formulas[k].valor[anu] ? objetivo.formulas[k].valor[anu] : 0;
+							/*	objetivo.formulas[k].valor[anu] > maxValuePerFormula ? maxValuePerFormula : objetivo.formulas[k].valor[anu];*/
 						}
 						objetivo.formulas[k].uppervalue = Math.max(objetivo.formulas[k].valor[anu], objetivo.formulas[k].meta, maxValuePerFormula);
 					}
