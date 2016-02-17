@@ -40,10 +40,10 @@
 					el usuario **/
 				$scope.login = function (credentials) {
 					/** preguntamos si se ha conseguido o no autenticar mediante la función login del servicio AuthService descrito más abajo **/
-					if(!$rootScope.loginCarm && (credentials.username.trim() === '' || credentials.password.trim() === '' ))
+					if (!$rootScope.loginCarm && (credentials.username.trim() === '' || credentials.password.trim() === '' ))
 					{
 						$scope.mensaje = 'Introduzca su nombre de usuario y contraseña para continuar';
-					}else{
+					} else {
 						AuthService.login(credentials).then(
 							function() {
 								$log.log('OK?');

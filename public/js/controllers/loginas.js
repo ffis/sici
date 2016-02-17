@@ -10,7 +10,7 @@
 					if (login !== ''){
 						$http.post('/api/v1/restricted/pretend/' + login, {username: login})
 							.then(function(data) {
-								$scope.datosusuario = data;
+								$scope.datosusuario = data.data;
 								$scope.actualuser = JSON.parse($window.localStorage.client_session);
 								$scope.mensaje = false;
 							}, function(response) {

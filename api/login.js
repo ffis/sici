@@ -179,7 +179,7 @@
 											o.idspermisos.push(permisos[i]._id);
 										}
 
-										var token = jwt.sign(o, secret, { expiresInMinutes: 300 });
+										var token = jwt.sign(o, secret, { expiresIn: 86400000 }); /* 1 day */
 										res.json({ profile: o, token: token });
 									}
 								}
