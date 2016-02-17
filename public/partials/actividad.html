@@ -18,7 +18,7 @@
 				</span>
 				<div class="progress">
 					<div role="progressbar" aria-valuenow="{{100*cumplimentados / count}}" aria-valuemin="0" aria-valuemax="100" style="width:{{100*cumplimentados / count}}%" class="progress-bar progress-bar-striped progress-bar-danger">
-						{{(100 * cumplimentados / count).toFixed(2)}}% ({{cumplimentados}} / {{count}})
+						{{(100 * cumplimentados / count)|number : 2 }}% ({{cumplimentados}} / {{count}})
 					</div>
 				</div>
 			</div>

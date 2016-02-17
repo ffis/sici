@@ -47,49 +47,69 @@
 					$scope.anualidad = anualidad;
 					$scope.aanualidad = 'a' + $scope.anualidad;
 				};
+				var postLoadObjetivo = function(objetivo, loadIndicador){
+					var maxValuePerFormula = 0;
+					for (var k = 0, l = objetivo.formulas.length; k < l; k++) {
+						if (typeof loadIndicador === 'function'){
+							objetivo.formulas[k].indicadores.forEach(loadIndicador);
+						}
+						maxValuePerFormula = 0;
+						for (var y = 0, u = objetivo.formulas[k].intervalos.length; y < u; y++){
+							if (objetivo.formulas[k].intervalos[y].max > maxValuePerFormula){
+								maxValuePerFormula = objetivo.formulas[k].intervalos[y].max;
+							}
+						}
+						objetivo.formulas[k].valor = {};
+						for (var anu in objetivo.formulas[k].valores){
+							$scope.anualidadesKeys[anu] = parseInt(anu.replace('a', ''));
+							objetivo.formulas[k].valor[anu] = objetivo.formulas[k].valores[anu][ objetivo.formulas[k].valores[anu].length - 1 ].resultado;
+							if (typeof objetivo.formulas[k].gaugevalue === 'undefined'){
+								objetivo.formulas[k].gaugevalue = {};
+							}
+							objetivo.formulas[k].gaugevalue[anu] =
+								objetivo.formulas[k].valor[anu] > maxValuePerFormula ? maxValuePerFormula : objetivo.formulas[k].valor[anu];
+						}
+						objetivo.formulas[k].uppervalue = Math.max(objetivo.formulas[k].valor[anu], objetivo.formulas[k].meta, maxValuePerFormula);
+					}
+					getAnualidades();
+				};
+				function getAnualidades(){
+					if (Object.keys($scope.anualidadesKeys).length > 0){
+						$scope.anualidades = [];
+						var max = false;
+						for (var a in $scope.anualidadesKeys){
+							$scope.anualidades.push($scope.anualidadesKeys[a]);
+							if (!max || max < a){
+								max = a;
+							}
+						}
+						/*
+						$scope.aanualidad = max;
+						$scope.anualidad = parseInt(max.replace('a', ''));
+						*/
+					}
+				}
+				var loadIndicador = function(indicador){
+					if (typeof $scope.indicadores[indicador] === 'undefined'){
+						$scope.indicadores[indicador] = Indicador.get({id: indicador});
+					}
+				};
+				var postLoadObjetivos = function(loadIndicador){
+					return function(){
+						$scope.anualidadesKeys = {};
+						for (var i = 0, j = $scope.objetivos.length; i < j; i++) {
+							postLoadObjetivo($scope.objetivos[i], loadIndicador);
+						}
+					};
+				};
+
 				$scope.setCartaServicio = function(cartaservicio){
 					if (typeof cartaservicio !== 'undefined'){
 						$rootScope.setTitle(cartaservicio.denominacion);
 						$scope.cartaservicioseleccionada = cartaservicio;
 						var restrictions = { idjerarquia: cartaservicio.idjerarquia, carta: cartaservicio._id };
-						var loadIndicador = function(indicador){
-							if (typeof $scope.indicadores[indicador] === 'undefined'){
-								$scope.indicadores[indicador] = Indicador.get({id: indicador});
-							}
-						};
-						$scope.objetivos = Objetivo.query(restrictions, function(){
-							var anualidades = {};
-							var maxValuePerFormula = 0;
-							for (var i = 0, j = $scope.objetivos.length; i < j; i++) {
-								for (var k = 0, l = $scope.objetivos[i].formulas.length; k < l; k++) {
-									$scope.objetivos[i].formulas[k].indicadores.forEach(loadIndicador);
-									$scope.objetivos[i].formulas[k].valor = {};
-									for (var anu in $scope.objetivos[i].formulas[k].valores){
-										anualidades[anu] = parseInt(anu.replace('a', ''));
-										$scope.objetivos[i].formulas[k].valor[anu] = $scope.objetivos[i].formulas[k].valores[anu][ $scope.objetivos[i].formulas[k].valores[anu].length - 1 ].resultado;
-										if (typeof $scope.objetivos[i].formulas[k].gaugevalue === 'undefined'){
-											$scope.objetivos[i].formulas[k].gaugevalue = {};
-										}
-										$scope.objetivos[i].formulas[k].gaugevalue[anu] = $scope.objetivos[i].formulas[k].valor[anu] > maxValuePerFormula ? maxValuePerFormula : $scope.objetivos[i].formulas[k].valor[anu];
-									}
-									maxValuePerFormula = 0;
-									for (var y = 0, u = $scope.objetivos[i].formulas[k].intervalos.length; y < u; y++){
-										if ( $scope.objetivos[i].formulas[k].intervalos[y].max > maxValuePerFormula){
-											maxValuePerFormula = $scope.objetivos[i].formulas[k].intervalos[y].max;
-										}
-									}
-									$scope.objetivos[i].formulas[k].uppervalue = Math.max($scope.objetivos[i].formulas[k].valor[anu], $scope.objetivos[i].formulas[k].meta, maxValuePerFormula);
-									}
-							}
-							if (Object.keys(anualidades).length > 0){
-								$scope.anualidad = parseInt(anu.replace('a', ''));
-								$scope.aanualidad = 'a' + $scope.anualidad;
-								$scope.anualidades = [];
-								for (var a in anualidades){
-									$scope.anualidades.push(anualidades[a]);
-								}
-							}
-						});
+
+						$scope.objetivos = Objetivo.query(restrictions, postLoadObjetivos(loadIndicador));
 					} else {
 						$scope.objetivos = [];
 						delete $scope.cartaservicioseleccionada;
@@ -141,6 +161,18 @@
 				$scope.recargarObjetivo = function(i){
 					var loadAndSetValores = function(obj){
 						return function(loaded){
+							postLoadObjetivo(loaded);
+							if (typeof loaded.formulas !== 'undefined'){
+								for (var i = 0, j = loaded.formulas.length; i < j; i++){
+									obj.formulas[i].valores = loaded.formulas[i].valores;
+								}
+								for (var anu in loaded.formulas[i].gaugevalue){
+									obj.formulas[i].gaugevalue[anu] = loaded.formulas[i].gaugevalue[anu];
+								}
+								obj.formulas[i].uppervalue = loaded.formulas[i].uppervalue;
+							}
+
+							/*
 							var maxValuePerFormula = 0;
 							if (typeof loaded.formulas !== 'undefined'){
 								for (var i = 0, j = loaded.formulas.length; i < j; i++){
@@ -156,7 +188,7 @@
 									}
 									obj.formulas[i].uppervalue = Math.max(obj.formulas[i].valor[anu], obj.formulas[i].meta, maxValuePerFormula);
 								}
-							}
+							}*/
 						};
 					};
 					Objetivo.get( {id: $scope.objetivos[i]._id}, loadAndSetValores($scope.objetivos[i]) );

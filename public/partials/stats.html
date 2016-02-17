@@ -32,11 +32,11 @@
 								<th>Total<span ng-click="$root.exportXLS('tabladatos'+$index, 'estadisticas')" class="pull-right glyphicon glyphicon-floppy-disk">
 								</span>
 							</th>
-							<td class="numberCell">{{graph.sum}}</td>
-							<td class="numberCell">{{graph.sum - graph.porcumplimentar}}</td>
-							<td class="numberCell text-danger">{{ (100*(graph.sum - graph.porcumplimentar) /graph.sum).toFixed(2) }}%</td>
-							<td class="numberCell">{{graph.porcumplimentar}}</td>
-							<td class="numberCell text-danger">{{ (100*(graph.porcumplimentar) /graph.sum).toFixed(2) }}%</td>
+							<td class="numberCell">{{graph.sum|number}}</td>
+							<td class="numberCell">{{(graph.sum - graph.porcumplimentar)|number}}</td>
+							<td class="numberCell text-danger">{{ (100*(graph.sum - graph.porcumplimentar) /graph.sum)|number:2 }}%</td>
+							<td class="numberCell">{{graph.porcumplimentar|number}}</td>
+							<td class="numberCell text-danger">{{ (100*(graph.porcumplimentar) /graph.sum)|number:2 }}%</td>
 						</tr>
 					</tfoot>
 					<tbody>
@@ -45,11 +45,11 @@
 								<a href="/procedimiento/{{row._id}}">{{row._id}}</a>
 							</td>
 							<td ng-if="graph.campo!='codigo'">{{row._id}}</td>
-							<td class="numberCell">{{row.count}}</td>
-							<td class="numberCell">{{row.count - row.porcumplimentar}}</td>
-							<td class="numberCell text-danger">{{ (100*(row.count - row.porcumplimentar) /row.count).toFixed(2) }}%</td>
-							<td class="numberCell">{{row.porcumplimentar}}</td>
-							<td class="numberCell text-danger">{{ (100*(row.porcumplimentar) /row.count).toFixed(2) }}%</td>
+							<td class="numberCell">{{row.count |number}}</td>
+							<td class="numberCell">{{(row.count - row.porcumplimentar)|number}}</td>
+							<td class="numberCell text-danger">{{ (100*(row.count - row.porcumplimentar) /row.count)|number:2 }}%</td>
+							<td class="numberCell">{{row.porcumplimentar|number}}</td>
+							<td class="numberCell text-danger">{{ (100*(row.porcumplimentar) /row.count)|number:2 }}%</td>
 						</tr>
 					</tbody>
 				</table>

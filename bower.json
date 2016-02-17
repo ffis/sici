@@ -45,7 +45,8 @@
     "AngularJS-Toaster": "angularjs-toaster#~0.4.181",
     "angular-animate": "latest",
     "angular-cookies": "latest",
-    "angular-sanitize": "latest"
+    "angular-sanitize": "latest",
+    "angular-i18n": "^1.5.0"
   },
   "resolutions": {
     "d3": "~3.4.13",
