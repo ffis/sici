@@ -39,6 +39,7 @@
 		feedback = require('./api/feedback'),
 		carta = require('./api/carta'),
 		entidadobjeto = require('./api/entidadobjeto'),
+		registro = require('./api/registro'),
 		/* config */
 		config = require('./config.json');
 		/* app */
@@ -150,7 +151,9 @@
 		app.put('/api/v1/restricted/feedback/:_id', feedback.update(models));
 		app.delete('/api/v1/restricted/feedback/:_id', feedback.remove(models));
 
-		app.get('/api/v1/restricted/excelgesper', persona.importarGesper(models, Q));
+		app.get('/api/v2/restricted/registro', registro.registroActividad(models));
+
+		/* app.get('/api/v1/restricted/excelgesper', persona.importarGesper(models, Q)); */
 
 
 		/* funcionalidad grantuser */

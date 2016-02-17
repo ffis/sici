@@ -1,4 +1,4 @@
-(function(module){
+(function(module, log){
 	'use strict';
 
 	var mongoose = undefined;
@@ -41,18 +41,18 @@
 
 			'login': String,
 			'jerarquialectura': [Number], /*calculados, cacheados*/
-			'jerarquiaescritura': [Number],/*calculados, cacheados*/
-			'procedimientoslectura': [String],  /*calculados, cacheados*/
-			'procedimientosescritura': [String],  /*calculados, cacheados*/
-            'entidadobjetolectura': [String],  /*calculados, cacheados*/
-            'entidadobjetoescritura': [String], /*calculados, cacheados*/
+			'jerarquiaescritura': [Number], /*calculados, cacheados*/
+			'procedimientoslectura': [String], /*calculados, cacheados*/
+			'procedimientosescritura': [String], /*calculados, cacheados*/
+			'entidadobjetolectura': [String],  /*calculados, cacheados*/
+			'entidadobjetoescritura': [String], /*calculados, cacheados*/
 
 			'jerarquiadirectalectura': [Number], /*reales, asignados*/
 			'jerarquiadirectaescritura': [Number], /*reales, asignados*/
 			'procedimientosdirectalectura': [String], /*reales, asignados*/
 			'procedimientosdirectaescritura': [String], /*reales, asignados*/
-            'entidadobjetodirectalectura': [String],  /*reales, asignados*/
-            'entidadobjetodirectaescritura': [String], /*reales, asignados*/
+			'entidadobjetodirectalectura': [String],  /*reales, asignados*/
+			'entidadobjetodirectaescritura': [String], /*reales, asignados*/
 
 			'caducidad': Date,
 			'descripcion': String,
@@ -136,7 +136,7 @@
 			'fuera_plazo': [Number],
 			'pendientes': [Number],
 			'periodoscerrados': [Number],
-			'totalsolicitudes': Number, 
+			'totalsolicitudes': Number,
 			'Incidencias': {
 				'Se han resuelto expedientes fuera de Plazo': [Number],
 				'Aumenta el N de expedientes pendientes': [Number],
@@ -198,7 +198,7 @@
 			'fechafin': Date,
 			'fechaversion': { type: Date, default: Date.now },
 			'eliminado': Boolean,
-			'expediente': String,
+			'expediente': String
 		},
 		objetivo: {
 			//'carta': Schema.Types.ObjectId,
@@ -252,7 +252,7 @@
 
 	function schemaConstructor(name, mongoose, strict){
 		if (typeof schemas[name] !== 'undefined'){ return schemas[name]; }
-		if (typeof mongoose === 'undefined'){  throw new Error('Debe inicializar el schema previamente a su uso.'); }
+		if (typeof mongoose === 'undefined'){ throw new Error('Debe inicializar el schema previamente a su uso.'); }
 		var Schema = mongoose.Schema,
 			fields = schemasfields[name] ? schemasfields[name] : {},
 			cfg = { collection: name };
@@ -263,7 +263,7 @@
 		schemas[name] = mongoose.model(name, objSchema);
 
 		if (typeof schemasfields[name] === 'undefined'){
-			console.error(__filename + ':' + schemasfields[name]);
+			log.error(__filename + ':' + schemasfields[name]);
 		}
 
 		return schemas[name];
@@ -290,7 +290,7 @@
 		schemasfields.indicador.observaciones = Schema.Types.Mixed;
 		schemasfields.indicador.medidas = Schema.Types.Mixed;
 
-		for(var name in schemasfields){
+		for (var name in schemasfields){
 			exports[name](mongoose);
 		}
 	};
@@ -299,14 +299,15 @@
 
 	function constructorschema(name){
 		return function(mongoose) {
-			if (mapconstructors[name])
+			if (mapconstructors[name]){
 				return mapconstructors[name];
+			}
 			return mapconstructors[name] = schemaConstructor(name, mongoose, true);
 		};
 	}
 
-	for(var name in schemasfields){
+	for (var name in schemasfields){
 		module.exports[name] = constructorschema(name);
 	}
 
-})(module);
+})(module, console);

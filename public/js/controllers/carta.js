@@ -62,19 +62,22 @@
 							var maxValuePerFormula = 0;
 							for (var i = 0, j = $scope.objetivos.length; i < j; i++) {
 								for (var k = 0, l = $scope.objetivos[i].formulas.length; k < l; k++) {
-									$scope.objetivos[i].formulas[k].indicadores.forEach(loadIndicador);
-									$scope.objetivos[i].formulas[k].valor = {};
-									for (var anu in $scope.objetivos[i].formulas[k].valores){
-										anualidades[anu] = parseInt(anu.replace('a', ''));
-										$scope.objetivos[i].formulas[k].valor[anu] = $scope.objetivos[i].formulas[k].valores[anu][ $scope.objetivos[i].formulas[k].valores[anu].length - 1 ].resultado;
-									}
 									maxValuePerFormula = 0;
 									for (var y = 0, u = $scope.objetivos[i].formulas[k].intervalos.length; y < u; y++){
 										if ( $scope.objetivos[i].formulas[k].intervalos[y].max > maxValuePerFormula){
 											maxValuePerFormula = $scope.objetivos[i].formulas[k].intervalos[y].max;
 										}
 									}
-									$scope.objetivos[i].formulas[k].uppervalue = Math.max($scope.objetivos[i].formulas[k].valor[anu], $scope.objetivos[i].formulas[k].meta, maxValuePerFormula);
+									$scope.objetivos[i].formulas[k].indicadores.forEach(loadIndicador);
+									$scope.objetivos[i].formulas[k].valor = {};
+									$scope.objetivos[i].formulas[k].uppervalue = {};
+									for (var anu in $scope.objetivos[i].formulas[k].valores){
+										anualidades[anu] = parseInt(anu.replace('a', ''));
+										$scope.objetivos[i].formulas[k].valor[anu] = $scope.objetivos[i].formulas[k].valores[anu][ $scope.objetivos[i].formulas[k].valores[anu].length - 1 ].resultado;
+										$scope.objetivos[i].formulas[k].uppervalue[anu] = Math.max($scope.objetivos[i].formulas[k].valor[anu], $scope.objetivos[i].formulas[k].meta, maxValuePerFormula);
+									}
+
+									//$scope.objetivos[i].formulas[k].gaugevalue[] = $scope.objetivos[i].formulas[k].valor[anu] > maxValuePerFormula ? maxValuePerFormula : $scope.objetivos[i].formulas[k].valor[anu];
 								}
 							}
 							if (Object.keys(anualidades).length > 0){

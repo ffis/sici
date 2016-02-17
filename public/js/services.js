@@ -80,6 +80,8 @@
 			return $resource('/api/v1/restricted/persona/:id', {id: '@id' }, {create: {method: 'POST' }, update: {method: 'PUT' }}); }])
 		.factory('Feedback', ['$resource', function($resource) {
 			return $resource('/api/v1/restricted/feedback/:id', {id: '@id' }, {update: {method: 'PUT' }}); }])
+		.factory('RegistroActividad', ['$resource', function($resource) {
+			return $resource('/api/v2/restricted/registro', {}, {query: {method: 'GET', isArray: true }}); }])
 	;
 	/* private services */
 

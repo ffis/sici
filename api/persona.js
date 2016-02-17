@@ -6,26 +6,27 @@
 
 /* mapping for using XY coordinates on excel */
 	var mapping = [];
-	var index = 0;
-	for (var i = 'A'.charCodeAt(0), j = 'Z'.charCodeAt(0); i <= j; i++) {
-		mapping.push(String.fromCharCode(i));
-		index++;
-	}
 
-	for (var prefixi = 'A'.charCodeAt(0), prefixj = 'Z'.charCodeAt(0); prefixi <= prefixj; prefixi++) {
-		for (var i = 'A'.charCodeAt(0), j = 'Z'.charCodeAt(0); i <= j; i++) {
-			mapping.push(String.fromCharCode(prefixi) + String.fromCharCode(i));
-			index++;
+	function initMapping(){
+		var i, j, prefixi, prefixj, prefix, prefixk;
+		for (i = 'A'.charCodeAt(0), j = 'Z'.charCodeAt(0); i <= j; i++) {
+			mapping.push(String.fromCharCode(i));
 		}
-	}
-	for (var prefix = 'A'.charCodeAt(0), prefixk = 'Z'.charCodeAt(0); prefix <= prefixk; prefix++) {
-		for (var prefixi = 'A'.charCodeAt(0), prefixj = 'Z'.charCodeAt(0); prefixi <= prefixj; prefixi++) {
-			for (var i = 'A'.charCodeAt(0), j = 'Z'.charCodeAt(0); i <= j; i++) {
-				mapping.push(String.fromCharCode(prefix) + String.fromCharCode(prefixi) + String.fromCharCode(i));
-				index++;
+
+		for (prefixi = 'A'.charCodeAt(0), prefixj = 'Z'.charCodeAt(0); prefixi <= prefixj; prefixi++) {
+			for (i = 'A'.charCodeAt(0), j = 'Z'.charCodeAt(0); i <= j; i++) {
+				mapping.push(String.fromCharCode(prefixi) + String.fromCharCode(i));
+			}
+		}
+		for (prefix = 'A'.charCodeAt(0), prefixk = 'Z'.charCodeAt(0); prefix <= prefixk; prefix++) {
+			for (prefixi = 'A'.charCodeAt(0), prefixj = 'Z'.charCodeAt(0); prefixi <= prefixj; prefixi++) {
+				for (i = 'A'.charCodeAt(0), j = 'Z'.charCodeAt(0); i <= j; i++) {
+					mapping.push(String.fromCharCode(prefix) + String.fromCharCode(prefixi) + String.fromCharCode(i));
+				}
 			}
 		}
 	}
+	initMapping();
 
 	function getColumn(x) {
 		return mapping[x];
@@ -33,7 +34,9 @@
 
 	function parseStr2Int (str){
 		var valor = parseInt(str);
-		if(isNaN(valor)) { valor = 0; }
+		if (isNaN(valor)){
+			valor = 0;
+		}
 		return valor;
 	}
 
@@ -44,43 +47,36 @@
 			if (typeof req.params.cod_plaza !== 'undefined'){
 				restriccion.codplaza = req.params.cod_plaza;
 			} else {
-				console.error('Se esperaba parametro codplaza');
-				res.status(500).end();
-				return;				
+				res.status(400).json({error: 'Se esperaba parametro codplaza'});
+				return;
 			}
 			Persona.find(restriccion, function (err, data) {
 				if (err) {
-					console.error(restriccion);
-					console.error(err);
-					res.status(500);
-					res.end();
-					return;
+					res.status(500).json({error: err, restriccion: restriccion});
+				} else {
+					res.json(data);
 				}
-				res.json(data);
 			});
 		};
 	};
 
 	module.exports.personasByLogin = function (models) {
 		return function (req, res) {
-			console.log('Personas by login');
 			var Persona = models.persona();
 			var restriccion = {};
 			if (typeof req.params.login !== 'undefined'){
 				restriccion.login = req.params.login;
 			} else {
-				console.error('Se esperaba parametro login');
-				res.status(500).end();
-				return;				
+				res.status(400).json({error: 'Se esperaba parametro login'});
+				return;
 			}
 			Persona.find(restriccion, function (err, data) {
 				if (err) {
-					console.error(restriccion);
-					console.error(err);
-					res.status(500).end();
+					res.status(500).json({error: err, restriccion: restriccion});
 					return;
+				} else {
+					res.json(data);
 				}
-				res.json(data);
 			});
 		};
 	};
@@ -90,7 +86,7 @@
 			var Persona = models.persona(),
 				id = req.params.id,
 				content = req.body,
-				habilitado = content.habilitado ? content.habilitado === 'true' ||  content.habilitado === true : false;
+				habilitado = content.habilitado ? content.habilitado === 'true' || content.habilitado === true : false;
 			Persona.update({'_id': id}, {'$set': { habilitado: habilitado } }, function(e) {
 				if (e){
 					res.status(500).json({'error': 'An error has occurred during update', details: e});
@@ -109,7 +105,7 @@
 			var content = req.body;
 			Persona.update({'_id': id}, content, {upsert: true}, function (e) {
 				if (e) {
-					res.status(500).json({'error': 'An error has occurred'});
+					res.status(500).json({'error': 'An error has occurred', details: e});
 				} else {
 					res.send(content);
 				}
@@ -123,7 +119,7 @@
 			var content = req.body;
 			new Persona(content).save(function (e) {
 				if (e) {
-					res.status(500).json({'error': 'An error has occurred'});
+					res.status(500).json({'error': 'An error has occurred', details: e});
 				} else {
 					res.send(content);
 				}
@@ -162,9 +158,7 @@
 				};
 				Persona.find(restriccion, function (err, data) {
 					if (err) {
-						console.error(restriccion);
-						console.error(err);
-						res.status(500).end();
+						res.status(500).json({'error': 'An error has occurred', details: err, restriccion: restriccion});
 						return;
 					}
 
@@ -190,23 +184,24 @@
 											nuevaPersona.habilitado = false;
 											nuevaPersona.save(function (error) {
 												if (error) {
-													console.err(error);
-													res.json(data);
+													res.status(500).json({error: 'Error guardando persona', details: error});
 												} else {
 													var output = [{'login': nuevaPersona.login, 'codplaza': nuevaPersona.codplaza, 'nombre': nuevaPersona.nombre, 'apellidos': nuevaPersona.apellidos}];
-													console.log('Nuevo usuario registrado: ' + JSON.stringify(output));
 													res.json(output);
 												}
 											});
 										}
 									} else {
 										console.log(err);
-										res.json(data);
-										return;
+										if (result){
+											res.json(data);
+										} else {
+											res.status(400).json({error: 'Not found'});
+										}
 									}
 								}
 							}, function (er) {
-								console.log(er);
+								res.status(500).json({'error': 'An error has occurred', details: er});
 							});
 						} else {
 							var regPlaza = new RegExp(/[A-Z]{2}\d{5}/);
@@ -215,6 +210,7 @@
 									res.json(resultado);
 								}, function (erro) {
 									console.error(erro);
+									/* TODO revisar esto, debería devolver un 500? */
 									res.json(data);
 								});
 							} else {
@@ -226,8 +222,7 @@
 					}
 				});
 			} else {
-				res.status(500).end();
-				return;
+				res.status(400).json({error: 'Se esperaba parametro'});
 			}
 		};
 	};
@@ -238,14 +233,12 @@
 		Persona.count({'codplaza': codplaza}, function (err, count) {
 			if (count === 0) {
 				exports.infoByPlaza(codplaza, Q, cfg).then(function (result) {
-					console.log(result);
 					if ((result !== null) && (typeof result.return !== 'undefined') && (result.return.length > 0) && (result.return[2].key === 'ERR_MSG')) {
 						var msg = result.return[2].value;
 						var valores = /(\d{2})\.-(.*)/g.exec(msg);
 						if (valores !== null) {
 							if (valores[1] !== '00') {
-								console.error(valores[2]);
-								deferRegistro.reject();
+								deferRegistro.reject(valores);
 								return;
 							} else {
 								var nuevaPersona = new Persona();
@@ -257,56 +250,54 @@
 								nuevaPersona.habilitado = false;
 								nuevaPersona.save(function (erro) {
 									if (erro) {
-										console.err(erro);
-										deferRegistro.reject();
+										deferRegistro.reject(erro);
 									} else {
 										var output = [{'login': nuevaPersona.login, 'codplaza': nuevaPersona.codplaza, 'nombre': nuevaPersona.nombre, 'apellidos': nuevaPersona.apellidos}];
-										console.log('Nuevo usuario registrado: ' + JSON.stringify(output));
 										deferRegistro.resolve(output);
 									}
 								});
 							}
 						} else {
-							console.log(err);
-							deferRegistro.reject();
-							return;
+							deferRegistro.reject(err);
 						}
 					} else {
-						deferRegistro.reject();
+						deferRegistro.reject('Error inespecificado del servicio web.');
 					}
 				});
 			} else {
-				deferRegistro.reject();
+				deferRegistro.reject('Ya existe una persona registrada con ese codplaza.');
 			}
 		});
 		return deferRegistro.promise;
 	};
 
 
+	function callWs(cfg, method, args, cb){
+		var url = cfg.ws_url;
+		soap.createClient(url, {}, function (err, client) {
+			if (err) {
+				cb(err);
+			} else {
+				client.setSecurity(new soap.WSSecurity(cfg.ws_user, cfg.ws_pwd, 'PasswordText'));
+				client[method](args, function (erro, result) {
+					if (erro) {
+						cb(erro);
+					} else {
+						cb(null, result);
+					}
+				});
+			}
+		});
+	}
+
 	module.exports.infoByPlaza2 = function (cfg) {
 		return function (req, res) {
-			var codplaza = req.params.codplaza;
-			var url = cfg.ws_url;
-			var args = { arg0: {key: 'P_PLAZA', value: codplaza }};
-			var options = {
-	//            ignoredNamespaces: {
-	//                namespaces: ['pp'], override:true
-	//            }
-			};
-			soap.createClient(url, options, function (err, client) {
-				if (err) {
-					console.error(JSON.stringify(err));
-					res.status(500).end(err);
+			var args = { arg0: {key: 'P_PLAZA', value: req.params.codplaza }};
+			callWs(cfg, 'SacaOcupante', args, function(err, result){
+				if (err){
+					res.status(500).json({error: 'Error buscando plaza en WS', details: err});
 				} else {
-					client.setSecurity(new soap.WSSecurity(cfg.ws_user, cfg.ws_pwd, 'PasswordText'));
-					client.SacaOcupante(args, function (err, result) {
-						if (err) {
-							console.error('Error buscando plaza en WS');
-							res.json(err);
-						} else {
-							res.json(result);
-						}
-					});
+					res.json(result);
 				}
 			});
 		};
@@ -314,29 +305,12 @@
 
 	module.exports.infoByLogin2 = function (cfg) {
 		return function (req, res) {
-			var login = req.params.login;
-			var url = cfg.ws_url;
-			var args = {arg0: {key: 'p_login', value: login}};
-			var options = {
-	//            ignoredNamespaces: {
-	//                namespaces: ['pp'], override:true
-	//            }
-			};
-			soap.createClient(url, options, function (err, client) {
-				if (err) {
-					console.error(JSON.stringify(err));
-					res.status(500).end(err);
+			var args = {arg0: {key: 'p_login', value: req.params.login}};
+			callWs(cfg, 'SacaPlaza', args, function(err, result){
+				if (err){
+					res.status(500).json({error: 'Error buscando login en WS', details: err});
 				} else {
-					client.setSecurity(new soap.WSSecurity(cfg.ws_user, cfg.ws_pwd, 'PasswordText'));
-					client.SacaPlaza(args, function (err, result) {
-						if (err) {
-							console.error('Error buscando login en WS: ' + err);
-							res.json(err);
-						} else {
-							console.log('Consulto el login ' + login);
-							res.json(result);
-						}
-					});
+					res.json(result);
 				}
 			});
 		};
@@ -344,29 +318,12 @@
 
 	module.exports.infoByLogin = function (login, Q, cfg) {
 		var def = Q.defer();
-		var url = cfg.ws_url;
 		var args = {arg0: {key: 'p_login', value: login}};
-		var options = {
-	//        ignoredNamespaces: {
-	//            namespaces: ['tns']
-	//        }
-		};
-		soap.createClient(url, options, function (err, client) {
-			if (err) {
-				console.error(JSON.stringify(err));
+		callWs(cfg, 'SacaPlaza', args, function(err, result){
+			if (err){
 				def.reject(err);
 			} else {
-				client.setSecurity(new soap.WSSecurity(cfg.ws_user, cfg.ws_pwd, 'PasswordText'));
-				client.SacaPlaza(args, function (err, result) {
-					if (err) {
-						console.error('Error buscando login en WS');
-						console.log(result);
-						def.resolve(null);
-					} else {
-						console.log('Consulto el login ' + login);
-						def.resolve(result);
-					}
-				});
+				def.resolve(result);
 			}
 		});
 		return def.promise;
@@ -374,27 +331,12 @@
 
 	module.exports.infoByPlaza = function (codplaza, Q, cfg) {
 		var def = Q.defer();
-		var url = cfg.ws_url;
-		var args = {arg0: {key: 'P_PLAZA', value: codplaza}};
-		var options = {
-	//        ignoredNamespaces: {
-	//            namespaces: ['tns']
-	//        }
-		};
-		soap.createClient(url, options, function (err, client) {
-			if (err) {
-				console.error(JSON.stringify(err));
+		var args = { arg0: {key: 'P_PLAZA', value: codplaza }};
+		callWs(cfg, 'SacaOcupante', args, function(err, result){
+			if (err){
 				def.reject(err);
 			} else {
-				client.setSecurity(new soap.WSSecurity(cfg.ws_user, cfg.ws_pwd, 'PasswordText'));
-				client.SacaOcupante(args, function (erro, result) {
-					if (erro) {
-						console.error('Error buscando plaza en WS', erro);
-						def.resolve(null);
-					} else {
-						def.resolve(result);
-					}
-				});
+				def.resolve(result);
 			}
 		});
 		return def.promise;
@@ -411,11 +353,9 @@
 			}
 			Persona.find(restriccion).sort({ultimoupdate: 1}).limit(1).exec(function (err, personas) {
 				if (err) {
-					console.error(err);
-					res.status(500).end();
+					res.status(500).json({error: err});
 					return;
 				} else {
-					console.log(personas);
 					personas.forEach(function (persona) {
 						var promesaUpdate = Q.defer();
 						promesasActualizacion.push(promesaUpdate.promise);
@@ -433,7 +373,7 @@
 											filas.push(fila);
 											persona.codplaza = codplaza;
 										} else {
-											console.log('No se modifica el código de plaza del usuario: ' + persona.login);
+											console.log('No se modifica el código de plaza del usuario: ', persona.login);
 										}
 										var telefono = result.return[7].value;
 										persona.telefono = telefono;
@@ -450,11 +390,9 @@
 								}
 							}
 							persona.ultimoupdate = new Date();
-							console.log(persona);
 							persona.save(function (err) {
 								if (err) {
-									console.error('NO se ha podido actualizar el usuario ' + persona.login + '. Error: ' + err);
-									promesaUpdate.reject(err);
+									promesaUpdate.reject('NO se ha podido actualizar el usuario ' + persona.login + '. Error: ' + err);
 								} else {
 									console.log('Se ha actualizado el usuario ' + persona.login + ': ' + persona.codplaza);
 									if (persona.codplaza !== codplaza) {
@@ -480,16 +418,14 @@
 								}
 							});
 						}, function (erro) {
-							console.error(erro);
-							res.status(500).end();
+							promesaUpdate.reject(erro);
 						});
 					});
 				}
 				Q.all(promesasActualizacion).then(function () {
 					res.json(filas);
 				}, function (erro) {
-					console.error(erro);
-					res.status(500).end();
+					res.status(500).json({error: erro});
 				});
 			});
 
@@ -497,7 +433,6 @@
 	};
 
 	function transformExcel2Persona(objeto, models, Q) {
-
 		var Persona = models.persona();
 		var persona = {
 			'codplaza': objeto.puesto.trim(),
@@ -518,25 +453,21 @@
 		Persona.find({'login': persona.login}, function (err, personas) {
 			if (err) {
 				dpersonaresultado.reject(err);
-			}
-			else {
-				if (personas.length > 0) {
-					informeresultado.actualizado = true;
-					personas[0].login = persona.login;
-					personas[0].codplaza = persona.codplaza;
-					personas[0].nombre = persona.nombre;
-					personas[0].apellidos = persona.apellidos;
-					informeresultado.persona = personas[0];
-					dpersonaresultado.resolve(informeresultado);
-				} else {
-					informeresultado.actualizado = false;
-					var p = new Persona(persona);
-					informeresultado.persona = p;
-					dpersonaresultado.resolve(informeresultado);
-				}
+			} else if (personas.length > 0) {
+				informeresultado.actualizado = true;
+				personas[0].login = persona.login;
+				personas[0].codplaza = persona.codplaza;
+				personas[0].nombre = persona.nombre;
+				personas[0].apellidos = persona.apellidos;
+				informeresultado.persona = personas[0];
+				dpersonaresultado.resolve(informeresultado);
+			} else {
+				informeresultado.actualizado = false;
+				var p = new Persona(persona);
+				informeresultado.persona = p;
+				dpersonaresultado.resolve(informeresultado);
 			}
 		});
-
 		return informeresultado;
 	}
 
@@ -545,20 +476,21 @@
 		var worksheet = workbook.Sheets[worksheetName];
 		var fields = { lista: [], tipos: {} };
 		var objetos = [];
-		var procesados = 0;
+		var procesados = 0, columna = 0, maxcolumna = 0;
+		var n = '', idx;
 
 		for (var fila = 1; fila < maxrows; fila++)
 		{
 			if (fila === 1)
 			{
 				//cabecera
-				for (var columna = 0; columna < 55550; columna++)
+				for (columna = 0, maxcolumna = 55550; columna < maxcolumna; columna++)
 				{
-					var n = getColumn(columna);
+					n = getColumn(columna);
 					if (n === 'H'){
 						break;
 					}
-					var idx = getColumn(columna) + fila;
+					idx = getColumn(columna) + fila;
 					var campo = typeof worksheet[idx] === 'undefined' ? '' : worksheet[idx].v.trim()
 							.replace('.', '_').replace('.', '_').replace('.', '_')
 							.replace('Ó', 'O').replace('ó', 'o')
@@ -577,12 +509,12 @@
 
 				var objeto = {};
 
-				for (var columna = 0, maxcolumna = fields.lista.length; columna < maxcolumna; columna++) {
-					var n = getColumn(columna);
+				for (columna = 0, maxcolumna = fields.lista.length; columna < maxcolumna; columna++) {
+					n = getColumn(columna);
 					if (n === 'H'){
 						break;
 					}
-					var idx = getColumn(columna) + fila;
+					idx = getColumn(columna) + fila;
 					var valor = typeof worksheet[idx] === 'undefined' ? {t: '', v: ''} : worksheet[idx];
 
 					if (valor.t === 's') {
@@ -603,7 +535,7 @@
 						}
 					} else {
 						if (!Array.isArray(objeto[campo])) {
-							console.error(campo + ' deberia ser un array');
+							/* console.error(campo + ' deberia ser un array');*/
 							continue;
 						}
 						objeto[campo].push(valor.v);
@@ -620,13 +552,13 @@
 				}
 			}
 		}
-		console.log(fields);
+		/*console.log(fields);*/
 		return objetos;
 	}
 
 	module.exports.importarGesper = function (models, Q) {
 		return function (req, res) {
-
+			var i = 0;
 			var path = '/tmp/universo.xlsx';
 			var hoja = 'salida1';
 			var maxrows = 10000;
@@ -635,14 +567,13 @@
 			var promesas = [];
 			var resultado = [];
 
-			for (var i = 0; i < operacionesGesper.length; i++) {
+			for (i = 0; i < operacionesGesper.length; i++) {
 				promesas.push(operacionesGesper[i].persona);
 			}
 
-			console.log('esperando promesas');
 			var errorHandler = function(err){
 				if (err){
-					console.error('Error importando persona. Actualización fallida. ' + err);
+					console.error('Error importando persona. Actualización fallida. ', err);
 				}
 			};
 			var fnInforme = function (informeresultado) {
@@ -650,33 +581,34 @@
 				if (informeresultado.actualizada)
 				{
 					informeresultado.persona.update(errorHandler);
-				}else{
+				} else {
 					informeresultado.persona.save(errorHandler);
 				}
 			};
-			for (var i = 0; i < promesas.length; i++) {
+			for (i = 0; i < promesas.length; i++) {
 				promesas[i].then(fnInforme, errorHandler);
 			}
 			Q.all(promesas).then(function () {
 				res.json(resultado);
+			}, function(err){
+				res.status(500).json({error: err});
 			});
 		};
 	};
 
 	module.exports.personassearchlist = function (models, Q){
-		return function (req, res) {
+		return function (req, res){
 
-			var Persona = models.persona(), Procedimiento = models.procedimiento();
+			var Persona = models.persona(),
+				Procedimiento = models.procedimiento();
 
 			var deferPersona = Q.defer(),
-			deferProcedimiento = Q.defer();
+				deferProcedimiento = Q.defer();
 
 
 			/// 1. Buscamos personas en la tabla personas.
 			Persona.find({}, {codplaza: true, login: true, nombre: true, apellidos: true}, function (err, data) {
 				if (err) {
-					console.error(err);
-					res.status(500).end();
 					deferPersona.reject(err);
 				} else {
 					deferPersona.resolve(data);
@@ -686,7 +618,8 @@
 			/// 2. Buscamos personas como responsables de procedimientos ... ¡¡¡Y que no estén en el primer grupo¡¡¡
 			Procedimiento.aggregate()
 				.unwind('responsables')
-				.group({'_id': {
+				.group(
+					{'_id': {
 						'login': '$responsables.login',
 						'codplaza': '$responsables.codplaza'
 					},
@@ -695,12 +628,8 @@
 				})
 				.exec(function (err, data) {
 					if (err) {
-						console.error(err);
-						res.status(500);
-						res.end();
 						deferProcedimiento.reject(err);
 					} else {
-
 						deferProcedimiento.resolve(data);
 					}
 				});
@@ -730,6 +659,8 @@
 				}
 
 				res.json(response);
+			}, function(err){
+				res.status(500).json({error: err});
 			});
 		};
 	};

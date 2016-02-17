@@ -17,18 +17,18 @@ exports.uncrypt = function(urlbasedecrypt){
 			}else if (txt){
 				//aqui debería comprobarse si el lapso de tiempo es válido
 				var parsed = {};
-				try{
+				try {
 					parsed = JSON.parse(txt);
 					req.body.token = parsed;
 					req.body.username = parsed.carmid;
 					req.body.password = 'password';
 					next();
-				}catch(exc){
+				}catch (exc){
 					console.error('Error parseando JSON token-sesión ' + txt);
 					console.error('Wrong token password');
 					res.status(401).send('Wrong token password');
 				}
-			}else{
+			} else {
 				console.error('Wrong token password');
 				res.status(401).send('Wrong token password');
 			}

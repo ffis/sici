@@ -1,0 +1,50 @@
+
+<div class="table-responsive" ng-class="{'col-lg-6': detalles, 'col-md-12': detalles}">
+	<table class="table table-striped table-bordered table-condensed table-hover">
+		<thead>
+			<tr>
+				<th ng-class="{danger:orderby=='usr' }" ng-click="reverse=!reverse;orderby='usr'">USR</th>
+				<th ng-class="{danger:orderby=='fecha' }" ng-click="reverse=!reverse;orderby='fecha'">Fecha</th>
+				<th ng-class="{danger:orderby=='url' }" ng-click="reverse=!reverse;orderby='url'">URL</th>
+				<th>Headers</th>
+				<th>Body</th>
+			</tr>
+		</thead>
+		<tfoot>
+			<tr>
+				<td colspan="5" class="text-center">
+					Nº de registros listados:
+					<strong>{{registros.length}}</strong>, desde el registro nº <strong>{{start + 1}}</strong>.
+				</td>
+			</tr>
+			<tr>
+				<td><input ng-model="usr" placeholder="Usuario" ng-blur="reload()" /></td>
+				<td><input ng-model="fecha" placeholder="Fecha" ng-blur="reload()"/></td>
+				<td><input ng-model="url" placeholder="URL" ng-blur="reload()" /></td>
+				<td colspan="2" class="text-center">
+					<span class="cursor glyphicon glyphicon-fast-backward" ng-hide="start === 0" ng-click="firstPage()"></span>
+					<span class="cursor glyphicon glyphicon-arrow-left" ng-hide="start === 0" ng-click="previousPage()"></span>
+					<input ng-model="limit" placeholder="Número de registros" ng-blur="reload()" />
+					<span class="cursor glyphicon glyphicon-arrow-right" ng-hide="registros.length < limit" ng-click="nextPage()"></span>
+				</td>
+		</tfoot>
+		<tbody>
+			<tr ng-repeat="registro in registros">
+				<th>{{registro.usr}}</th>
+				<td>{{registro.fecha | date:'dd-MM-yyyy HH:mm'}}</td>
+				<td style="max-width:200px;overflow:hidden;text-overflow: ellipsis;">{{registro.url}}</td>
+				<td class="text-center"><span class="cursor glyphicon glyphicon-zoom-in" ng-click="show(registro.req.headers)"></span></td>
+				<td class="text-center"><span class="cursor glyphicon glyphicon-zoom-in" ng-if="registro.req.body" ng-click="show(registro.req.body)"></span></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<div ng-class="{'col-lg-6': detalles, 'hidden': !detalles, 'col-md-12': detalles}">
+<div class="panel panel-danger">
+	<div class="panel-heading">
+		<h3 class="panel-title">Detalles</h3>
+	</div>
+	<div class="panel-body">
+		<pre style="overflow:auto">{{detalless|json}}</pre>
+	</div>
+</div>
