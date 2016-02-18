@@ -2,8 +2,8 @@
 	'use strict';
 	angular.module('sici')
 		.controller('RegistroActividadCtrl',
-			['$rootScope', '$scope', 'RegistroActividad',
-			function($rootScope, $scope, RegistroActividad){
+			['$rootScope', '$scope', 'RegistroActividad', 'PastelColor',
+			function($rootScope, $scope, RegistroActividad, PastelColor){
 				$rootScope.setTitle('Registro de actividad');
 				$rootScope.nav = 'registroActividad';
 				$scope.url = '';
@@ -49,6 +49,15 @@
 				$scope.previousPage = function(){
 					$scope.start -= $scope.limit;
 					$scope.reload();
+				};
+				var usrs = [];
+				$scope.getPastel = function(usr){
+					var pos = usrs.indexOf(usr);
+					if (pos < 0){
+						pos = usrs.length;
+						usrs.push(usr);
+					}
+					return PastelColor(pos);
 				};
 				$scope.reload();
 			}

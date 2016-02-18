@@ -60,6 +60,9 @@
 					$location.path('/procedimiento/' + $rootScope.procedimiento);
 				}
 			};
+			$rootScope.isInt = function(n){
+				return parseInt(n) === n;
+			};
 
 			$rootScope.colorText = function(i, numcolors, phase){
 				if (typeof phase === 'undefined'){ phase = 0; }

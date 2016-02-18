@@ -174,24 +174,6 @@
 									obj.formulas[i].uppervalue = loaded.formulas[i].uppervalue;
 								}
 							}
-
-							/*
-							var maxValuePerFormula = 0;
-							if (typeof loaded.formulas !== 'undefined'){
-								for (var i = 0, j = loaded.formulas.length; i < j; i++){
-									obj.formulas[i].valores = loaded.formulas[i].valores;
-									for (var anu in obj.formulas[i].valores){
-										obj.formulas[i].valor[anu] = obj.formulas[i].valores[anu][ obj.formulas[i].valores[anu].length - 1 ].resultado;
-									}
-									maxValuePerFormula = 0;
-									for (var k = 0, l = obj.formulas[i].intervalos.length; k < l; k++){
-										if ( obj.formulas[i].intervalos[k].max > maxValuePerFormula){
-											maxValuePerFormula = obj.formulas[i].intervalos[k].max;
-										}
-									}
-									obj.formulas[i].uppervalue = Math.max(obj.formulas[i].valor[anu], obj.formulas[i].meta, maxValuePerFormula);
-								}
-							}*/
 						};
 					};
 					Objetivo.get( {id: $scope.objetivos[i]._id}, loadAndSetValores($scope.objetivos[i]) );

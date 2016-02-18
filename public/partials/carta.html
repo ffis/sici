@@ -3,7 +3,7 @@
 	<div ng-class="{'col-lg-3': !oculto, 'col-md-4': !oculto, 'col-sm-4': !oculto, 'hidden': oculto}" class="left animated">
 		<organismos otitle="'Organismos con cartas de compromisos'" arbol="arbol" tipoelementos="'carta de compromisos'" attr="'numcartas'" setseleccionado="goToJerarquia" seleccionado="seleccionado" filtro="filtro"></organismos>
 	</div>
-	<div ng-class="{'col-lg-9': !oculto, 'col-md-8': !oculto, 'col-sm-8': !oculto, 'col-lg-11': oculto}" class="right animated" id="detallesjerarquia">
+	<div ng-class="{'col-lg-9': !oculto, 'col-md-8': !oculto, 'col-sm-8': !oculto, 'col-md-12': oculto}" class="right animated" id="detallesjerarquia">
 		<div class="pull-left" ng-click="oculto=!oculto" style="cursor:ew-resize; margin-right:1em" ng-show="seleccionado" title="Pulse para maximizar/restaurar esta vista">
 			<br />
 			<div class="btn btn-default">
@@ -33,7 +33,7 @@
 				</div>
 				<br style="clear:both" />
 			</p>
-			<table class="table table-bordered table-condensed table-hover" id="cartastable">
+			<table class="table table-bordered table-condensed table-hover" id="cartastable" style="width:100%">
 				<thead>
 					<tr>
 						<th ng-class="{danger:orderby=='codigo' }" ng-click="reverse=!reverse;orderby='codigo'">{{'codigo'|translate}}</th>
@@ -50,7 +50,7 @@
 					</tr>
 				</tfoot>
 				<tbody>
-					<tr ng-repeat="objetivo in objetivos" style="background-color:{{getPastel(objetivo.index)}}">
+					<tr ng-repeat="objetivo in objetivos" ng-style="{'background-color': getPastel(objetivo.index) }">
 						<th class="text-center">
 							<p>{{objetivo.index}}</p>
 							<div class="btn-group-vertical" role="group">
@@ -89,7 +89,7 @@
 													</tr>
 													<tr>
 														<th>Cálculo</th>
-														<th class="text-right" title="{{valor.formula}}" ng-style="bgColorResultado(valor.resultado, formula)" ng-repeat="valor in formula.valores[aanualidad] track by $index">{{valor.resultado|number:(formula.indicadores.length > 1 ? 2 : 0)}}</th>
+														<th class="text-right" title="{{valor.formula}}" ng-style="bgColorResultado(valor.resultado, formula)" ng-repeat="valor in formula.valores[aanualidad] track by $index">{{valor.resultado | number:($root.isInt(valor.resultado) ? 0 : 2)  }}</th>
 													</tr>
 												</tfoot>
 												<tbody>
@@ -103,13 +103,13 @@
 															{{indicadores[indicadorid].nombre}}
 														</td>
 														<td ng-repeat="(v,a) in indicadores[indicadorid].valores[aanualidad] track by $index" style="white-space:nowrap" class="text-center">
-															<input ng-hide="$index == indicadores[indicadorid].valores[aanualidad].length - 1" ng-blur="updateIndicador(indicadorid)" type="text" style="width:3em; font-size:smaller; padding:1px" class="text-right form-control" ng-model="indicadores[indicadorid].valores[aanualidad][v]" />
+															<input ng-hide="$index == indicadores[indicadorid].valores[aanualidad].length - 1" ng-blur="updateIndicador(indicadorid)" type="text" style="width:3em; font-size:smaller; padding:1px; min-width:100%" class="text-right form-control" ng-model="indicadores[indicadorid].valores[aanualidad][v]" />
 															<span ng-if="$index == indicadores[indicadorid].valores[aanualidad].length - 1">
 																<span ng-show="indicadores[indicadorid].acumulador === 'sum' ">∑</span>
 																<span ng-show="indicadores[indicadorid].acumulador === 'mean' ">x&#772;</span>
 																<span ng-show="indicadores[indicadorid].acumulador === 'min' ">&#8863;</span>
 																<span ng-show="indicadores[indicadorid].acumulador === 'max' ">&#8862;</span>
-																= {{ indicadores[indicadorid].valores[aanualidad][v] }}
+																= {{ indicadores[indicadorid].valores[aanualidad][v] | number:($root.isInt(indicadores[indicadorid].valores[aanualidad][v]) ? 0 : 2)   }}
 															</span>
 														</td>
 													</tr>
@@ -136,10 +136,10 @@
 											Gauge:{{formula.gaugevalue[aanualidad]}}
 											{{formula.uppervalue}} {{formula.intervalos|json}}
 											-->
-											<br />	
 											<br />
-											<h4>{{ formula.valores[aanualidad][ formula.valores[aanualidad].length - 1 ].resultado | number:(formula.indicadores.length > 1 ? 2 : 0)  }}</h4>
-											<h4 style="color:red" ng-show="showformulas">{{formula.valor[aanualidad]}}</h4>
+											<br />
+											<h4>{{ formula.valores[aanualidad][ formula.valores[aanualidad].length - 1 ].resultado | number:($root.isInt(formula.valores[aanualidad][ formula.valores[aanualidad].length - 1 ].resultado) ? 0 : 2)  }}</h4>
+											<h4 style="color:red" ng-show="showformulas">{{formula.valor[aanualidad] | number:($root.isInt(formula.valor[aanualidad]) ? 0 : 2)  }}</h4>
 											<h5>{{ formula.meta }}</h5>
 										</td>
 									</tr>
