@@ -165,10 +165,12 @@
 					}
 					var coef = meta / metaparcial;
 					for (var i = 0, j = formula.intervalos.length; i < j; i++){
-						console.log(sumatorio, metaparcial, i, formula.intervalos[i].max, coef);
 						if (sumatorio * coef >= formula.intervalos[i].min && sumatorio * coef <= formula.intervalos[i].max){
 							result = formula.intervalos[i].color;
 						}
+					}
+					if (result === '' && formula.intervalos.length > 0 && formula.intervalos[ formula.intervalos.length - 1 ].max ){
+						result = formula.intervalos[ formula.intervalos.length - 1 ].color;
 					}
 					return {'background-color': result};
 				};

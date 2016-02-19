@@ -470,8 +470,8 @@
 					{'min': 0, 'max': valormeta / 4, 'mensaje': 'Peligro', 'color': '#C50200', 'alerta': 4},
 					{'min': valormeta / 4, 'max': valormeta / 2, 'mensaje': 'Aviso', 'color': '#FF7700', 'alerta': 3},
 					{'min': valormeta / 2, 'max': valormeta / 4 + valormeta / 2, 'mensaje': 'Normal', 'color': '#FDC702', 'alerta': 2},
-					{'min': valormeta / 4 + valormeta / 2, 'max': valormeta, 'mensaje': 'Éxito', 'color': '#8DCA2F', 'alerta': 1},
-					{'min': valormeta, 'max': valormeta * 2, 'mensaje': 'Superado éxito', 'color': '#C6E497', 'alerta': 0}
+					{'min': valormeta / 4 + valormeta / 2, 'max': valormeta, 'mensaje': 'Éxito', 'color': '#C6E497', 'alerta': 1},
+					{'min': valormeta, 'max': valormeta * 2, 'mensaje': 'Superado éxito', 'color': '#8DCA2F', 'alerta': 0}
 				];
 			}
 			return intervaloscalculados;
