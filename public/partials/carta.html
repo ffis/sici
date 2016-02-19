@@ -87,7 +87,23 @@
 													<tr ng-show="showformulas">
 														<th colspan="{{1 + formula.valores[aanualidad].length}}"><p><strong>{{formula.computer}}</strong></p></th>
 													</tr>
-													<tr>
+													<tr ng-if="formula.indicadores.length === 1 && indicadores[formula.indicadores[0] ].acumulador === 'sum' ">
+														<th>Meta parcial</th>
+														<td class="text-right" ng-repeat="(v,a) in indicadores[formula.indicadores[0] ].valores[aanualidad] track by $index">
+															<span ng-hide="$last">
+															{{ (formula.meta / 12) * ($index + 1) | number:($root.isInt((formula.meta / 12) * $index + 1) ? 0 : 2)}}
+															</span>
+														</td>
+													</tr>
+													<tr ng-if="formula.indicadores.length === 1 && indicadores[formula.indicadores[0] ].acumulador === 'sum' ">
+														<th>Sumatorio parcial</th>
+														<td ng-hide="$last" class="text-right" ng-repeat="(v,a) in indicadores[formula.indicadores[0] ].valores[aanualidad] track by $index" ng-style="bgColorResultadoParcial(sumatorioParcial(indicadores[formula.indicadores[0] ].valores[aanualidad], $index), (formula.meta / 12) * ($index + 1), formula.meta, formula)">
+															<span>
+															{{ sumatorioParcial(indicadores[formula.indicadores[0] ].valores[aanualidad], $index) | number:($root.isInt( sumatorioParcial(indicadores[formula.indicadores[0] ].valores[aanualidad], $index) ) ? 0 : 2)}}
+															</span>
+														</td>
+													</tr>
+													<tr ng-if="formula.indicadores.length > 1 || indicadores[formula.indicadores[0] ].acumulador !== 'sum' ">
 														<th>Cálculo</th>
 														<th class="text-right" title="{{valor.formula}}" ng-style="bgColorResultado(valor.resultado, formula)" ng-repeat="valor in formula.valores[aanualidad] track by $index">{{valor.resultado | number:($root.isInt(valor.resultado) ? 0 : 2)  }}</th>
 													</tr>
@@ -140,7 +156,7 @@
 											<br />
 											<h4>{{ formula.valores[aanualidad][ formula.valores[aanualidad].length - 1 ].resultado | number:($root.isInt(formula.valores[aanualidad][ formula.valores[aanualidad].length - 1 ].resultado) ? 0 : 2)  }}</h4>
 											<h4 style="color:red" ng-show="showformulas">{{formula.valor[aanualidad] | number:($root.isInt(formula.valor[aanualidad]) ? 0 : 2)  }}</h4>
-											<h5>{{ formula.meta }}</h5>
+											<h5>{{ formula.meta | number:($root.isInt(formula.valor[aanualidad]) ? 0 : 2) }}</h5>
 										</td>
 									</tr>
 								</tbody>

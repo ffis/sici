@@ -143,6 +143,35 @@
 						}, 20);
 					}
 				};
+				$scope.sumatorioParcial = function(valores, $index){
+					var sum = 0;
+					for (var i = 0; i <= $index; i++){
+						if (typeof valores[i] !== 'undefined' && valores[i] ){
+							sum += parseFloat(valores[i]);
+						}
+					}
+					if (sum === 0){
+						return '';
+					}
+					return sum;
+				};
+				$scope.bgColorResultadoParcial = function(sumatorio, metaparcial, meta, formula){
+					if (sumatorio === ''){
+						return {};
+					}
+					var result = '';
+					if (!sumatorio || sumatorio === 0 || sumatorio === ''){
+						return '';
+					}
+					var coef = meta / metaparcial;
+					for (var i = 0, j = formula.intervalos.length; i < j; i++){
+						console.log(sumatorio, metaparcial, i, formula.intervalos[i].max, coef);
+						if (sumatorio * coef >= formula.intervalos[i].min && sumatorio * coef <= formula.intervalos[i].max){
+							result = formula.intervalos[i].color;
+						}
+					}
+					return {'background-color': result};
+				};
 				$scope.getPastel = function(i){
 					return PastelColor(i);
 				};
