@@ -48,11 +48,13 @@
 				$routeProvider.when('/carta/:idjerarquia', {templateUrl: 'partials/carta.html', controller: 'CartaCtrl' });
 				$routeProvider.when('/carta/:idjerarquia/:idcarta', {templateUrl: 'partials/carta.html', controller: 'CartaCtrl' });
 				$routeProvider.when('/carta-printable/:idjerarquia/:idcarta', {templateUrl: 'partials/carta-printable.html', controller: 'CartaPrintableCtrl' });
+				$routeProvider.when('/carta-informe/:idjerarquia/:idcarta', {templateUrl: 'partials/carta-informeanual.html', controller: 'CartaInformeCtrl' });
 				$routeProvider.when('/entidadobjeto', {templateUrl: 'partials/entidadobjeto.html', controller: 'EntidadObjetoCtrl' });
 				$routeProvider.when('/objetivo/:idobjetivo', {templateUrl: 'partials/objetivo.html', controller: 'ObjetivoCtrl' });
 				$routeProvider.when('/indicador/:idjerarquia/:idindicador', {templateUrl: 'partials/indicador.html', controller: 'IndicadorCtrl' });
 				$routeProvider.when('/formula/:idobjetivo/:index', {templateUrl: 'partials/formula.html', controller: 'FormulaCtrl' });
 				$routeProvider.when('/registroactividad', {templateUrl: 'partials/registroactividad.html', controller: 'RegistroActividadCtrl' });
+
 
 				$routeProvider.otherwise({redirectTo: '/welcome' });
 				$locationProvider.html5Mode(true);
