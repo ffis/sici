@@ -14,7 +14,7 @@
 
 		<div ng-if="cartasservicio.length" class="table-responsive">
 			<p>
-				<div class="btn-group">
+				<div class="btn-group hidden-print">
 					<a class="btn btn-danger" ng-click="importarObjetivos()" ng-if="superuser && objetivos.$resolved && objetivos.length == 0">
 						<span class="glyphicon glyphicon-download"></span>
 					</a>
@@ -31,6 +31,9 @@
 						<select ng-model="anualidad" class="btn btn-default" ng-change="refreshAnualidad(anualidad)" ng-options='o as o for o in anualidades'></select>
 					</div>
 				</div>
+				<p class="visible-print-block">
+					{{cartaservicioseleccionada.expediente}} {{cartaservicioseleccionada.denominacion}} - {{anualidad}}
+				</p>
 				<br style="clear:both" />
 			</p>
 			<table class="table table-bordered table-condensed table-hover" id="cartastable" style="width:100%">
@@ -45,7 +48,7 @@
 						<td colspan="2">
 							<strong>Nº de compromisos listados:</strong>
 							{{objetivos.length}}
-							<span ng-click="$root.exportXLS('cartastable','objetivos')" class="pull-right glyphicon glyphicon-floppy-disk"></span>
+							<span ng-click="$root.exportXLS('cartastable','objetivos')" class="pull-right glyphicon glyphicon-floppy-disk hidden-print"></span>
 						</td>
 					</tr>
 				</tfoot>
@@ -54,7 +57,7 @@
 						<th class="text-center">
 							<p>{{objetivo.index}}</p>
 							<div class="btn-group-vertical" role="group">
-								<a ng-If="!!$root.permisoscalculados.superuser" class="btn btn-default" title="Editar" href="/objetivo/{{ objetivo._id}}">
+								<a ng-If="!!$root.permisoscalculados.superuser" class="btn btn-default hidden-print" title="Editar" href="/objetivo/{{ objetivo._id}}">
 									<span class="glyphicon glyphicon-pencil"></span>
 								</a>
 								<!--
@@ -111,7 +114,7 @@
 												<tbody>
 													<tr ng-repeat-start="indicadorid in formula.indicadores track by $index" ng-click="setIndicadorSeleccionado(indicadorid)" ng-class="{'danger' : indicadorSeleccionado === indicadorid}">
 														<td style="width:40%" class="menu-indicador">
-															<div class="pull-right">
+															<div class="pull-right hidden-print">
 																<a ng-If="!!$root.permisoscalculados.superuser" title="Editar" href="/indicador/{{idjerarquia}}/{{indicadorid}}"><i class="fa fa-pencil"></i></a>
 																<!--<a title="Desvincular" href=""><i class="fa fa-unlink text-danger"></i></a>-->
 																<span class="glyphicon glyphicon-comment" ng-click="indicadores[indicadorid].desplegado = !indicadores[indicadorid].desplegado" ng-class="{'color_note': existeComentario(indicadores[indicadorid].observaciones[aanualidad])}"></span>
