@@ -18,7 +18,7 @@
 						$scope.cambios = [];
 						$rootScope.toaster('Carta de servicios actualizada');
 					}, function(err){
-						$rootScope.toaster('Carta de servicios fallida: ' + err.data.error , 'Error', 'error');
+						$rootScope.toaster('Carta de servicios fallida: ' + err.data.error, 'Error', 'error');
 					});
 				};
 				$scope.download = function(entidadobjeto){
@@ -26,8 +26,8 @@
 						$rootScope.toaster('Carta de servicios importada correctamente. Registrados ' + dato.data.objetivos.length + ' objetivos y ' + dato.data.indicadoresobtenidos.length + ' indicador/es.');
 					}, function(err){
 						if (err.data && err.data.error){
-							$rootScope.toaster('Carta de servicios fallida: ' + err.data.error , 'Error', 'error');
-						}else{
+							$rootScope.toaster('Carta de servicios fallida: ' + err.data.error, 'Error', 'error');
+						} else {
 							$rootScope.toaster('Carta de servicios fallida', 'Error', 'error');
 						}
 					});
@@ -38,8 +38,8 @@
 						$rootScope.toaster('Carta de servicios reseteada correctamente');
 					}, function(err){
 						if (err.data && err.data.error){
-							$rootScope.toaster('Carta de servicios fallida: ' + err.data.error , 'Error', 'error');
-						}else{
+							$rootScope.toaster('Carta de servicios fallida: ' + err.data.error, 'Error', 'error');
+						} else {
 							$rootScope.toaster('Carta de servicios fallida', 'Error', 'error');
 						}
 					});

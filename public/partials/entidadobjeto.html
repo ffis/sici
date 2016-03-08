@@ -13,7 +13,6 @@
 					<tr>
 						<th>ID</th>
 						<th ng-If="clave!='_id'" ng-repeat="(clave, valor) in entidades[0]">{{clave}}</th>
-						<th></th>
 					</tr>
 				</thead>
 				<tfoot>
@@ -23,17 +22,21 @@
 				</tfoot>
 				<tbody ng-repeat="entidadobjeto in entidades | filter:filtro">
 					<tr>
-						<th>{{entidadobjeto._id}}<br />{{entidadobjeto.denominacion}}</th>
+						<th>{{entidadobjeto._id}}<br />{{entidadobjeto.denominacion}}<br />
+							<p class="text-center">
+								<a href="{{entidadobjeto.url}}" class="btn btn-primary btn-xs" target="_blank">
+									<span class="fa fa-external-link"></span>
+								</a>
+								<span class="btn btn-primary btn-xs">
+									<span class="fa fa-arrow-down cursor" ng-click="download(entidadobjeto)"></span>
+								</span>
+								<span class="btn btn-danger btn-xs">
+									<span class="fa fa-trash cursor" ng-click="dropCarta(entidadobjeto)"></span>
+								</span>
+							</p>
+						</th>
 						<td ng-If="clave!='_id'" ng-repeat="(clave, valor) in entidadobjeto" style="overflow:auto; max-width:200px">
-							<input class="form-control" type="text" style="width:100%" ng-model="entidadobjeto[clave]" ng-blur="actualizar(entidadobjeto, clave)" />
-						</td>
-						<td>
-							<span class="btn btn-primary">
-								<span class="fa fa-arrow-down cursor" ng-click="download(entidadobjeto)"></span>
-							</span>
-							<span class="btn btn-danger">
-								<span class="fa fa-trash cursor" ng-click="dropCarta(entidadobjeto)"></span>
-							</span>
+							<input class="form-control" type="text" style="width:100%; font-size:smaller;" ng-model="entidadobjeto[clave]" ng-blur="actualizar(entidadobjeto, clave)" />
 						</td>
 					</tr>
 				</tbody>
