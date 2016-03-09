@@ -132,8 +132,12 @@
 								o.idspermisos = [];
 								for (var i = 0, j = permisos.length; i < j; i++ ){
 									o.idspermisos.push(permisos[i]._id);
+									delete permisos[i].jerarquialectura;
+									delete permisos[i].jerarquiaescritura;
+									delete permisos[i].procedimientosescritura;
+									delete permisos[i].procedimientosescritura;
 								}
-								o.permisos = permisos;
+								//o.permisos = permisos;
 								var token = jwt.sign(o, secret, { expiresIn: config.session_time });
 								res.json({ profile: o, token: token });
 							}
@@ -179,8 +183,12 @@
 										o.idspermisos = [];
 										for (var i = 0, j = permisos.length; i < j; i++ ){
 											o.idspermisos.push(permisos[i]._id);
+											delete permisos[i].jerarquialectura;
+											delete permisos[i].jerarquiaescritura;
+											delete permisos[i].procedimientosescritura;
+											delete permisos[i].procedimientosescritura;
 										}
-										o.permisos = permisos;
+										//o.permisos = permisos;
 										var token = jwt.sign(o, secret, { expiresIn: 86400000 }); /* 1 day */
 										res.json({ profile: o, token: token });
 									}
