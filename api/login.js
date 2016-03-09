@@ -134,7 +134,7 @@
 									o.idspermisos.push(permisos[i]._id);
 									delete permisos[i].jerarquialectura;
 									delete permisos[i].jerarquiaescritura;
-									delete permisos[i].procedimientosescritura;
+									delete permisos[i].procedimientoslectura;
 									delete permisos[i].procedimientosescritura;
 								}
 								o.permisos = permisos;
@@ -185,7 +185,7 @@
 											o.idspermisos.push(permisos[i]._id);
 											delete permisos[i].jerarquialectura;
 											delete permisos[i].jerarquiaescritura;
-											delete permisos[i].procedimientosescritura;
+											delete permisos[i].procedimientoslectura;
 											delete permisos[i].procedimientosescritura;
 										}
 										o.permisos = permisos;
