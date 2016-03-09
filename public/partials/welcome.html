@@ -88,9 +88,9 @@
 						<li ng-repeat="permiso in $root.session.permisos">
 							<strong>Comentario:</strong> {{permiso.descripcion}}
 							<ul>
+								<li class="label label-default" ng-show="$root.permisoscalculados.superuser">Su usuario tiene capacidades de administrador.</li>
 								<li ng-show="permiso.login">Asignado por ser usuario con login: {{permiso.login}}.</li>
 								<li ng-show="permiso.codplaza">Asignado por ser usuario con login: {{permiso.codplaza}}.</li>
-								<li class="label label-default" ng-show="$root.permisoscalculados.superuser">Su usuario tiene capacidades de administrador.</li>
 								<li ng-show="permiso.entidadobjetodirectaescritura.length > 0">
 								Tiene permiso de escritura sobre
 									<span ng-show="permiso.entidadobjetodirectaescritura.length === 1">la carta</span>
