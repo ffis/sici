@@ -137,7 +137,7 @@
 									delete permisos[i].procedimientosescritura;
 									delete permisos[i].procedimientosescritura;
 								}
-								//o.permisos = permisos;
+								o.permisos = permisos;
 								var token = jwt.sign(o, secret, { expiresIn: config.session_time });
 								res.json({ profile: o, token: token });
 							}
@@ -188,7 +188,7 @@
 											delete permisos[i].procedimientosescritura;
 											delete permisos[i].procedimientosescritura;
 										}
-										//o.permisos = permisos;
+										o.permisos = permisos;
 										var token = jwt.sign(o, secret, { expiresIn: 86400000 }); /* 1 day */
 										res.json({ profile: o, token: token });
 									}
