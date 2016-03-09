@@ -13,6 +13,8 @@
 					<tr>
 						<th>ID</th>
 						<th ng-If="clave!='_id'" ng-repeat="(clave, valor) in entidades[0]">{{clave}}</th>
+						<th>Objetivos</th>
+						<th>Fórmulas</th>
 					</tr>
 				</thead>
 				<tfoot>
@@ -24,6 +26,9 @@
 					<tr>
 						<th>{{entidadobjeto._id}}<br />{{entidadobjeto.denominacion}}<br />
 							<p class="text-center">
+								<a href="/carta/{{entidadobjeto.idjerarquia}}" class="btn btn-primary btn-xs" target="_blank">
+									<span class="fa fa-eye"></span>
+								</a>
 								<a href="{{entidadobjeto.url}}" class="btn btn-primary btn-xs" target="_blank">
 									<span class="fa fa-external-link"></span>
 								</a>
@@ -35,8 +40,14 @@
 								</span>
 							</p>
 						</th>
-						<td ng-If="clave!='_id'" ng-repeat="(clave, valor) in entidadobjeto" style="overflow:auto; max-width:200px">
+						<td ng-If="clave!='_id'" ng-repeat="(clave, valor) in entidades[0]" style="overflow:auto; max-width:200px">
 							<input class="form-control" type="text" style="width:100%; font-size:smaller;" ng-model="entidadobjeto[clave]" ng-blur="actualizar(entidadobjeto, clave)" />
+						</td>
+						<td class="text-right">
+							{{ getCount(entidadobjeto._id) }}
+						</td>
+						<td class="text-center">
+							{{getFormulasStats(entidadobjeto._id) }}
 						</td>
 					</tr>
 				</tbody>

@@ -1,12 +1,38 @@
 (function(angular){
 	'use strict';
 	angular.module('sici')
-		.controller('EntidadObjetoCtrl', ['$rootScope', '$scope', '$routeParams', '$window', '$http', 'EntidadObjeto',
-			function ($rootScope, $scope, $routeParams, $window, $http, EntidadObjeto) {
+		.controller('EntidadObjetoCtrl', ['$rootScope', '$scope', '$routeParams', '$window', '$http', 'EntidadObjeto', 'ObjetivoStats',
+			function ($rootScope, $scope, $routeParams, $window, $http, EntidadObjeto, ObjetivoStats) {
 				$rootScope.nav = 'EntidadObjeto';
 				$rootScope.setTitle('Entidad Objeto');
 				$scope.entidades = false;
 				$scope.filtro = '';
+				$scope.objetivostats = ObjetivoStats.query();
+				$scope.getCount = function(_id){
+					for (var i = 0, j = $scope.objetivostats.length; i < j; i++){
+						if ($scope.objetivostats[i]._id === _id){
+							return $scope.objetivostats[i].count;
+						}
+					}
+					return 0;
+				};
+				$scope.getFormulasStats = function(_id){
+					for (var i = 0, j = $scope.objetivostats.length; i < j; i++){
+						if ($scope.objetivostats[i]._id === _id){
+							var formsOK = 0, forms = 0;
+							for (var k = 0, l = $scope.objetivostats[i].formulas.length; k < l; k++){
+								for (var q = 0, w = $scope.objetivostats[i].formulas[k].length; q < w; q++ ){
+									if ($scope.objetivostats[i].formulas[k][q] !== '[]'){
+										formsOK++;
+									}
+									forms++;
+								}
+							}
+							return formsOK + '/' + forms;
+						}
+					}
+					return '0/0';
+				};
 
 				$scope.load = function(){
 					$scope.entidades = EntidadObjeto.query();

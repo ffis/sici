@@ -46,7 +46,8 @@
     "angular-animate": "latest",
     "angular-cookies": "latest",
     "angular-sanitize": "latest",
-    "angular-i18n": "^1.5.0"
+    "angular-i18n": "^1.5.0",
+    "angular-animate-css": "^0.0.4"
   },
   "resolutions": {
     "d3": "~3.4.13",

@@ -78,7 +78,7 @@ angular.module('sici.login.util', ['ngResource'])
 				} else if (next && next.templateUrl) {
 					//ignorable
 					$log.debug(next.templateUrl);
-				}else{
+				}else {
 					$log.debug(next);
 				}
 			});

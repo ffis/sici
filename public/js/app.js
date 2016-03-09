@@ -1,4 +1,4 @@
-(function(angular, angularFileUploadLoaded){ 'use strict';
+(function(angular, angularFileUploadLoaded){
 	'use strict';
 	var dependencies = [
 		'ngRoute', 'ngAnimate', 'ngSanitize', 'ngCookies', 'angular.filter',

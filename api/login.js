@@ -1,4 +1,4 @@
-(function(module){
+(function(module, logger){
 	'use strict';
 
 	function calcularPermisos(permisos){
@@ -11,9 +11,9 @@
 		};
 
 		var now = new Date();
-		console.log('Cargando...', permisos.length);
+		logger.log('Cargando...', permisos.length);
 		for (var i = 0, j = permisos.length; i < j; i++ ){
-			console.log(permisos[i]);
+			logger.log(permisos[i]);
 			if (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime())
 			{
 				permisoscalculados.superuser = permisoscalculados.superuser || permisos[i].superuser;
@@ -91,6 +91,7 @@
 		}
 
 		return function(req, res){
+			var shasum;
 
 			//should delegate
 			//if is invalid, return 401
@@ -102,10 +103,10 @@
 			}*/
 
 			var restriccion = {login: req.body.username, habilitado: true};
-			var shasum = crypto.createHash('sha256');
-			shasum.update(req.body.password);
 
 			if (req.body.notcarmuser){
+				shasum = crypto.createHash('sha256');
+				shasum.update(req.body.password);
 				restriccion.contrasenya = shasum.digest('hex');
 			}
 
@@ -132,6 +133,7 @@
 								for (var i = 0, j = permisos.length; i < j; i++ ){
 									o.idspermisos.push(permisos[i]._id);
 								}
+								o.permisos = permisos;
 								var token = jwt.sign(o, secret, { expiresIn: config.session_time });
 								res.json({ profile: o, token: token });
 							}
@@ -178,7 +180,7 @@
 										for (var i = 0, j = permisos.length; i < j; i++ ){
 											o.idspermisos.push(permisos[i]._id);
 										}
-
+										o.permisos = permisos;
 										var token = jwt.sign(o, secret, { expiresIn: 86400000 }); /* 1 day */
 										res.json({ profile: o, token: token });
 									}
@@ -191,4 +193,4 @@
 		};
 	};
 
-})(module);
+})(module, console);

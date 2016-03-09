@@ -1,4 +1,4 @@
-(function(module){
+(function(module, logger){
 	/** @module carta */
 	'use strict';
 	var Expression = require('./expression');
@@ -99,6 +99,27 @@
 		}
 		return formula;
 	}
+
+	module.exports.objetivosStats = function(models){
+		return function(req, res){
+			var objetivomodel = models.objetivo();
+			/*
+			objetivomodel.find().exec().then(function(data){
+				res.json(data);
+			}, function(err){
+				res.status(500).json({'error': 'An error has occurred', details: err});
+			});
+			*/
+			var ag = [{$group: {_id: '$carta', count: {$sum: 1}, formulas: {$addToSet: '$formulas.computer' } } } ];
+			objetivomodel
+				.aggregate(ag)
+				.exec().then(function(data){
+					res.json(data);
+				}, function(err){
+					res.status(500).json({'error': 'An error has occurred', details: err});
+				});
+		};
+	};
 
 	module.exports.indicador = function(models){
 		return function(req, res){
@@ -377,7 +398,7 @@
 					var promises = [];
 					var fn = function(promise, idformula){
 						return function(err, val){
-							console.log(250, err, val);
+							logger.log(250, err, val);
 							if (err){
 								promise.reject(err);
 								return;
@@ -405,20 +426,19 @@
 						}
 					}
 					Q.all(promises).then(function(){
-						//guardar objetivo
-						console.log('calculo OK', objetivo);
+						logger.log('calculo OK', objetivo);
 
-						Objetivo.update({ _id: objetivo._id }, objetivo, function (err, doc){
+						Objetivo.update({ _id: objetivo._id }, objetivo, function (err){
 							if (err){
-								console.error(err);
+								logger.error(err);
 								res.status(500).json({'error': 'An error has occurred', details: err });
-							}else{
+							} else {
 								res.json(objetivo);
 							}
 						});
 					}, function(error){
 						//fallo con la formula
-						console.error(error);
+						logger.error(error);
 						res.json(objetivo);
 						//res.status(500).json({'error': 'An error has occurred', details: error });
 					});
@@ -828,4 +848,4 @@
 		return defer.promise;
 	};
 
-})(module);
+})(module, console);
