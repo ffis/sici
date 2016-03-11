@@ -258,6 +258,8 @@
 		app.get('/api/v2/public/objetivo/:id', carta.objetivo(models, Q));
 		app.put('/api/v2/public/objetivo/:id', carta.actualizaobjetivo(models, Q));
 
+		app.get('/api/v2/public/objetivosStats', carta.objetivosStats(models, Q));
+
 		app.put('/api/v2/public/updateformula', carta.updateFormula(models));
 
 		app.get('/api/v2/public/indicador', carta.indicador(models));

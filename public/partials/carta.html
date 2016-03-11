@@ -1,9 +1,11 @@
 
 <div class="row">
-	<div ng-class="{'col-lg-3': !oculto, 'col-md-4': !oculto, 'col-sm-4': !oculto, 'col-xs-12': !oculto, 'hidden': oculto}" class="left animated hidden-print">
+	<div 
+		class="left hidden-print nga-default nga-slide-left col-lg-3 col-md-4 col-sm-4 col-xs-12" ng-hide="oculto"
+		>
 		<organismos otitle="'Organismos con cartas de compromisos'" arbol="arbol" tipoelementos="'carta de compromisos'" attr="'numcartas'" setseleccionado="goToJerarquia" seleccionado="seleccionado" filtro="filtro"></organismos>
 	</div>
-	<div ng-class="{'col-lg-9': !oculto, 'col-md-8': !oculto, 'col-sm-8': !oculto, 'col-md-12': oculto}" class="right animated col-xs-12" id="detallesjerarquia">
+	<div ng-class="{'col-lg-9': !oculto, 'col-md-8': !oculto, 'col-sm-8': !oculto, 'col-md-12': oculto}" class="right col-xs-12" id="detallesjerarquia">
 		<div class="pull-left" ng-click="oculto=!oculto" style="cursor:ew-resize; margin-right:1em" ng-show="seleccionado" title="Pulse para maximizar/restaurar esta vista">
 			<br />
 			<div class="btn btn-default hidden-print">

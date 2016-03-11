@@ -140,6 +140,7 @@
 
 						$timeout(function(){
 							$('body').animate({scrollTop: $('#detallesjerarquia').offset().top }, 'slow');
+							$scope.oculto = true;
 						}, 20);
 					}
 				};
