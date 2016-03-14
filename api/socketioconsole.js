@@ -1,23 +1,23 @@
-(function(module){
+(function(module, logger){
 	'use strict';
 
 	function socketioconsole(app)
 	{
 		var io = require('socket.io').listen(app);
 		var fns = {
-			log: console.log,
-			info: console.info,
-			error: console.error
+			log: logger.log,
+			info: logger.info,
+			error: logger.error
 		};
 		var counter = 0;
 
 		var fn = function(fnname){
 			return function(){
 				var stackTrace = require('stack-trace'),
-				frame = stackTrace.get()[1],
-				file = frame.getFileName(),
-				line = frame.getLineNumber(),
-				functionname = frame.getFunctionName();
+					frame = stackTrace.get()[1],
+					file = frame.getFileName(),
+					line = frame.getLineNumber(),
+					functionname = frame.getFunctionName();
 
 				for (var i = 0; i < arguments.length; i++)
 				{
@@ -28,10 +28,10 @@
 				fns[fnname].apply(console, arguments);
 			};
 		};
-		for(var funname in fns){
-			console[funname] = fn(funname);
+		for (var funname in fns){
+			logger[funname] = fn(funname);
 		}
 	}
 
 	module.exports = socketioconsole;
-})(module);
+})(module, console);

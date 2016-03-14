@@ -326,11 +326,7 @@
 							});
 
 						} else {
-							res.status(403).json({'error': 'Not allowed'});/*
-							console.log('permisos');
-							console.log(req.user.permisoscalculados);
-							console.log('indicador');
-							console.log(indicador);*/
+							res.status(403).json({'error': 'Not allowed'});
 						}
 					} else {
 						res.status(404).json({'error': 'Not found'});
@@ -398,7 +394,7 @@
 					var promises = [];
 					var fn = function(promise, idformula){
 						return function(err, val){
-							logger.log(250, err, val);
+							//logger.log(250, err, val);
 							if (err){
 								promise.reject(err);
 								return;
@@ -426,7 +422,7 @@
 						}
 					}
 					Q.all(promises).then(function(){
-						logger.log('calculo OK', objetivo);
+						//logger.log('calculo OK', objetivo);
 
 						Objetivo.update({ _id: objetivo._id }, objetivo, function (err){
 							if (err){

@@ -11,9 +11,9 @@
 		};
 
 		var now = new Date();
-		logger.log('Cargando...', permisos.length);
+		//logger.log('Cargando...', permisos.length);
 		for (var i = 0, j = permisos.length; i < j; i++ ){
-			logger.log(permisos[i]);
+			//logger.log(permisos[i]);
 			if (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime())
 			{
 				permisoscalculados.superuser = permisoscalculados.superuser || permisos[i].superuser;

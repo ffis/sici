@@ -8,8 +8,7 @@
 			if (id){
 				entidadobjeto.findOne({'_id': id}, function (err, data) {
 					if (err) {
-						console.error(err);
-						res.status(500).end();
+						res.status(500).send({'error': 'An error has occurred', details: err});
 						return;
 					}
 					res.json(data);
@@ -21,8 +20,7 @@
 				}
 				entidadobjeto.find(restricciones, function (err, data) {
 					if (err) {
-						console.error(err);
-						res.status(500).end();
+						res.status(500).json({'error': 'An error has occurred', details: err });
 						return;
 					}
 					res.json(data);
@@ -45,7 +43,7 @@
 
 			entidadobjeto.update({'_id': id}, content, {upsert: true}, function (e) {
 				if (e) {
-					res.status(500).send({'error': 'An error has occurred:' + e});
+					res.status(500).send({'error': 'An error has occurred.', details: e});
 				} else {
 					//se reenvía lo mismo que se recibió
 					res.send(req.body);
@@ -58,8 +56,7 @@
 		return function(req, res){
 			if (!(req.user.permisoscalculados && req.user.permisoscalculados.superuser)) {
 				var msg = 'Error de permisos.';
-				console.error(msg);
-				res.status(403).send(msg).end();
+				res.status(403).json({'error': msg });
 				return;
 			}
 			var Entidadobjeto = models.entidadobjeto();
@@ -80,15 +77,13 @@
 				};
 				Entidadobjeto.find(restriccion, function(err, entidadesobjeto){
 					if (err) {
-						console.error(restriccion, err);
-						res.status(500).end();
+						res.status(500).json({'error': 'An error has occurred', details: err, restriccion: restriccion});
 					} else {
 						res.json(entidadesobjeto);
 					}
 				});
 			} else {
-				console.error(restriccion);
-				res.status(400).end();
+				res.status(400).json({'error': 'An error has occurred', details: restriccion});
 			}
 		};
 	};
@@ -101,8 +96,7 @@
 			var fields = req.query.fields;
 			Jerarquia.findOne({'id': req.params.idjerarquia}, function(err, jerarquia){
 				if (err) {
-					console.error(err);
-					res.status(500).end();
+					res.status(500).json({'error': 'An error has occurred', details: err});
 					return;
 				} else {
 					var jdescendientes = jerarquia.descendientes.push(parseInt(req.params.idjerarquia));
@@ -112,25 +106,24 @@
 						(typeof req.params.recursivo === 'undefined' || JSON.parse(req.params.recursivo) ?
 							{'$and': [
 									{'idjerarquia': {'$in': jdescendientes}},
-									{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}},
-								]} :
+									{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}
+							]} :
 							{'$and': [
 									{'idjerarquia': parseInt(req.params.idjerarquia)},
-									{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}},
-								]}
+									{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}
+							]}
 						)
 						:
 						{'$and': [
-								{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}},
+							{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}
 						]};
 
 					var cb = function (err, data) {
 						if (err) {
-							console.error(restriccion, err);
-							res.status(500).end();
-							return;
+							res.status(500).json({'error': 'An error has occurred', details: err, restriccion: restriccion});
+						} else {
+							res.json(data);
 						}
-						res.json(data);
 					};
 
 					var query = EntidadObjeto.find(restriccion);

@@ -120,6 +120,8 @@
 			return $resource('/api/v2/public/indicador/:id', {id: '@_id'}, {query: {method: 'GET', isArray: true }, update: {method: 'PUT' } }); }])
 		.factory('ImportarObjetivo', ['$resource', function($resource) {
 			return $resource('/api/v2/public/importarobjetivo/:idjerarquia', { idjerarquia: '@idjerarquia' }, {query: {method: 'GET', isArray: true }}); }])
+		.factory('InformeCarta', ['$resource', function($resource) {
+			return $resource('/api/v2/public/informeCarta/:id', { id: '@_id', idjerarquia: '@idjerarquia' }, {query: {method: 'GET', isArray: true }}); }])
 		.factory('EntidadObjeto', ['$resource', function($resource) {
 			return $resource('/api/v2/public/entidadobjeto/:id', {id: '@_id' }, {update: {method: 'PUT' }}); }])
 		.factory('PermisosDirectosEntidadObjetoList', ['$resource', function($resource) {

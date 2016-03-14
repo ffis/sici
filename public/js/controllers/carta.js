@@ -210,6 +210,15 @@
 					};
 					Objetivo.get( {id: $scope.objetivos[i]._id}, loadAndSetValores($scope.objetivos[i]) );
 				};
+				$scope.downloadDocx = function(){
+					$http.get('/api/v2/public/informeCarta/' + $scope.cartaservicioseleccionada._id + '/' + $scope.anualidad)
+						.then(function (res) {
+							var url = '/download/' + res.data.time + '/' + res.data.hash + '?extension=' + res.data.extension;
+							$window.location = url;
+						}, function() {
+							$rootScope.toaster('Error  al descargar el informe', 'Error', 'error');
+						});
+				};
 				$scope.updateIndicador = function(indicadorid){
 					var f = function(indicadorid, desplegado){
 						return function() {

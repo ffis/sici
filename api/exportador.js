@@ -260,7 +260,7 @@
 				var cellValue;
 				var cellValueRef;
 
-				for(var i = 0, j = hijos.length, k = 0; i < j; i++)
+				for (var i = 0, j = hijos.length, k = 0; i < j; i++)
 				{
 					var h = hijos[i];
 
@@ -294,20 +294,20 @@
 				ir = rowhead + 1;
 
 				// PARA CADA HIJO UNA COLUMNA
-				for(var i = 0, l = hijos.length; i < l; i++)
+				for (var i = 0, l = hijos.length; i < l; i++)
 				{
 					var ir = rowhead + 1;
 					if (typeof periodos[ihijos[i]] === 'undefined')
 					{
 						continue;
 					}
-					for(var anualidad = 2014; typeof periodos[ihijos[i]][anualidad] !== 'undefined'; anualidad++)
+					for (var anualidad = 2014; typeof periodos[ihijos[i]][anualidad] !== 'undefined'; anualidad++)
 					{
 						/*cellValue = {v: anualidad, t:'n'};
 						cellValueRef = XLSX.utils.encode_cell({c: ic, r: ir});
 						ws[cellValueRef] = cellValue;		*/
 						ir++;
-						for(var ind = 0, l2 = indicadoresDatabase.length; ind < l2; ind++)
+						for (var ind = 0, l2 = indicadoresDatabase.length; ind < l2; ind++)
 						{
 							var valor = periodos[ihijos[i]][anualidad][indicadoresDatabase[ind]];
 							var ivalor = valor[0] + valor[1] + valor[2] + valor[3] + valor[4] + valor[5] + valor[6] + valor[7] + valor[8] + valor[9] + valor[10] + valor[11];
@@ -345,7 +345,6 @@
 			Jerarquia.findOne({'id': parseInt(req.params.jerarquia)}, function (err, data) {
 				if (err) {
 					console.error('No se ha definido el parámetro "jerarquia"');
-					res.status(500).end();
 					deferNombre.reject(err);
 				} else {
 					jerarquia = data;
@@ -371,8 +370,7 @@
 					deferSheets[0].resolve();
 				}, function (err) {
 					console.error('Error al hacer el map reduce ' + err);
-					res.status(500).end();
-					deferSheets[0].reject();
+					deferSheets[0].reject(err);
 				});
 
 				exports.tablaResultadosJerarquiaDesglosado(Q, models, jerarquia, req.user.permisoscalculados).then(
@@ -383,7 +381,7 @@
 						deferSheets[1].resolve();
 					}, function(err){
 						console.error('Error al hacer el map reduce ' + err);
-						deferSheets[1].reject();
+						deferSheets[1].reject(err);
 					}
 				);
 
@@ -888,7 +886,9 @@
 
 	exports.download = function(app, cfg, fs, md5, path){
 		return function (req, res) {
-			var filename = req.params.token + '.xlsx', ruta = app.get('prefixtmp'), rutaefectiva = path.resolve(ruta, filename);
+			var filename = req.params.token + (req.query.extension ? req.query.extension : '.xlsx'),
+				ruta = app.get('prefixtmp'),
+				rutaefectiva = path.resolve(ruta, filename);
 			if (md5(cfg.downloadhashprefix + req.params.token) === req.params.hash) {
 				fs.exists(ruta + filename, function (exists) {
 					if (exists) {

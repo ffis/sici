@@ -22,7 +22,6 @@
 		'procedimientosdirectalectura' : [Number],
 		'procedimientosdirectaescritura' : [Number],
 		 */
-		
 
 		var deferred = Q.defer();
 		var deferredProcedimiento = Q.defer();
@@ -81,27 +80,25 @@
 
 		// si el permiso es otorgado a un codigo de plaza...
 		if (permiso.codplaza && permiso.codplaza !== '') {
-			if (restriccion_proc != null){
-				restriccion_proc['$or'].push({cod_plaza: permiso.codplaza});				
+			if (restriccion_proc !== null){
+				restriccion_proc['$or'].push({cod_plaza: permiso.codplaza});
+			} else {
+				restriccion_proc = {cod_plaza: permiso.codplaza};
 			}
-			else{
-				restriccion_proc = {cod_plaza: permiso.codplaza};				
-			}
-			if (restriccion_eo != null){
+			if (restriccion_eo !== null){
 				restriccion_eo['$or'].push({cod_plaza: permiso.codplaza});
 			} else {
 				restriccion_eo = {cod_plaza: permiso.codplaza};
 			}
 		}
-		
+
 
 		if (restriccion_proc)
 		{
 			//buscamos los procedimientos cuyo responsable sea el del permiso
 			Procedimiento.find(restriccion_proc).select('idjerarquia cod_plaza codigo').exec(function (err, procedimientos) {
 				if (err) {
-					console.error(err);
-					console.error(32);
+					console.error(101, err);
 					deferredProcedimiento.reject(err);
 					return;
 				}
@@ -134,8 +131,7 @@
 			//buscamos los procedimientos cuyo responsable sea el del permiso
 			EntidadObjeto.find(restriccion_eo).select('idjerarquia responsable codigo').exec(function (err, entidadesobjeto) {
 				if (err) {
-					console.error(err);
-					console.error(32);
+					console.error(136, err);
 					deferredEntidadObjeto.reject(err);
 					return;
 				}
@@ -161,7 +157,7 @@
 			});
 		} else {
 			deferredEntidadObjeto.resolve();
-		}		
+		}
 
 		Q.all(defsPEO).then(function () {
 
@@ -224,22 +220,22 @@
 					if (!permiso [ attrentidadesobjetoDirecto[idx] ]){
 						permiso [ attrentidadesobjetoDirecto[idx] ] = [];
 					}
-					
+
 					// el calculado siempre incluye al directo
 					permiso[ attr ] = permiso[ attr ].concat(permiso [ attrprocedimientosDirecto[idx] ]);
 					// elimina duplicados
 					permiso[ attr ] = permiso[ attr ].filter(function (value, index, self) {
 						return self.indexOf(value) === index;
 					});
-					
+
 					//ideam para entidades objeto
 					var attreo = attrentidadesobjeto[idx];
 					permiso[ attreo ] = permiso[ attreo ].concat(permiso [ attrentidadesobjetoDirecto[idx] ]);
 					permiso[ attreo ] = permiso[ attreo ].filter(function (value, index, self) {
 						return self.indexOf(value) === index;
 					});
-					
-					
+
+
 					var idsjerarquia = permiso[ attrsOrigenjerarquia[idx] ];
 					if (idsjerarquia && idsjerarquia.length === 0){
 						return;
@@ -247,12 +243,11 @@
 
 					var def = Q.defer();
 					var defeo = Q.defer();
-					
+
 					var f = function (def, attr, idprop) {
 						return function (err, procedimientos) {
 							if (err) {
-								console.error(err);
-								console.error(93);
+								console.error(93, err);
 								def.reject(err);
 								return;
 							}
@@ -267,8 +262,8 @@
 						};
 					};
 
-					Procedimiento.find({idjerarquia: {'$in': idsjerarquia}}, { codigo: true}, f(def, attr,'codigo'));
-					EntidadObjeto.find({idjerarquia: {'$in': idsjerarquia}}, { codigo: true}, f(defeo, attreo,'_id'));
+					Procedimiento.find({idjerarquia: {'$in': idsjerarquia}}, { codigo: true}, f(def, attr, 'codigo'));
+					EntidadObjeto.find({idjerarquia: {'$in': idsjerarquia}}, { codigo: true}, f(defeo, attreo, '_id'));
 					defs2.push(def.promise);
 					defs2.push(defeo.promise);
 				});
@@ -353,15 +348,16 @@
 		}
 
 		Q.all([deferredJerarquia.promise, deferredPersona.promise]).then(function (datos) {
+			var i;
 			procedimiento.ancestros = datos[0];//jerarquias;
 			procedimiento.responsables = datos[1];//personas;
 			if (typeof procedimiento.ancestros !== 'undefined') {
-				for (var i = 1; i <= 4; i++) {
+				for (i = 1; i <= 4; i++) {
 					procedimiento[ 'ancestro_' + i ] = '';
 					procedimiento[ 'ancestro_v_' + i ] = '';
 				}
 				var tamanyo = procedimiento.ancestros.length;
-				for (var i = 0; i < tamanyo; i++) {
+				for (i = 0; i < tamanyo; i++) {
 					procedimiento[ 'ancestro_' + (i + 1) ] = procedimiento.ancestros[i].nombrelargo;
 					procedimiento[ 'ancestro_v_' + ( tamanyo - i) ] = procedimiento.ancestros[i].nombrelargo;
 				}
@@ -424,7 +420,7 @@
 				var iperiodo = parseInt(periodo.replace('a', ''));
 				var sant = 'a' + (iperiodo - 1);
 				var pi = procedimiento.periodos[sant].totalsolicitudes + procedimiento.periodos[sant].pendientes_iniciales;
-				for(var mes = 0; mes < 12; mes++){
+				for (var mes = 0; mes < 12; mes++){
 					pi -= procedimiento.periodos[sant].total_resueltos[mes];
 				}
 				procedimiento.periodos[ periodo ].pendientes_iniciales = pi;
@@ -479,8 +475,8 @@
 
 	module.exports.fullSyncprocedimiento = function (Q, models, fnprocedimiento) {
 		var deferred = Q.defer(),
-		Procedimiento = models.procedimiento(),
-		informes = [];
+			Procedimiento = models.procedimiento(),
+			informes = [];
 
 		Procedimiento.find({}, function (err, procedimientos) {
 			if (err) {
@@ -577,7 +573,6 @@
 			});
 
 			Q.all(defs).then(function () {
-				console.log('Terminado... saliendo');
 				deferred.resolve(informes);
 			}, function (err) {
 				deferred.reject(err);
@@ -697,7 +692,7 @@
 					}
 
 					//tercero recorrer el listado de agrupaciones calculada, incrementando el valor de las jerarquias:
-					for(i = 0, j = agrupaciones.length; i < j; i++){
+					for (i = 0, j = agrupaciones.length; i < j; i++){
 						var idjerarquia = agrupaciones[i]._id,
 							count = agrupaciones[i].count;
 
@@ -750,7 +745,7 @@
 						console.error(e);
 					}
 				};
-				for(id in mapeadoArray){
+				for (id in mapeadoArray){
 					if (typeof mapeadoArray[id] !== 'undefined'){
 						mapeadoArray[id].save(reportError); /* posible condición de carrera por no esperar */
 					}

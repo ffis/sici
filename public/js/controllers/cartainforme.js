@@ -1,9 +1,9 @@
-(function(angular){
+(function(angular, saveAs){
 	'use strict';
 	angular.module('sici')
 		.controller('CartaInformeCtrl',
-			['EntidadObjeto', 'Objetivo', 'Indicador', '$scope', '$routeParams', '$rootScope', 'Jerarquia',
-			function(EntidadObjeto, Objetivo, Indicador, $scope, $routeParams, $rootScope, Jerarquia){
+			['EntidadObjeto', 'Objetivo', 'Indicador', '$scope', '$routeParams', '$rootScope', 'Jerarquia', 'InformeCarta', '$http', '$window',
+			function(EntidadObjeto, Objetivo, Indicador, $scope, $routeParams, $rootScope, Jerarquia, InformeCarta, $http, $window){
 				$scope.indicadores = {};
 				$scope.jerarquias = {};
 				var loadJerarquia = function(idjerarquia){
@@ -13,6 +13,7 @@
 				};
 				$scope.cartaservicio = EntidadObjeto.get({'id': $routeParams.idcarta}, function(){
 					$rootScope.setTitle($scope.cartaservicio.denominacion);
+
 					$scope.jerarquia = Jerarquia.get({id: $scope.cartaservicio.idjerarquia}, function(){
 						$scope.jerarquias[$scope.cartaservicio.idjerarquia] = $scope.jerarquia;
 						$scope.jerarquia.ancestros.forEach(loadJerarquia);
@@ -60,4 +61,4 @@
 				$scope.afectables.sort();
 			}]
 		);
-})(angular);
+})(angular, saveAs);

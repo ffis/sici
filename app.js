@@ -40,6 +40,7 @@
 		carta = require('./api/carta'),
 		entidadobjeto = require('./api/entidadobjeto'),
 		registro = require('./api/registro'),
+		carta_docx = require('./api/carta_docx'),
 		/* config */
 		config = require('./config.json');
 		/* app */
@@ -257,6 +258,9 @@
 		app.get('/api/v2/public/objetivo', carta.objetivo(models, Q));
 		app.get('/api/v2/public/objetivo/:id', carta.objetivo(models, Q));
 		app.put('/api/v2/public/objetivo/:id', carta.actualizaobjetivo(models, Q));
+
+		app.get('/api/v2/public/informeCarta/:id', carta_docx.generate(app, cfg, md5, models, ObjectId, Q));
+		app.get('/api/v2/public/informeCarta/:id/:anualidad', carta_docx.generate(app, cfg, md5, models, ObjectId, Q));
 
 		app.get('/api/v2/public/objetivosStats', carta.objetivosStats(models, Q));
 
