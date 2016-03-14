@@ -162,7 +162,8 @@
 		return function(req, res){
 			var entidadobjetomodel = models.entidadobjeto(),
 				objetivomodel = models.objetivo(),
-				indicadormodel = models.indicador();
+				indicadormodel = models.indicador(),
+				jerarquiasmodel = models.jerarquia();
 
 			var anualidad = req.params.anualidad ? parseInt(req.params.anualidad) : 2015;
 			var restriccion = { eliminado: false, tipoentidad: 'CS' };
@@ -170,30 +171,58 @@
 				restriccion._id = ObjectId(req.params.id);
 			}
 
-			entidadobjetomodel.findOne(restriccion).exec().then(function(carta){
-				objetivomodel.find({carta: carta._id }).sort({index: 1}).exec().then(function(objetivos){
-					objetivos = transformarObjetivos(objetivos, anualidad);
-					loadIndicadores(indicadormodel, ObjectId).then(function(indicadorescargados){
-						var params = {
-							'cartaservicio': carta,
-							'anualidad': anualidad,
-							'jerarquias': [],
-							'objetivos': incluirIndicadores(objetivos, indicadorescargados, anualidad)
-						};
+			var ordenarJerarquias = function(jerarquia, jerarquias){
+				var returnValue = [], i, l;
+				console.log(jerarquias.length, jerarquia.ancestros)
+				for (i = jerarquia.ancestros.length - 1; i >= 0; i--){
+					for (l = 0; l < jerarquias.length; l++){
+						if (jerarquias[l].id === jerarquia.ancestros[i]){
+							returnValue.push(jerarquias[l]);
+						}
+					}
+				}
+				returnValue.push(jerarquia);
+				console.log(returnValue);
+				return returnValue;
+			};
 
-						var time = new Date().getTime();
-						generateDocx(app, params, FILE, time + '.docx', function(err){
-							if (err){
+
+			entidadobjetomodel.findOne(restriccion).exec().then(function(carta){
+				if (!carta){
+					res.status(500).json({'error': 'An error has occurred', details: 'Carta no encontrada'});
+				} else {
+					jerarquiasmodel.findOne({id: carta.idjerarquia}).exec().then(function(jerarquia){
+						var ancestrosids = jerarquia.ancestros;
+						jerarquiasmodel.find({id: {$in: ancestrosids }}, {id: 1, nombrelargo: 1}).exec().then(function(jerarquiascargadas){
+
+							var jerarquias = ordenarJerarquias(jerarquia, jerarquiascargadas);
+							objetivomodel.find({carta: carta._id }).sort({index: 1}).exec().then(function(objetivos){
+								objetivos = transformarObjetivos(objetivos, anualidad);
+								loadIndicadores(indicadormodel, ObjectId).then(function(indicadorescargados){
+									var params = {
+										'cartaservicio': carta,
+										'anualidad': anualidad,
+										'jerarquias': jerarquias,
+										'objetivos': incluirIndicadores(objetivos, indicadorescargados, anualidad)
+									};
+
+									var time = new Date().getTime();
+									generateDocx(app, params, FILE, time + '.docx', function(err){
+										if (err){
+											res.status(500).json({'error': 'An error has occurred', details: err});
+										} else {
+											res.json({'time': time, 'hash': md5(cfg.downloadhashprefix + time), 'extension': '.docx'});
+										}
+									});
+								});
+							}, function(err){
 								res.status(500).json({'error': 'An error has occurred', details: err});
-							} else {
-								res.json({'time': time, 'hash': md5(cfg.downloadhashprefix + time), 'extension': '.docx'});
-							}
+							});
+						}, function(err){
+							res.status(500).json({'error': 'An error has occurred', details: err});
 						});
 					});
-				}, function(err){
-					res.status(500).json({'error': 'An error has occurred', details: err});
-				});
-
+				}
 			}, function(err){
 				res.status(500).json({'error': 'An error has occurred', details: err});
 			});

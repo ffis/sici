@@ -1,4 +1,4 @@
-(function(exports){
+(function(exports, logger){
 	'use strict';
 
 	var XLSX = require('xlsx');
@@ -55,15 +55,15 @@
 			var d = new Date();
 
 			//map phase
-			for(var i = 0, j = procedimientos.length; i < j; i++)
+			for (var i = 0, j = procedimientos.length; i < j; i++)
 			{
-				for(var i2 = 0, j2 = procedimientos[i].ancestros.length; i2 < j2; i2++)
+				for (var i2 = 0, j2 = procedimientos[i].ancestros.length; i2 < j2; i2++)
 				{
 					for (var anualidad = 2013; anualidad <= d.getFullYear(); anualidad++)
 					{
 						if (typeof procedimientos[i].periodos['a' + anualidad] === 'undefined')
 						{
-							console.error('El procedimiento ' + procedimientos[i].codigo + ' no tiene anualidad ' + anualidad);
+							logger.error('El procedimiento ' + procedimientos[i].codigo + ' no tiene anualidad ' + anualidad);
 							continue;
 						}
 						var key = { anualidad: anualidad, idjerarquia: procedimientos[i].ancestros[i2].id };
@@ -79,6 +79,7 @@
 
 
 			var fnReduce = function(key, values){
+				var mes = 0;
 				var sumas = {};
 				var attrs = [
 					'total_resueltos', 'solicitados',
@@ -109,7 +110,7 @@
 				sumas.numProcedimientosConSolicitudes = 0;
 				sumas.t_medio_naturales = [];
 				sumas.t_medio_habiles = [];
-				for(var mes = 0; mes < 12; mes++){
+				for (mes = 0; mes < 12; mes++){
 					sumas.t_medio_naturales.push( { count: 0, value: 0} );
 					sumas.t_medio_habiles.push( { count: 0, value: 0} );
 				}
@@ -122,7 +123,7 @@
 						sumas.totalsolicitudes += values[i].totalsolicitudes;
 					}
 					if (key.anualidad > 2013){
-						for(var mes = 0; mes < 12; mes++){
+						for (mes = 0; mes < 12; mes++){
 							if (values[i].total_resueltos[mes] > 0)
 							{
 								if (values[i].t_medio_naturales[mes] > 0)
@@ -141,7 +142,7 @@
 				}
 				sumas.t_medio_naturales_anual = { count: 0, value: 0, avg: 0 };
 				sumas.t_medio_habiles_anual = { count: 0, value: 0, avg: 0 };
-				for(var mes = 0; mes < 12; mes++){
+				for (mes = 0; mes < 12; mes++){
 					sumas.t_medio_naturales_anual.count += sumas.t_medio_naturales[mes].count;
 					sumas.t_medio_naturales_anual.value += sumas.t_medio_naturales[mes].value;
 					sumas.t_medio_habiles_anual.count += sumas.t_medio_habiles[mes].count;
@@ -157,7 +158,7 @@
 			};
 			//reduce phase
 			var results = [];
-			for(var keyStr in returnValue){
+			for (var keyStr in returnValue){
 				var keyV = JSON.parse(keyStr);
 				results.push({_id: keyV, value: fnReduce(keyV, returnValue[keyStr]) });
 			}
@@ -165,7 +166,7 @@
 
 			if (typeof idjerarquia === 'undefined' || idjerarquia === null ){
 				deferMR.resolve(results);
-			}else{
+			} else {
 				var periodos = {};
 				results.forEach(function (result) {
 					if (result._id.idjerarquia === idjerarquia) {
@@ -181,6 +182,7 @@
 
 
 	exports.completarTabla = function (periodo, ws) {
+		var mes = 0;
 		var meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 		var indicadores = ['Solicitados', 'Iniciados', 'Quejas presentadas en el mes', 'Recursos presentados en el mes', 'Resueltos < 1', 'Resueltos 1 < 5',
 			'Resueltos 5 < 10', 'Resueltos 10 < 15', 'Resueltos 15 < 30', 'Resueltos 30 < 45', 'Resueltos > 45',
@@ -190,14 +192,14 @@
 		var indicadoresDatabase = ['solicitados', 'iniciados', 'quejas', 'recursos', 'resueltos_1', 'resueltos_5', 'resueltos_10', 'resueltos_15', 'resueltos_30',
 			'resueltos_45', 'resueltos_mas_45', 'resueltos_desistimiento_renuncia_caducidad', 'resueltos_prescripcion', 'en_plazo', 't_medio_habiles', 't_medio_naturales',
 			'total_resueltos', 'fuera_plazo', 'pendientes'];
-		for (var mes = 0; mes < 12; mes++) {
+		for (mes = 0; mes < 12; mes++) {
 			var cellValue = {v: meses[mes], t: 's'};
 			var cellValueRef = XLSX.utils.encode_cell({c: 4 + mes, r: 16});
 			ws[cellValueRef] = cellValue;
 		}
 		for (var i = 0; i < indicadoresDatabase.length; i++) {
 			ws[ XLSX.utils.encode_cell({c: 3, r: 17 + i}) ] = {v: indicadores[i], t: 's'};
-			for (var mes = 0; mes < 12; mes++) {
+			for (mes = 0; mes < 12; mes++) {
 				ws[ XLSX.utils.encode_cell({c: 4 + mes, r: 17 + i}) ] = {v: periodo[indicadoresDatabase[i]] ? periodo[indicadoresDatabase[i]][mes] : 0, t: 'n'};
 			}
 		}
@@ -278,11 +280,11 @@
 					periodos[jerarquia.id] = {};
 				}
 
-				for(var anualidad = 2014; typeof periodos[jerarquia.id][anualidad] !== 'undefined'; anualidad++)
+				for (var anualidad = 2014; typeof periodos[jerarquia.id][anualidad] !== 'undefined'; anualidad++)
 				{
 					ws[ XLSX.utils.encode_cell({c: ic, r: ir}) ] = {v: anualidad, t: 'n'};
 					ir++;
-					for(var ind = 0, l2 = indicadoresDatabase.length; ind < l2; ind++){
+					for (var ind = 0, l2 = indicadoresDatabase.length; ind < l2; ind++){
 						ws[ XLSX.utils.encode_cell({c: ic, r: ir}) ] = {v: indicadores[ind], t: 's'};
 						ir++;
 					}
@@ -334,7 +336,7 @@
 	exports.tablaResultadosJerarquia = function (models, app, md5, Q, cfg) {
 		return function (req, res) {
 			if ((typeof req.params.jerarquia === 'undefined') || (req.params.jerarquia === null)) {
-				console.error('No se ha definido el parámetro "jerarquia"');
+				logger.error('No se ha definido el parámetro "jerarquia"');
 				res.status(500).end();
 				return;
 			}
@@ -344,7 +346,7 @@
 			var jerarquia;
 			Jerarquia.findOne({'id': parseInt(req.params.jerarquia)}, function (err, data) {
 				if (err) {
-					console.error('No se ha definido el parámetro "jerarquia"');
+					logger.error('No se ha definido el parámetro "jerarquia"');
 					deferNombre.reject(err);
 				} else {
 					jerarquia = data;
@@ -369,7 +371,7 @@
 					}
 					deferSheets[0].resolve();
 				}, function (err) {
-					console.error('Error al hacer el map reduce ' + err);
+					logger.error('Error al hacer el map reduce ' + err);
 					deferSheets[0].reject(err);
 				});
 
@@ -379,25 +381,26 @@
 						wb.SheetNames.push(wsName);
 						wb.Sheets[wsName] = ws2;
 						deferSheets[1].resolve();
-					}, function(err){
-						console.error('Error al hacer el map reduce ' + err);
+					},
+					function(err){
+						logger.error('Error al hacer el map reduce ' + err);
 						deferSheets[1].reject(err);
 					}
 				);
 
-				Q.all([deferSheets[0].promise, deferSheets[1].promise]).then(function(data){
+				Q.all([deferSheets[0].promise, deferSheets[1].promise]).then(function(){
 					var time = new Date().getTime();
 					var path = app.get('prefixtmp');
 					XLSX.writeFile(wb, path + time + '.xlsx');
-					console.log({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});
+					logger.log({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});
 					res.json({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});
 				}, function(err){
-					console.error(err);
+					logger.error(err);
 					res.status(500).end();
 					return;
 				});
 			}, function (err) {
-				console.error(err);
+				logger.error(err);
 				res.status(500).end();
 				return;
 			});
@@ -407,12 +410,12 @@
 	exports.tablaResultadosProcedimiento = function (models, app, md5, Q, cfg) {
 		return function (req, res) {
 			if ((typeof req.params.codigo === 'undefined') || (req.params.codigo === null)) {
-				console.error('No se ha definido el parámetro "codigo"');
+				logger.error('No se ha definido el parámetro "codigo"');
 				res.status(500).end();
 				return;
 			}
 			if ((typeof req.params.year === 'undefined') || (req.params.year === null)) {
-				console.error('No se ha definido el parámetro "year"');
+				logger.error('No se ha definido el parámetro "year"');
 				res.status(500).end();
 				return;
 			}
@@ -427,7 +430,7 @@
 
 			Procedimiento.findOne({codigo: req.params.codigo}, {}, function (err, proc) {
 				if (err) {
-					console.error(err);
+					logger.error(err);
 					res.status(500);
 					res.end();
 				} else {
@@ -480,7 +483,7 @@
 						XLSX.writeFile(wb, path + time + '.xlsx');
 						res.json({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});
 					}, function (erro) {
-						console.error(erro);
+						logger.error(erro);
 						res.status(500).end();
 					});
 				}
@@ -491,13 +494,13 @@
 	exports.exportarInforme = function (models, app, md5, Q, cfg) {
 		return function (req, res) {
 			if ((typeof req.params.year === 'undefined') || (req.params.year === null)) {
-				console.error('No se ha definido el parámetro "year"');
+				logger.error('No se ha definido el parámetro "year"');
 				res.status(500).end();
 				return;
 			}
 			var regAnyo = new RegExp(/a2\d{3}$/);
 			if (!regAnyo.test(req.params.year)) {
-				console.error('Parámetro mal formado');
+				logger.error('Parámetro mal formado');
 				res.status(500).end();
 				return;
 			}
@@ -649,7 +652,7 @@
 			Jerarquia.find({}, {'id': true, 'nombrelargo': true, 'ancestros': true}, function(err, jerarquias){
 				if (err){
 					promesaCacheJerarquia.reject(err);
-				}else{
+				} else {
 					jerarquias.forEach(function(jer){
 						jerarquiasById[ jer.id ] = jer;
 					});
@@ -705,23 +708,24 @@
 							.concat(Array.isArray(req.user.permisoscalculados.procedimientoslectura) ? req.user.permisoscalculados.procedimientoslectura : [])
 							.concat(Array.isArray(req.user.permisoscalculados.procedimientosdirectaescritura) ? req.user.permisoscalculados.procedimientosdirectaescritura : [])
 							.concat(Array.isArray(req.user.permisoscalculados.procedimientosescritura) ? req.user.permisoscalculados.procedimientosescritura : []);
-					var r = { '$and': [
-								restriccionProcedimientos,
-								{'codigo': {'$in': pids}}
-								]
-							};
+					var r = { '$and' :
+						[
+							restriccionProcedimientos,
+							{'codigo': {'$in': pids}}
+						]
+					};
 					restriccionProcedimientos = r;
 				}
 				// Genera hoja General (PARA TODOS)
 				Procedimiento.find(restriccionProcedimientos, {codigo: true, denominacion: true, idjerarquia: true, responsables: true, 'cod_plaza': true, periodos: true, ancestros: true}, function (err, procedimientos) {
 					if (err) {
-						console.error(err);
+						logger.error(err);
 						deferBD.reject(err);
 					} else {
 						exports.rellenarProcedimientos(procedimientos, year, Q, models, personasByCodPlaza).then(function (ws) {
 							deferBD.resolve({'wsName': 'BD', 'sheet': ws});
 						}, function (erro) {
-							console.error(erro);
+							logger.error(erro);
 							deferBD.reject(erro);
 						});
 					}
@@ -730,13 +734,13 @@
 				if (req.user.permisoscalculados.superuser){
 					Procedimiento.find({'$and': [{'oculto': {$exists: true}}, {'oculto': true}]}, {codigo: true, denominacion: true, idjerarquia: true, responsables: true, 'cod_plaza': true, periodos: true, ancestros: true}, function (err, procedimientos) {
 						if (err) {
-							console.error(err);
+							logger.error(err);
 							deferBDOcultos.reject(err);
 						} else {
 							exports.rellenarProcedimientos(procedimientos, year, Q, models, personasByCodPlaza).then(function (ws) {
 								deferBDOcultos.resolve({'wsName': 'BD Ocultos', 'sheet': ws});
 							}, function (erro) {
-								console.error(erro);
+								logger.error(erro);
 								deferBDOcultos.reject(err);
 							});
 						}
@@ -758,7 +762,7 @@
 					XLSX.writeFile(wb, path + time + '.xlsx');
 					res.json({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});
 				}, function (err) {
-					console.error(err);
+					logger.error(err);
 					res.status(500).end();
 				});
 			});
@@ -767,7 +771,7 @@
 
 
 	exports.rellenarProcedimientos = function (procedimientos, year, Q, models, personasByCodPlaza) {
-
+		var i = 0, j = 0;
 		var deferProc = Q.defer();
 		var indicadoresDatabase = ['solicitados', 'iniciados', 'resueltos_1', 'resueltos_5', 'resueltos_10', 'resueltos_15', 'resueltos_30',
 			'resueltos_45', 'resueltos_mas_45', 'resueltos_desistimiento_renuncia_caducidad', 'resueltos_prescripcion', 't_medio_naturales', 't_medio_habiles',
@@ -787,17 +791,17 @@
 			ws = {}, pos = 1;
 			//coordenadasmerges = [];
 
-		for (var i = 0; i < precabeceras.length; i++) {
+		for (i = 0; i < precabeceras.length; i++) {
 			ws[ XLSX.utils.encode_cell({c: pos++, r: 1}) ] = { v: precabeceras[i], t: 's'};
 		}
 
 		ws[ XLSX.utils.encode_cell({c: pos + 6, r: 0}) ] = {v: 'RESUELTOS EN LOS MESES DE ' + lastyear, t: 's'};
 
-		for (var i = 0; i < meses.length; i++) {
+		for (i = 0; i < meses.length; i++) {
 			ws[ XLSX.utils.encode_cell({c: pos++, r: 1}) ] = {v: meses[i], t: 's'};
 		}
 
-		for (var i = 0; i < meses.length; i++) {
+		for (i = 0; i < meses.length; i++) {
 //			coordenadasmerges.push( XLSX.utils.encode_range( {s: {c: pos + 6, r: 0}, e: {c: pos + 6 + indicadores.length-1, r: 0} } ) );
 			ws[ XLSX.utils.encode_cell({c: pos + 6, r: 0}) ] = {v: meses[i], t: 's'};
 			for (var j = 0; j < indicadores.length; j++) {
@@ -808,7 +812,7 @@
 //		ws['!merges'] = coordenadasmerges;
 
 		var dim = pos;
-		for (var i = 0; i < procedimientos.length; i++) {
+		for (i = 0; i < procedimientos.length; i++) {
 			pos = 1;
 			var procedimiento = procedimientos[i];
 
@@ -817,7 +821,7 @@
 
 			if ((typeof procedimiento.ancestros !== 'undefined') && (procedimiento.ancestros.length > 1)) {
 				if (procedimiento.ancestros.length === 4) {
-					for (var j = 0; j < 3; j++) {
+					for (j = 0; j < 3; j++) {
 
 						ws[ XLSX.utils.encode_cell({c: pos, r: i + 2}) ] = {v: procedimiento.ancestros[j].id, t: 'n'};
 						ws[ XLSX.utils.encode_cell({c: pos + 1, r: i + 2}) ] = {v: procedimiento.ancestros[j].nombrelargo, t: 's'};
@@ -883,7 +887,6 @@
 		return deferProc.promise;
 	};
 
-
 	exports.download = function(app, cfg, fs, md5, path){
 		return function (req, res) {
 			var filename = req.params.token + (req.query.extension ? req.query.extension : '.xlsx'),
@@ -895,24 +898,24 @@
 						if (path.dirname(rutaefectiva) + path.sep === ruta) {
 							res.download(ruta + filename, filename, function (err) {
 								if (err) {
-									console.error(err);
+									logger.error(err);
 								} else {
-									console.log('Fichero ' + ruta + filename + '.xlsx descargado');
+									logger.log('Fichero ' + ruta + filename + ' descargado');
 									fs.unlink(ruta + filename, function (erro) {
 										if (erro) {
-											console.error('No se ha podido borrar el fichero ' + ruta + filename);
+											logger.error('No se ha podido borrar el fichero ' + ruta + filename);
 										} else {
-											console.log('Fichero ' + ruta + filename + ' borrado');
+											logger.log('Fichero ' + ruta + filename + ' borrado');
 										}
 									});
 								}
 							});
 						} else {
-							console.error('Acceso denegado:' + ruta + filename);
+							logger.error('Acceso denegado:' + ruta + filename);
 							res.status(404).send('Acceso denegado');
 						}
 					} else {
-						console.error('Fichero no válido' + ruta + filename);
+						logger.error('Fichero no válido' + ruta + filename);
 						res.status(404).send('Fichero no válido');
 					}
 				});
@@ -922,4 +925,4 @@
 		};
 	};
 
-})(exports);
+})(exports, console);
