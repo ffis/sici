@@ -6,9 +6,16 @@
 		path = require('path'),
 		assert = require('assert'),
 		csvparse = require('csv-parse'),
-		parser = csvparse({delimiter: ','});
+		parser = csvparse({delimiter: '	'}),
+		mongoose = require('mongoose'),
+		config = require('./config.json'),
+		models = require('./api/models');
 
 	var campos = [], registros = [];
+
+	mongoose.set('debug', true);
+	mongoose.connect(config.mongodb.connectionString);
+	models.init(mongoose);
 
 	function checkRegistroNumerico(registro, campo){
 		/* excepcion */
@@ -29,16 +36,18 @@
 		return registro[campo] !== '';
 	}
 
-	function run_tests(){
+	function run_tests(idsjerarquias){
 		var i = 0, j = 0;
+		assert( registros.length > 0, 'Debe cargar algún registro.');
 		for (i = 0, j = registros.length; i < j; i++){
-			assert( checkRegistroNumerico(registros[i], 'id'), 'El campo ID debe existir y ser numérico. Línea:' + (i + 1));
-			assert( checkRegistroNumerico(registros[i], 'ancestrodirecto'), 'El campo ancestrodirecto debe existir y ser numérico. Línea:' + (i + 1));
-			assert( checkRegistroString(registros[i], 'nombre'), 'El campo nombre debe existir y ser texto. Línea:' + (i + 1));
-			assert( checkRegistroString(registros[i], 'nombrelargo'), 'El campo nombre largo debe existir y ser texto. Línea:' + (i + 1));
-			assert( checkRegistroString(registros[i], 'inicialestipo'), 'El campo inicialestipo debe existir y ser texto. Línea:' + (i + 1));
-			assert( checkRegistroString(registros[i], 'tipo'), 'El campo tipo debe existir y ser texto. Línea:' + (i + 1));
+			assert( checkRegistroNumerico(registros[i], 'id'), 'El campo id debe existir y ser numérico. Línea:' + (i + 1) + ' ' + JSON.stringify(registros[i]));
+			assert( checkRegistroNumerico(registros[i], 'ancestrodirecto'), 'El campo ancestrodirecto debe existir y ser numérico. Línea:' + (i + 1) + ' ' + JSON.stringify(registros[i]));
+			assert( checkRegistroString(registros[i], 'nombre'), 'El campo nombre debe existir y ser texto. Línea:' + (i + 1) + ' ' + JSON.stringify(registros[i]));
+			assert( checkRegistroString(registros[i], 'nombrelargo'), 'El campo nombre largo debe existir y ser texto. Línea:' + (i + 1) + ' ' + JSON.stringify(registros[i]));
+			assert( checkRegistroString(registros[i], 'inicialestipo'), 'El campo inicialestipo debe existir y ser texto. Línea:' + (i + 1) + ' ' + JSON.stringify(registros[i]));
+			assert( checkRegistroString(registros[i], 'tipo'), 'El campo tipo debe existir y ser texto. Línea:' + (i + 1) + ' ' + JSON.stringify(registros[i]));
 		}
+
 
 		//comprobar que existen todos
 		var registrosXId = {};
@@ -51,6 +60,11 @@
 			if (ancestrodirecto){
 				assert(typeof registrosXId[ ancestrodirecto ] === 'object', 'El campo ancestrodirecto debe existir entre los importados. Línea:' + (i + 1));
 			}
+		}
+
+		for (i = 0, j = idsjerarquias; i < j; i++){
+			var jerarquiausadaEnProcedimiento = idsjerarquias[i];
+			assert(typeof registrosXId[ jerarquiausadaEnProcedimiento ] === 'object', 'La jerarquia con id: ' + jerarquiausadaEnProcedimiento + ' no existe y es necesaria');
 		}
 
 		logger.log('Tests OK');
@@ -108,10 +122,19 @@
 
 	});
 	parser.on('finish', function(){
-		logger.log('Running tests');
-		run_tests();
-		transformar();
-		volcarJSON();
+		logger.log(registros.length + ' registros');
+		var procedimientomodel = models.procedimiento();
+		procedimientomodel.distinct('idjerarquia').then(function(idsjerarquias){
+			logger.log(idsjerarquias.length + ' jerarquias usadas en procedimientos');
+			mongoose.disconnect();
+			logger.log('Running tests');
+			run_tests(idsjerarquias);
+			transformar();
+			volcarJSON();
+		}, function(err){
+			logger.error('Error al conectarse con la base de datos', err);
+			mongoose.disconnect();
+		});
 	});
 
 	var input = fs.createReadStream(path.join(__dirname, 'data', 'organica.csv'));
