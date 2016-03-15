@@ -62,7 +62,7 @@
 				$scope.afectables.sort();
 				$scope.downloadDocx = function(){
 
-					$http.get('/api/v2/public/informeCarta/' + $scope.cartaservicioseleccionada._id + '/' + $scope.anualidad)
+					$http.get('/api/v2/public/informeCarta/' + $scope.cartaservicio._id + '/' + $scope.anualidad)
 						.then(function (res) {
 							var url = '/download/' + res.data.time + '/' + res.data.hash + '?extension=' + res.data.extension;
 							$window.location = url;
