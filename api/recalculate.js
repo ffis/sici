@@ -1,4 +1,4 @@
-(function(module){
+(function(module, logger){
 	'use strict';
 
 	function parseStr2Int(str) {
@@ -374,10 +374,10 @@
 	module.exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
 		var deferred = Q.defer();
 
-		console.log('softCalculateProcedimiento ' + procedimiento.codigo);
+		//logger.log('softCalculateProcedimiento ' + procedimiento.codigo);
 		//para cada periodo
 		if (typeof procedimiento.periodos !== 'object') {
-			console.error('Error en procedimiento ' + procedimiento.codigo);
+			logger.error('Error en procedimiento ' + procedimiento.codigo);
 			deferred.reject(procedimiento);
 
 			return deferred.promise;
@@ -468,8 +468,6 @@
 			}
 		}
 		deferred.resolve(procedimiento);
-		console.log('softCalculatedProcedimiento: ' + procedimiento.codigo);
-
 		return deferred.promise;
 	};
 
@@ -500,7 +498,7 @@
 									procedimiento.markModified('periodos');
 									procedimiento.save(function (error) {
 										if (error) {
-											console.error(error);
+											logger.error(error);
 											informes.push({codigo: procedimiento.codigo, status: 500});
 											promise.reject(error);
 										} else {
@@ -551,12 +549,11 @@
 					pindex++;
 					permiso.save(function (error) {
 						if (error) {
-							console.error();
-							console.error(error + ' softcalculate permiso concluido ' + permiso._id + ' ; ' + permiso.login + ';' + permiso.codplaza + ' (' + pindex + ' de ' + plength + ')');
+							logger.error(error + ' softcalculate permiso concluido ' + permiso._id + ' ; ' + permiso.login + ';' + permiso.codplaza + ' (' + pindex + ' de ' + plength + ')');
 							informes.push({codigo: permiso._id, status: 500});
 							promise.reject(err);
 						} else {
-							console.log('softcalculate permiso concluido ' + permiso._id + ' ; ' + permiso.login + ';' + permiso.codplaza + ' (' + pindex + ' de ' + plength + ')');
+							//logger.log('softcalculate permiso concluido ' + permiso._id + ' ; ' + permiso.login + ';' + permiso.codplaza + ' (' + pindex + ' de ' + plength + ')');
 							informes.push({codigo: permiso._id, status: 200, permiso: permiso});
 							promise.resolve();
 						}
@@ -610,8 +607,7 @@
 
 			var maxiteraciones = ids.length;
 			var cambio = true;
-			while (cambio && maxiteraciones--)
-			{
+			while (cambio && maxiteraciones--){
 				cambio = 0;
 				for (var i = 0, j = ids.length; i < j; i++) {
 					var cambiointerno = true;
@@ -622,7 +618,7 @@
 						for (var k = 0; k < mapeadoArray[id].ancestros.length; k++) {
 							var ancestroid = mapeadoArray[id].ancestros[k];
 							if (typeof mapeadoArray[ancestroid] === 'undefined') {
-								console.error(ancestroid + ' no existe en 35');
+								logger.error(ancestroid + ' no existe en 35');
 								continue;
 							}
 							//busco si estoy entre sus descendientes
@@ -674,7 +670,7 @@
 			var Carta = models.entidadobjeto();
 
 			//primero recorrer el listado de jerarquías que ya existía, asignando el valor 0 a los dos atributos:
-			for(var id in mapeadoArray){
+			for (var id in mapeadoArray){
 				if (typeof mapeadoArray[id] !== 'undefined' && typeof mapeadoArray[id].numprocedimientos !== 'undefined' ){
 					mapeadoArray[id].numprocedimientos = 0;
 					mapeadoArray[id].numcartas = 0;
@@ -686,7 +682,7 @@
 			var fnActualizacion = function(campo, promise, actualizarancestros){
 				return function(erro, agrupaciones){
 					if (erro){
-						console.error(erro);
+						logger.error(erro);
 						promise.reject(erro);
 						return;
 					}
@@ -702,7 +698,7 @@
 							if (!actualizarancestros){
 								continue;
 							}
-							for(k = 0, l = mapeadoArray[idjerarquia].ancestros.length; k < l; k++){
+							for (k = 0, l = mapeadoArray[idjerarquia].ancestros.length; k < l; k++){
 								var idancestro = mapeadoArray[idjerarquia].ancestros[k];
 								mapeadoArray[idancestro][campo] += count;
 							}
@@ -742,7 +738,7 @@
 			Q.all( [deferNumProcedimientos.promise, deferNumCartas.promise]).then(function(){
 				var reportError = function (e) {
 					if (e) {
-						console.error(e);
+						logger.error(e);
 					}
 				};
 				for (id in mapeadoArray){
@@ -755,55 +751,60 @@
 				}));
 			} );
 
-		} );
+		});
 
 		return deferred.promise;
 	};
 
-	module.exports.fprocedimiento = function (Q, models, fnprocedimiento) {
+	module.exports.fprocedimiento = function (Q, models, fnprocedimiento, api) {
 		return function (req, res) {
 			if (req.user.permisoscalculados.superuser) {
-				exports.fullSyncprocedimiento(Q, models, fnprocedimiento).then(function (o) {
-					res.json(o);
-				}, function (e) {
-					console.error(e);
-					res.status(500).send(JSON.stringify(e)).end();
-				});
+				api.resetCache();
+				exports
+					.fullSyncprocedimiento(Q, models, fnprocedimiento)
+					.then(function () {
+						res.json({});
+					}, function (e) {
+						res.status(500).send(JSON.stringify(e)).end();
+					});
 			} else {
 				res.status(401).send('Carece de permisos').end();
 			}
 		};
 	};
 
-	module.exports.fjerarquia = function (Q, models) {
+	module.exports.fjerarquia = function (Q, models, api) {
 		return function (req, res) {
 			if (req.user.permisoscalculados.superuser) {
-				exports.fullSyncjerarquia(Q, models).then(function (o) {
-					res.json(o);
-				}, function (e) {
-					console.error(e);
-					res.status(500).send(JSON.stringify(e)).end();
-				});
+				api.resetCache();
+				exports
+					.fullSyncjerarquia(Q, models)
+					.then(function (o) {
+						res.json(o);
+					}, function (e) {
+						res.status(500).json({'error': 'An error has occurred', details: e});
+					});
 			} else {
-				res.status(401).send('Carece de permisos').end();
+				res.status(403).json({'error': 'Not allowed'});
 			}
 		};
 	};
 
-	module.exports.fpermiso = function (Q, models) {
+	module.exports.fpermiso = function (Q, models, api) {
 		return function (req, res) {
 			if (req.user.permisoscalculados.superuser) {
-				exports.fullSyncpermiso(Q, models).then(function () {
-					console.log('Terminado... escribiendo informe');
-					res.json({});
-				}, function (e) {
-					console.error(e);
-					res.status(500).send(JSON.stringify(e)).end();
-				});
+				api.resetCache();
+				exports
+					.fullSyncpermiso(Q, models)
+					.then(function () {
+						res.json({});
+					}, function (e) {
+						res.status(500).json({'error': 'An error has occurred', details: e});
+					});
 			} else {
-				res.status(401).send('Carece de permisos').end();
+				res.status(403).json({'error': 'Not allowed'});
 			}
 		};
 	};
 
-})(module);
+})(module, console);

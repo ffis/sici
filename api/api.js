@@ -30,12 +30,18 @@
 	 * @returns {Array} Un array de objetos con esta estructura
      * { _id: number, id: number, title: string, nodes: [], numprocedimientos: number, numcartas: number}
 	 */
+	var cachedArbol = {};
+	module.exports.resetCache = function(){
+		cachedArbol = {};
+	};
+
 	module.exports.arbol = function(Q, models){
 		return function(req, res){
 			var Jerarquia = models.jerarquia();
 			var returnValue = [];
 			var hijos = [];
 			var filterfn;
+			var cachedkey = (typeof req.params.withemptynodes === 'undefined' || !req.params.withemptynodes) ? 'all' : 'notempty';
 			if (typeof req.params.withemptynodes === 'undefined' || !req.params.withemptynodes){
 				filterfn = function(jerarquia){
 					if (jerarquia.numprocedimientos > 0){
@@ -58,6 +64,10 @@
 			}
 			else {
 				filterfn = function(){ return true; };
+			}
+			if (typeof cachedArbol[cachedkey] !== 'undefined'){
+				res.json( cachedArbol[cachedkey] );
+				return;
 			}
 
 			Jerarquia.find({}, function(err, jerarquias)
@@ -98,6 +108,7 @@
 						returnValue.push({_id: nodo._id, id: nodo.id, title: nodo.nombrelargo, nodes: getHijos(nodo.id), numprocedimientos: nodo.numprocedimientos, numcartas: nodo.numcartas });
 					}
 				});
+				cachedArbol[cachedkey] = returnValue;
 				res.json(returnValue);
 			});
 		};

@@ -120,9 +120,9 @@
 		setProgressMessage('Estableciendo rutas: rutas superuser');
 		/* funcionalidad superuser */
 
-		app.get('/api/v1/restricted/fprocedimiento', recalculate.fprocedimiento(Q, models, procedimiento));
-		app.get('/api/v1/restricted/fjerarquia', recalculate.fjerarquia(Q, models));
-		app.get('/api/v1/restricted/fpermiso', recalculate.fpermiso(Q, models));
+		app.get('/api/v1/restricted/fprocedimiento', recalculate.fprocedimiento(Q, models, procedimiento, api));
+		app.get('/api/v1/restricted/fjerarquia', recalculate.fjerarquia(Q, models, api));
+		app.get('/api/v1/restricted/fpermiso', recalculate.fpermiso(Q, models, api));
 
 		app.get('/api/v1/restricted/periodos', periodos.getPeriodo(models));
 		app.get('/api/v1/restricted/periodos/:id', periodos.getPeriodo(models));
