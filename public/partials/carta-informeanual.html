@@ -1,8 +1,13 @@
 
 <div class="row">
 	<div class="col-md-10 col-md-offset-1 col-lg-10 col-lg-offset-1 col-xs-12">
+		<div class="text-right">
+			<a class="btn btn-default" href="#" ng-click="downloadDocx()" title="Descargar versi&oacute;n docx">
+				<span class="glyphicon glyphicon-floppy-save"></span> Descargar informe en docx
+			</a>
+		</div>
+		<h3>{{cartaservicio.denominacion}} - {{anualidad}}</h3>
 
-		<h3>{{cartaservicio.denominacion}}</h3>
 		<div class="row">
 			<div class="col-xs-2 text-right">
 				<strong>Expediente:</strong>
@@ -26,13 +31,10 @@
 					<li ng-repeat="o in jerarquia.ancestros | reverse">{{jerarquias[ o ].nombrelargo}}</li>
 					<li><em>{{jerarquia.nombrelargo}}</em></li>
 				</ul>
-				{{cartaservicio.url}}
+				<a href="{{cartaservicio.url}}" target="_blank">{{cartaservicio.url}}</a>
 			</div>
 		</div>
-		<pre>
-		{{jerarquias | json}}
-		</pre>
-		<div class="row">
+		<div class="row" style="margin-top:1em">
 			<div class="col-xs-12">
 				<form>
 					<div class="form-group">
@@ -54,13 +56,11 @@
 						<textarea class="form-control" style="width:100%; height:5em" ng-model="accion.descripcionplanmejora" id="descripcionplanmejora"></textarea>
 					</div>
 
-					<div class="text-center" ng-hide="accion">
+					<div class="text-center" ng-hide="accion" style="margin-bottom:1em">
 						<button class="btn btn-danger" ng-click="showAccion()">Añadir nueva acción</button>
 					</div>
 
 					<div class="mejora" ng-show="accion">
-
-
 						<div class="form-group">
 							<label class="enunciado" for="numero">Número</label>
 							<input class="form-control" type="text" ng-model="accion.numero" id="numero" />

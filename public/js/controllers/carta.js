@@ -11,6 +11,8 @@
 				$scope.showformulas = false;
 				$scope.superuser = $rootScope.superuser();
 				$scope.aanualidad = '';
+				$scope.W_Indicador = false;
+				$scope.R_Indicador = false;
 				$scope.mutexFormulas = function(){
 					$scope.showformulas = !$scope.showformulas;
 				};
@@ -123,6 +125,12 @@
 				};
 				$scope.setSeleccionado = function(selection){
 					if (selection) {
+						$rootScope.jerarquiaescritura().then(function(jerarquiaescritura){
+							$scope.W_Indicador = jerarquiaescritura.indexOf(selection.id) >= 0;
+						});
+						$rootScope.jerarquialectura().then(function(jerarquialectura){
+							$scope.R_Indicador = jerarquialectura.indexOf(selection.id) >= 0;
+						});
 						$scope.idjerarquia = selection.id;
 						$scope.cartasservicio = EntidadObjeto.query({'tipoentidad': 'CS', 'idjerarquia': $scope.idjerarquia}, function(){
 							for (var i = 0, j = $scope.cartasservicio.length; i < j; i++){
@@ -211,6 +219,9 @@
 					Objetivo.get( {id: $scope.objetivos[i]._id}, loadAndSetValores($scope.objetivos[i]) );
 				};
 				$scope.downloadDocx = function(){
+					//var images = 'cartastable';
+
+
 					$http.get('/api/v2/public/informeCarta/' + $scope.cartaservicioseleccionada._id + '/' + $scope.anualidad)
 						.then(function (res) {
 							var url = '/download/' + res.data.time + '/' + res.data.hash + '?extension=' + res.data.extension;

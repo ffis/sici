@@ -22,6 +22,7 @@
 				$scope.showAccion = function(){
 					$scope.accion = {};
 				};
+				$scope.anualidad = $routeParams.anualidad;
 				$scope.restricciones = [
 					'Presupuestos',
 					'Personal',
