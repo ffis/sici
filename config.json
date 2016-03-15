@@ -1,6 +1,6 @@
 {
 	"mongodb": {
-		"connectionString": "mongodb://mongosvr/sici_cs"
+		"connectionString": "mongodb://mongosvr/sici"
 	},
 	"tmpdir": "tmp",
 	"publicdir": "public"
