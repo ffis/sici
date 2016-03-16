@@ -200,13 +200,17 @@
 					}
 				};
 				$scope.setResponsable = function(persona){
-					$scope.accion.responsable = persona._id;
+					if (persona._id){
+						$scope.accion.responsable = persona._id;
+					}
 				};
 				$scope.removeResponsable = function(){
 					delete $scope.accion.responsable;
 				};
 				$scope.setPromotor = function(persona){
-					$scope.accion.promotor = persona._id;
+					if (persona._id){
+						$scope.accion.promotor = persona._id;
+					}
 				};
 				$scope.removePromotor = function(){
 					delete $scope.accion.promotor;

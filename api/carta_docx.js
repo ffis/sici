@@ -18,11 +18,9 @@
 	var imgopts = {
 		centered: false,
 		getImage: function(tagValue/*, tagName*/) {
-			log.log('OBTENIENDO IMAGEN ' + tagValue);
 			// el tagName contendrá el id del objetivo y el id de la fórmula
 			var result = fs.readFileSync(tagValue, 'binary');
 
-			log.log('OBTENIENDO IMAGEN 2');
 			return result;
 		},
 		getSize: function(/* img, tagValue, tagName */) {
@@ -47,26 +45,23 @@
 		//set the templateVariables
 		//params.imagen  = './data/gauge.png';
 		doc
-			.attachModule(imagedocx)
+			//.attachModule(imagedocx)
 			.load(content)
 			.setOptions({parser: angularParser})
 			.setData(params);
 		try {
-			log.log('PASO 5');
 			doc.render();
-			log.log('PASO 6');
 			if (outputtype === FILE){
 
 				buf = doc.getZip().generate({type: 'nodebuffer'});
 				filename = path.join(pathdir, outputparams);
-				log.log(filename);
+
 				fs.writeFileSync(filename, buf);
 				cb(null, 'ok');
 			} else if (outputtype === BUFFER){
 
 				buf = doc.getZip().generate({type: 'nodebuffer'});
 				filename = path.join(pathdir, outputparams);
-				log.log(filename);
 				fs.writeFileSync(filename, buf);
 				cb(null, filename);
 			}else {
@@ -150,117 +145,138 @@
 		return q.promise;
 	}
 
-	function loadPlan(planmodel, accionmodel, personamodel, organicamodel, carta, anualidad){
+	function loadPlan(models, planmodel, accionmodel, personamodel, organicamodel, carta, anualidad){
 		var q = Q.defer();
 		var r = {'carta': '' + carta._id, anualidad: anualidad};
+		var rejectPromise = function(promise, id){
+			return function(err){
+				log.error(err, id);
+				promise.reject(err);
+			};
+		};
+		var resolvePromise = function(promise, id){
+			return function(data){
+				log.log('resuelta:' + id);
+				promise.resolve(data);
+			};
+		};
 		planmodel.findOne(r).exec().then(function(plan){
 			if (!plan){
 				q.reject('not found:' + JSON.stringify(r));
 			} else {
-				log.log(plan);
-				accionmodel.find({'plan': plan._id}).exec().then(function(acciones){
-					log.log(acciones);
+				plan = JSON.parse(JSON.stringify(plan)); //mongoose sucks!
+
+				var joinData = function(accion, qaccion){
+					return function(data){
+						if (data[0]){ accion.equipo = data[0]; }
+						if (data[1]){ accion.responsable = data[1];}
+						if (data[2]){ accion.promotor = data[2];}
+						if (data[3]){ accion.organica = data[3];}
+						//accion = JSON.parse(JSON.stringify(accion)); //mongoose sucks!
+
+						var rs = accion.restricciones,
+							af = accion.afectables;
+
+						accion.restricciones = [];
+						accion.afectables = [];
+						for (var restriccion in rs){
+							if (rs[restriccion]){
+								accion.restricciones.push({nombre: restriccion});
+							}
+						}
+						for (var afectable in af){
+							if (af[afectable]){
+								accion.afectables.push({nombre: afectable});
+							}
+						}
+						qaccion.resolve(accion);
+					};
+				};
+				var rellenaAccion = function(accion){
+
+					var qaccion = Q.defer(),
+						qequi = Q.defer(),
+						qres = Q.defer(),
+						qpro = Q.defer(),
+						qorg = Q.defer(),
+						pequipo = [];
+
+					if (typeof accion.equipo !== 'undefined'){
+						for (var k = 0, l = accion.equipo.length; k < l; k++){
+							if (typeof accion.equipo[k] === 'string'){
+								pequipo.push(loadPersona(models, personamodel, accion.equipo[k]));
+							}
+						}
+						Q.all(pequipo).timeout(3000, 'qequi').then(resolvePromise(qequi, 'qequi'), rejectPromise(qequi, 'qequi') );
+
+					} else {
+						qequi.resolve([]);
+					}
+					// cargamos el responsable
+					if (typeof accion.responsable === 'string' ){
+						loadPersona(models, personamodel, accion.responsable).timeout(3000, 'qres').then(resolvePromise(qres, 'qres'), rejectPromise(qres, 'qres') );
+					}else {
+						qres.resolve();
+					}
+					// cargamos el promotor
+					if (typeof accion.promotor === 'string'){
+						loadPersona(models, personamodel, accion.promotor).timeout(3000, 'qpro').then(resolvePromise(qpro, 'qpro'), rejectPromise(qpro, 'qpro') );
+					}else {
+						qpro.resolve();
+					}
+					// cargamos la organica
+					if (typeof accion.organica === 'number'){
+						loadOrganica(organicamodel, accion.organica).timeout(3000, 'qorg').then(resolvePromise(qorg, 'qorg'), rejectPromise(qorg, 'qorg') );
+					} else {
+						qorg.resolve();
+					}
+					// esperamos las subcargas y devolvemos la accion
+					Q
+						.all([qequi.promise, qres.promise, qpro.promise, qorg.promise])
+						.then(joinData(accion, qaccion), rejectPromise(qaccion, 'qaccion') );
+					return qaccion.promise;
+				};
+				accionmodel.find({'plan': '' + plan._id}).lean().exec().then(function(acciones){
 					var qacciones = [];
-					// a todas las acciones les añadimos su equipo. Lo insertamos en el mismo sitio "equipo"
-					acciones.forEach(function(accion){
-						var qaccion = Q.defer();
 
-						var qequi = Q.defer();
-						var qres = Q.defer();
-						var qpro = Q.defer();
-						var qorg = Q.defer();
+					for (var i = 0, j = acciones.length; i < j; i++){
+						var accion = acciones[i];
+						qacciones.push( rellenaAccion(accion) );
+					}
 
-						qacciones.push(qaccion.promise);
-						if (typeof accion.equipo !== 'undefined'){
-							var pequipo = [];
-							// para que id perteneciente a una persona del equipo, lo cargamos (añadimos a las promeasas)
-							accion.equipo.forEach(function(persona){
-								pequipo.push(loadPersona(personamodel, persona));
-							});
-							// cuando se carguen todas las personas del equipo, sustituimos el array viejo por el nuevo
-							// que contiene un array de objetos de tipo persona
-							Q.all(pequipo).then(function(personas){
-								qequi.resolve(personas);
-							/// ERROR CARGANDO PERSONAS
-							}, function(err){
-								qequi.reject(err);
-							});
 
-						} else {
-							qequi.resolve([]);
-						}
-						// cargamos el responsable
-						if (typeof accion.responsable !== 'undefined'){
-							loadPersona(personamodel, accion.responsable).then(function(responsable){
-								qres.resolve(responsable);
-							}, function(err){
-								qres.reject(err);
-							});
-						}else {
-							qres.resolve();
-						}
-						// cargamos el promotor
-						if (typeof accion.promotor !== 'undefined'){
-							loadPersona(personamodel, accion.promotor).then(function(promotor){
-								qpro.resolve(promotor);
-							}, function(err){
-								qpro.reject(err);
-							});
-						}else {
-							qpro.resolve();
-						}
-						// cargamos la organica
-						if (typeof accion.organica !== 'undefined'){
-							loadOrganica(organicamodel, accion.organica).then(function(organica){
-								qorg.resolve(organica);
-							}, function(err){
-								qorg.reject(err);
-							});
-						} else {
-							qorg.resolve();
-						}
-						// esperamos las subcargas y devolvemos la accion
-						Q.all([qequi.promise, qres.promise, qpro.promise, qorg.promise]).then(function(data){
-							if (data[0]){ accion.equipo = data[0]; }
-							if (data[1]){ accion.responsable = data[1];}
-							if (data[2]){ accion.promotor = data[2];}
-							if (data[3]){ accion.organica = data[3];}
-							qaccion.resolve(accion);
-						}, function(err){
-							qaccion.reject(err);
-						});
-
-					});
+					//});
 					// esperamos que se hayan calculado todas las acciones y sus equipos,y con ellos cargados
 					// resolvemos, las acciones. Actualizamos el plan con ellas y ya lo tenemos listo para devolver
+
 					Q.all(qacciones).then(function(acciones){
+
+						log.log(236, plan, acciones.length);
 						acciones.sort(function(a, b){ return parseInt(a.numero) - parseInt(b.numero); });
 						plan.acciones = acciones;
 						q.resolve(plan);
-					/// ERRROR ESPERANDO ACCIONES
+
 					}, function(err){
 						q.reject(err);
 					});
-				//// ERROR CARGANDO ACCIONES
-				}, function(err){
-					q.reject(err);
-				});
+
+				}, rejectPromise(q, 'q') );
 			}
 		//// ERROR CARGANDO EL PLAN
-		}, function(err){
-			q.reject(err);
-		});
+		}, rejectPromise(q, 'q*') );
 
 		return q.promise;
 	}
 
-	function loadPersona(personamodel, id){
+	function loadPersona(models, personamodel, id){
 		var q = Q.defer();
 		personamodel
-			.findOne({'_id': id})
+			.findOne({'_id': models.ObjectId(id) })
+			.lean()
 			.exec().then(function (persona){
 				q.resolve(persona);
 			}, function(err){
+				log.error(id, err);
 				q.reject(err);
 			});
 		return q.promise;
@@ -269,7 +285,8 @@
 	function loadOrganica(organicamodel, idjerarquia){
 		var q = Q.defer();
 		organicamodel
-			.findOne({'id':idjerarquia})
+			.findOne({'id': parseInt(idjerarquia)})
+			.lean()
 			.exec().then(function (organica){
 				q.resolve(organica);
 			}, function(err){
@@ -300,14 +317,19 @@
 		var months = ['enero', 'febrero', 'marzo',
 			'abril', 'mayo', 'junio',
 			'julio', 'agosto', 'septiembre',
-			'octubre', 'noviembre', 'diciembre'],
-			observaciones = [];
+			'octubre', 'noviembre', 'diciembre'];
 		if (typeof indicador.observaciones !== 'undefined' && typeof indicador.observaciones['a' + anualidad] !== 'undefined') {
+			var tmp = {indicadornombre: indicador.nombre, comentarios: []};
 			for (var i = 0; i < 12; i++){
 				if (indicador.observaciones['a' + anualidad][i] && indicador.observaciones['a' + anualidad][i].trim() !== ''){
-					observaciones.push({indicadornombre: indicador.nombre, mes: months[i], observacion: indicador.observaciones['a' + anualidad][i].trim() });
+					tmp.comentarios.push({indicadornombre: indicador.nombre, mes: months[i], observacion: indicador.observaciones['a' + anualidad][i].trim() });
 				}
 			}
+		}
+		if (tmp.comentarios.length > 0){
+			return [tmp];
+		} else {
+			return [];
 		}
 	}
 
@@ -317,9 +339,8 @@
 				objetivos[i].formulas[k].observaciones = [];
 				for (var q = 0, w = objetivos[i].formulas[k].indicadores.length; q < w; q++){
 					objetivos[i].formulas[k].indicadores[q] = getIndicador( objetivos[i].formulas[k].indicadores[q], indicadorescargados );
-					objetivos[i].formulas[k].indicadores[q] = addMonthInfo(objetivos[i].formulas[k].indicadores[q],
-							objetivos[i].formulas[k].indicadores[q].valores['a' + anualidad], '');
-					objetivos[i].formulas[k].observaciones = getObservaciones(objetivos[i].formulas[k].indicadores[q]);
+					objetivos[i].formulas[k].indicadores[q] = addMonthInfo(objetivos[i].formulas[k].indicadores[q], objetivos[i].formulas[k].indicadores[q].valores['a' + anualidad], '');
+					objetivos[i].formulas[k].observaciones = objetivos[i].formulas[k].observaciones.concat(getObservaciones(objetivos[i].formulas[k].indicadores[q], anualidad));
 				}
 			}
 		}
@@ -373,24 +394,26 @@
 							objetivomodel.find({carta: carta._id }).sort({index: 1}).exec().then(function(objetivos){
 								objetivos = transformarObjetivos(objetivos, anualidad);
 
-log.log(objetivos);
 								var promises = [
 									loadIndicadores(indicadormodel, ObjectId),
-									loadPlan(planmodel, accionmodel, personamodel, jerarquiasmodel, carta, anualidad)
+									loadPlan(models, planmodel, accionmodel, personamodel, jerarquiasmodel, carta, anualidad)
 								];
 								Q.all(promises).then(function(data){
-									log.log(377, data);
-									var indicadorescargados = data[0];
-									var plancargado = data[1];
+
+									var indicadorescargados = data[0],
+										plancargado = data[1];
 
 									var params = {
 										'cartaservicio': carta,
 										'anualidad': anualidad,
 										'jerarquias': jerarquias,
 										'objetivos': incluirIndicadores(objetivos, indicadorescargados, anualidad),
-										'plan': incluirPlan(plancargado), /* este no existe ahora*/
+										'planmejora': incluirPlan(plancargado),
+										'acciones': plancargado.acciones,
 										'imagen':'./data/gauge.png'
 									};
+
+									log.log(params.planmejora);
 
 									var time = new Date().getTime();
 									generateDocx(app, params, FILE, time + '.docx', function(err){
