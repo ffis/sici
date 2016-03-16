@@ -7,12 +7,12 @@
 			<div class="panel-heading">
 				<div class="input-group">
 				  <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
-					<input  class="form-control" ng-model="usuariosbuscado" typeahead-on-select="on_usuariobuscado_selected($item,$model,$label)" placeholder="Buscar por plaza, login carm o nombre"  type="text" typeahead-min-lengt="3" typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)"  />
+					<input  class="form-control" ng-model="usuariosbuscado" typeahead-on-select="on_usuariobuscado_selected($item,$model,$label)" placeholder="Buscar por plaza, login carm o nombre"  type="text" typeahead-min-length="3" typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)"  />
 				</div>
 			</div>
 		</div>
-		<br/> 
-		<organismos otitle="'Organismos'" arbol="arbol" tipoelementos="'subelementos (procedimientos y cartas de servicio)'" attr="'sumatorio'" setseleccionado="setSeleccionado" seleccionado="seleccionado" filtro="filtro" showprocedimientos="true" showcartas="true" setprocseleccionado="setProcSeleccionado" procseleccionado="procedimiento_seleccionado" setcartaseleccionada="setCartaSeleccionada" cartaseleccionada="carta_seleccionada"></organismos>                              
+		<br/>
+		<organismos otitle="'Organismos'" arbol="arbol" tipoelementos="'subelementos (procedimientos y cartas de servicio)'" attr="'sumatorio'" setseleccionado="setSeleccionado" seleccionado="seleccionado" filtro="filtro" showprocedimientos="true" showcartas="true" setprocseleccionado="setProcSeleccionado" procseleccionado="procedimiento_seleccionado" setcartaseleccionada="setCartaSeleccionada" cartaseleccionada="carta_seleccionada"></organismos>
 	</div>
         <!-- PERMISOS DE UN USUARIO -->
 	<div ng-if="show_details_permiso && $root.permisoscalculados.superuser" ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated" >
@@ -137,7 +137,7 @@
 					<td>
 
 					</td>
-				</tr>                                
+				</tr>
 			</tbody>
 			<tfoot></tfoot>
 		</table>
@@ -173,7 +173,7 @@
 
 					<td colspan="{{ !is_show_recursive_users && !procedimientos.length? 8 : 9 }}" class="form-container">
 						<form name="nuevousuario-form" id="nuevousuario-form" ng-init="usuarioseleccionado=''">
-								<input  class="form-control" ng-model="usuarioseleccionado" placeholder="Buscar por plaza, login carm o nombre"  type="text" typeahead-min-lengt="3" typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)"  />
+								<input  class="form-control" ng-model="usuarioseleccionado" placeholder="Buscar por plaza, login carm o nombre"  type="text" typeahead-min-length="3" typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)"  />
 							<!--<br/>
 							<button type="button" class="btn btn-default" ng-click="crearnuevousuario()" ng-if="!is_nuevousuario">
 							  <span class="glyphicon glyphicon-search"></span> Nuevo usuario
@@ -362,7 +362,7 @@
 					<td>
 
 					</td>
-				</tr>                                
+				</tr>
 			</tbody>
 			<tbody ng-if="!permisos.length && !procedimientos.length && !cartas.length">
 				<tr>

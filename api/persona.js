@@ -40,6 +40,24 @@
 		return valor;
 	}
 
+	module.exports.get = function (models) {
+		return function (req, res) {
+			var personamodel = models.persona(),
+				id = req.params.id;
+			if (id){
+				personamodel.findOne({'_id': models.ObjectId(id) }, function (err, data) {
+					if (err) {
+						res.status(500).send({'error': 'An error has occurred', details: err});
+						return;
+					}
+					res.json(data);
+				});
+			} else {
+				res.status(400).json({'error': 'An error has occurred', details: 'Not found'});
+			}
+		};
+	};
+
 	module.exports.personasByPuesto = function (models) {
 		return function (req, res) {
 			var Persona = models.persona();

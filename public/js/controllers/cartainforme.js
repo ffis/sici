@@ -2,11 +2,23 @@
 	'use strict';
 	angular.module('sici')
 		.controller('CartaInformeCtrl',
-			['EntidadObjeto', 'Objetivo', 'Indicador', '$scope', '$routeParams', '$rootScope', 'Jerarquia', 'InformeCarta', 'Arbol', '$http', '$window', '$log', 'PlanMejoraList', 'PersonasByLogin', 'PersonasByPuesto', 'PersonasByRegexp',
-			function(EntidadObjeto, Objetivo, Indicador, $scope, $routeParams, $rootScope, Jerarquia, InformeCarta, Arbol, $http, $window, $log, PlanMejoraList, PersonasByLogin, PersonasByPuesto, PersonasByRegexp){
+			['EntidadObjeto', 'Objetivo', 'Indicador', '$scope', '$routeParams', '$rootScope', 'Jerarquia', 'InformeCarta', 'Arbol', '$http', '$window', '$log', 'PlanMejoraList', 'PlanMejora', 'AccionMejora', 'PersonasByRegexp', 'Persona',
+			function(EntidadObjeto, Objetivo, Indicador, $scope, $routeParams, $rootScope, Jerarquia, InformeCarta, Arbol, $http, $window, $log, PlanMejoraList, PlanMejora, AccionMejora, PersonasByRegexp, Persona){
 				$scope.indicadores = {};
 				$scope.jerarquias = {};
+				$scope.seleccionado = {};
 				$scope.anualidad = parseInt($routeParams.anualidad);
+				$scope.persona = {};
+				$scope.usuarioseleccionado = '';
+				$scope.cachepersonas = {};
+				$scope.personasBy_Id = {};
+				$scope.acciones = [];
+				$scope.cachePerson = function(persona){
+					if (persona){
+						$scope.personasBy_Id[ persona._id ] = persona;
+					}
+				};
+
 				var loadJerarquia = function(idjerarquia){
 					if (typeof $scope.jerarquias[idjerarquia] === 'undefined'){
 						$scope.jerarquias[idjerarquia] = Jerarquia.get({id: idjerarquia});
@@ -23,13 +35,29 @@
 				$scope.arbol = Arbol.query();
 				$scope.newAccion = function(){
 					$scope.accion = {
-						equipo: [
-						],
-						organica: $routeParams.idjerarquia,
-						afecta: false,
 						eliminado: false,
-						numero: $scope.acciones.length + 1
+						numero: $scope.acciones.length + 1,
+						promotor: false,
+						responsable: false,
+						afectables: {},
+						equipo: [],
+						afecta: false,
+						organica: $routeParams.idjerarquia,
+						procedimientos: '',
+						gruposinteres: '',
+						fortalezas: '',
+						areasmejora: '',
+						contexto: '',
+						alternativas: '',
+						resultadoesperado: '',
+						restricciones: {},
+						rrhhdia: '',
+						presupuesto: '',
+						fechainicio: '',
+						plazo: '',
+						plan: $scope.planmejora._id
 					};
+
 					$scope.persona = {};
 					Jerarquia.get({id: 1}, function(dato){
 						$scope.seleccionado = dato;
@@ -39,8 +67,29 @@
 					return true;
 				};
 				$scope.guardar = function(){
-					$scope.acciones.push($scope.accion);
-					delete $scope.accion;
+					if (typeof $scope.accion._id === 'undefined'){
+						AccionMejora.save( $scope.accion).$promise.then(function(){
+							$scope.loadAcciones();
+							delete $scope.accion;
+						}, function(e){
+							if (typeof e.data !== 'undefined' && typeof e.data.error !== 'undefined'){
+								$rootScope.toaster('Error durante la carga: ' + e.data.error, 'Error', 'error');
+							} else {
+								$rootScope.toaster('Error durante la carga', 'Error', 'error');
+							}
+						});
+					} else {
+						AccionMejora.update($scope.accion).$promise.then(function(){
+							$scope.loadAcciones();
+							delete $scope.accion;
+						}, function(e){
+							if (typeof e.data !== 'undefined' && typeof e.data.error !== 'undefined'){
+								$rootScope.toaster('Error durante la carga: ' + e.data.error, 'Error', 'error');
+							} else {
+								$rootScope.toaster('Error durante la carga', 'Error', 'error');
+							}
+						});
+					}
 				};
 				$scope.cancelar = function(){
 					if ($window.confirm('¿Está seguro/a? Si continúa perderá los cambios realizados sobre esta acción de mejora')){
@@ -53,10 +102,59 @@
 						title: 'COMUNIDAD AUTONOMA DE MURCIA'
 					});
 				};
-				$scope.seleccionado = {
-
-				};
+				$scope.planmejora = new PlanMejora();
 				$scope.planesmejora = PlanMejoraList.query({idjerarquia: parseInt($routeParams.idjerarquia), anualidad: $scope.anualidad });
+				$scope.planesmejora.$promise.then(function(planesmejora){
+					if (planesmejora.length === 0){
+						$scope.planmejora.anualidad = $scope.anualidad;
+						$scope.planmejora.idjerarquia = parseInt($routeParams.idjerarquia);
+						$scope.planmejora.carta = ($routeParams.idcarta);
+						PlanMejora.save($scope.planmejora, function(a) {
+							$scope.planmejora = new PlanMejora(a);
+						});
+					} else {
+						$scope.planmejora = new PlanMejora(planesmejora[0]);
+						$scope.loadAcciones();
+					}
+				}, function(e){
+					if (typeof e.data !== 'undefined' && typeof e.data.error !== 'undefined'){
+						$rootScope.toaster('Error durante la carga: ' + e.data.error, 'Error', 'error');
+					} else {
+						$rootScope.toaster('Error durante la carga', 'Error', 'error');
+					}
+				});
+				$scope.loadAcciones = function(){
+					if (typeof $scope.planmejora._id !== 'undefined'){
+						$scope.acciones = AccionMejora.query({plan: $scope.planmejora._id });
+						$scope.acciones.$promise.then(function(){
+							for (var i = 0, j = $scope.acciones.length; i < j; i++){
+								if ($scope.acciones[i].promotor && $scope.acciones[i].promotor !== ''){
+									Persona.get({ id: $scope.acciones[i].promotor }).$promise.then($scope.cachePerson);
+								}
+								if ($scope.acciones[i].responsable && $scope.acciones[i].responsable !== ''){
+									Persona.get({ id: $scope.acciones[i].responsable }).$promise.then($scope.cachePerson);
+								}
+								if (typeof $scope.acciones[i].equipo === 'undefined' || $scope.acciones[i].equipo.length === 0){
+									continue;
+								}
+								for (var k = 0, l = $scope.acciones[i].equipo.length; k < l; k++){
+									Persona.get({ id: $scope.acciones[i].equipo[k] }).$promise.then($scope.cachePerson);
+								}
+							}
+						}, function(e){
+							if (typeof e.data !== 'undefined' && typeof e.data.error !== 'undefined'){
+								$rootScope.toaster('Error durante la carga: ' + e.data.error, 'Error', 'error');
+							} else {
+								$rootScope.toaster('Error durante la carga', 'Error', 'error');
+							}
+						});
+					}
+				};
+				$scope.actualizarPlan = function(){
+					PlanMejora.update($scope.planmejora, function(){
+						$rootScope.toaster('Actualización realizada');
+					});
+				};
 				$scope.setseleccionado = function(nodo){
 					$scope.organicamostrada = false;
 					$scope.accion.organica = nodo.id;
@@ -69,23 +167,14 @@
 						$scope.seleccionado = nodo;
 					}
 				};
-				$scope.planmejora = {};
-				$scope.acciones = [{
-					_id: 1,
-					numero: 1,
-					descripcion: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur ac congue ex. Donec tempor erat commodo auctor aliquam. Sed pretium elit ac dolor congue, porttitor bibendum mi semper. Vestibulum diam urna, congue ac ornare nec, tempus at tortor. Cras suscipit, leo a pulvinar efficitur, tortor augue posuere ante, eu ornare diam neque non risus. Morbi vitae elit felis. Sed a dapibus libero. Ut fermentum a lacus ac sagittis. Duis scelerisque lorem erat. Morbi quis sem at turpis efficitur tempor eu sed urna. Proin lacinia neque a nunc hendrerit laoreet. In tincidunt tincidunt ipsum, non placerat velit pretium et. Vivamus ultricies, tortor ac ornare consequat, eros ipsum convallis mauris, a sollicitudin velit mi semper metus. Quisque convallis accumsan vestibulum. Aenean malesuada dignissim lacus sed sagittis. Nulla rutrum tortor quis arcu pulvinar, ut mollis lorem aliquam.Sed quis imperdiet lectus. Fusce cursus elit ac nisl eleifend, sed placerat ligula varius. Donec sit amet justo sed turpis volutpat egestas non eget diam. Pellentesque dictum vel libero quis fringilla. Morbi mollis nisi non eleifend consequat. Aliquam eu aliquam lectus, nec ullamcorper sapien. Suspendisse malesuada nisl sed egestas efficitur. Etiam vel placerat magna. Etiam nec tincidunt purus, quis ultrices neque. Integer ultrices augue nec elementum maximus. Nunc condimentum eros libero, a pellentesque dui aliquam et. Morbi eu tristique dolor. Suspendisse et justo ante.',
-					eliminado: false,
-					equipo: [
-					],
-					organica: $routeParams.idjerarquia,
-					afecta: false,
-					restricciones: {}
-				}];
 				$scope.organicamostrada = false;
 				$scope.mostrarOrganica = function(){
 					$scope.organicamostrada = true;
 				};
 				$scope.addPersonaEquipo = function(persona){
+					if (!persona || typeof persona !== 'object'){
+						return;
+					}
 					if ($scope.accion.equipo.indexOf( persona._id ) < 0){
 						$scope.accion.equipo.push(persona._id);
 					}
@@ -102,13 +191,33 @@
 						$scope.setseleccionado(dato);
 					});
 				};
+				$scope.eliminarAccion = function(accion){
+					if ($window.confirm('¿Está seguro? Esta operación no es reversible.'))
+					{
+						accion.$delete(function(){
+							$scope.loadAcciones();
+						});
+					}
+				};
+				$scope.setResponsable = function(persona){
+					$scope.accion.responsable = persona._id;
+				};
+				$scope.removeResponsable = function(){
+					delete $scope.accion.responsable;
+				};
+				$scope.setPromotor = function(persona){
+					$scope.accion.promotor = persona._id;
+				};
+				$scope.removePromotor = function(){
+					delete $scope.accion.promotor;
+				};
 				$scope.restricciones = [
 					'Presupuestos',
 					'Personal',
 					'Tecnología: Software',
 					'Tecnología: Equipos',
 					'Medios materiales',
-					'Mod. legislación',
+					'Mod legislación',
 					'Organizativas'
 				];
 				$scope.plazos = [
@@ -126,7 +235,7 @@
 				$scope.afectables = [
 					'Incremento Capacidad de Respuesta Mejora de la atención, seguridad, empatia facilidades',
 					'Acortamiento de Plazos (Disminuye tiempo de atención o Resolución de asuntos)',
-					'Mejora de la Responsabilidad y garantías de cumplimiento.',
+					'Mejora de la Responsabilidad y garantías de cumplimiento',
 					'Nuevos compromisos o reformulación de los existentes',
 					'Nuevos compromisos, Nuevos indicadores (más claros y concisos)',
 					'Nuevos procesos',
@@ -146,17 +255,11 @@
 							var url = '/download/' + res.data.time + '/' + res.data.hash + '?extension=' + res.data.extension;
 							$window.location = url;
 						}, function() {
-							$rootScope.toaster('Error  al descargar el informe', 'Error', 'error');
+							$rootScope.toaster('Error al descargar el informe', 'Error', 'error');
 						});
 				};
 				//$scope.editar( $scope.acciones[0] );
-				$scope.persona = {};
-
-
 				//lógica buscador de personas
-				$scope.usuarioseleccionado = '';
-				$scope.cachepersonas = {};
-				$scope.personasBy_Id = {};
 
 				$scope.showPersona = function (persona){
 					return (persona && persona.login && persona.codplaza && persona.nombre && persona.apellidos) ?
@@ -180,7 +283,7 @@
 							if (p !== null && p.length > 0) {
 								$scope.cachepersonas[busqueda] = p;
 								for (var i = 0, j = p.length; i < j; i++){
-									$scope.personasBy_Id[ p[i]._id ] = p[i];
+									$scope.cachePerson(p[i]);
 								}
 							}
 						}).$promise;

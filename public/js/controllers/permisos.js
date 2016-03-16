@@ -1039,27 +1039,24 @@
 						} else {
 							if (busquedabylogin){
 								$log.log('buscando por login: ' + busqueda);
-								p = PersonasByLogin.query({'login': busqueda}, function(){
+								p = PersonasByLogin.query({'login': busqueda}, function(p){
 									if (p === null || p.length) {
 										$log.log('no encontrado, buscando por regex (desde login): ' + busqueda);
-										p = PersonasByRegexp.query({regex: busqueda}); /* <---- */
+										$scope.cachepersonas[busqueda] = PersonasByRegexp.query({regex: busqueda}); /* <---- */
 									}
 								});
 							} else {
 								$log.log('buscando por plaza: ' + busqueda);
-								p = PersonasByPuesto.query({'cod_plaza': busqueda}, function(){
+								p = PersonasByPuesto.query({'cod_plaza': busqueda}, function(p){
 									if (p === null || p.length) {
 										$log.log('no encontrado, buscando por regex (desde plaza): ' + busqueda);
-										p = PersonasByRegexp.query({regex: busqueda}); /* <---- */
+										$scope.cachepersonas[busqueda] = PersonasByRegexp.query({regex: busqueda}); /* <---- */
 									}
 								});
 							}
 							$scope.cachepersonas[busqueda] = p;
 						}
 						return p;
-						/*
-							TODO: bug, p no es lo que aparenta en las líneas señaladas, para entonces p ya ha sido retornado.
-						*/
 					};
 
 					$scope.getResponsable = function(procedimiento_o_carta){

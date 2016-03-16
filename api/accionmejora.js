@@ -2,31 +2,37 @@
 	'use strict';
 
 	module.exports.create = function(models){
-		return function(req,res){
+		return function(req, res){
 			var AccionMejora = models.accionmejora(),
 				content = req.body;
 			new AccionMejora(content).save( function(e){
 				if (e){
 					res.status(400).json({'error': 'An error has occurred'});
-				}else{
+				} else {
 					res.json(content);
 				}
 			});
-		}
+		};
 	};
-
 
 	module.exports.get = function (models) {
 		return function (req, res) {
-			var accionmejora = models.accionmejora();
+			var accionmejoramodel = models.accionmejora(),
 				id = req.params.id;
 			if (id){
-				accionmejora.findOne({'_id': id}, function (err, data) {
+				accionmejoramodel.findOne({'_id': models.ObjectId(id) }, function (err, data) {
 					if (err) {
 						res.status(500).send({'error': 'An error has occurred', details: err});
 						return;
 					}
 					res.json(data);
+				});
+			} else {
+
+				accionmejoramodel.find({'plan': (req.query.plan) }).then(function(acciones){
+					res.json(acciones);
+				}, function(err){
+					res.status(500).json({'error': 'An error has occurred', details: err});
 				});
 			}
 		};
@@ -40,13 +46,10 @@
 
 			delete content._id;
 
-			//accionmejora.markModified('fecha_version');
-
 			accionmejora.update({'_id': id}, content, {upsert: true}, function (e) {
 				if (e) {
 					res.status(500).send({'error': 'An error has occurred.', details: e});
 				} else {
-					//se reenvía lo mismo que se recibió
 					res.send(req.body);
 				}
 			});
@@ -56,31 +59,16 @@
 	module.exports.remove = function (models) {
 		return function(req, res){
 			var AccionMejora = models.accionmejora(),
-				id = parseInt(req.params.id);
+				id = req.params.id;
 			if (id) {
-				AccionMejora.remove({'_id': id}, function(erro){
-					if (erro) {
-						res.status(500).json({'error': 'Error during accionmejora.remove', details: erro});
-					} else {
-						res.json({});
-					}
+				AccionMejora.remove({'_id': models.ObjectId(req.params.id)}).then(function(){
+					res.json({});
+				}, function(erro){
+					res.status(500).json({'error': 'Error during accionmejora.remove', details: erro});
 				});
+			} else {
+				res.status(400).json({'error': 'Error during accionmejora.remove', details: 'Not found'});
 			}
-		};
-	};
-
-	module.exports.list = function (models) {
-		return function (req, res) {
-			var AccionMejora = models.accionmejora(),
-				plan = req.params.plan;
-
-			AccionMejora.find({'plan': req.params.plan}, function(err, acciones){
-				if (err) {
-					res.status(500).json({'error': 'An error has occurred', details: err});
-				} else {
-					res.json(acciones);
-				}
-			});
 		};
 	};
 

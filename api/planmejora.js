@@ -55,13 +55,11 @@
 
 			content.idjerarquia = parseInt(content.idjerarquia);
 			content.carta = parseInt(content.carta);
-			//planmejora.markModified('fecha_version');
 
 			planmejora.update({'_id': id}, content, {upsert: true}, function (e) {
 				if (e) {
 					res.status(500).send({'error': 'An error has occurred.', details: e});
 				} else {
-					//se reenvía lo mismo que se recibió
 					res.send(req.body);
 				}
 			});
@@ -80,6 +78,8 @@
 						res.json({});
 					}
 				});
+			} else {
+				res.status(400).json({'error': 'An error has occurred', details: 'Not found'});
 			}
 		};
 	};

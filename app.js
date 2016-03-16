@@ -136,6 +136,7 @@
 
 		app.post('/api/v1/restricted/pretend/:username', login.pretend({secret: cfg.secret, jwt: jwt, models: models}));
 
+		app.get('/api/v1/restricted/persona/:id', persona.get(models));
 		app.post('/api/v1/restricted/persona', persona.newPersona(models));
 		app.put('/api/v1/restricted/persona/:id', persona.updatePersona(models));
 		app.post('/api/v1/restricted/habilitar/persona/:id', persona.setHabilitado(models));
@@ -187,7 +188,6 @@
 		app.get('/api/v1/private/permisosdelegar/:login/:cod_plaza', permiso.delegarpermisos(models, Q, recalculate));
 		app.get('/api/v1/private/permisosdelegar/:login/:cod_plaza/:procedimiento', permiso.delegarpermisosProcedimiento(models));
 
-
 		/* funcionalidad user */
 		setProgressMessage('Estableciendo rutas: rutas user');
 
@@ -196,15 +196,14 @@
 		app.put('/api/v2/public/planmejora/:id', planmejora.update(models));
 		app.delete('/api/v2/public/planmejora/:id', planmejora.remove(models));
 		app.get('/api/v2/public/planmejora/list/:idjerarquia', planmejora.list(models));
-		app.get('/api/v2/public/planmejora/list/:idjerarquia/:recursivo', planmejora.get(models));
+		app.get('/api/v2/public/planmejora/list/:idjerarquia/:recursivo', planmejora.list(models));
 
+
+		app.get('/api/v2/public/accionmejora', accionmejora.get(models));
 		app.get('/api/v2/public/accionmejora/:id', accionmejora.get(models));
 		app.post('/api/v2/public/accionmejora/', accionmejora.create(models));
-		app.put('/api/v2/public/planmejora/:id', planmejora.update(models));
-		app.delete('/api/v2/public/planmejora/:id', planmejora.remove(models));
-		app.get('/api/v2/public/planmejora/list/:plan', planmejora.list(models));
-
-
+		app.put('/api/v2/public/accionmejora/:id', accionmejora.update(models));
+		app.delete('/api/v2/public/accionmejora/:id', accionmejora.remove(models));
 
 		app.get('/api/v1/public/mapReducePeriodos', function(req, res){ exportador.mapReducePeriodos(Q, models, null, req.user.permisoscalculados).then(function(r){ res.json(r); }); });
 		app.post('/api/v1/public/updateByFile', upload.update(), csvsici.parse(models));

@@ -68,6 +68,10 @@
 			return $resource('/api/v1/public/mapReducePeriodos'); }])
 		.factory('PlanMejoraList', ['$resource', function($resource) {
 			return $resource('/api/v2/public/planmejora/list/:idjerarquia', {}, {query: {method: 'GET', isArray: true }}); }])
+		.factory('PlanMejora', ['$resource', function($resource) {
+			return $resource('/api/v2/public/planmejora/:id', {id: '@_id' }, {get: {method: 'GET', isArray: false }, update: {method: 'PUT' }, create: {method: 'POST' }, 'delete': {method: 'DELETE' }}); }])
+		.factory('AccionMejora', ['$resource', function($resource) {
+			return $resource('/api/v2/public/accionmejora/:id', {id: '@_id' }, {get: {method: 'GET', isArray: false }, query: {method: 'GET', isArray: true }, update: {method: 'PUT' }, create: {method: 'POST' }, 'delete': {method: 'DELETE' }}); }])
 		;
 	/* restricted services */
 
