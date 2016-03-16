@@ -1,8 +1,8 @@
 (function(angular){
 	'use strict';
 	angular.module('sici')
-		.controller('EntidadObjetoCtrl', ['$rootScope', '$scope', '$routeParams', '$window', '$http', 'EntidadObjeto', 'ObjetivoStats',
-			function ($rootScope, $scope, $routeParams, $window, $http, EntidadObjeto, ObjetivoStats) {
+		.controller('EntidadObjetoCtrl', ['$rootScope', '$scope', '$routeParams', '$window', '$http', 'EntidadObjeto', 'ObjetivoStats', 'Jerarquia',
+			function ($rootScope, $scope, $routeParams, $window, $http, EntidadObjeto, ObjetivoStats, Jerarquia) {
 				$rootScope.nav = 'EntidadObjeto';
 				$rootScope.setTitle('Entidad Objeto');
 				$scope.entidades = false;
@@ -35,10 +35,25 @@
 				};
 
 				$scope.load = function(){
-					$scope.entidades = EntidadObjeto.query();
+					$scope.entidades = EntidadObjeto.query( function(){
+						for (var i = 0, j = $scope.entidades.length; i < j; i++){
+							$scope.cargaJerarquia($scope.entidades[i].idjerarquia);
+						}
+					});
+				};
+				$scope.cargaJerarquia = function(idjerarquia){
+					if (!idjerarquia){ return; }
+					if (parseInt(idjerarquia) <= 0 ){ return; }
+					idjerarquia = parseInt(idjerarquia);
+					if (typeof $scope.jerarquias['' + idjerarquia] === 'undefined'){
+						$scope.jerarquias['' + idjerarquia] = Jerarquia.get({id: idjerarquia});
+					}
 				};
 				$scope.load();
 				$scope.actualizar = function(entidadobjeto, clave){
+					if (clave === 'idjerarquia'){
+						$scope.cargaJerarquia(entidadobjeto[clave]);
+					}
 					entidadobjeto[clave] = entidadobjeto[clave].trim();
 					entidadobjeto.$update().then(function(){
 						$scope.cambios = [];
@@ -47,6 +62,7 @@
 						$rootScope.toaster('Carta de servicios fallida: ' + err.data.error, 'Error', 'error');
 					});
 				};
+				$scope.jerarquias = {};
 				$scope.download = function(entidadobjeto){
 					$http.post('/api/v2/public/testDownloadCarta/' + entidadobjeto._id, {}).then(function(dato){
 						$rootScope.toaster('Carta de servicios importada correctamente. Registrados ' + dato.data.objetivos.length + ' objetivos y ' + dato.data.indicadoresobtenidos.length + ' indicador/es.');
@@ -60,17 +76,18 @@
 				};
 
 				$scope.dropCarta = function(entidadobjeto){
-					$http.post('/api/v2/public/dropCarta/' + entidadobjeto._id, {}).then(function(){
-						$rootScope.toaster('Carta de servicios reseteada correctamente');
-					}, function(err){
-						if (err.data && err.data.error){
-							$rootScope.toaster('Carta de servicios fallida: ' + err.data.error, 'Error', 'error');
-						} else {
-							$rootScope.toaster('Carta de servicios fallida', 'Error', 'error');
-						}
-					});
+					if ($window.confirm('¿Está seguro/a? Esta operación es irreversible')){
+						$http.post('/api/v2/public/dropCarta/' + entidadobjeto._id, {}).then(function(){
+							$rootScope.toaster('Carta de servicios reseteada correctamente');
+						}, function(err){
+							if (err.data && err.data.error){
+								$rootScope.toaster('Carta de servicios fallida: ' + err.data.error, 'Error', 'error');
+							} else {
+								$rootScope.toaster('Carta de servicios fallida', 'Error', 'error');
+							}
+						});
+					}
 				};
-
 			}
 		]);
 })(angular);
