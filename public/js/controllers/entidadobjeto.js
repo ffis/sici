@@ -77,15 +77,17 @@
 
 				$scope.dropCarta = function(entidadobjeto){
 					if ($window.confirm('¿Está seguro/a? Esta operación es irreversible')){
-						$http.post('/api/v2/public/dropCarta/' + entidadobjeto._id, {}).then(function(){
-							$rootScope.toaster('Carta de servicios reseteada correctamente');
-						}, function(err){
-							if (err.data && err.data.error){
-								$rootScope.toaster('Carta de servicios fallida: ' + err.data.error, 'Error', 'error');
-							} else {
-								$rootScope.toaster('Carta de servicios fallida', 'Error', 'error');
-							}
-						});
+						if ($window.confirm('PERMÍTEME QUE INSISTA. Esta operación es irreversible.')){
+							$http.post('/api/v2/public/dropCarta/' + entidadobjeto._id, {}).then(function(){
+								$rootScope.toaster('Carta de servicios reseteada correctamente');
+							}, function(err){
+								if (err.data && err.data.error){
+									$rootScope.toaster('Carta de servicios fallida: ' + err.data.error, 'Error', 'error');
+								} else {
+									$rootScope.toaster('Carta de servicios fallida', 'Error', 'error');
+								}
+							});
+						}
 					}
 				};
 			}
