@@ -1,15 +1,18 @@
 
 <div class="row">
 	<div class="col-md-10 col-md-offset-1 col-lg-10 col-lg-offset-1 col-xs-12">
-		<div class="text-right">
+		<div class="text-right col-md-12">
 			<a class="btn btn-default" href="#" ng-click="downloadDocx()" title="Descargar versi&oacute;n docx">
 				<span class="glyphicon glyphicon-floppy-save"></span> Descargar informe en docx
-			</a>
+			</a><br />
+		</div>
+		<div class="col-md-12" style="margin-top:1em; margin-bottom:1em">
+			<div class="alert alert-danger" role="alert">
+				<h4>FUNCIONALIDAD NO OPERATIVA</h4>
+				<h5>NO USE ESTE FORMULARIO</h5>
+			</div>
 		</div>
 		<h3>{{cartaservicio.denominacion}} - {{anualidad}}</h3>
-		<h4>FUNCIONALIDAD NO OPERATIVA</h4>
-		<h5>NO USE ESTE FORMULARIO</h5>
-
 		<div class="row">
 			<div class="col-xs-2 text-right">
 				<strong>Expediente:</strong>
@@ -37,7 +40,7 @@
 			</div>
 		</div>
 
-		<div class="form-group">
+		<div class="form-group" style="margin-top:2em">
 			<label class="modelo" for="modelo">Informe anual de evaluación de la Carta de Servicios: Basado en los datos de evaluación de la Carta de Servicios</label>
 			<textarea class="form-control" style="width:100%; height:5em" ng-model="planmejora.modelo" id="modelo"></textarea>
 		</div>
@@ -56,8 +59,8 @@
 
 		<div class="row" style="margin-top:1em">
 			<div class="col-xs-12">
-				<h3>ACCIONES PROGRAMADAS: (EN UN PLAN DE MEJORA DE LAS CARTAS DE SERVICIO)
-					CORRESPONDE AL PLAN DE MEJORA DE LA CARTA CÓDIGO {{cartaservicio.expediente}}</h3>
+				<h4>ACCIONES PROGRAMADAS: (EN UN PLAN DE MEJORA DE LAS CARTAS DE SERVICIO)
+					CORRESPONDE AL PLAN DE MEJORA {{anualidad}} DE LA CARTA CÓDIGO {{cartaservicio.expediente}}</h4>
 
 				<table class="table table-condensed table-striped table-bordered table-hover" ng-if="acciones.length > 0">
 					<thead>
@@ -184,7 +187,7 @@
 								<div class="panel-body">
 									<p class="enunciado">Afecta a
 										<div class="checkbox" ng-repeat="(i, r) in afectables">
-											<label><input type="checkbox" ng-model="accion.afectables[i]"> {{r}}</label>
+											<label><input type="checkbox" ng-model="accion.afectables[r]"> {{r}}</label>
 										</div>
 									</p>
 									<p><span class="enunciado">Alcance</span>
@@ -253,7 +256,7 @@
 									<p class="enunciado">Restricciones
 										<ul style="list-style: none">
 											<li ng-repeat="(i, r) in restricciones">
-												<label><input type="checkbox" ng-model="accion.restricciones[i]"> {{r}}</label>
+												<label><input type="checkbox" ng-model="accion.restricciones[r]"> {{r}}</label>
 											</li>
 										</ul>
 									</p>

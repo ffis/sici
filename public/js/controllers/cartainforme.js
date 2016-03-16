@@ -2,10 +2,11 @@
 	'use strict';
 	angular.module('sici')
 		.controller('CartaInformeCtrl',
-			['EntidadObjeto', 'Objetivo', 'Indicador', '$scope', '$routeParams', '$rootScope', 'Jerarquia', 'InformeCarta', 'Arbol', '$http', '$window', '$log',
-			function(EntidadObjeto, Objetivo, Indicador, $scope, $routeParams, $rootScope, Jerarquia, InformeCarta, Arbol, $http, $window, $log){
+			['EntidadObjeto', 'Objetivo', 'Indicador', '$scope', '$routeParams', '$rootScope', 'Jerarquia', 'InformeCarta', 'Arbol', '$http', '$window', '$log', 'PlanMejoraList',
+			function(EntidadObjeto, Objetivo, Indicador, $scope, $routeParams, $rootScope, Jerarquia, InformeCarta, Arbol, $http, $window, $log, PlanMejoraList){
 				$scope.indicadores = {};
 				$scope.jerarquias = {};
+				$scope.anualidad = parseInt($routeParams.anualidad);
 				var loadJerarquia = function(idjerarquia){
 					if (typeof $scope.jerarquias[idjerarquia] === 'undefined'){
 						$scope.jerarquias[idjerarquia] = Jerarquia.get({id: idjerarquia});
@@ -48,6 +49,7 @@
 				$scope.seleccionado = {
 
 				};
+				$scope.planesmejora = PlanMejoraList.query({idjerarquia: parseInt($routeParams.idjerarquia), anualidad: $scope.anualidad });
 				$scope.setseleccionado = function(nodo){
 					$scope.organicamostrada = false;
 					$scope.accion.organica = nodo.id;
@@ -69,7 +71,8 @@
 					equipo: [
 					],
 					organica: $routeParams.idjerarquia,
-					afecta: false
+					afecta: false,
+					restricciones: {}
 				}];
 				$scope.organicamostrada = false;
 				$scope.mostrarOrganica = function(){
@@ -80,16 +83,13 @@
 					$scope.persona = {};
 				};
 				$scope.editar = function(accion){
-					console.log('dentro');
 					var clon = JSON.parse(JSON.stringify(accion));
 					$scope.accion = clon;
 					$scope.persona = {};
 					Jerarquia.get({id: accion.organica}, function(dato){
 						$scope.setseleccionado(dato);
 					});
-					console.log('fuera');
 				};
-				$scope.anualidad = $routeParams.anualidad;
 				$scope.restricciones = [
 					'Presupuestos',
 					'Personal',
