@@ -5,11 +5,12 @@
 		return function(req, res){
 			var PlanMejora = models.planmejora(),
 				content = req.body;
-			new PlanMejora(content).save( function(e){
+			var obj = new PlanMejora(content);
+			obj.save( function(e){
 				if (e){
 					res.status(400).json({'error': 'An error has occurred'});
 				} else {
-					res.json(content);
+					res.json(obj);
 				}
 			});
 		};
@@ -32,7 +33,7 @@
 				if (typeof restricciones.idjerarquia !== 'undefined'){
 					restricciones.idjerarquia = parseInt(restricciones.idjerarquia);
 				} else if (typeof restricciones.carta !== 'undefined') {
-					restricciones.carta = parseInt(restricciones.carta);
+					restricciones.carta = (restricciones.carta);
 				}
 				planmejora.find(restricciones, function (err, data) {
 					if (err) {
@@ -54,7 +55,7 @@
 			delete content._id;
 
 			content.idjerarquia = parseInt(content.idjerarquia);
-			content.carta = parseInt(content.carta);
+			content.carta = (content.carta);
 
 			planmejora.update({'_id': id}, content, {upsert: true}, function (e) {
 				if (e) {
@@ -86,48 +87,68 @@
 
 	module.exports.list = function (models) {
 		return function (req, res) {
-			var PlanmejOra = models.planmejora();
+			var PlanMejora = models.planmejora();
 			var Jerarquia = models.jerarquia();
 			var fields = req.query.fields;
-			Jerarquia.findOne({'id': req.params.idjerarquia}, function(err, jerarquia){
-				if (err) {
-					res.status(500).json({'error': 'An error has occurred', details: err});
-					return;
-				} else {
-					jerarquia.descendientes.push(parseInt(req.params.idjerarquia));
+			var restriccion = {};
+			if (typeof req.params.recursivo === 'undefined' || !JSON.parse(req.params.recursivo) ){
 
-					var restriccion =
-						(typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))) ?
-						(typeof req.params.recursivo === 'undefined' || JSON.parse(req.params.recursivo) ?
-							{'$and': [
-									{'idjerarquia': {'$in': jerarquia.descendientes}},
-									{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}
-							]} :
-							{'$and': [
-									{'idjerarquia': parseInt(req.params.idjerarquia)},
-									{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}
-							]}
-						)
-						:
-						{'$and': [
-							{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}
-						]};
-
-					if (typeof req.query.anualidad !== 'undefined'){
-						restriccion.anualidad = parseInt(req.query.anualidad);
-					}
-
-					var query = PlanmejOra.find(restriccion);
-					if (typeof fields !== 'undefined') {
-						query.select(fields);
-					}
-					query.exec().then(function(data){
-						res.json(data);
-					}, function(err){
-						res.status(500).json({'error': 'An error has occurred', details: err, restriccion: restriccion});
-					});
+				restriccion.idjerarquia = parseInt(req.params.idjerarquia);
+				if (typeof req.query.anualidad !== 'undefined'){
+					restriccion.anualidad = parseInt(req.query.anualidad);
 				}
-			});
+
+				var query = PlanMejora.find(restriccion);
+				if (typeof fields !== 'undefined') {
+					query.select(fields);
+				}
+				query.exec().then(function(data){
+					res.json(data);
+				}, function(err){
+					res.status(500).json({'error': 'An error has occurred', details: err, restriccion: restriccion});
+				});
+
+			} else {
+				Jerarquia.findOne({'id': req.params.idjerarquia}, function(err, jerarquia){
+					if (err) {
+						res.status(500).json({'error': 'An error has occurred', details: err});
+						return;
+					} else {
+						jerarquia.descendientes.push(parseInt(req.params.idjerarquia));
+
+						var restriccion =
+							(typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))) ?
+							(typeof req.params.recursivo === 'undefined' || !JSON.parse(req.params.recursivo) ?
+								{'$and': [
+										{'idjerarquia': {'$in': jerarquia.descendientes}},
+										{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}
+								]} :
+								{'$and': [
+										{'idjerarquia': parseInt(req.params.idjerarquia)},
+										{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}
+								]}
+							)
+							:
+							{'$and': [
+								{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}
+							]};
+
+						if (typeof req.query.anualidad !== 'undefined'){
+							restriccion.anualidad = parseInt(req.query.anualidad);
+						}
+
+						var query = PlanMejora.find(restriccion);
+						if (typeof fields !== 'undefined') {
+							query.select(fields);
+						}
+						query.exec().then(function(data){
+							res.json(data);
+						}, function(err){
+							res.status(500).json({'error': 'An error has occurred', details: err, restriccion: restriccion});
+						});
+					}
+				});
+			}
 		};
 	};
 

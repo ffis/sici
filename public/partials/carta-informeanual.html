@@ -2,7 +2,7 @@
 <div class="row">
 	<div class="col-md-10 col-md-offset-1 col-lg-10 col-lg-offset-1 col-xs-12">
 		<div class="text-right col-md-12">
-			<a class="btn btn-default" href="#" ng-click="downloadDocx()" title="Descargar versi&oacute;n docx">
+			<a class="btn btn-default" href="#" ng-click="downloadDocx()" title="Descargar versi&oacute;n docx" ng-class="{'disabled': descargando, 'text-danger': descargando}">
 				<span class="glyphicon glyphicon-floppy-save"></span> Descargar informe en docx
 			</a><br />
 		</div>
@@ -111,8 +111,8 @@
 													<br style="clear:both" />
 												</div>
 												<div class="col-md-1 col-lg-1">
-													<span class="btn btn-default" ng-class="{disabled: !promotorseleccionado._id }">
-														<span class="fa fa-plus" ng-click="setPromotor(promotorseleccionado)" title="establecer promotor"></span>
+													<span class="btn btn-default" ng-click="setPromotor(promotorseleccionado)" ng-class="{disabled: !promotorseleccionado._id }">
+														<span class="fa fa-plus" title="establecer promotor"></span>
 													</span>
 												</div>
 											</div>
@@ -151,8 +151,8 @@
 													<br style="clear:both" />
 												</div>
 												<div class="col-md-1 col-lg-1">
-													<span class="btn btn-default" ng-class="{disabled: !responsableseleccionado._id }">
-														<span class="fa fa-plus" ng-click="setResponsable(responsableseleccionado)" title="establecer responsable"></span>
+													<span class="btn btn-default" ng-class="{disabled: !responsableseleccionado._id }" ng-click="setResponsable(responsableseleccionado)">
+														<span class="fa fa-plus" title="establecer responsable"></span>
 													</span>
 												</div>
 											</div>
@@ -225,8 +225,8 @@
 														typeahead-min-length="3" typeahead="eresp as showPersona(eresp) for eresp in getPersonas($viewValue)"  />
 													</div>
 													<div class="col-md-1 col-lg-1">
-														<span class="btn btn-default" ng-class="{disabled: !usuarioseleccionado._id }">
-															<span class="fa fa-plus" ng-click="addPersonaEquipo(usuarioseleccionado)" title="añadir nueva persona"></span>
+														<span class="btn btn-default" ng-class="{disabled: !usuarioseleccionado._id }" ng-click="addPersonaEquipo(usuarioseleccionado)">
+															<span class="fa fa-plus" title="añadir nueva persona"></span>
 														</span>
 													</div>
 												</div>
