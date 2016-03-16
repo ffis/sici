@@ -13,6 +13,8 @@
 		historicoindicador: {},
 		//periodo: { a2013:[Number], a2014:[Number], a2015:[Number], a2016:[Number] },
 		periodo: {},
+		planmejora: {},
+		accionmejora: {},
 		feedback: {
 			'usr': String,
 			'fecha': Date,

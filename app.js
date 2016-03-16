@@ -41,6 +41,8 @@
 		entidadobjeto = require('./api/entidadobjeto'),
 		registro = require('./api/registro'),
 		carta_docx = require('./api/carta_docx'),
+		planmejora = require('./api/planmejora'),
+		accionmejora = require('./api/accionmejora'),
 		/* config */
 		config = require('./config.json');
 		/* app */
@@ -188,6 +190,22 @@
 
 		/* funcionalidad user */
 		setProgressMessage('Estableciendo rutas: rutas user');
+
+		app.get('/api/v2/public/planmejora/:id', planmejora.get(models));
+		app.post('/api/v2/public/planmejora/', planmejora.create(models));
+		app.put('/api/v2/public/planmejora/:id', planmejora.update(models));
+		app.delete('/api/v2/public/planmejora/:id', planmejora.remove(models));
+		app.get('/api/v2/public/planmejora/list/:idjerarquia', planmejora.list(models));
+		app.get('/api/v2/public/planmejora/list/:idjerarquia/:recursivo', planmejora.get(models));
+
+		app.get('/api/v2/public/accionmejora/:id', accionmejora.get(models));
+		app.post('/api/v2/public/accionmejora/', accionmejora.create(models));
+		app.put('/api/v2/public/planmejora/:id', planmejora.update(models));
+		app.delete('/api/v2/public/planmejora/:id', planmejora.remove(models));
+		app.get('/api/v2/public/planmejora/list/:plan', planmejora.list(models));
+
+
+
 		app.get('/api/v1/public/mapReducePeriodos', function(req, res){ exportador.mapReducePeriodos(Q, models, null, req.user.permisoscalculados).then(function(r){ res.json(r); }); });
 		app.post('/api/v1/public/updateByFile', upload.update(), csvsici.parse(models));
 		app.post('/api/v1/public/updateByFileIE', upload.update(), csvsici.parse(models));
