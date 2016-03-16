@@ -1,9 +1,9 @@
-(function(angular, saveAs){
+(function(angular){
 	'use strict';
 	angular.module('sici')
 		.controller('CartaInformeCtrl',
-			['EntidadObjeto', 'Objetivo', 'Indicador', '$scope', '$routeParams', '$rootScope', 'Jerarquia', 'InformeCarta', 'Arbol', '$http', '$window', '$log', 'PlanMejoraList',
-			function(EntidadObjeto, Objetivo, Indicador, $scope, $routeParams, $rootScope, Jerarquia, InformeCarta, Arbol, $http, $window, $log, PlanMejoraList){
+			['EntidadObjeto', 'Objetivo', 'Indicador', '$scope', '$routeParams', '$rootScope', 'Jerarquia', 'InformeCarta', 'Arbol', '$http', '$window', '$log', 'PlanMejoraList', 'PersonasByLogin', 'PersonasByPuesto', 'PersonasByRegexp',
+			function(EntidadObjeto, Objetivo, Indicador, $scope, $routeParams, $rootScope, Jerarquia, InformeCarta, Arbol, $http, $window, $log, PlanMejoraList, PersonasByLogin, PersonasByPuesto, PersonasByRegexp){
 				$scope.indicadores = {};
 				$scope.jerarquias = {};
 				$scope.anualidad = parseInt($routeParams.anualidad);
@@ -22,7 +22,14 @@
 				});
 				$scope.arbol = Arbol.query();
 				$scope.newAccion = function(){
-					$scope.accion = {};
+					$scope.accion = {
+						equipo: [
+						],
+						organica: $routeParams.idjerarquia,
+						afecta: false,
+						eliminado: false,
+						numero: $scope.acciones.length + 1
+					};
 					$scope.persona = {};
 					Jerarquia.get({id: 1}, function(dato){
 						$scope.seleccionado = dato;
@@ -79,13 +86,18 @@
 					$scope.organicamostrada = true;
 				};
 				$scope.addPersonaEquipo = function(persona){
-					$scope.accion.equipo.push(persona);
-					$scope.persona = {};
+					if ($scope.accion.equipo.indexOf( persona._id ) < 0){
+						$scope.accion.equipo.push(persona._id);
+					}
+					$scope.usuarioseleccionado = '';
+				};
+				$scope.removePersonaEquipo = function(personaid){
+					$scope.accion.equipo.splice($scope.accion.equipo.indexOf(personaid), 1);
 				};
 				$scope.editar = function(accion){
 					var clon = JSON.parse(JSON.stringify(accion));
 					$scope.accion = clon;
-					$scope.persona = {};
+					$scope.usuarioseleccionado = '';
 					Jerarquia.get({id: accion.organica}, function(dato){
 						$scope.setseleccionado(dato);
 					});
@@ -139,6 +151,41 @@
 				};
 				//$scope.editar( $scope.acciones[0] );
 				$scope.persona = {};
+
+
+				//lógica buscador de personas
+				$scope.usuarioseleccionado = '';
+				$scope.cachepersonas = {};
+				$scope.personasBy_Id = {};
+
+				$scope.showPersona = function (persona){
+					return (persona && persona.login && persona.codplaza && persona.nombre && persona.apellidos) ?
+						(persona.login + '-' + persona.codplaza + '-' + persona.nombre + ' ' + persona.apellidos) : '';
+				};
+				$scope.getPersonas = function(permiso){
+					var busqueda = permiso;
+
+					if (typeof $scope.cachepersonas === 'undefined'){
+						$scope.cachepersonas = [];
+					}
+
+					if (busqueda === null){
+						return '';
+					}
+
+					if (typeof $scope.cachepersonas[busqueda] !== 'undefined') {
+						return $scope.cachepersonas[busqueda];
+					} else {
+						return PersonasByRegexp.query({'regex': busqueda}, function(p){
+							if (p !== null && p.length > 0) {
+								$scope.cachepersonas[busqueda] = p;
+								for (var i = 0, j = p.length; i < j; i++){
+									$scope.personasBy_Id[ p[i]._id ] = p[i];
+								}
+							}
+						}).$promise;
+					}
+				};
 			}]
 		);
-})(angular, saveAs);
+})(angular);

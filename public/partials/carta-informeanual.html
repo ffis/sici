@@ -92,7 +92,7 @@
 				</div>
 				<form>
 
-					<div class="mejora" ng-if="accion">
+					<div class="mejora" ng-show="accion">
 						<div class="form-group">
 							<label class="enunciado" for="numero">Número</label>
 							<input class="form-control" type="text" ng-model="accion.numero" id="numero" />
@@ -122,25 +122,16 @@
 										<label class="enunciado" for="equipo">Equipo de la acción.</label>
 										<p class="help-block">Personas designadas para trabajar en la implantación de la acción; pueden pertenecer o no a la organización</p>
 									</div>
-									<div class="col-md-12" ng-repeat="persona in accion.equipo track by $index">
-										<div class="col-md-6 col-lg-4">
-											<div class="form-group">
-												<label class="enunciado" for="puesto">Puesto de la orgánica</label>
-												<input class="form-control" type="text" ng-model="persona.puesto" id="puesto{{$index}}" />
-											</div>
-										</div>
-										<div class="col-md-6 col-lg-4">
-											<div class="form-group">
-												<label class="enunciado" for="telefono">Teléfono de contacto</label>
-												<input class="form-control" type="text" ng-model="persona.telefono" id="telefono{{$index}}" />
-											</div>
-										</div>
-										<div class="col-md-6 col-lg-4">
-											<div class="form-group">
-												<label class="enunciado" for="email">e-mail</label>
-												<input class="form-control" type="text" ng-model="persona.email" id="email{{$index}}" />
-											</div>
-										</div>
+									<div class="col-md-12">
+										<ul class="list-group">
+											<li ng-repeat="persona in accion.equipo track by $index" class="list-group-item">
+												<div class="pull-right">
+														<span class="fa fa-trash"  ng-click="removePersonaEquipo(persona)"></span>
+												</div>
+												[{{personasBy_Id[persona].login}}] {{personasBy_Id[persona].apellidos}}, {{personasBy_Id[persona].nombre}}
+												<div style="clear:both"></div>
+											</li>
+										</ul>
 									</div>
 									<div class="col-md-12">
 										<div class="panel panel-default">
@@ -149,6 +140,16 @@
 											</div>
 											<div class="panel-body">
 												<p class="help-block">Utilice el siguiente formulario para introducir una nueva persona. No olvide pulsar el botón de añadir al final del mismo.</p>
+												<div class="col-md-11 col-lg-11">
+													<input class="form-control" ng-model="usuarioseleccionado" placeholder="Buscar por plaza, login carm o nombre" type="text"
+													typeahead-min-length="3" typeahead="eresp as showPersona(eresp) for eresp in getPersonas($viewValue)"  />
+												</div>
+												<div class="col-md-1 col-lg-1">
+													<span class="btn btn-default" ng-class="{disabled: !usuarioseleccionado._id }">
+														<span class="fa fa-plus" ng-click="addPersonaEquipo(usuarioseleccionado)" title="añadir nueva persona"></span>
+													</span>
+												</div>
+												<!--
 												<div class="col-md-6 col-lg-4">
 													<div class="form-group">
 														<label class="enunciado" for="telefononuevo">Puesto de la orgánica</label>
@@ -173,6 +174,7 @@
 														<span class="fa fa-plus" ng-click="addPersonaEquipo(persona)" title="añadir nueva persona"></span>
 													</span>
 												</div>
+												-->
 											</div>
 										</div>
 									</div>
