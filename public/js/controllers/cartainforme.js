@@ -2,8 +2,8 @@
 	'use strict';
 	angular.module('sici')
 		.controller('CartaInformeCtrl',
-			['EntidadObjeto', 'Objetivo', 'Indicador', '$scope', '$routeParams', '$rootScope', 'Jerarquia', 'InformeCarta', '$http', '$window',
-			function(EntidadObjeto, Objetivo, Indicador, $scope, $routeParams, $rootScope, Jerarquia, InformeCarta, $http, $window){
+			['EntidadObjeto', 'Objetivo', 'Indicador', '$scope', '$routeParams', '$rootScope', 'Jerarquia', 'InformeCarta', 'Arbol', '$http', '$window', '$log',
+			function(EntidadObjeto, Objetivo, Indicador, $scope, $routeParams, $rootScope, Jerarquia, InformeCarta, Arbol, $http, $window, $log){
 				$scope.indicadores = {};
 				$scope.jerarquias = {};
 				var loadJerarquia = function(idjerarquia){
@@ -19,8 +19,72 @@
 						$scope.jerarquia.ancestros.forEach(loadJerarquia);
 					});
 				});
-				$scope.showAccion = function(){
+				$scope.arbol = Arbol.query();
+				$scope.newAccion = function(){
 					$scope.accion = {};
+					$scope.persona = {};
+					Jerarquia.get({id: 1}, function(dato){
+						$scope.seleccionado = dato;
+					});
+				};
+				$scope.filtro = function(){
+					return true;
+				};
+				$scope.guardar = function(){
+					$scope.acciones.push($scope.accion);
+					delete $scope.accion;
+				};
+				$scope.cancelar = function(){
+					if ($window.confirm('¿Está seguro/a? Si continúa perderá los cambios realizados sobre esta acción de mejora')){
+						delete $scope.accion;
+					}
+				};
+				$scope.setOrganicaCompleta = function(){
+					$scope.setseleccionado({
+						id: 1,
+						title: 'COMUNIDAD AUTONOMA DE MURCIA'
+					});
+				};
+				$scope.seleccionado = {
+
+				};
+				$scope.setseleccionado = function(nodo){
+					$scope.organicamostrada = false;
+					$scope.accion.organica = nodo.id;
+					if (typeof nodo.title !== 'undefined'){
+						$scope.seleccionado = { nombrelargo: nodo.title };
+						Jerarquia.get({id: nodo.id}, function(dato){
+							$scope.seleccionado = dato;
+						});
+					} else {
+						$scope.seleccionado = nodo;
+					}
+				};
+				$scope.acciones = [{
+					_id: 1,
+					numero: 1,
+					descripcion: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur ac congue ex. Donec tempor erat commodo auctor aliquam. Sed pretium elit ac dolor congue, porttitor bibendum mi semper. Vestibulum diam urna, congue ac ornare nec, tempus at tortor. Cras suscipit, leo a pulvinar efficitur, tortor augue posuere ante, eu ornare diam neque non risus. Morbi vitae elit felis. Sed a dapibus libero. Ut fermentum a lacus ac sagittis. Duis scelerisque lorem erat. Morbi quis sem at turpis efficitur tempor eu sed urna. Proin lacinia neque a nunc hendrerit laoreet. In tincidunt tincidunt ipsum, non placerat velit pretium et. Vivamus ultricies, tortor ac ornare consequat, eros ipsum convallis mauris, a sollicitudin velit mi semper metus. Quisque convallis accumsan vestibulum. Aenean malesuada dignissim lacus sed sagittis. Nulla rutrum tortor quis arcu pulvinar, ut mollis lorem aliquam.Sed quis imperdiet lectus. Fusce cursus elit ac nisl eleifend, sed placerat ligula varius. Donec sit amet justo sed turpis volutpat egestas non eget diam. Pellentesque dictum vel libero quis fringilla. Morbi mollis nisi non eleifend consequat. Aliquam eu aliquam lectus, nec ullamcorper sapien. Suspendisse malesuada nisl sed egestas efficitur. Etiam vel placerat magna. Etiam nec tincidunt purus, quis ultrices neque. Integer ultrices augue nec elementum maximus. Nunc condimentum eros libero, a pellentesque dui aliquam et. Morbi eu tristique dolor. Suspendisse et justo ante.',
+					eliminado: false,
+					equipo: [
+					],
+					organica: $routeParams.idjerarquia,
+					afecta: false
+				}];
+				$scope.organicamostrada = false;
+				$scope.mostrarOrganica = function(){
+					$scope.organicamostrada = true;
+				};
+				$scope.addPersonaEquipo = function(persona){
+					$scope.accion.equipo.push(persona);
+					$scope.persona = {};
+				};
+				$scope.editar = function(accion){
+					var clon = JSON.parse(JSON.stringify(accion));
+					$scope.accion = clon;
+					$scope.persona = {};
+					Jerarquia.get({id: accion.organica}, function(dato){
+						$scope.setseleccionado(dato);
+					});
 				};
 				$scope.anualidad = $routeParams.anualidad;
 				$scope.restricciones = [
@@ -70,6 +134,8 @@
 							$rootScope.toaster('Error  al descargar el informe', 'Error', 'error');
 						});
 				};
+				//$scope.editar( $scope.acciones[0] );
+				$scope.persona = {};
 			}]
 		);
 })(angular, saveAs);
