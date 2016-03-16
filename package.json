@@ -10,6 +10,7 @@
     "crypto": "0.0.3",
     "csv-parse": "0.0.6",
     "docxtemplater": "^2.0.0",
+    "docxtemplater-image-module": "^1.0.0",
     "encoding": "^0.1.10",
     "express": "^4.11.1",
     "express-jwt": "",

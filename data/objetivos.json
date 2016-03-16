@@ -1,0 +1,4541 @@
+[
+  {
+    "_id":"56b35720c0f888cc07bab3fa",
+    "denominacion":" Servicio de Gestión de RR. HH.: La emisión de certificados de servicios prestados, se realizará de forma inmediata.",
+    "carta":"56617c4e9aa4f5ea615c148d",
+    "index":1,
+    "estado":"Publicado",
+    "objetivoestrategico":1,
+    "__v":0,
+    "valores":{
+      "a2015":[
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        }
+      ],
+      "a2016":[
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        }
+      ]
+    },
+    "formulas":[
+      {
+        "_id":"56b35720c0f888cc07bab3fb",
+        "valores":{
+          "a2016":[
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            }
+          ],
+          "a2015":[
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            }
+          ]
+        },
+        "direccion":"",
+        "meta":100,
+        "indicadores":[
+          "56b35720c0f888cc07bab3f7",
+          "56b35720c0f888cc07bab3ea"
+        ],
+        "frecuencia":"mensual",
+        "computer":"[\"(\",\"/indicador/56b35720c0f888cc07bab3f7/valores/[anualidad]/[mes]\",\" / \",\"/indicador/56b35720c0f888cc07bab3ea/valores/[anualidad]/[mes]\",\") \",\"* 100\"]",
+        "human":"(Número de certificados expedidos en el plazo comprometido / Número de certificados solicitados) X 100 = 100",
+        "intervalos":[
+          {
+            "_id":"56b35720c0f888cc07bab400",
+            "alerta":"4",
+            "color":"#C50200",
+            "mensaje":"Peligro",
+            "max":25,
+            "min":0
+          },
+          {
+            "_id":"56b35720c0f888cc07bab3ff",
+            "alerta":"3",
+            "color":"#FF7700",
+            "mensaje":"Aviso",
+            "max":50,
+            "min":25
+          },
+          {
+            "_id":"56b35720c0f888cc07bab3fe",
+            "alerta":"2",
+            "color":"#FDC702",
+            "mensaje":"Normal",
+            "max":75,
+            "min":50
+          },
+          {
+            "_id":"56b35720c0f888cc07bab3fd",
+            "alerta":"1",
+            "color":"#8DCA2F",
+            "mensaje":"Éxito",
+            "max":100,
+            "min":75
+          },
+          {
+            "_id":"56b35720c0f888cc07bab3fc",
+            "alerta":"0",
+            "color":"#C6E497",
+            "mensaje":"Superado éxito",
+            "max":200,
+            "min":100
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "_id":"56b35720c0f888cc07bab401",
+    "denominacion":" Servicio de Régimen Jurídico: Se proporcionará información inmediata a los interesados del estado de tramitación de cualquier expediente que haya tenido entrada en el Servicio.",
+    "carta":"56617c4e9aa4f5ea615c148d",
+    "index":2,
+    "estado":"Publicado",
+    "objetivoestrategico":1,
+    "__v":0,
+    "valores":{
+      "a2015":[
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        }
+      ],
+      "a2016":[
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        }
+      ]
+    },
+    "formulas":[
+      {
+        "_id":"56b35720c0f888cc07bab402",
+        "valores":{
+          "a2015":[
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            }
+          ],
+          "a2016":[
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            }
+          ]
+        },
+        "direccion":"",
+        "meta":100,
+        "indicadores":[
+          "56b35720c0f888cc07bab3f3",
+          "56b35720c0f888cc07bab3ef"
+        ],
+        "frecuencia":"mensual",
+        "computer":"[\"(\",\"/indicador/56b35720c0f888cc07bab3f3/valores/[anualidad]/[mes]\",\" / \",\"/indicador/56b35720c0f888cc07bab3ef/valores/[anualidad]/[mes]\",\") \",\"* 100\"]",
+        "human":"(Número de informaciones proporcionados en el plazo comprometido / número de solicitudes de información) x 100 = 100.",
+        "intervalos":[
+          {
+            "_id":"56b35720c0f888cc07bab407",
+            "alerta":"4",
+            "color":"#C50200",
+            "mensaje":"Peligro",
+            "max":25,
+            "min":0
+          },
+          {
+            "_id":"56b35720c0f888cc07bab406",
+            "alerta":"3",
+            "color":"#FF7700",
+            "mensaje":"Aviso",
+            "max":50,
+            "min":25
+          },
+          {
+            "_id":"56b35720c0f888cc07bab405",
+            "alerta":"2",
+            "color":"#FDC702",
+            "mensaje":"Normal",
+            "max":75,
+            "min":50
+          },
+          {
+            "_id":"56b35720c0f888cc07bab404",
+            "alerta":"1",
+            "color":"#8DCA2F",
+            "mensaje":"Éxito",
+            "max":100,
+            "min":75
+          },
+          {
+            "_id":"56b35720c0f888cc07bab403",
+            "alerta":"0",
+            "color":"#C6E497",
+            "mensaje":"Superado éxito",
+            "max":200,
+            "min":100
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "_id":"56b35720c0f888cc07bab408",
+    "denominacion":" Servicio de Selección: La emisión de certificados de ejercicios aprobados en las pruebas selectivas se realizarán en el momento de su solicitud.",
+    "carta":"56617c4e9aa4f5ea615c148d",
+    "index":3,
+    "estado":"Publicado",
+    "objetivoestrategico":1,
+    "__v":0,
+    "valores":{
+      "a2015":[
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        }
+      ],
+      "a2016":[
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        }
+      ]
+    },
+    "formulas":[
+      {
+        "human":"(Número de certificados expedidos de ejercicios aprobados en el plazo comprometido / Número de certificados solicitados) X 100 = 100",
+        "computer":"[\"(\",\"/indicador/56b35720c0f888cc07bab3e8/valores/[anualidad]/[mes]\",\" / \",\"/indicador/56b35720c0f888cc07bab3ea/valores/[anualidad]/[mes]\",\") \",\"* 100\"]",
+        "frecuencia":"mensual",
+        "indicadores":[
+          "56b35720c0f888cc07bab3e8",
+          "56b35720c0f888cc07bab3ea"
+        ],
+        "meta":100,
+        "direccion":"",
+        "valores":{
+          "a2015":[
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            }
+          ],
+          "a2016":[
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            }
+          ]
+        },
+        "_id":"56b35720c0f888cc07bab409",
+        "intervalos":[
+          {
+            "min":0,
+            "max":25,
+            "mensaje":"Peligro",
+            "color":"#C50200",
+            "alerta":"4",
+            "_id":"56b35720c0f888cc07bab40e"
+          },
+          {
+            "min":25,
+            "max":50,
+            "mensaje":"Aviso",
+            "color":"#FF7700",
+            "alerta":"3",
+            "_id":"56b35720c0f888cc07bab40d"
+          },
+          {
+            "min":50,
+            "max":75,
+            "mensaje":"Normal",
+            "color":"#FDC702",
+            "alerta":"2",
+            "_id":"56b35720c0f888cc07bab40c"
+          },
+          {
+            "min":75,
+            "max":100,
+            "mensaje":"Éxito",
+            "color":"#8DCA2F",
+            "alerta":"1",
+            "_id":"56b35720c0f888cc07bab40b"
+          },
+          {
+            "min":100,
+            "max":200,
+            "mensaje":"Superado éxito",
+            "color":"#C6E497",
+            "alerta":"0",
+            "_id":"56b35720c0f888cc07bab40a"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "_id":"56b35720c0f888cc07bab40f",
+    "denominacion":" Servicio de Selección: Con una antelación mínima de 48 horas al acto de adjudicación de las listas de espera y procedimientos extraordinarios para la cobertura de puestos de trabajo, se avisará a los aspirantes por número de orden con un mensaje corto SMS al teléfono móvil proporcionado por el aspirante.",
+    "carta":"56617c4e9aa4f5ea615c148d",
+    "index":4,
+    "estado":"Publicado",
+    "objetivoestrategico":1,
+    "__v":0,
+    "valores":{
+      "a2015":[
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        }
+      ],
+      "a2016":[
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        }
+      ]
+    },
+    "formulas":[
+      {
+        "_id":"56b35720c0f888cc07bab410",
+        "valores":{
+          "a2016":[
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            }
+          ],
+          "a2015":[
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            }
+          ]
+        },
+        "direccion":"",
+        "meta":100,
+        "indicadores":[
+          "56b35720c0f888cc07bab3eb",
+          "56b35720c0f888cc07bab3f4"
+        ],
+        "frecuencia":"mensual",
+        "computer":"[\"(\",\"/indicador/56b35720c0f888cc07bab3eb/valores/[anualidad]/[mes]\",\" / \",\"/indicador/56b35720c0f888cc07bab3f4/valores/[anualidad]/[mes]\",\") \",\"* 100\"]",
+        "human":"(Número de SMS enviados / Número de aspirantes que han proporcionado el número de móvil) X 100 = 100.",
+        "intervalos":[
+          {
+            "_id":"56b35720c0f888cc07bab415",
+            "alerta":"4",
+            "color":"#C50200",
+            "mensaje":"Peligro",
+            "max":25,
+            "min":0
+          },
+          {
+            "_id":"56b35720c0f888cc07bab414",
+            "alerta":"3",
+            "color":"#FF7700",
+            "mensaje":"Aviso",
+            "max":50,
+            "min":25
+          },
+          {
+            "_id":"56b35720c0f888cc07bab413",
+            "alerta":"2",
+            "color":"#FDC702",
+            "mensaje":"Normal",
+            "max":75,
+            "min":50
+          },
+          {
+            "_id":"56b35720c0f888cc07bab412",
+            "alerta":"1",
+            "color":"#8DCA2F",
+            "mensaje":"Éxito",
+            "max":100,
+            "min":75
+          },
+          {
+            "_id":"56b35720c0f888cc07bab411",
+            "alerta":"0",
+            "color":"#C6E497",
+            "mensaje":"Superado éxito",
+            "max":200,
+            "min":100
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "_id":"56b35720c0f888cc07bab416",
+    "denominacion":" Servicio de Selección: Se publicarán en BICI los puestos de trabajo a cubrir, el día anterior al acto de adjudicación.",
+    "carta":"56617c4e9aa4f5ea615c148d",
+    "index":5,
+    "estado":"Publicado",
+    "objetivoestrategico":1,
+    "__v":0,
+    "valores":{
+      "a2015":[
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        }
+      ],
+      "a2016":[
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        }
+      ]
+    },
+    "formulas":[
+      {
+        "human":"(Número de listas con los puestos a cubrir, publicadas en BICI, en el plazo comprometido / Número de actos de adjudicación) X 100 = 100.",
+        "computer":"[\"(\",\"/indicador/56b35720c0f888cc07bab3f0/valores/[anualidad]/[mes]\",\" / \",\"/indicador/56b35720c0f888cc07bab3e9/valores/[anualidad]/[mes]\",\") \",\"* 100\"]",
+        "frecuencia":"mensual",
+        "indicadores":[
+          "56b35720c0f888cc07bab3f0",
+          "56b35720c0f888cc07bab3e9"
+        ],
+        "meta":100,
+        "direccion":"",
+        "valores":{
+          "a2016":[
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            }
+          ],
+          "a2015":[
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            }
+          ]
+        },
+        "_id":"56b35720c0f888cc07bab417",
+        "intervalos":[
+          {
+            "min":0,
+            "max":25,
+            "mensaje":"Peligro",
+            "color":"#C50200",
+            "alerta":"4",
+            "_id":"56b35720c0f888cc07bab41c"
+          },
+          {
+            "min":25,
+            "max":50,
+            "mensaje":"Aviso",
+            "color":"#FF7700",
+            "alerta":"3",
+            "_id":"56b35720c0f888cc07bab41b"
+          },
+          {
+            "min":50,
+            "max":75,
+            "mensaje":"Normal",
+            "color":"#FDC702",
+            "alerta":"2",
+            "_id":"56b35720c0f888cc07bab41a"
+          },
+          {
+            "min":75,
+            "max":100,
+            "mensaje":"Éxito",
+            "color":"#8DCA2F",
+            "alerta":"1",
+            "_id":"56b35720c0f888cc07bab419"
+          },
+          {
+            "min":100,
+            "max":200,
+            "mensaje":"Superado éxito",
+            "color":"#C6E497",
+            "alerta":"0",
+            "_id":"56b35720c0f888cc07bab418"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "_id":"56b35720c0f888cc07bab41d",
+    "denominacion":" Servicio de Selección: Realizado el acto de adjudicación, se publicará en BICI el listado -con nº de orden- de los adjudicatarios con el puesto asignado.",
+    "carta":"56617c4e9aa4f5ea615c148d",
+    "index":6,
+    "estado":"Publicado",
+    "objetivoestrategico":1,
+    "__v":0,
+    "valores":{
+      "a2015":[
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        }
+      ],
+      "a2016":[
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        }
+      ]
+    },
+    "formulas":[
+      {
+        "human":"(Número de listados publicados en BICI con los requisitos comprometidos / Número de convocatorias de actos de adjudicación ) X 100 = 100.",
+        "computer":"[\"(\",\"/indicador/56b35720c0f888cc07bab3f8/valores/[anualidad]/[mes]\",\" / \",\"/indicador/56b35720c0f888cc07bab3ec/valores/[anualidad]/[mes]\",\" ) \",\"* 100\"]",
+        "frecuencia":"mensual",
+        "indicadores":[
+          "56b35720c0f888cc07bab3f8",
+          "56b35720c0f888cc07bab3ec"
+        ],
+        "meta":100,
+        "direccion":"",
+        "valores":{
+          "a2016":[
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            }
+          ],
+          "a2015":[
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            }
+          ]
+        },
+        "_id":"56b35720c0f888cc07bab41e",
+        "intervalos":[
+          {
+            "min":0,
+            "max":25,
+            "mensaje":"Peligro",
+            "color":"#C50200",
+            "alerta":"4",
+            "_id":"56b35720c0f888cc07bab423"
+          },
+          {
+            "min":25,
+            "max":50,
+            "mensaje":"Aviso",
+            "color":"#FF7700",
+            "alerta":"3",
+            "_id":"56b35720c0f888cc07bab422"
+          },
+          {
+            "min":50,
+            "max":75,
+            "mensaje":"Normal",
+            "color":"#FDC702",
+            "alerta":"2",
+            "_id":"56b35720c0f888cc07bab421"
+          },
+          {
+            "min":75,
+            "max":100,
+            "mensaje":"Éxito",
+            "color":"#8DCA2F",
+            "alerta":"1",
+            "_id":"56b35720c0f888cc07bab420"
+          },
+          {
+            "min":100,
+            "max":200,
+            "mensaje":"Superado éxito",
+            "color":"#C6E497",
+            "alerta":"0",
+            "_id":"56b35720c0f888cc07bab41f"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "_id":"56b35720c0f888cc07bab424",
+    "denominacion":" Servicio de Selección: Se hará pública en BICI la relación de los aspirantes convocados que no hayan asistido al acto de adjudicación, concediéndoles un plazo para presentar alegaciones de 5 días hábiles.",
+    "carta":"56617c4e9aa4f5ea615c148d",
+    "index":7,
+    "estado":"Publicado",
+    "objetivoestrategico":1,
+    "__v":0,
+    "valores":{
+      "a2015":[
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        }
+      ],
+      "a2016":[
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        }
+      ]
+    },
+    "formulas":[
+      {
+        "human":"(Número listas publicadas en BICI con los requisitos comprometidos / Número de convocatorias en los que no ha asistido algún aspirante) X 100 = 100.",
+        "computer":"[\"(\",\"/indicador/56b35720c0f888cc07bab3f5/valores/[anualidad]/[mes]\",\" / \",\"/indicador/56b35720c0f888cc07bab3f1/valores/[anualidad]/[mes]\",\") \",\"* 100\"]",
+        "frecuencia":"mensual",
+        "indicadores":[
+          "56b35720c0f888cc07bab3f5",
+          "56b35720c0f888cc07bab3f1"
+        ],
+        "meta":100,
+        "direccion":"",
+        "valores":{
+          "a2015":[
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            }
+          ],
+          "a2016":[
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            }
+          ]
+        },
+        "_id":"56b35720c0f888cc07bab425",
+        "intervalos":[
+          {
+            "min":0,
+            "max":25,
+            "mensaje":"Peligro",
+            "color":"#C50200",
+            "alerta":"4",
+            "_id":"56b35720c0f888cc07bab42a"
+          },
+          {
+            "min":25,
+            "max":50,
+            "mensaje":"Aviso",
+            "color":"#FF7700",
+            "alerta":"3",
+            "_id":"56b35720c0f888cc07bab429"
+          },
+          {
+            "min":50,
+            "max":75,
+            "mensaje":"Normal",
+            "color":"#FDC702",
+            "alerta":"2",
+            "_id":"56b35720c0f888cc07bab428"
+          },
+          {
+            "min":75,
+            "max":100,
+            "mensaje":"Éxito",
+            "color":"#8DCA2F",
+            "alerta":"1",
+            "_id":"56b35720c0f888cc07bab427"
+          },
+          {
+            "min":100,
+            "max":200,
+            "mensaje":"Superado éxito",
+            "color":"#C6E497",
+            "alerta":"0",
+            "_id":"56b35720c0f888cc07bab426"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "_id":"56b35720c0f888cc07bab42b",
+    "denominacion":" Servicio de Evaluación de Puestos y Planificación de Efectivos/Servicio de Selección: La información pública sobre Oferta de Empleo Público/procesos selectivos estará disponible en BICI a los 2 días de su publicación en el BORM.",
+    "carta":"56617c4e9aa4f5ea615c148d",
+    "index":8,
+    "estado":"Publicado",
+    "objetivoestrategico":1,
+    "__v":0,
+    "valores":{
+      "a2015":[
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        }
+      ],
+      "a2016":[
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        }
+      ]
+    },
+    "formulas":[
+      {
+        "human":"(Nº de publicaciones del compromiso en BICI a los 2 días/Nº de publicaciones en BORM) X 100 = 100.",
+        "computer":"[\"(\",\"/indicador/56b35720c0f888cc07bab3ee/valores/[anualidad]/[mes]\",\"/\",\"/indicador/56b35720c0f888cc07bab3f9/valores/[anualidad]/[mes]\",\") \",\"* 100\"]",
+        "frecuencia":"mensual",
+        "indicadores":[
+          "56b35720c0f888cc07bab3ee",
+          "56b35720c0f888cc07bab3f9"
+        ],
+        "meta":100,
+        "direccion":"",
+        "valores":{
+          "a2016":[
+            {
+              "formula":[
+                "(",
+                null,
+                "/",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                "/",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                "/",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                "/",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                "/",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                "/",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                "/",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                "/",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                "/",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                "/",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                "/",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                "/",
+                null,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                "/",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            }
+          ],
+          "a2015":[
+            {
+              "formula":[
+                "(",
+                0,
+                "/",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                "/",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                "/",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                "/",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                "/",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                "/",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                "/",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                "/",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                "/",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                "/",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                "/",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                "/",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                "/",
+                0,
+                ") ",
+                "* 100"
+              ],
+              "resultado":null
+            }
+          ]
+        },
+        "_id":"56b35720c0f888cc07bab42c",
+        "intervalos":[
+          {
+            "min":0,
+            "max":25,
+            "mensaje":"Peligro",
+            "color":"#C50200",
+            "alerta":"4",
+            "_id":"56b35720c0f888cc07bab431"
+          },
+          {
+            "min":25,
+            "max":50,
+            "mensaje":"Aviso",
+            "color":"#FF7700",
+            "alerta":"3",
+            "_id":"56b35720c0f888cc07bab430"
+          },
+          {
+            "min":50,
+            "max":75,
+            "mensaje":"Normal",
+            "color":"#FDC702",
+            "alerta":"2",
+            "_id":"56b35720c0f888cc07bab42f"
+          },
+          {
+            "min":75,
+            "max":100,
+            "mensaje":"Éxito",
+            "color":"#8DCA2F",
+            "alerta":"1",
+            "_id":"56b35720c0f888cc07bab42e"
+          },
+          {
+            "min":100,
+            "max":200,
+            "mensaje":"Superado éxito",
+            "color":"#C6E497",
+            "alerta":"0",
+            "_id":"56b35720c0f888cc07bab42d"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "_id":"56b35720c0f888cc07bab432",
+    "denominacion":" Servicio de Relaciones Laborales: Publicar y mantener actualizado trimestralmente el Boletín Estadístico del Registro de Órganos de Representación.",
+    "carta":"56617c4e9aa4f5ea615c148d",
+    "index":9,
+    "estado":"Publicado",
+    "objetivoestrategico":1,
+    "__v":0,
+    "valores":{
+      "a2015":[
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        }
+      ],
+      "a2016":[
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        }
+      ]
+    },
+    "formulas":[
+      {
+        "human":"Número de actualizaciones trimestrales del Boletín = 1.",
+        "computer":"[\"/indicador/56b35720c0f888cc07bab3ed/valores/[anualidad]/[mes]\"]",
+        "frecuencia":"mensual",
+        "indicadores":[
+          "56b35720c0f888cc07bab3ed"
+        ],
+        "meta":1,
+        "direccion":"",
+        "valores":{
+          "a2016":[
+            {
+              "formula":[
+                null
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                null
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                null
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                null
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                null
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                null
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                null
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                null
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                null
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                null
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                null
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                null
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                0
+              ],
+              "resultado":0
+            }
+          ],
+          "a2015":[
+            {
+              "formula":[
+                0
+              ],
+              "resultado":0
+            },
+            {
+              "formula":[
+                0
+              ],
+              "resultado":0
+            },
+            {
+              "formula":[
+                0
+              ],
+              "resultado":0
+            },
+            {
+              "formula":[
+                0
+              ],
+              "resultado":0
+            },
+            {
+              "formula":[
+                0
+              ],
+              "resultado":0
+            },
+            {
+              "formula":[
+                0
+              ],
+              "resultado":0
+            },
+            {
+              "formula":[
+                0
+              ],
+              "resultado":0
+            },
+            {
+              "formula":[
+                0
+              ],
+              "resultado":0
+            },
+            {
+              "formula":[
+                0
+              ],
+              "resultado":0
+            },
+            {
+              "formula":[
+                0
+              ],
+              "resultado":0
+            },
+            {
+              "formula":[
+                0
+              ],
+              "resultado":0
+            },
+            {
+              "formula":[
+                0
+              ],
+              "resultado":0
+            },
+            {
+              "formula":[
+                0
+              ],
+              "resultado":0
+            }
+          ]
+        },
+        "_id":"56b35720c0f888cc07bab433",
+        "intervalos":[
+          {
+            "min":0,
+            "max":0.25,
+            "mensaje":"Peligro",
+            "color":"#C50200",
+            "alerta":"4",
+            "_id":"56b35720c0f888cc07bab438"
+          },
+          {
+            "min":0.25,
+            "max":0.5,
+            "mensaje":"Aviso",
+            "color":"#FF7700",
+            "alerta":"3",
+            "_id":"56b35720c0f888cc07bab437"
+          },
+          {
+            "min":0.5,
+            "max":0.75,
+            "mensaje":"Normal",
+            "color":"#FDC702",
+            "alerta":"2",
+            "_id":"56b35720c0f888cc07bab436"
+          },
+          {
+            "min":0.75,
+            "max":1,
+            "mensaje":"Éxito",
+            "color":"#8DCA2F",
+            "alerta":"1",
+            "_id":"56b35720c0f888cc07bab435"
+          },
+          {
+            "min":1,
+            "max":2,
+            "mensaje":"Superado éxito",
+            "color":"#C6E497",
+            "alerta":"0",
+            "_id":"56b35720c0f888cc07bab434"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "_id":"56b35720c0f888cc07bab439",
+    "denominacion":" Servicio de Relaciones Laborales: Enviar por correo electrónico con carácter inmediato, los certificados del Registro de Órganos de Representación una vez emitidos.",
+    "carta":"56617c4e9aa4f5ea615c148d",
+    "index":10,
+    "estado":"Publicado",
+    "objetivoestrategico":1,
+    "__v":0,
+    "valores":{
+      "a2015":[
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        }
+      ],
+      "a2016":[
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        },
+        {
+          "resultado":null,
+          "formula":""
+        }
+      ]
+    },
+    "formulas":[
+      {
+        "human":"(Número de certificados enviados en el plazo comprometido / número de certificados emitidos ) X 100 = 100.",
+        "computer":"[\"(\",\"/indicador/56b35720c0f888cc07bab3f6/valores/[anualidad]/[mes]\",\" / \",\"/indicador/56b35720c0f888cc07bab3f2/valores/[anualidad]/[mes]\",\" ) \",\"* 100\"]",
+        "frecuencia":"mensual",
+        "indicadores":[
+          "56b35720c0f888cc07bab3f6",
+          "56b35720c0f888cc07bab3f2"
+        ],
+        "meta":100,
+        "direccion":"",
+        "valores":{
+          "a2015":[
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                1,
+                " / ",
+                1,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":100
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                2,
+                " / ",
+                2,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":100
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                1,
+                " / ",
+                1,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":100
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                4,
+                " / ",
+                4,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":100
+            }
+          ],
+          "a2016":[
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                null,
+                " / ",
+                null,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            },
+            {
+              "formula":[
+                "(",
+                0,
+                " / ",
+                0,
+                " ) ",
+                "* 100"
+              ],
+              "resultado":null
+            }
+          ]
+        },
+        "_id":"56b35720c0f888cc07bab43a",
+        "intervalos":[
+          {
+            "min":0,
+            "max":25,
+            "mensaje":"Peligro",
+            "color":"#C50200",
+            "alerta":"4",
+            "_id":"56b35720c0f888cc07bab43f"
+          },
+          {
+            "min":25,
+            "max":50,
+            "mensaje":"Aviso",
+            "color":"#FF7700",
+            "alerta":"3",
+            "_id":"56b35720c0f888cc07bab43e"
+          },
+          {
+            "min":50,
+            "max":75,
+            "mensaje":"Normal",
+            "color":"#FDC702",
+            "alerta":"2",
+            "_id":"56b35720c0f888cc07bab43d"
+          },
+          {
+            "min":75,
+            "max":100,
+            "mensaje":"Éxito",
+            "color":"#8DCA2F",
+            "alerta":"1",
+            "_id":"56b35720c0f888cc07bab43c"
+          },
+          {
+            "min":100,
+            "max":200,
+            "mensaje":"Superado éxito",
+            "color":"#C6E497",
+            "alerta":"0",
+            "_id":"56b35720c0f888cc07bab43b"
+          }
+        ]
+      }
+    ]
+  }
+]
