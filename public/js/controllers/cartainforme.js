@@ -60,6 +60,7 @@
 						$scope.seleccionado = nodo;
 					}
 				};
+				$scope.planmejora = {};
 				$scope.acciones = [{
 					_id: 1,
 					numero: 1,
@@ -79,12 +80,14 @@
 					$scope.persona = {};
 				};
 				$scope.editar = function(accion){
+					console.log('dentro');
 					var clon = JSON.parse(JSON.stringify(accion));
 					$scope.accion = clon;
 					$scope.persona = {};
 					Jerarquia.get({id: accion.organica}, function(dato){
 						$scope.setseleccionado(dato);
 					});
+					console.log('fuera');
 				};
 				$scope.anualidad = $routeParams.anualidad;
 				$scope.restricciones = [

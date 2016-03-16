@@ -36,6 +36,24 @@
 				<a href="{{cartaservicio.url}}" target="_blank">{{cartaservicio.url}}</a>
 			</div>
 		</div>
+
+		<div class="form-group">
+			<label class="modelo" for="modelo">Informe anual de evaluación de la Carta de Servicios: Basado en los datos de evaluación de la Carta de Servicios</label>
+			<textarea class="form-control" style="width:100%; height:5em" ng-model="planmejora.modelo" id="modelo"></textarea>
+		</div>
+<!--
+		<div class="form-group">
+			<label class="enunciado" for="acciones">Acciones correspondientes al Plan de Mejora de la Cartas de Servicios código {{cartaservicio.expediente}}</label>
+			<textarea class="form-control" style="width:100%; height:5em" ng-model="accion.acciones" id="acciones"></textarea>
+		</div>
+-->
+
+		<div class="form-group">
+			<label class="enunciado" for="descripcionplanmejora">Descripción del Plan de Mejora</label>
+			<textarea class="form-control" style="width:100%; height:5em" ng-model="planmejora.descripcionplanmejora" id="descripcionplanmejora"></textarea>
+		</div>
+
+
 		<div class="row" style="margin-top:1em">
 			<div class="col-xs-12">
 				<h3>ACCIONES PROGRAMADAS: (EN UN PLAN DE MEJORA DE LAS CARTAS DE SERVICIO)
@@ -57,20 +75,21 @@
 								<span class="btn btn-default">
 									<span class="fa fa-pencil" ng-click="editar(accion)"></span>
 								</span>
+								<span class="btn btn-default">
+									<span class="fa fa-delete" ng-click="eliminar(accion)"></span>
+								</span>
 							</td>
 						</tr>
 					</tbody>
 				</table>
 
 
+				<div class="text-center" ng-hide="accion" style="margin-bottom:1em">
+					<button class="btn btn-danger" ng-click="newAccion()">Añadir nueva acción</button>
+				</div>
 				<form>
 
-
-					<div class="text-center" ng-hide="accion" style="margin-bottom:1em">
-						<button class="btn btn-danger" ng-click="newAccion()">Añadir nueva acción</button>
-					</div>
-
-					<div class="mejora" ng-show="accion">
+					<div class="mejora" ng-if="accion">
 						<div class="form-group">
 							<label class="enunciado" for="numero">Número</label>
 							<input class="form-control" type="text" ng-model="accion.numero" id="numero" />
@@ -285,20 +304,5 @@
 
 <!--
 
-					<div class="form-group">
-						<label class="modelo" for="modelo">Informe anual de evaluación de la Carta de Servicios: Basado en los datos de evaluación de la Carta de Servicios</label>
-						<textarea class="form-control" style="width:100%; height:5em" ng-model="accion.modelo" id="modelo"></textarea>
-					</div>
-
-					<div class="form-group">
-						<label class="enunciado" for="acciones">Acciones correspondientes al Plan de Mejora de la Cartas de Servicios código {{cartaservicio.expediente}}</label>
-						<textarea class="form-control" style="width:100%; height:5em" ng-model="accion.acciones" id="acciones"></textarea>
-					</div>
-
-
-					<div class="form-group">
-						<label class="enunciado" for="descripcionplanmejora">Descripción del Plan de Mejora en el que se enmarca la acción</label>
-						<textarea class="form-control" style="width:100%; height:5em" ng-model="accion.descripcionplanmejora" id="descripcionplanmejora"></textarea>
-					</div>
-
+					
 					-->
