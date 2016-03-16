@@ -99,13 +99,13 @@
 					res.status(500).json({'error': 'An error has occurred', details: err});
 					return;
 				} else {
-					var jdescendientes = jerarquia.descendientes.push(parseInt(req.params.idjerarquia));
+					jerarquia.descendientes.push(parseInt(req.params.idjerarquia));
 
 					var restriccion =
 						(typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))) ?
 						(typeof req.params.recursivo === 'undefined' || JSON.parse(req.params.recursivo) ?
 							{'$and': [
-									{'idjerarquia': {'$in': jdescendientes}},
+									{'idjerarquia': {'$in': jerarquia.descendientes}},
 									{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}
 							]} :
 							{'$and': [

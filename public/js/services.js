@@ -66,7 +66,9 @@
 			return $resource('/api/v1/public/entidadobjetoList/:idjerarquia/:recursivo', {}, {query: {method: 'GET', isArray: true }}); }])
 		.factory('PeriodosStats', ['$resource', function($resource) {
 			return $resource('/api/v1/public/mapReducePeriodos'); }])
-	;
+		.factory('PlanMejoraList', ['$resource', function($resource) {
+			return $resource('/api/v2/public/planmejora/list/:idjerarquia', {}, {query: {method: 'GET', isArray: true }}); }])
+		;
 	/* restricted services */
 
 	modulo
