@@ -15,7 +15,7 @@
                     <a href="/actividad/{{ancestro.id}}">{{ancestro.nombrelargo}}</a>
                 </li>
                 <li class="active">{{procedimientoSeleccionado.denominacion}}</li>
-                <li class="active" >{{anualidad.substring(1, 5)}} 
+                <li class="active" >{{anualidad.substring(1, 5)}}
                     <a ng-if="$root.permisoscalculados.superuser" href="" ng-click="setShowArbol()">&nbsp;
                         <span  class="glyphicon glyphicon-pencil"></span>
                     </a>
@@ -29,7 +29,7 @@
                             Organismos
                         </h3>
                     </div>
-                    <div class="panel-body">			
+                    <div class="panel-body">
                         <input type="text" ng-model="texto.$" placeholder="Filtro" style="margin-bottom:1em" class="form-control"/>
                         <ul ng-if="arbol.length" style="padding-left:0.6em">
                             <li ng-repeat="element in arbol|filter:texto| filter:filtrojerarquia" ng-class="{'list-group-item-warning':element.id == seleccionado.id}">
@@ -38,7 +38,7 @@
                                         [{{element.id}}] &nbsp;
                                     </strong>
                                     <span ng-click="setSeleccionado(element)" class="cursor"  title="Engloba {{element.numprocedimientos}} procedimientos" scroll-to-item scroll-to="#changeorcancel">
-                                        {{element.title}} 
+                                        {{element.title}}
                                     </span>
 
                                 </p>
@@ -49,7 +49,7 @@
                                                 [{{elemen.id}}] &nbsp;
                                             </strong>
                                             <span ng-click="setSeleccionado(elemen)" class="cursor" title="Engloba {{elemen.numprocedimientos}} procedimientos" scroll-to-item scroll-to="#changeorcancel">
-                                                {{elemen.title}} 
+                                                {{elemen.title}}
                                             </span>
 
                                         </p>
@@ -60,7 +60,7 @@
                                                         [{{eleme.id}}] &nbsp;
                                                     </strong>
                                                     <span ng-class="{'bg-danger':eleme.id == seleccionado.id }" ng-click="setSeleccionado(eleme)" class="cursor" title="Engloba {{eleme.numprocedimientos}} procedimientos" scroll-to-item scroll-to="#changeorcancel">
-                                                        {{eleme.title}} 
+                                                        {{eleme.title}}
                                                     </span>
 
                                                 </p>
@@ -71,7 +71,7 @@
                                                                 [{{elem.id}}] &nbsp;
                                                             </strong>
                                                             <span ng-class="{'bg-danger':elem.id == seleccionado.id }" ng-click="setSeleccionado(elem)" class="cursor"  title="Engloba {{elem.numprocedimientos}} procedimientos" scroll-to-item scroll-to="#changeorcancel">
-                                                                {{elem.title}} 
+                                                                {{elem.title}}
                                                             </span>
 
                                                         </p>
@@ -89,10 +89,10 @@
                             </button>&nbsp;&nbsp;
                             <button type="button" class="btn btn-default" ng-click="cancelChangeOrganica()">
                                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancelar
-                            </button>			
+                            </button>
                             <br/>
                             <small><span ng-bind="mensajeMoviendo" class=""></span></small>
-                        </div>						
+                        </div>
                     </div>
                 </div>
 
@@ -101,14 +101,14 @@
 
 
             <nav>
-                <ul class="pager" ng-if="procedimientoSeleccionado.periodos[anualidad]" >	
+                <ul class="pager" ng-if="procedimientoSeleccionado.periodos[anualidad]" >
                     <li ng-if="!!procedimientoSeleccionado.periodos['a' + getPrev()]" class="previous" ><a ng-click="prevYear()" href="" ><span aria-hidden="true">&larr;</span> {{getPrev()}}</a></li>
                     <li ng-if="!!procedimientoSeleccionado.periodos['a' + getNext()]" class="next" ><a ng-click="nextYear()" href="" >{{getNext()}} <span aria-hidden="true">&rarr;</span></a></li>
                 </ul>
             </nav>
             <!--[if lt IE 9]>
             <p style="margin-top:1em;">
-                    <div class="alert alert-warning" role="alert">Esta usted utilizando una versión de Internet Explorer obsoleta con la que podrá introducir datos pero que no permite ciertas funcionalidades de la aplicación. 
+                    <div class="alert alert-warning" role="alert">Esta usted utilizando una versión de Internet Explorer obsoleta con la que podrá introducir datos pero que no permite ciertas funcionalidades de la aplicación.
 Actualice el navegador a la versión más reciente o instale <a target="_blank" href="https://www.google.es/chrome/browser/index.html">Chrome</a> o <a target="_blank" href="http://getfirefox.com/">Firefox</a>.</div>
             </p>
             <![endif]-->
@@ -124,7 +124,7 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                         <div >
                             <strong>{{attr| translate}}</strong>
                             <span>&nbsp;</span>
-                            <a  title="edita este valor"  href="#" ng-if="(W  && attrsanualidad_permisos[index] != 's' && (attr!='pendientes_iniciales' || getIntAnualidad()==2014)) || $root.permisoscalculados.superuser" onaftersave="recalculate(true)"  editable-text="procedimientoSeleccionado.periodos[anualidad][attr]">{{ procedimientoSeleccionado.periodos[anualidad][attr]!=null ? procedimientoSeleccionado.periodos[anualidad][attr] :  '-' }}</a>
+                            <a title="edita este valor" href="#" ng-if="(W  && attrsanualidad_permisos[index] != 's' && (attr!='pendientes_iniciales' || getIntAnualidad()==2014)) || $root.permisoscalculados.superuser" onaftersave="recalculate(true)" editable-text="procedimientoSeleccionado.periodos[anualidad][attr]">{{ procedimientoSeleccionado.periodos[anualidad][attr]!=null ? procedimientoSeleccionado.periodos[anualidad][attr] :  '-' }}</a>
                             <span ng-if="!((W && attrsanualidad_permisos[index] != 's' && (attr!='pendientes_iniciales' || getIntAnualidad()==2014) ) || $root.permisoscalculados.superuser)" >{{ (procedimientoSeleccionado.periodos[anualidad][attr]!=null && procedimientoSeleccionado.periodos[anualidad][attr]!='') ? procedimientoSeleccionado.periodos[anualidad][attr] : '-' }}</span>
                         </div>
                     </li>
@@ -133,16 +133,16 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                         <span>&nbsp;</span>
                         <div ng-if="!mostrarAutocompletePadre">{{nombrePadre}}
                             <a style="text-decoration: none;" ng-if="$root.permisoscalculados.superuser" href="" ng-click="editarPadre()">&nbsp;
-                                <span  class="glyphicon glyphicon-pencil"></span> 
+                                <span  class="glyphicon glyphicon-pencil"></span>
                             </a>
                             <a style="text-decoration: none;" ng-if="$root.permisoscalculados.superuser && procedimientoSeleccionado.padre" href="" ng-click="deletePadre()">&nbsp;
-                                <span class="glyphicon glyphicon-trash"></span> 
+                                <span class="glyphicon glyphicon-trash"></span>
                             </a>
                         </div>
                         <div ng-if="mostrarAutocompletePadre">
                             <input  placeholder="Introduce cualquier parte del c&oacute;digo o denominaci&oacute;n" class="col-lg-9 col-xs-12" type="text" ng-model="padre" typeahead-on-select="updatePadre($item)" name="padre" typeahead="showProcedimiento(procpadre) for procpadre in procedimientosPadre | codigoDenominacion:$viewValue | limitTo:10" typeahead-editable="false" />
                             <a style="text-decoration: none;" ng-if="$root.permisoscalculados.superuser" href="" ng-click="ocultarEditarPadre()">&nbsp;
-                                <span class="glyphicon glyphicon-remove"></span> 
+                                <span class="glyphicon glyphicon-remove"></span>
                             </a>
                         </div>
                     </li>
@@ -206,7 +206,7 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                             <div ng-click="detallesCarmHTML = false" ng-class="{'btn-danger':!detallesCarmHTML,'btn-default':detallesCarmHTML}" class="btn">
                                 <span class="glyphicon glyphicon-align-left"></span>
                             </div>
-                            <a target="_blank" href="https://www.carm.es/web/pagina?IDTIPO=240&amp;IDCONTENIDO={{procedimientoSeleccionado.codigo}}" class="btn btn-default"> 
+                            <a target="_blank" href="https://www.carm.es/web/pagina?IDTIPO=240&amp;IDCONTENIDO={{procedimientoSeleccionado.codigo}}" class="btn btn-default">
                                 <span class="glyphicon glyphicon-info-sign"></span>
                             </a>
                         </div>
@@ -219,13 +219,13 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                                 <span>{{val}}</span>
                             </div>
                             <div class="clear"></div>
-                        </div>	
+                        </div>
                     </div>
                 </div>
             </div>
             <div style="clear:both" class="table-responsive">
                 <nav>
-                    <ul class="pager" ng-if="procedimientoSeleccionado.periodos[anualidad]">	
+                    <ul class="pager" ng-if="procedimientoSeleccionado.periodos[anualidad]">
                         <li ng-if="!!procedimientoSeleccionado.periodos['a' + getPrev()]" class="previous" ><a ng-click="prevYear()" href="" ><span aria-hidden="true">&larr;</span> {{getPrev()}}</a></li>
                         <li ng-if="!!procedimientoSeleccionado.periodos['a' + getNext()]" class="next" ><a ng-click="nextYear()" href="" >{{getNext()}} <span aria-hidden="true">&rarr;</span></a></li>
                     </ul>
@@ -238,24 +238,25 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="attr in attrstabla" ng-show="exists(attr)"> 
+                        <tr ng-repeat="attr in attrstabla" ng-show="exists(attr)">
                             <th>{{attr| translate}}</th>
                             <td ng-repeat="val in procedimientoSeleccionado.periodos[anualidad][attr] track by $index" class="numberCell">
-                                <a e-ng-blur="changeFocus($form, $index, attr, $data)" ng-if="W && procedimientoSeleccionado.periodos[anualidad].periodoscerrados[$index] == 0 && periodosOk(anualidad, procedimientoSeleccionado)" href="#" editable-text="procedimientoSeleccionado.periodos[anualidad][attr][$index]" onaftersave="recalculate()" onbeforesave="checkNumber($data, anualidad, attr, $index)">
+                             <!-- e-ng-blur="changeFocus($form, $index, attr, $data)" -->
+                                <a ng-if="W && procedimientoSeleccionado.periodos[anualidad].periodoscerrados[$index] == 0 && periodosOk(anualidad, procedimientoSeleccionado)" href="#" editable-text="procedimientoSeleccionado.periodos[anualidad][attr][$index]" onaftersave="recalculate()" onbeforesave="checkNumber($data, anualidad, attr, $index)">
                                     {{ procedimientoSeleccionado.periodos[anualidad][attr][$index] || 0  |numberFormat}} {{addForm(attr, $index, $form)}}
                                 </a>
                                 <span ng-if="!W || procedimientoSeleccionado.periodos[anualidad].periodoscerrados[$index] != 0 || !periodosOk(anualidad, procedimientoSeleccionado)">{{ procedimientoSeleccionado.periodos[anualidad][attr][$index] || 0  |numberFormat}}</span>
                             </td>
                         </tr>
-                        <tr ng-repeat="attr in attrstablacalculados" ng-show="exists(attr)"> 
-                            <th>{{attr| translate}}</th>							
+                        <tr ng-repeat="attr in attrstablacalculados" ng-show="exists(attr)">
+                            <th>{{attr| translate}}</th>
                             <td ng-repeat="val in procedimientoSeleccionado.periodos[anualidad][attr] track by $index" ng-class="{'text-danger': val &lt; 0 }" class="numberCell">
                                 <span ng-if="anualidad != 'a2013' || (!W && !$root.permisoscalculados.superuser) || procedimientoSeleccionado.periodos[anualidad].periodoscerrados[$index]">
-                                    {{val| numberFormat}} 
-                                </span>								
+                                    {{val| numberFormat}}
+                                </span>
                                 <span ng-if="anualidad == 'a2013' && (W || $root.permisoscalculados.superuser) && !procedimientoSeleccionado.periodos[anualidad].periodoscerrados[$index]" editable-text="procedimientoSeleccionado.periodos[anualidad][attr][$index]" onaftersave="recalculate()" onbeforesave="checkNumber($data, anualidad, attr, $index)">
                                     {{val| numberFormat}}
-                                </span>								
+                                </span>
                             </td>
 
                         </tr>
@@ -273,15 +274,15 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                 <ul>
                     <li>
                         <strong>{{"total_resueltos"|translate}}</strong> =
-                        <em>{{"resueltos_1"|translate}}</em> + <em>{{"resueltos_5"|translate}}</em> + 
-                        <em>{{"resueltos_10"|translate}}</em> + <em>{{"resueltos_15"|translate}}</em> + 
-                        <em>{{"resueltos_30"|translate}}</em> + <em>{{"resueltos_45"|translate}}</em> + 
-                        <em>{{"resueltos_mas_45"|translate}}</em> + <em>{{"resueltos_desistimiento_renuncia_caducidad"|translate}}</em> + 
-                        <em>{{"resueltos_prescripcion"|translate}}</em> 
+                        <em>{{"resueltos_1"|translate}}</em> + <em>{{"resueltos_5"|translate}}</em> +
+                        <em>{{"resueltos_10"|translate}}</em> + <em>{{"resueltos_15"|translate}}</em> +
+                        <em>{{"resueltos_30"|translate}}</em> + <em>{{"resueltos_45"|translate}}</em> +
+                        <em>{{"resueltos_mas_45"|translate}}</em> + <em>{{"resueltos_desistimiento_renuncia_caducidad"|translate}}</em> +
+                        <em>{{"resueltos_prescripcion"|translate}}</em>
                     </li>
                     <li>
                         <strong>{{"fuera_plazo"|translate}}</strong> =
-                        <em>{{"total_resueltos"|translate}}</em> - <em>{{"en_plazo"|translate}}</em>  
+                        <em>{{"total_resueltos"|translate}}</em> - <em>{{"en_plazo"|translate}}</em>
                     </li>
                     <li>
                         <strong>{{"pendientes"|translate}}</strong> =
@@ -313,7 +314,7 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                     <nvd3-multi-bar-chart noData="No hay datos que mostrar" data="graph.data" showXAxis="true" showYAxis="true" showLegend="true" interactive="true" height="350" xAxisTickValues="xAxisTickValuesFunction()" xAxisTickFormat="xAxisTickFormatFunction()" rotateLabels="45" forcey="graph.forcey" >
                         <svg></svg>
                     </nvd3-multi-bar-chart>
-                </div>				
+                </div>
                 <div ng-repeat="graph in graphs" ng-if="graph.data" ng-show="!graficasbarras && graph.data && graficasgrandes" style="clear:both" class="col-lg-12 well">
                     <h5 class="text-danger text-center">{{graph.caption}}</h5>
                     <nvd3-line-chart previous="nvd3-multi-bar-chart" noData="No hay datos que mostrar" data="graph.data" showXAxis="true" showYAxis="true" showLegend="true" interactive="true" height="350" xAxisTickValues="xAxisTickValuesFunction()" xAxisTickFormat="xAxisTickFormatFunction()" rotateLabels="45" forcey="graph.forcey">
@@ -340,7 +341,7 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="(incidencia,valores) in procedimientoSeleccionado.periodos[anualidad].Incidencias"> 
+                        <tr ng-repeat="(incidencia,valores) in procedimientoSeleccionado.periodos[anualidad].Incidencias">
                             <th>{{incidencia}}</th>
                             <td ng-repeat="val in valores track by $index" ng-class="{'text-danger': val }" class="numberCell">{{val}}</td>
                         </tr>
