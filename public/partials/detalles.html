@@ -147,7 +147,7 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                         </div>
                     </li>
                 </ul>
-				<p ng-if="W && !periodosOk(anualidad, procedimientoSeleccionado)"><br/><span class="alert alert-danger" role="alert">Debe definir el plazo en alguno de las modalidades para poder introducir datos.</span></p>
+
                 <br />
                 <div ng-if="$root.permisoscalculados.superuser">
                     <div>
@@ -227,6 +227,7 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
                 <nav>
                     <ul class="pager" ng-if="procedimientoSeleccionado.periodos[anualidad]">
                         <li ng-if="!!procedimientoSeleccionado.periodos['a' + getPrev()]" class="previous" ><a ng-click="prevYear()" href="" ><span aria-hidden="true">&larr;</span> {{getPrev()}}</a></li>
+                        <li ng-if="W && !periodosOk(anualidad, procedimientoSeleccionado)" style="cursor: help" title="Complete en la parte superior los cmapos relativos al 'Plazo CS /ANS' y al 'Plazo máximo legal para resolver'"><br/><span class="alert alert-danger" role="alert">Debe definir el plazo en alguna de las modalidades para poder introducir datos.</span></li>
                         <li ng-if="!!procedimientoSeleccionado.periodos['a' + getNext()]" class="next" ><a ng-click="nextYear()" href="" >{{getNext()}} <span aria-hidden="true">&rarr;</span></a></li>
                     </ul>
                 </nav>
@@ -355,7 +356,6 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
             <div ng-repeat="inconsistencia in inconsistencias" role="alert" ng-if="inconsistencia.datos.length > 0" class="alert alert-warning">
                 <span>{{inconsistencia.titulo}}</span>
             </div>
-
         </div>
     </div>
 </div>

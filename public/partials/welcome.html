@@ -1,4 +1,100 @@
 <div class="row">
+	<div class="col-md-12 col-sm-12 col-lg-12">
+		<div class="col-sm-12 col-md-6 col-lg-6">
+			<div class="col-md-12 col-lg-6">
+				<div class="panel panel-success">
+					<div class="panel-heading">
+						Ayuda
+					</div>
+					<div class="panel-body">
+
+						<p>Recuerde que si tiene alguna consulta que realizar puede remitir un correo electrónico a:</p>
+							<ul>
+								<li>Consulta técnica:
+									<a href="mailto:{{'cartasdeservicios' + '@' + 'listas.carm.es'}}">{{'cartasdeservicios' + '@' + 'listas.carm.es'}}</a>
+								</li>
+								<li>Error de la aplicación:
+									<a href="mailto:{{'soporte.tecnologico' + '@' + 'ffis.es'}}">{{'soporte.tecnologico' + '@' + 'ffis.es'}}</a>
+								</li>
+							</ul>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-12 col-lg-6">
+				<div class="panel panel-danger">
+					<div class="panel-heading">
+						Preguntas frecuentes
+					</div>
+					<div class="panel-body">
+						<dl>
+							<dt><strong>¿Por qué puedo ver los detalles de un procedimiento en el apartado Actividad pero no puedo introducir datos en la anualidad actual pero sí en anteriores?</strong></dt>
+							<dd>
+								Cada año debe confirmar los plazos máximos <em>'Plazo CS /ANS'</em> y el <em>'Plazo máximo legal para resolver'</em>. Puede especificarlo en días hábiles o en días naturales, según corresponda. Tras añadir estos datos el sistema le dejará incluir datos de actividad en la anualidad actual.
+							</dd>
+						</dl>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-12 col-md-6 col-lg-6">
+			<div class="col-md-12 col-lg-6">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						Usuario
+					</div>
+					<div class="panel-body">
+						<ul style="list-style: none">
+						<li><strong>Usuario:</strong> {{$root.session.login}}</li>
+						<li><strong>Nombre:</strong> {{$root.session.nombre}}</li>
+						<li><strong>Apellidos:</strong> {{$root.session.apellidos}}</li>
+						<li ng-show="$root.session.codplaza"><strong>Código de plaza:</strong> {{$root.session.codplaza}}</li>
+					</ul>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-12 col-lg-6">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						Permisos concedidos
+					</div>
+					<div class="panel-body">
+						<ul>
+							<li ng-repeat="permiso in $root.session.permisos">
+								<strong>Comentario:</strong> {{permiso.descripcion}}
+								<ul>
+									<li class="label label-default" ng-show="$root.permisoscalculados.superuser">Su usuario tiene capacidades de administrador.</li>
+									<li ng-show="permiso.login">Asignado por ser usuario con login: {{permiso.login}}.</li>
+									<li ng-show="permiso.codplaza">Asignado por ser usuario con login: {{permiso.codplaza}}.</li>
+									<li ng-show="permiso.entidadobjetodirectaescritura.length > 0">
+									Tiene permiso de escritura sobre
+										<span ng-show="permiso.entidadobjetodirectaescritura.length === 1">la carta</span>
+										<span ng-show="permiso.entidadobjetodirectaescritura.length > 1">las cartas</span>
+										de servicio {{permiso.entidadobjetodirectaescritura}}.
+									</li>
+									<li ng-show="permiso.jerarquiadirectalectura.length > 0">
+									Tiene permiso de lectura sobre
+										<span ng-show="permiso.jerarquiadirectalectura.length === 1">el nodo</span>
+										<span ng-show="permiso.jerarquiadirectalectura.length > 1">los nodos</span>
+										{{permiso.jerarquiadirectalectura}} y sus descendientes.
+									</li>
+									<li ng-show="permiso.jerarquiadirectaescritura.length > 0">
+									Tiene permiso de escritura sobre
+										<span ng-show="permiso.jerarquiadirectaescritura.length === 1">el nodo</span>
+										<span ng-show="permiso.jerarquiadirectaescritura.length > 1">los nodos</span>
+										{{permiso.jerarquiadirectaescritura}} y sus descendientes.
+									</li>
+									<li ng-show="permiso.grantoption">Puede ceder este permiso a otros usuarios.</li>
+									<li ng-show="!permiso.grantoption">No puede ceder este permiso a otros usuarios.</li>
+									<li ng-show="permiso.caducidad">Este permiso caduca a fecha {{permiso.caducidad}}</li>
+								</ul>
+							</li>
+						</ul>
+						* Los identificadores de jerarquía utilizados son los facilitados por la CARM.
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	<div class="col-md-12">
 		<h3 class="text-center">{{meses[mesActual]}} - {{anyoActual}}</h3>
 		<div ng-repeat="indicador in indicadores" class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
@@ -55,67 +151,6 @@
 							</li>
 						</ul>
 					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div class="col-md-12 col-sm-12 col-lg-12">
-		<div class="col-sm-12 col-md-4 col-lg-4">
-		</div>
-		<div class="col-sm-6 col-md-4 col-lg-4">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					Usuario
-				</div>
-				<div class="panel-body">
-					<ul style="list-style: none">
-					<li><strong>Usuario:</strong> {{$root.session.login}}</li>
-					<li><strong>Nombre:</strong> {{$root.session.nombre}}</li>
-					<li><strong>Apellidos:</strong> {{$root.session.apellidos}}</li>
-					<li ng-show="$root.session.codplaza"><strong>Código de plaza:</strong> {{$root.session.codplaza}}</li>
-				</ul>
-				</div>
-			</div>
-		</div>
-		<div class="col-sm-6 col-md-4 col-lg-4">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					Permisos concedidos
-				</div>
-				<div class="panel-body">
-					<ul>
-						<li ng-repeat="permiso in $root.session.permisos">
-							<strong>Comentario:</strong> {{permiso.descripcion}}
-							<ul>
-								<li class="label label-default" ng-show="$root.permisoscalculados.superuser">Su usuario tiene capacidades de administrador.</li>
-								<li ng-show="permiso.login">Asignado por ser usuario con login: {{permiso.login}}.</li>
-								<li ng-show="permiso.codplaza">Asignado por ser usuario con login: {{permiso.codplaza}}.</li>
-								<li ng-show="permiso.entidadobjetodirectaescritura.length > 0">
-								Tiene permiso de escritura sobre
-									<span ng-show="permiso.entidadobjetodirectaescritura.length === 1">la carta</span>
-									<span ng-show="permiso.entidadobjetodirectaescritura.length > 1">las cartas</span>
-									de servicio {{permiso.entidadobjetodirectaescritura}}.
-								</li>
-								<li ng-show="permiso.jerarquiadirectalectura.length > 0">
-								Tiene permiso de lectura sobre
-									<span ng-show="permiso.jerarquiadirectalectura.length === 1">el nodo</span>
-									<span ng-show="permiso.jerarquiadirectalectura.length > 1">los nodos</span>
-									{{permiso.jerarquiadirectalectura}} y sus descendientes.
-								</li>
-								<li ng-show="permiso.jerarquiadirectaescritura.length > 0">
-								Tiene permiso de escritura sobre
-									<span ng-show="permiso.jerarquiadirectaescritura.length === 1">el nodo</span>
-									<span ng-show="permiso.jerarquiadirectaescritura.length > 1">los nodos</span>
-									{{permiso.jerarquiadirectaescritura}} y sus descendientes.
-								</li>
-								<li ng-show="permiso.grantoption">Puede ceder este permiso a otros usuarios.</li>
-								<li ng-show="!permiso.grantoption">No puede ceder este permiso a otros usuarios.</li>
-								<li ng-show="permiso.caducidad">Este permiso caduca a fecha {{permiso.caducidad}}</li>
-							</ul>
-						</li>
-					</ul>
-					* Los identificadores de jerarquía utilizados son los facilitados por la CARM.
 				</div>
 			</div>
 		</div>
