@@ -1,8 +1,8 @@
 (function(angular){
 	'use strict';
 	angular.module('sici')
-	.controller('UpdateCtrl', ['$rootScope', '$scope', '$window', '$log', '$http', '$upload', 'Importacion',
-		function ($rootScope, $scope, $window, $log, $http, $upload, Importacion) {
+	.controller('UpdateCtrl', ['$rootScope', '$scope', '$window', '$log', '$http', 'Upload', 'Importacion',
+		function ($rootScope, $scope, $window, $log, $http, Upload, Importacion) {
 			$rootScope.nav = 'update';
 			$scope.actualizando = 0;
 			$rootScope.setTitle('Importación');
@@ -31,7 +31,7 @@
 			//$files: an array of files selected, each file has name, size, and type.
 				var progressfn = function(evt) {
 					if (evt && evt.total){
-						console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
+						$log.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
 					}
 				};
 				var successfn = function(data) {
@@ -44,9 +44,9 @@
 				for (var i = 0; i < $files.length; i++) {
 					var file = $files[i];
 					$scope.actualizando++;
-					$log.debug($upload);
+					$log.debug(Upload);
 
-					$scope.upload = $upload.upload({
+					$scope.upload = Upload.upload({
 						url: '/api/v1/public/updateByFile',
 						file: file
 					}).progress(progressfn).success(successfn);
