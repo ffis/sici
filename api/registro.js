@@ -11,21 +11,20 @@
 			/* if (typeof procedimiento !== 'undefined' && typeof id !== 'undefined') { */
 			registroActividad
 				.find(restricciones)
-				.sort({fecha: -1})
+				.sort({_id: -1})
 				.skip(start)
 				.limit(limit)
-				.exec(
-					function (err, data) {
-						if (err) {
-							res.status(500).json({error: 'Error acceso a base de datos', details: err});
-							return;
+				.exec()
+				.then(
+					function (data) {
+						if (!data) {
+							res.status(400).json({'error': 'No existe el registro con esas restricciones'});
 						} else {
-							if (!data) {
-								res.status(400).json({'error': 'No existe el registro con esas restricciones'});
-							} else {
-								res.json(data);
-							}
+							res.json(data);
 						}
+					},
+					function(err){
+						res.status(500).json({error: 'Error acceso a base de datos', details: err});
 					}
 				);
 			/*
