@@ -25,6 +25,15 @@
 			} else {
 				valor = partes[i];
 			}
+			if (valor === '12' && typeof obj[ valor ] === 'undefined' && typeof obj === 'object'){
+				//caso especial procedimiento, debe ser la suma de los anteriores
+				return obj.reduce(function(p, o){
+					if (!o){
+						return p;
+					}
+					return p + o;
+				});
+			}
 			if (typeof obj[ valor ] !== 'undefined'){
 				obj = obj[ valor ];
 			} else {
@@ -159,7 +168,6 @@
 									resultado = math.parse(formulastr).compile().eval(scope);
 								} else {
 									resultado = null;
-									console.error(159, formulastr);
 								}
 							} catch (e) {
 								console.error(118, e);
@@ -167,6 +175,7 @@
 							returnValue[anualidad].push({formula: formula, resultado: resultado});
 						}
 					}
+					break;
 				}
 			}
 			cb(null, returnValue);
