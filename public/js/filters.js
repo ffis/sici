@@ -79,6 +79,14 @@
 				return input.reduce(function(a, o){ return a + o; });
 			};
 		})
+		.filter('join', function(){
+			return function(input, joinstr){
+				if (!angular.isObject(input)){
+					return input;
+				}
+				return input.join(joinstr);
+			};
+		})
 		.filter('keylength', function(){
 			return function(input){
 				if (!angular.isObject(input)){

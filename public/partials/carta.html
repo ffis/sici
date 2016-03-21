@@ -111,7 +111,7 @@
 													</tr>
 													<tr ng-if="formula.indicadores.length > 1 || indicadores[formula.indicadores[0] ].acumulador !== 'sum' ">
 														<th>Cálculo</th>
-														<th class="text-right" title="{{valor.formula}}" ng-style="bgColorResultado(valor.resultado, formula)" ng-repeat="valor in formula.valores[aanualidad] track by $index">{{valor.resultado | number:($root.isInt(valor.resultado) ? 0 : 2)  }}</th>
+														<th class="text-right" title="{{valor.formula | join:' '}}" ng-style="bgColorResultado(valor.resultado, formula)" ng-repeat="valor in formula.valores[aanualidad] track by $index">{{valor.resultado | number:($root.isInt(valor.resultado) ? 0 : 2)  }}</th>
 													</tr>
 												</tfoot>
 												<tbody>
