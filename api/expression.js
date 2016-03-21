@@ -10,35 +10,54 @@
 		return math.eval(expr);
 	};
 
+	var extractValue = function(partes, expresion, variables, obj){
+		var valor;
+		for (var i = 3, j = partes.length; i < j; i++){
+			if (partes[i].indexOf('[') === 0 && partes[i].indexOf(']') === partes[i].length - 1 ){
+				//se busca el valor en el diccionario de variables
+				var nombrevariable = partes[i].substr(1, partes[i].length - 2);
+				if (typeof variables[nombrevariable] !== 'undefined'){
+					valor = variables[nombrevariable];
+				} else {
+					console.error('No existe la variable:' + nombrevariable);
+					valor = partes[i];
+				}
+			} else {
+				valor = partes[i];
+			}
+			if (typeof obj[ valor ] !== 'undefined'){
+				obj = obj[ valor ];
+			} else {
+				return expresion;
+			}
+		}
+		return obj;
+	};
+
 	var replace = function(variables){
 		return function(expresion){
-			if (expresion.indexOf('/indicador') === 0){
-				var valor,
-					partes = expresion.split('/'),
-					idIndicador = partes[2],
-					indicador = variables[idIndicador],
+			var partes,
+				idIndicador, idProcedimiento,
+				indicador, procedimiento /*, campo*/;
 
-					obj = indicador;
-				for (var i = 3, j = partes.length; i < j; i++){
-					if (partes[i].indexOf('[') === 0 && partes[i].indexOf(']') === partes[i].length - 1 ){
-						//se busca el valor en el diccionario de variables
-						var nombrevariable = partes[i].substr(1, partes[i].length - 2);
-						if (typeof variables[nombrevariable] !== 'undefined'){
-							valor = variables[nombrevariable];
-						} else {
-							console.error('No existe la variable:' + nombrevariable);
-							valor = partes[i];
-						}
-					} else {
-						valor = partes[i];
-					}
-					if (typeof obj[ valor ] !== 'undefined'){
-						obj = obj[ valor ];
-					} else {
-						return expresion;
-					}
-				}
-				return obj;
+			if (expresion.indexOf('/') === 0 && expresion.trim() !== '/'){
+				partes = expresion.split('/');
+			}
+
+			if (expresion.indexOf('/indicador') === 0){
+				idIndicador = partes[2];
+				indicador = variables[idIndicador];
+
+				return extractValue(partes, expresion, variables, indicador);
+			} else if (expresion.indexOf('/procedimiento') === 0){
+				/* /procedimiento/_id/periodos/[anualidad]/atributo/[mes] */
+				idProcedimiento = partes[2];
+				procedimiento = variables[idProcedimiento];
+//				campo = partes[5];
+//				console.log(expresion, variables, procedimiento, campo);
+
+				return extractValue(partes, expresion, variables, procedimiento);
+
 			} else {
 				return expresion;
 			}
@@ -47,7 +66,8 @@
 
 	Math.prototype.evalFormula = function(str, cb){
 		var indicadormodel = this.models.indicador(),
-			i, j, anualidad, idIndicador, partes;
+			procedimientomodel = this.models.procedimiento(),
+			i, j, anualidad, idIndicador, idProcedimiento, partes;
 		try {
 			partes = JSON.parse(str);
 		} catch (err){
@@ -58,8 +78,8 @@
 			modoAnualidad = false,
 			modoMes = false,
 			promises = [], tokens = [],
-			indicadoresACargar = {}, variables = {}, scope = {},
-			resultado;
+			indicadoresACargar = {}, procedimientosACargar = {}, variables = {}, scope = {},
+			resultado, defer;
 
 		for (i = 0, j = partes.length; i < j; i++){
 			if (partes[i].indexOf('[anualidad]') > -1){
@@ -79,41 +99,59 @@
 				} else {
 					cb({error: '_id mal formado:' + idIndicador});
 				}
+			}else if (partes[i].indexOf('/procedimiento') === 0){
+				tokens = partes[i].split('/'),
+				idProcedimiento = tokens[2].trim();
+				if (idProcedimiento.length === 24 || idProcedimiento.length === 12){
+					procedimientosACargar[idProcedimiento] = false;
+				} else {
+					cb({error: '_id mal formado:' + idProcedimiento});
+				}
 			}
 		}
 
-		var setIndicadoresACargar = function(promise, idIndicadorDb){
-			return function(erro, indicador){
+		var setACargar = function(promise, id, collection){
+			return function(erro, obj){
 				if (erro){
 					promise.reject(erro);
-				} else if (!indicador){
-					promise.reject({'error': 'Not found', idIndicador: idIndicadorDb});
+				} else if (!obj){
+					promise.reject({'error': 'Not found', _id: id});
 				} else {
-					indicadoresACargar[indicador._id] = indicador;
-					promise.resolve(indicador);
+					collection[obj._id] = obj;
+					promise.resolve(obj);
 				}
 			};
 		};
 		for (idIndicador in indicadoresACargar){
-			var defer = Q.defer();
-			indicadormodel.findOne({_id: this.models.ObjectId(idIndicador)}, setIndicadoresACargar(defer, idIndicador));
+			defer = Q.defer();
+			indicadormodel.findOne({_id: this.models.ObjectId(idIndicador)}, setACargar(defer, idIndicador, variables));
+			promises.push(defer.promise);
+		}
+		for (idProcedimiento in procedimientosACargar){
+			defer = Q.defer();
+			procedimientomodel.findOne({_id: this.models.ObjectId(idProcedimiento)}, setACargar(defer, idProcedimiento, variables));
 			promises.push(defer.promise);
 		}
 
-		Q.all(promises).then(function(indicadores){
+
+		Q.all(promises).then(function(){
 			if (modoAnualidad){
+				var entero = function(v){ parseFloat(v).toFixed(0); };
 				//suponemos que ambos indicadores tienen las mismas anualidades
-				variables = indicadoresACargar;
-				for (idIndicador in indicadoresACargar){
-					for (anualidad in indicadoresACargar[idIndicador].valores){
+				var vars = JSON.parse(JSON.stringify(variables));
+				for (idIndicador in variables){
+					if (typeof variables[idIndicador].valores === 'undefined'){
+						continue;
+					}
+					for (anualidad in variables[idIndicador].valores){
 						returnValue[anualidad] = [];
-						variables.anualidad = anualidad;
-						for (var mes in indicadoresACargar[idIndicador].valores[anualidad]){
-							variables.mes = mes;
-							var formula = partes.map(replace(indicadoresACargar));
+						vars.anualidad = anualidad;
+						for (var mes in variables[idIndicador].valores[anualidad]){
+							vars.mes = mes;
+							var formula = partes.map(replace(vars));
 							var formulastr = formula.join('');
 							scope = {
-								entero: function(v){ parseFloat(v).toFixed(0); }
+								entero: entero
 							};
 							resultado = 0;
 							try {
@@ -121,6 +159,7 @@
 									resultado = math.parse(formulastr).compile().eval(scope);
 								} else {
 									resultado = null;
+									console.error(159, formulastr);
 								}
 							} catch (e) {
 								console.error(118, e);
