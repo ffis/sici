@@ -158,6 +158,15 @@
 															</table>
 														</td>
 													</tr>
+													<tr ng-repeat="procedimiento in formula.procedimientos">
+														<td>{{procedimientos[procedimiento.procedimiento].denominacion}} [{{procedimiento.campo | translate}}]</td>
+														<td ng-repeat="(v,a) in procedimientos[procedimiento.procedimiento].periodos[aanualidad][procedimiento.campo] track by $index" style="white-space:nowrap" class="text-right">
+															{{a}}
+														</td>
+														<td class="text-right">
+															 {{ procedimientos[procedimiento.procedimiento].periodos[aanualidad][procedimiento.campo] | sum }}
+														</td>
+													</tr>
 												</tbody>
 											</table>
 										</td>

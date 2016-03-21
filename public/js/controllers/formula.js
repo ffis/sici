@@ -1,8 +1,8 @@
 (function (angular) {
 	'use strict';
 	angular.module('sici')
-			.controller('FormulaCtrl', ['$http', '$q', '$rootScope', '$scope', '$routeParams', 'EntidadObjeto', 'Objetivo', 'Operador', 'Indicador',
-				function ($http, $q, $rootScope, $scope, $routeParams, EntidadObjeto, Objetivo, Operador, Indicador) {
+			.controller('FormulaCtrl', ['$http', '$q', '$rootScope', '$scope', '$routeParams', 'EntidadObjeto', 'Objetivo', 'Operador', 'Indicador', 'ProcedimientoList', '$log',
+				function ($http, $q, $rootScope, $scope, $routeParams, EntidadObjeto, Objetivo, Operador, Indicador, ProcedimientoList, $log) {
 
 					$scope.indexFormula = typeof $routeParams.index === 'undefined' ? 0 : parseInt($routeParams.index);
 					$scope.idobjetivo = $routeParams.idobjetivo;
@@ -13,7 +13,9 @@
 
 					$scope.indicadores = [];
 					$scope.indicadoresObjeto = {};
+					$scope.procedimientosObjeto = {};
 					$scope.formulaObjects = [];
+					$scope.procedimientos = [];
 
 					var fn = function (defer) {
 						return function (data) {
@@ -22,13 +24,34 @@
 							defer.resolve();
 						};
 					};
+					var fn2 = function (defer, campo){
+						return function(data){
+							if (data.length > 0){
+								$scope.procedimientos.push({texto: data[0].denominacion + '.' + campo, valor: data[0]._id, color: '#7F2AFF', procedimiento: true, campo: campo});
+								$scope.procedimientosObjeto[data[0]._id] = data[0];
+								defer.resolve();
+							}else {
+								defer.reject({error: 'No ha conseguido cargar un procedimiento.'});
+							}
+
+						};
+					};
 					var defers = [];
 					$scope.objetivo = Objetivo.get({id: $scope.idobjetivo }, function () {
+						var i, j, defer;
+
 						$scope.formula = $scope.objetivo.formulas[$scope.indexFormula];
-						for (var i = 0, j = $scope.formula.indicadores.length; i < j; i++) {
-							var defer = $q.defer();
+						for (i = 0, j = $scope.formula.indicadores.length; i < j; i++) {
+							defer = $q.defer();
 							defers.push(defer.promise);
 							Indicador.get({id: $scope.formula.indicadores[i]}, fn(defer));
+						}
+						if (typeof $scope.formula.procedimientos === 'object'){
+							for (i = 0, j = $scope.formula.procedimientos.length; i < j; i++) {
+								defer = $q.defer();
+								defers.push(defer.promise);
+								ProcedimientoList.query({id: $scope.formula.procedimientos[i].procedimiento, fields: 'codigo denominacion'}, fn2(defer, $scope.formula.procedimientos[i].campo));
+							}
 						}
 						$q.all(defers).then(function () {
 							$scope.parseFormula();
@@ -39,20 +62,47 @@
 					$scope.parseFormula = function () {
 						if (typeof $scope.formula.computer !== 'undefined' && $scope.formula.computer.trim() !== '') {
 							var formula = JSON.parse($scope.formula.computer);
-							formula.filter(function(elem) { if (elem.trim() !== '') { return elem; }}).forEach(function (elem) {
-								var encontrado = false;
-								for (var i = 0; i < $scope.formula.indicadores.length; i++) {
-									var id = $scope.formula.indicadores[i];
-									if (elem.indexOf(id) !== -1) {
-										$scope.formulaObjects.push({texto: $scope.indicadoresObjeto[id].nombre, valor: elem, color: '#2A7FFF', indicador: true});
-										encontrado = true;
-										break;
+
+							formula
+								.filter(function(elem) { if (elem.trim() !== '') { return elem; }})
+								.forEach(function (elem) {
+									var i, id;
+									var encontrado = false;
+									if (elem.charAt(0) === '/'){
+										var campos = elem.split('/');
+										if (campos[1] === 'indicador'){
+											for (i = 0; i < $scope.formula.indicadores.length; i++) {
+												id = $scope.formula.indicadores[i];
+												if (campos[2] === id) {
+													$scope.formulaObjects.push({texto: $scope.indicadoresObjeto[id].nombre, valor: elem, color: '#2A7FFF', indicador: true});
+													encontrado = true;
+													break;
+												}
+											}
+										} else if (campos[1] === 'procedimiento'){
+											var campo = campos[5];
+
+											for (i = 0; i < $scope.formula.procedimientos.length; i++) {
+												id = $scope.formula.procedimientos[i].procedimiento;
+												$log.log(id, campos[2], $scope.procedimientosObjeto);
+												if (campos[2] === id) {
+													$scope.formulaObjects.push({texto: $scope.procedimientosObjeto[id].denominacion, valor: elem, color: '#7F2AFF', procedimiento: true, campo: campo});
+													encontrado = true;
+													break;
+												}
+											}
+										}
+									} else {
+										if (elem === '* 100'){
+											$scope.formulaObjects.push({texto: '*', valor: '*', indicador: false, procedimiento: false});
+											$scope.formulaObjects.push({texto: '100', valor: '100', indicador: false, procedimiento: false});
+											encontrado = true;
+										}
 									}
-								}
-								if (!encontrado) {
-									$scope.formulaObjects.push({texto: elem, valor: elem, indicador: false});
-								}
-							});
+									if (!encontrado) {
+										$scope.formulaObjects.push({texto: elem, valor: elem, indicador: false, procedimiento: false});
+									}
+								});
 						}
 						for (var i = $scope.formulaObjects.length; i < 12; i++) {
 							$scope.formulaObjects.push({texto: '', color: 'grey', indicador: false});
@@ -84,27 +134,37 @@
 							return (elem.texto !== '');
 						};
 
-						$scope.formulaObjects.filter(fnFilter).forEach(function (elem) {
-							if (elem.indicador) {
-								if (elem.valor.indexOf('/') < 0){
-									formula.push('/indicador/' + elem.valor + '/valores/[anualidad]/[mes]');
-								}else{
+						$scope.formulaObjects
+							.filter(fnFilter)
+							.forEach(function (elem) {
+								if (elem.indicador) {
+									if (elem.valor.indexOf('/') < 0){
+										formula.push('/indicador/' + elem.valor + '/valores/[anualidad]/[mes]');
+									} else {
+										formula.push(elem.valor);
+									}
+								} else if (elem.procedimiento) {
+									if (elem.valor.indexOf('/') < 0){
+										formula.push('/procedimiento/' + elem.valor + '/periodos/[anualidad]/' + elem.campo + '/[mes]');
+									} else {
+										formula.push(elem.valor);
+									}
+								} else {
 									formula.push(elem.valor);
 								}
-							} else {
-								formula.push(elem.valor);
-							}
-						});
+							});
+
+						/* $log.log(formula); */
+
 						var parameters = {idobjetivo: $scope.idobjetivo, indiceformula: $scope.indexFormula, formula: JSON.stringify(formula) };
 						$http.put('/api/v2/public/updateformula', parameters).then(function() {
 							$rootScope.toaster('Fórmula actualizada correctamente', 'Éxito', 'success');
 						}, function(err) {
-							if (typeof err.error != 'undefined'){
+							if (typeof err.error !== 'undefined'){
 								err = err.error;
 							}
 							$rootScope.toaster('No se ha podido actualizar la fórmula. ' + err, 'Error', 'error');
 						});
-						
 					};
 
 				}]);

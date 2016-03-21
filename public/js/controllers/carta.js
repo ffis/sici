@@ -2,12 +2,13 @@
 	'use strict';
 	angular.module('sici')
 		.controller('CartaCtrl',
-			['$q', '$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', '$log', '$http', 'Arbol', 'Objetivo', 'EntidadObjeto', 'PastelColor', 'ImportarObjetivo', 'Indicador',
-			function ($q, $rootScope, $scope, $location, $window, $routeParams, $timeout, $log, $http, Arbol, Objetivo, EntidadObjeto, PastelColor, ImportarObjetivo, Indicador) {
+			['$q', '$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', '$log', '$http', 'Arbol', 'Objetivo', 'EntidadObjeto', 'PastelColor', 'ImportarObjetivo', 'Indicador', 'ProcedimientoList',
+			function ($q, $rootScope, $scope, $location, $window, $routeParams, $timeout, $log, $http, Arbol, Objetivo, EntidadObjeto, PastelColor, ImportarObjetivo, Indicador, ProcedimientoList) {
 				$rootScope.nav = 'carta';
 				$scope.idjerarquia = ($routeParams.idjerarquia) ? parseInt( $routeParams.idjerarquia ) : false;
 				$scope.arbol = Arbol.query(function(){ $scope.setJerarquiaById($scope.idjerarquia); });
 				$scope.indicadores = {};
+				$scope.procedimientos = {};
 				$scope.showformulas = false;
 				$scope.superuser = $rootScope.superuser();
 				$scope.aanualidad = '';
@@ -49,11 +50,15 @@
 					$scope.anualidad = anualidad;
 					$scope.aanualidad = 'a' + $scope.anualidad;
 				};
-				var postLoadObjetivo = function(objetivo, loadIndicador){
+
+				var postLoadObjetivo = function(objetivo, loadIndicador, loadProcedimiento){
 					var maxValuePerFormula = 0;
 					for (var k = 0, l = objetivo.formulas.length; k < l; k++) {
-						if (typeof loadIndicador === 'function'){
+						if (typeof loadIndicador === 'function' && typeof objetivo.formulas[k].indicadores === 'object'){
 							objetivo.formulas[k].indicadores.forEach(loadIndicador);
+						}
+						if (typeof loadProcedimiento === 'function' && typeof objetivo.formulas[k].procedimientos === 'object'){
+							objetivo.formulas[k].procedimientos.forEach(loadProcedimiento);
 						}
 						maxValuePerFormula = 0;
 						for (var y = 0, u = objetivo.formulas[k].intervalos.length; y < u; y++){
@@ -97,11 +102,26 @@
 						$scope.indicadores[indicador] = Indicador.get({id: indicador});
 					}
 				};
+				var loadProcedimiento = function(procedimiento){
+					var clave = procedimiento.procedimiento;
+					if (typeof $scope.procedimientos[clave] === 'undefined'){
+						ProcedimientoList.query({id: procedimiento.procedimiento, fields: 'codigo denominacion periodos'})
+							.$promise
+							.then(function(procs){
+								if (procs.length > 0){
+									$scope.procedimientos[clave] = procs[0];
+								}
+							}, function(/* err */){
+								$rootScope.toaster('Error durante la importación', 'Error', 'error');
+							});
+					}
+				};
+
 				var postLoadObjetivos = function(loadIndicador){
 					return function(){
 						$scope.anualidadesKeys = {};
 						for (var i = 0, j = $scope.objetivos.length; i < j; i++) {
-							postLoadObjetivo($scope.objetivos[i], loadIndicador);
+							postLoadObjetivo($scope.objetivos[i], loadIndicador, loadProcedimiento);
 						}
 					};
 				};

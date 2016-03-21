@@ -2,10 +2,12 @@
 	'use strict';
 
 	angular.module('sici')
-		.controller('ObjetivoCtrl', ['$rootScope', '$scope', '$routeParams', '$window', 'Objetivo', 'Indicador', 'EntidadObjeto', 'Util',
-			function ($rootScope, $scope, $routeParams, $window, Objetivo, Indicador, EntidadObjeto, Util) {
+		.controller('ObjetivoCtrl', ['$rootScope', '$scope', '$routeParams', '$window', 'Objetivo', 'Indicador', 'EntidadObjeto', 'Util', 'ProcedimientoList', '$log',
+			function ($rootScope, $scope, $routeParams, $window, Objetivo, Indicador, EntidadObjeto, Util, ProcedimientoList, $log) {
 				$rootScope.nav = 'objetivo';
 				$rootScope.setTitle('Objetivos');
+				$scope.procedimientosById = {};
+				$scope.indicadores = [];
 
 				$scope.colores = [
 					{name: 'Peligro', value: '#C50200'},
@@ -14,8 +16,14 @@
 					{name: 'Éxito', value: '#8DCA2F'},
 					{name: 'Superado éxito', value: '#C6E497'}
 				];
-
-				$scope.indicadores = [];
+				$scope.camposProcedimientos = ['total_resueltos', 'solicitados', 'iniciados'];
+				$scope.campoNuevoProcedimiento = $scope.camposProcedimientos[0];
+				$scope.procedimientos = ProcedimientoList.query({idjerarquia: 1, fields: ['codigo', 'denominacion'].join(' ')});
+				$scope.procedimientos.$promise.then(function(procedimientos){
+					for (var i = 0, j = procedimientos.length; i < j; i++){
+						$scope.procedimientosById[ procedimientos[i]._id ] = procedimientos[i];
+					}
+				});
 				$scope.idobjetivo = ($routeParams.idobjetivo) ? $routeParams.idobjetivo : false;
 				$scope.objetivo = Objetivo.get({id: $scope.idobjetivo}, function () {
 					$scope.carta = EntidadObjeto.get({id: $scope.objetivo.carta}, function () {
@@ -30,6 +38,36 @@
 						}
 					}
 				});
+				$scope.nuevoProcedimiento = '';
+				$scope.vincularProcedimiento = function(formula, nuevoProcedimiento, campoNuevoProcedimiento){
+					if (typeof nuevoProcedimiento !== 'object'){
+						$log.error(nuevoProcedimiento, ' no es un objeto');
+						return;
+					}
+
+					if (typeof formula.procedimientos === 'undefined'){
+						formula.procedimientos = [];
+					}
+					for (var i = 0, j = formula.procedimientos.length; i < j; i++){
+						if (formula.procedimientos[i].procedimiento === nuevoProcedimiento._id
+							&& formula.procedimientos[i].campo === campoNuevoProcedimiento){
+							$rootScope.toaster('No se puede añadir dos veces el mismo procedimiento con el mismo campo');
+							$log.error('No se puede añadir dos veces el mismo procedimiento');
+							return;
+						}
+					}
+					formula.procedimientos.push({
+						procedimiento: nuevoProcedimiento._id,
+						campo: campoNuevoProcedimiento
+					});
+					$scope.nuevoProcedimiento = '';
+				};
+
+				$scope.desvincularProcedimiento = function (indexFormula, procedimientoid) {
+					if ($window.confirm('¿Está seguro de desvincular el indicador?')) {
+						$scope.objetivo.formulas[indexFormula].procedimientos.splice(procedimientoid, 1);
+					}
+				};
 
 				$scope.crearNuevoIntervalo = function (formula) {
 					if (typeof formula.intervalos === 'undefined') {
@@ -45,7 +83,6 @@
 				$scope.desvincular = function (indexFormula, indicadorid) {
 					if ($window.confirm('¿Está seguro de desvincular el indicador?')) {
 						$scope.objetivo.formulas[indexFormula].indicadores.splice(indicadorid, 1);
-//                            $scope.actualizar();
 					}
 				};
 

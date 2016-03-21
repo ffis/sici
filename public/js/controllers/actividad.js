@@ -59,14 +59,14 @@
 						return true;
 					}
 					if (!nodo.nodes) { return false; }
-					for(var i = 0, j = nodo.nodes.length; i < j; i++){
+					for (var i = 0, j = nodo.nodes.length; i < j; i++){
 						if (setJ(nodo.nodes[i], idjerarquia)) {
 							return true;
 						}
 					}
 					return false;
 				};
-				for(var idx = 0, idxmax = $scope.arbol.length; idx < idxmax; idx++){
+				for (var idx = 0, idxmax = $scope.arbol.length; idx < idxmax; idx++){
 					if (setJ( $scope.arbol[idx], idj)){
 						break;
 					}
@@ -93,7 +93,7 @@
 			$scope.fj = function(item) {
 				if ($scope.jerarquia.indexOf(item.id) !== -1 ){ return true; }
 				if (item.nodes){
-					for(var i = 0; i < item.nodes.length; i++){
+					for (var i = 0; i < item.nodes.length; i++){
 						if ($scope.filtrojerarquia(item.nodes[i])){
 							return true;
 						}
@@ -141,12 +141,12 @@
 					$('.sparkline').each( function(){
 						var obj = $(this).data('value');
 						var t;
-						try{
+						try {
 							t = JSON.parse( obj );
 							$(this).sparkline( t, {type: 'bar', barColor: '#a94442'});
-						}catch(e){
+						} catch (e) {
 							/*$log.error('sparkline mal formed VALUE WAS:' + t , obj);*/
-							$(this).sparkline( [0,0,0,0,0,0,0,0,0,0,0,0], {type: 'bar', barColor: '#a94442'});
+							$(this).sparkline( [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], {type: 'bar', barColor: '#a94442'});
 						}
 					});
 				}, 5);
@@ -161,7 +161,7 @@
 				var result = [];
 				$scope.procedimientos.forEach(function(p){
 					var ok = true;
-					for(var campofiltro in $scope.filtro){
+					for (var campofiltro in $scope.filtro){
 						if ($scope.filtro[campofiltro] !== 'TODOS' && p[campofiltro] !== $scope.filtro[campofiltro]){
 							ok = false; break;
 						}
@@ -195,7 +195,7 @@
 						if (cumplimentado) {
 							$scope.cumplimentados++;
 						}
-						for(var idxfiltro in $scope.camposfiltros){
+						for (var idxfiltro in $scope.camposfiltros){
 							var campo = $scope.camposfiltros[idxfiltro], value = p[campo], name = p[campo], count = 1;
 							if (typeof $scope.filtros[campo] === 'undefined'){
 								$scope.filtros[campo] = {};
@@ -203,7 +203,7 @@
 							if (typeof $scope.filtros[campo][value] === 'undefined')
 							{
 								$scope.filtros[campo][value] = { name: name, value: value, count: count, cumplimentados: cumplimentado ? 1 : 0};
-							}else{
+							} else {
 								$scope.filtros[campo][value].count = $scope.filtros[campo][value].count + 1;
 								if (cumplimentado){
 									$scope.filtros[campo][value].cumplimentados = $scope.filtros[campo][value].cumplimentados + 1;
@@ -213,15 +213,16 @@
 						}
 					});
 
-					for(var i in $scope.camposfiltros){
+					for (var i in $scope.camposfiltros){
 						var campofiltro = $scope.camposfiltros[i];
 						if (Object.keys($scope.filtros[campofiltro]).length > 1)
 						{
 							$scope.filtros[campofiltro].TODOS = { name: 'TODOS', value: 'TODOS', count: 0};
 							$scope.filtro[campofiltro] = 'TODOS';
-						}else{
-							for(var a in $scope.filtros[campofiltro])
+						}else {
+							for (var a in $scope.filtros[campofiltro]){
 								$scope.filtro[campofiltro] = $scope.filtros[campofiltro][a].value;
+							}
 						}
 					}
 
@@ -229,9 +230,10 @@
 					{
 						$scope.responsables.TODOS = { name: 'TODOS', value: 'TODOS', count: 0};
 						$scope.responsable = $scope.responsables.TODOS;
-					}else{
-						for(var only in $scope.responsables)
+					} else {
+						for (var only in $scope.responsables){
 							$scope.responsable = $scope.responsables[only];
+						}
 					}
 					$scope.sparkline();
 				}
@@ -307,7 +309,7 @@
 						};
 						var url = '/download/' + token.time + '/' + token.hash;
 						$window.location = url;
-					}else{
+					} else {
 						$scope.respuesta = {
 							clase: 'alert-warning',
 							mensaje: 'Error al descargar el informe.'

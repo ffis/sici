@@ -71,9 +71,17 @@
 				return filtered;
 			};
 		})
+		.filter('sum', function(){
+			return function(input){
+				if (!angular.isObject(input)){
+					return input;
+				}
+				return input.reduce(function(a, o){ return a + o; });
+			};
+		})
 		.filter('keylength', function(){
 			return function(input){
-				if(!angular.isObject(input)){
+				if (!angular.isObject(input)){
 					return 0;
 				}
 				return Object.keys(input).length;
