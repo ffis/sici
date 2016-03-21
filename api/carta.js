@@ -512,7 +512,8 @@
 							carta: cartaid,
 							index: contador,
 							estado: 'Publicado',
-							objetivoestrategico: 1
+							objetivoestrategico: 1,
+							procedimientos: []
 						});
 						contador = '' + (parseInt(contador) + 1);
 						enunciado = detalle;
@@ -530,7 +531,8 @@
 								carta: cartaid,
 								index: contador,
 								estado: 'Publicado',
-								objetivoestrategico: 1
+								objetivoestrategico: 1,
+								procedimientos: []
 							});
 						}
 						contador = '' + (parseInt(contador) + 1);

@@ -219,6 +219,7 @@
 				'pendiente': Boolean,
 				'valores': 'Mixed',
 				'indicadores': 'Mixed',
+				'procedimientos': 'Mixed',
 				'intervalos':[{
 					'min': Number,
 					'max': Number,
