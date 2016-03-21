@@ -250,6 +250,7 @@
 		app.get('/api/v1/public/procedimientoHasChildren/:codigo', procedimiento.hasChildred(models));
 
 
+		app.get('/api/v1/public/procedimientoList', procedimiento.procedimientoList(models));
 		app.get('/api/v1/public/procedimientoList/:idjerarquia', procedimiento.procedimientoList(models));
 		app.get('/api/v1/public/procedimientoList/:idjerarquia/:recursivo', procedimiento.procedimientoList(models, Q));
 		app.get('/api/v1/public/procedimientosSinExpedientes', procedimiento.procedimientosSinExpedientes(cfg, models));
