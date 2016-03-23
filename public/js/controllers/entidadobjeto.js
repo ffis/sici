@@ -55,6 +55,7 @@
 						$scope.cargaJerarquia(entidadobjeto[clave]);
 					}
 					entidadobjeto[clave] = entidadobjeto[clave].trim();
+					delete entidadobjeto.$editar;
 					entidadobjeto.$update().then(function(){
 						$scope.cambios = [];
 						$rootScope.toaster('Carta de servicios actualizada');
@@ -74,7 +75,32 @@
 						}
 					});
 				};
+				$scope.newCarta = function(){
+					if ($window.confirm('¿Está seguro/a? La carta generada tomará valores por defecto y será editable en la tabla inferior')){
+						var params = {};
+						for (var campo in $scope.entidades[0]){
+							params[campo] = $scope.entidades[0][campo];
+						}
+						params.tipoentidad = 'CS';
+						params.eliminado = false;
+						params.idjerarquia = 1;
+						params.codigo = $scope.entidades.length + 1;
+						params.denominacion = 'Nueva carta de servicios';
+						delete params._id;
 
+						//var nueva = new EntidadObjeto(params);
+						EntidadObjeto.save(params).$promise.then(function(){
+							$rootScope.toaster('Carta de servicios creada');
+							$scope.load();
+						}, function(err){
+							if (err.data && err.data.error){
+								$rootScope.toaster('Carta de servicios fallida: ' + err.data.error, 'Error', 'error');
+							} else {
+								$rootScope.toaster('Carta de servicios fallida', 'Error', 'error');
+							}
+						});
+					}
+				};
 				$scope.dropCarta = function(entidadobjeto){
 					if ($window.confirm('¿Está seguro/a? Esta operación es irreversible')){
 						if ($window.confirm('PERMÍTEME QUE INSISTA. Esta operación es irreversible.')){

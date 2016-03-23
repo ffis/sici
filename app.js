@@ -292,6 +292,7 @@
 		app.get('/api/v2/public/entidadobjeto', entidadobjeto.get(models));
 		app.get('/api/v2/public/entidadobjeto/:id', entidadobjeto.get(models));
 		app.put('/api/v2/public/entidadobjeto/:id', entidadobjeto.update(models));
+		app.post('/api/v2/public/entidadobjeto', entidadobjeto.create(models));
 
 		app.get('/api/v1/public/entidadesObjetoByResponsable/:codplaza', entidadobjeto.entidadobjetoByResponsable(models));
 		/*app.get('/api/v2/public/testDownloadCarta/:id', carta.testDownloadCarta(models, Crawler, Q));*/

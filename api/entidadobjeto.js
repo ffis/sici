@@ -8,7 +8,7 @@
 			if (id){
 				entidadobjeto.findOne({'_id': id}, function (err, data) {
 					if (err) {
-						res.status(500).send({'error': 'An error has occurred', details: err});
+						res.status(500).json({'error': 'An error has occurred', details: err});
 						return;
 					}
 					res.json(data);
@@ -29,26 +29,49 @@
 		};
 	};
 
+	module.exports.create = function(models){
+		return function(req, res){
+			if (req.user && req.user.permisoscalculados && req.user.permisoscalculados.superuser){
+				var entidadobjeto = models.entidadobjeto();
+				var content = JSON.parse(JSON.stringify(req.body));
+				content.idjerarquia = parseInt(content.idjerarquia);
+				content.fecha_version = new Date();
+				new entidadobjeto(content).save(function (e, obj) {
+					if (e) {
+						res.status(500).json({'error': 'An error has occurred.', details: e});
+					} else {
+						res.send(obj);
+					}
+				});
+			} else {
+				res.status(400).json({error: 'Not allowed'});
+			}
+		};
+	};
+
 	module.exports.update = function (models) {
 		return function (req, res) {
-			var entidadobjeto = models.entidadobjeto();
-			var content = JSON.parse(JSON.stringify(req.body));
-			var id = content._id;
+			if (req.user && req.user.permisoscalculados && req.user.permisoscalculados.superuser){
+				var entidadobjeto = models.entidadobjeto();
+				var content = JSON.parse(JSON.stringify(req.body));
+				var id = content._id;
 
-			delete content._id;
+				delete content._id;
 
-			content.idjerarquia = parseInt(content.idjerarquia);
-			content.fecha_version = new Date();
-			//entidadobjeto.markModified('fecha_version');
+				content.idjerarquia = parseInt(content.idjerarquia);
+				content.fecha_version = new Date();
 
-			entidadobjeto.update({'_id': id}, content, {upsert: true}, function (e) {
-				if (e) {
-					res.status(500).send({'error': 'An error has occurred.', details: e});
-				} else {
-					//se reenvía lo mismo que se recibió
-					res.send(req.body);
-				}
-			});
+				entidadobjeto.update({'_id': id}, content, {upsert: true}, function (e) {
+					if (e) {
+						res.status(500).json({'error': 'An error has occurred during update.', details: e});
+					} else {
+						//se reenvía lo mismo que se recibió
+						res.send(req.body);
+					}
+				});
+			} else {
+				res.status(400).json({error: 'Not allowed'});
+			}
 		};
 	};
 
