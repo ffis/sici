@@ -103,7 +103,7 @@
 													</tr>
 													<tr ng-if="formula.indicadores.length === 1 && indicadores[formula.indicadores[0] ].acumulador === 'sum' ">
 														<th>Sumatorio parcial</th>
-														<td ng-hide="$last" class="text-right" ng-repeat="(v,a) in indicadores[formula.indicadores[0] ].valores[aanualidad] track by $index" ng-style="bgColorResultadoParcial(sumatorioParcial(indicadores[formula.indicadores[0] ].valores[aanualidad], $index), (formula.meta / 12) * ($index + 1), formula.meta, formula)">
+														<td ng-hide="$last" class="text-right" ng-repeat="(v,a) in indicadores[formula.indicadores[0] ].valores[aanualidad] track by $index" ng-attr-style="{{bgColorResultadoParcial(sumatorioParcial(indicadores[formula.indicadores[0] ].valores[aanualidad], $index), (formula.meta / 12) * ($index + 1), formula.meta, formula)}}">
 															<span>
 															{{ sumatorioParcial(indicadores[formula.indicadores[0] ].valores[aanualidad], $index) | number:($root.isInt( sumatorioParcial(indicadores[formula.indicadores[0] ].valores[aanualidad], $index) ) ? 0 : 2)}}
 															</span>
@@ -111,7 +111,7 @@
 													</tr>
 													<tr ng-if="formula.indicadores.length > 1 || indicadores[formula.indicadores[0] ].acumulador !== 'sum' ">
 														<th>Cálculo</th>
-														<th class="text-right" title="{{valor.formula | join:' '}}" ng-style="bgColorResultado(valor.resultado, formula)" ng-repeat="valor in formula.valores[aanualidad] track by $index">{{valor.resultado | number:($root.isInt(valor.resultado) ? 0 : 2)  }}</th>
+														<td class="text-right" title="{{valor.formula | join:' '}}" ng-attr-style="{{bgColorResultado(valor.resultado, formula)}}" ng-repeat="valor in formula.valores[aanualidad] track by $index">{{valor.resultado | number:($root.isInt(valor.resultado) ? 0 : 2)  }}</td>
 													</tr>
 												</tfoot>
 												<tbody>
@@ -204,4 +204,10 @@
 .menu-indicador a {display: none;}
 .menu-indicador:hover a {display: inline;}
 /* This is the key */
+
+#cartastable tfoot tr td,
+#cartastable tfoot tr th
+{
+	-webkit-print-color-adjust: exact;
+}
 </style>

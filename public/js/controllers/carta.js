@@ -201,7 +201,8 @@
 					if (result === '' && formula.intervalos.length > 0 && formula.intervalos[ formula.intervalos.length - 1 ].max ){
 						result = formula.intervalos[ formula.intervalos.length - 1 ].color;
 					}
-					return {'background-color': result};
+					//return {'background-color': result};
+					return 'background-color:' + result + '!important';
 				};
 				$scope.getPastel = function(i){
 					return PastelColor(i);
@@ -295,7 +296,8 @@
 							result = formula.intervalos[i].color;
 						}
 					}
-					return {'background-color': result};
+					return 'background-color:' + result + '!important';
+					//return {'background-color': result};
 				};
 				$scope.mini = function(){
 					var minval = arguments[i];
