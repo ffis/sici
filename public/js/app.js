@@ -8,7 +8,7 @@
 		'sici.filters', 'sici.services', 'sici.directives', 'sici.login.util', 'sici.translate',
 		'pascalprecht.translate',
 		'autocomplete',
-		'toaster', 'ngRadialGauge', 'ngDraggable'
+		'toaster', 'ngRadialGauge', 'ngDraggable', 'hc.downloader'
 	];
 
 	if (angularFileUploadLoaded){
