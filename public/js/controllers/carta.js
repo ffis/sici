@@ -2,8 +2,8 @@
 	'use strict';
 	angular.module('sici')
 		.controller('CartaCtrl',
-			['$q', '$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', '$log', '$http', 'Arbol', 'Objetivo', 'EntidadObjeto', 'PastelColor', 'ImportarObjetivo', 'Indicador', 'ProcedimientoList',
-			function ($q, $rootScope, $scope, $location, $window, $routeParams, $timeout, $log, $http, Arbol, Objetivo, EntidadObjeto, PastelColor, ImportarObjetivo, Indicador, ProcedimientoList) {
+			['$q', '$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', '$log', '$http', 'Arbol', 'Objetivo', 'EntidadObjeto', 'PastelColor', 'ImportarObjetivo', 'Indicador', 'ProcedimientoList', 'Jerarquia',
+			function ($q, $rootScope, $scope, $location, $window, $routeParams, $timeout, $log, $http, Arbol, Objetivo, EntidadObjeto, PastelColor, ImportarObjetivo, Indicador, ProcedimientoList, Jerarquia) {
 				$rootScope.nav = 'carta';
 				$scope.idjerarquia = ($routeParams.idjerarquia) ? parseInt( $routeParams.idjerarquia ) : false;
 				$scope.arbol = Arbol.query(function(){ $scope.setJerarquiaById($scope.idjerarquia); });
@@ -16,6 +16,12 @@
 				$scope.R_Indicador = false;
 				$scope.mutexFormulas = function(){
 					$scope.showformulas = !$scope.showformulas;
+				};
+				$scope.jerarquias = [];
+				var loadJerarquia = function(idjerarquia){
+					if (typeof $scope.jerarquias[idjerarquia] === 'undefined'){
+						$scope.jerarquias[idjerarquia] = Jerarquia.get({id: idjerarquia});
+					}
 				};
 				$scope.setJerarquiaById = function(idj){
 					if (!idj){ return; }
@@ -152,6 +158,10 @@
 							$scope.R_Indicador = jerarquialectura.indexOf(selection.id) >= 0;
 						});
 						$scope.idjerarquia = selection.id;
+						$scope.jerarquia = Jerarquia.get({id: $scope.idjerarquia}, function(){
+							$scope.jerarquias[$scope.idjerarquia] = $scope.jerarquia;
+							$scope.jerarquia.ancestros.forEach(loadJerarquia);
+						});
 						$scope.cartasservicio = EntidadObjeto.query({'tipoentidad': 'CS', 'idjerarquia': $scope.idjerarquia}, function(){
 							for (var i = 0, j = $scope.cartasservicio.length; i < j; i++){
 								$scope.cartasservicio[i].urledicion = '/carta/' + $scope.idjerarquia + '/' + $scope.cartasservicio[i]._id;

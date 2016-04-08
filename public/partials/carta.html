@@ -12,7 +12,10 @@
 				<i class="fa fa-bars"></i>
 			</div>
 		</div>
-		<h2>{{seleccionado.title}}</h2>
+		<ol class="breadcrumb" id="breadcrumb" style="margin-top: 1.7em;">
+			<li ng-repeat="o in jerarquia.ancestros | reverse">{{jerarquias[ o ].nombrelargo}} <a target="_blank" title="Ver procedimientos de este nodo" href="/actividad/{{o}}" class="btn btn-default btn-xs"><i class="fa fa-bar-chart"></i></a> <a title="Ver las cartas de este nodo" href="/carta/{{o}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-scale"></span></a></li>
+			<li class="active"><em>{{jerarquia.nombrelargo}}</em> <a target="_blank" title="Ver procedimientos de este nodo" href="/actividad/{{o}}" class="btn btn-default btn-xs"><i class="fa fa-bar-chart"></i></a></li>
+		</ol>
 
 		<div ng-if="cartasservicio.length" class="table-responsive">
 			<p>
