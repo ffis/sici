@@ -280,6 +280,11 @@
 		app.get('/api/v2/public/informeCarta/:id', carta_docx.generate(app, cfg, md5, models, ObjectId, Q));
 		app.get('/api/v2/public/informeCarta/:id/:anualidad', carta_docx.generate(app, cfg, md5, models, ObjectId, Q));
 
+
+		var Ec = require('./api/exportador_carta'),
+			exportadorCarta = new Ec(models, path.join(config.templates.xlsxcartas));
+		app.get('/api/v2/public/exportadorCarta/:id/:anualidad', exportadorCarta.toExpress(app, md5, cfg));
+
 		app.get('/api/v2/public/objetivosStats', carta.objetivosStats(models, Q));
 
 		app.put('/api/v2/public/updateformula', carta.updateFormula(models));

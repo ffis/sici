@@ -1,8 +1,12 @@
 {
 	"mongodb": {
-		"connectionString": "mongodb://mongosvr/sici"
+		"connectionString": "mongodb://mongosvr/sici",
+		"debug": false
 	},
 	"tmpdir": "tmp",
-	"publicdir": "public"
+	"publicdir": "public",
+	"templates":{
+		"xlsxcartas": "data/carta.xlsx"
+	}
 
 }

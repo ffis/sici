@@ -12,6 +12,7 @@
     "docxtemplater": "^2.0.0",
     "docxtemplater-image-module": "^1.0.0",
     "encoding": "^0.1.10",
+    "exceljs": "^0.2.6",
     "express": "^4.11.1",
     "express-jwt": "",
     "jschardet": "^1.1.0",
@@ -36,5 +37,8 @@
     "v8-profiler": "^5.2.2",
     "xlsx": "^0.7.12",
     "zombie": "^2.0.8"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0"
   }
 }

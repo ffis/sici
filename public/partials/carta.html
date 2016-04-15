@@ -25,6 +25,7 @@
 					</a>
 					<a class="btn btn-default" target="_blank" href="{{cartaservicioseleccionada.url}}" title="Ver informaci&oacute;n publicada"><span class="glyphicon glyphicon-info-sign"></span></a>
 					<a class="btn btn-default" target="_blank" href="{{cartaservicioseleccionada.urlprintable}}" title="Ver versi&oacute;n imprimible"><span class="glyphicon glyphicon-print"></span></a>
+					<a class="btn btn-default" href="#" ng-click="downloadxls()" title="Descargar versi&oacute;n XLSX"><span class="glyphicon glyphicon-th"></span></a>
 					<a class="btn btn-default" target="_blank" href="/carta-informe/{{seleccionado.id}}/{{cartaservicioseleccionada._id}}/{{anualidad}}" title="Ver planes de mejora"><span class="glyphicon glyphicon-check"></span></a>
 					<a class="btn btn-default" ng-click="mutexFormulas()" title="Ver f&oacute;rmulas"><span class="fa" ng-class="{'fa-toggle-on': showformulas, 'fa-toggle-off': !showformulas}"></span></a>
 					<div class="btn-group">

@@ -309,6 +309,18 @@
 					return 'background-color:' + result + '!important';
 					//return {'background-color': result};
 				};
+				$scope.downloadxls = function(){
+					$scope.descargando = true;
+					$http.get('/api/v2/public/exportadorCarta/' + $scope.cartaservicioseleccionada._id + '/' + $scope.anualidad)
+						.then(function (res) {
+							$scope.descargando = false;
+							var url = '/download/' + res.data.time + '/' + res.data.hash + '?extension=' + res.data.extension;
+							$window.location = url;
+						}, function() {
+							$scope.descargando = false;
+							$rootScope.toaster('Error al descargar el informe', 'Error', 'error');
+						});
+				};
 				$scope.mini = function(){
 					var minval = arguments[i];
 					for (var i = 1; i < arguments.length; i++) {

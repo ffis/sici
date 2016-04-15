@@ -1,9 +1,8 @@
-/*global assert */
-
-const assert = require('assert');
-(function(module, logger, assert){
+(function(module, logger){
 	'use strict';
-	var XLSX = require('xlsx'),
+
+	var assert = require('assert');
+	var Excel = require('exceljs'),
 		Q = require('q');
 /*
 	function Workbook() {
@@ -27,6 +26,8 @@ const assert = require('assert');
 	}
 
 	function getCell(worksheet, path, type){
+		return worksheet.getCell(path);
+		/*
 		if (typeof worksheet[path] !== 'object'){
 			worksheet[path] = {};
 			if (typeof type === 'undefined'){
@@ -35,7 +36,7 @@ const assert = require('assert');
 				worksheet[path] = { v: '', t: type};
 			}
 		}
-		return worksheet[path];
+		return worksheet[path];*/
 	}
 
 	ExportadorCartas.prototype.loadEntidadObjeto = function(entidadobjetoid) {
@@ -64,7 +65,7 @@ const assert = require('assert');
 		var defer = Q.defer();
 		this.models.indicadormodel.find(restriccion).then(function(o){
 			var by_Id = {};
-			for(var i = 0, j = o.length; i < j; i++){
+			for (var i = 0, j = o.length; i < j; i++){
 				by_Id[ o[i]._id ] = o[i];
 			}
 			defer.resolve(by_Id);
@@ -117,121 +118,176 @@ const assert = require('assert');
 	};
 
 	function monthRow(worksheet, fila, anualidad){
-		getCell(worksheet, 'C' + fila).v = 'E';
-		getCell(worksheet, 'D' + fila).v = 'F';
-		getCell(worksheet, 'E' + fila).v = 'M';
-		getCell(worksheet, 'F' + fila).v = 'A';
-		getCell(worksheet, 'G' + fila).v = 'M';
-		getCell(worksheet, 'H' + fila).v = 'J';
-		getCell(worksheet, 'I' + fila).v = 'J';
-		getCell(worksheet, 'J' + fila).v = 'A';
-		getCell(worksheet, 'K' + fila).v = 'S';
-		getCell(worksheet, 'L' + fila).v = 'O';
-		getCell(worksheet, 'M' + fila).v = 'N';
-		getCell(worksheet, 'N' + fila).v = 'D';
-		getCell(worksheet, 'O' + fila).v = anualidad;
+		worksheet.getRow(fila).font = { bold: true };
+		worksheet.getRow(fila).alignment = { horizontal: 'center' };
+		getCell(worksheet, 'C' + fila).value = 'E';
+		getCell(worksheet, 'D' + fila).value = 'F';
+		getCell(worksheet, 'E' + fila).value = 'M';
+		getCell(worksheet, 'F' + fila).value = 'A';
+		getCell(worksheet, 'G' + fila).value = 'M';
+		getCell(worksheet, 'H' + fila).value = 'J';
+		getCell(worksheet, 'I' + fila).value = 'J';
+		getCell(worksheet, 'J' + fila).value = 'A';
+		getCell(worksheet, 'K' + fila).value = 'S';
+		getCell(worksheet, 'L' + fila).value = 'O';
+		getCell(worksheet, 'M' + fila).value = 'N';
+		getCell(worksheet, 'N' + fila).value = 'D';
+		getCell(worksheet, 'O' + fila).value = anualidad;
+	}
+
+	function bgColorResultado (resultado, formula){
+		var result = '';
+		if (!resultado || resultado === 0 || resultado === ''){
+			return '';
+		}
+		for (var i = 0, j = formula.intervalos.length; i < j; i++){
+			if (resultado >= formula.intervalos[i].min && resultado <= formula.intervalos[i].max){
+				return 'FF' + formula.intervalos[i].color.replace('#', '');
+			}
+		}
+		return result;
 	}
 
 	function valueRow(worksheet, fila, anualidad, indicador){
-		var datos = indicador.valores['a' + anualidad];
-		datos[0] ? getCell(worksheet, 'C' + fila, 'n').v = datos[0] : '';
-		datos[1] ? getCell(worksheet, 'D' + fila, 'n').v = datos[1] : '';
-		datos[2] ? getCell(worksheet, 'E' + fila, 'n').v = datos[2] : '';
-		datos[3] ? getCell(worksheet, 'F' + fila, 'n').v = datos[3] : '';
-		datos[4] ? getCell(worksheet, 'G' + fila, 'n').v = datos[4] : '';
-		datos[5] ? getCell(worksheet, 'H' + fila, 'n').v = datos[5] : '';
-		datos[6] ? getCell(worksheet, 'I' + fila, 'n').v = datos[6] : '';
-		datos[7] ? getCell(worksheet, 'J' + fila, 'n').v = datos[7] : '';
-		datos[8] ? getCell(worksheet, 'K' + fila, 'n').v = datos[8] : '';
-		datos[9] ? getCell(worksheet, 'L' + fila, 'n').v = datos[9] : '';
-		datos[10] ? getCell(worksheet, 'M' + fila, 'n').v = datos[10] : '';
-		datos[11] ? getCell(worksheet, 'N' + fila, 'n').v = datos[11] : '';
-		datos[12] ? getCell(worksheet, 'O' + fila, 'n').v = datos[12] : '';
+		var datos = indicador.valores['a' + anualidad],
+			thin = { style: 'thin' },
+			bordered = {
+				top: thin,
+				left: thin,
+				bottom: thin,
+				right: thin
+			},
+			row = worksheet.getRow(fila);
+		datos[0] ? getCell(worksheet, 'C' + fila, 'n').value = datos[0] : '';
+		datos[1] ? getCell(worksheet, 'D' + fila, 'n').value = datos[1] : '';
+		datos[2] ? getCell(worksheet, 'E' + fila, 'n').value = datos[2] : '';
+		datos[3] ? getCell(worksheet, 'F' + fila, 'n').value = datos[3] : '';
+		datos[4] ? getCell(worksheet, 'G' + fila, 'n').value = datos[4] : '';
+		datos[5] ? getCell(worksheet, 'H' + fila, 'n').value = datos[5] : '';
+		datos[6] ? getCell(worksheet, 'I' + fila, 'n').value = datos[6] : '';
+		datos[7] ? getCell(worksheet, 'J' + fila, 'n').value = datos[7] : '';
+		datos[8] ? getCell(worksheet, 'K' + fila, 'n').value = datos[8] : '';
+		datos[9] ? getCell(worksheet, 'L' + fila, 'n').value = datos[9] : '';
+		datos[10] ? getCell(worksheet, 'M' + fila, 'n').value = datos[10] : '';
+		datos[11] ? getCell(worksheet, 'N' + fila, 'n').value = datos[11] : '';
+		datos[12] ? getCell(worksheet, 'O' + fila, 'n').value = datos[12] : '';
+
+		for (var i = 3; i < 16; i++){
+			row.getCell(i).border = bordered;
+		}
 	}
 
 	function valueRowFormula(worksheet, fila, anualidad, formula){
 		var datos = formula.valores['a' + anualidad];
-		datos[0] && datos[0].resultado ? getCell(worksheet, 'C' + fila, 'n').v = datos[0].resultado : '';
-		datos[1] && datos[1].resultado ? getCell(worksheet, 'D' + fila, 'n').v = datos[1].resultado : '';
-		datos[2] && datos[2].resultado ? getCell(worksheet, 'E' + fila, 'n').v = datos[2].resultado : '';
-		datos[3] && datos[3].resultado ? getCell(worksheet, 'F' + fila, 'n').v = datos[3].resultado : '';
-		datos[4] && datos[4].resultado ? getCell(worksheet, 'G' + fila, 'n').v = datos[4].resultado : '';
-		datos[5] && datos[5].resultado ? getCell(worksheet, 'H' + fila, 'n').v = datos[5].resultado : '';
-		datos[6] && datos[6].resultado ? getCell(worksheet, 'I' + fila, 'n').v = datos[6].resultado : '';
-		datos[7] && datos[7].resultado ? getCell(worksheet, 'J' + fila, 'n').v = datos[7].resultado : '';
-		datos[8] && datos[8].resultado ? getCell(worksheet, 'K' + fila, 'n').v = datos[8].resultado : '';
-		datos[9] && datos[9].resultado ? getCell(worksheet, 'L' + fila, 'n').v = datos[9].resultado : '';
-		datos[10] && datos[10].resultado ? getCell(worksheet, 'M' + fila, 'n').v = datos[10].resultado : '';
-		datos[11] && datos[11].resultado ? getCell(worksheet, 'N' + fila, 'n').v = datos[11].resultado : '';
-		datos[12] && datos[12].resultado ? getCell(worksheet, 'O' + fila, 'n').v = datos[12].resultado : '';
+		var i, j = 13;
+		var row = worksheet.getRow(fila), celda, bg;
+		for (i = 0, j = 13; i < j; i++){
+			if (datos[i] && datos[i].resultado){
+				celda = row.getCell(3 + i);
+				celda.value = datos[0].resultado;
+				bg = bgColorResultado(datos[i].resultado, formula);
+				if (bg !== ''){
+					celda.fill = {type: 'pattern', pattern: 'darkVertical', fgColor:{argb: bg}};
+				}
+			}
+		}
 	}
 
 	function fulfillFormula(worksheet, formula, fila, anualidad, indicadores){
 		var indicador,
-			i = 0, j = 0;
-		getCell(worksheet, 'B' + fila).v = formula.human;
-		fila++;
+			i = 0, j = 0,
+			bordered = {
+				top: {style: 'thin'},
+				left: {style: 'thin'},
+				bottom: {style: 'thin'},
+				right: {style: 'thin'}
+			};
+		worksheet.mergeCells('B' + fila + ':' + 'O' + fila);
+		getCell(worksheet, 'B' + fila).alignment = { wrapText: true };
+		getCell(worksheet, 'B' + fila).value = formula.human;
+		getCell(worksheet, 'B' + fila).font = {bold: true};
+		fila++;fila++;
 		monthRow(worksheet, fila, anualidad);
 		fila++;
 		for (i = 0, j = formula.indicadores.length; i < j; i++, fila++){
 			if (typeof indicadores[ formula.indicadores[i] ] === 'object'){
 				indicador = indicadores[ formula.indicadores[i] ];
-				getCell(worksheet, 'B' + fila).v = indicador.nombre;
+				getCell(worksheet, 'B' + fila).value = indicador.nombre;
+				getCell(worksheet, 'B' + fila).alignment = { wrapText: true };
 				valueRow(worksheet, fila, anualidad, indicador);
 			} else {
-				console.error('No se ha cargado:', formula.indicadores[i], indicadores);
+				logger.error('No se ha cargado:', formula.indicadores[i], indicadores);
 			}
 		}
 		fila++;
+		fila++;
+		getCell(worksheet, 'B' + fila).value = 'META PARCIAL'; fila++;
+		getCell(worksheet, 'B' + fila).value = 'SUMA PARCIAL /CÁLCULO';
 		valueRowFormula(worksheet, fila, anualidad, formula);
 		fila++;
-		getCell(worksheet, 'B' + fila).v = 'META PARCIAL'; fila++;
-		getCell(worksheet, 'B' + fila).v = 'SUMA PARCIAL /CÁLCULO'; fila++;
-		getCell(worksheet, 'B' + fila).v = 'VALOR EVALUACION'; fila++;
+		getCell(worksheet, 'B' + fila).value = 'VALOR EVALUACION'; fila++;
 
 		return fila + 1;
 	}
 
-	function fulfillObjetivo(worksheet, objetivo, filainicial, anualidad, indicadores){
-		logger.log(objetivo.denominacion);
-		getCell(worksheet, 'A' + filainicial).v = objetivo.index;
-		getCell(worksheet, 'B' + filainicial).v = objetivo.denominacion;
-		filainicial += 2;
+	function fulfillObjetivo(worksheet, objetivo, fila, anualidad, indicadores){
+		getCell(worksheet, 'A' + fila).value = objetivo.index;
+		getCell(worksheet, 'A' + fila).font = {bold: true};
+		getCell(worksheet, 'A' + fila).alignment = {horizontal: 'center'};
+		worksheet.mergeCells('B' + fila + ':' + 'O' + fila);
+		getCell(worksheet, 'B' + fila).value = objetivo.denominacion;
+		getCell(worksheet, 'B' + fila).alignment = { wrapText: true };
+		fila += 2;
 		for (var i = 0, j = objetivo.formulas.length; i < j; i++){
-			filainicial = fulfillFormula(worksheet, objetivo.formulas[i], filainicial, anualidad, indicadores);
+			fila = fulfillFormula(worksheet, objetivo.formulas[i], fila, anualidad, indicadores);
 		}
-		return filainicial;
+		return fila;
 	}
-
 
 	function fulfillSheet(worksheet, datos){
-		var i = 0, j = 0, fila;
+		var i = 0, j = 0, fila = 0;
+		assert(typeof worksheet === 'object', 'fulfillSheet recibe worksheet');
 		assert(typeof datos === 'object', 'fulfillSheet recibe datos');
 		assert(typeof datos.indicadores === 'object', 'fulfillSheet recibe indicadores');
-		getCell(worksheet, 'A1').v = datos.carta.denominacion + datos.carta.expediente;
-		getCell(worksheet, 'A2').v = 'Expediente: ' + datos.carta.expediente;
-		getCell(worksheet, 'A3').v = 'Enlace: ' + datos.carta.url;
-		getCell(worksheet, 'A5').v = datos.jerarquia.nombrelargo;
-		for (var i = 0, j = datos.jerarquias.length, fila = 6; i < j; i++, fila++){
-			getCell(worksheet, 'A' + fila).v = datos.jerarquias[i].nombrelargo;
-		}
-		getCell(worksheet, 'A8').v = 'http://10.166.47.22/carta/' + datos.carta.idjerarquia;
-		getCell(worksheet, 'A8').l = 'http://10.166.47.22/carta/' + datos.carta.idjerarquia;
 
-		for (i = 0, j = datos.objetivos.length, fila = 13; i < j; i++){
+		worksheet.getColumn('B').width = 30;
+		getCell(worksheet, 'A' + fila).value = datos.carta.denominacion + ' ' + datos.carta.expediente; fila++;
+		getCell(worksheet, 'A' + fila).value = 'Expediente: ' + datos.carta.expediente;
+		fila++;
+		getCell(worksheet, 'A' + fila).value = {
+			text: 'Enlace: ' + datos.carta.url,
+			hyperlink: datos.carta.url
+		};
+		fila++;
+		getCell(worksheet, 'A' + fila).value = 'Entidad:'; fila++;
+
+		for (i = 0, j = datos.jerarquias.length; i < j; i++, fila++){
+			getCell(worksheet, 'A' + fila).value = datos.jerarquias[j - i - 1].nombrelargo;
+		}
+		getCell(worksheet, 'A' + fila).value = datos.jerarquia.nombrelargo; fila++;
+		getCell(worksheet, 'A' + fila).value = {
+			text: 'http://10.166.47.22/carta/' + datos.carta.idjerarquia,
+			hyperlink: 'http://10.166.47.22/carta/' + datos.carta.idjerarquia
+		};
+		fila++; fila++; fila++;
+		worksheet.getRow(fila).font = {bold: true};
+		getCell(worksheet, 'A' + fila).value = 'Código'; getCell(worksheet, 'B' + fila).value = 'Denominación';
+		getCell(worksheet, 'A' + fila).alignment = {horizontal: 'center'};
+		fila++;
+
+		for (i = 0, j = datos.objetivos.length, fila++; i < j; i++){
 			fila = fulfillObjetivo(worksheet, datos.objetivos[i], fila, datos.anualidad, datos.indicadores);
 		}
-		worksheet['!ref'] = XLSX.utils.encode_range({s: {c: 0, r: 0}, e: {c: 20, r: fila}});
 	}
 
-	ExportadorCartas.prototype.toFile = function(filename, entidadobjetoid, anualidad){
+	ExportadorCartas.prototype.toFile = function(filename, entidadobjetoid, anualidad, creator){
 		var defer = Q.defer();
 		var instance = this;
 		Q.all([ this.loadEntidadObjeto(entidadobjetoid), this.loadObjetivos(entidadobjetoid) ])
 			.then(function(information){
 				Q.all( [ instance.loadJerarquias(information[0].idjerarquia), instance.loadIndicadores(information[0].idjerarquia) ])
 					.then(function(information2){
-						var workbook = XLSX.readFile(instance.templatefile),
+						var workbook = new Excel.Workbook(),
 							datos = {
 								anualidad: anualidad,
 								carta: information[0],
@@ -240,9 +296,24 @@ const assert = require('assert');
 								jerarquias: information2[0].jerarquias,
 								indicadores: information2[1]
 							};
-						fulfillSheet(workbook.Sheets[ workbook.SheetNames[0] ], datos);
-						defer.resolve(workbook);
-						XLSX.writeFile(workbook, filename);
+
+						if (typeof creator === 'undefined'){
+							creator = 'Me';
+						}
+
+						workbook.creator = creator;
+						workbook.lastModifiedBy = creator;
+						workbook.created = new Date();
+						workbook.modified = new Date();
+
+						workbook.addWorksheet(datos.carta.expediente);
+						var worksheet = workbook.getWorksheet(datos.carta.expediente);
+						fulfillSheet(worksheet, datos);
+						workbook.xlsx.writeFile(filename)
+						.then(function() {
+							logger.log('fichero almacenado');
+							defer.resolve(workbook);
+						});
 					},
 					function(err){
 						defer.reject({error: 'Cannot load metadata', details: err});
@@ -254,6 +325,26 @@ const assert = require('assert');
 		return defer.promise;
 	};
 
+	ExportadorCartas.prototype.toExpress = function(app, md5, cfg){
+		var instance = this;
+		return function(req, res){
+			var creator = req.user.login;
+			var time = new Date().getTime();
+			var path = app.get('prefixtmp'),
+				filename = path + time + '.xlsx';
+			var entidadobjetoid = req.params.id,
+				anualidad = parseInt(req.params.anualidad);
+
+			var hash = md5(cfg.downloadhashprefix + time);
+			instance.toFile(filename, entidadobjetoid, anualidad, creator)
+				.then(function(){
+					res.json({'time': time, 'hash': hash, extension: '.xlsx'});
+				}, function(error){
+					res.status(500).json({error: error});
+				});
+		};
+	};
 
 	module.exports = ExportadorCartas;
-})(module, console, assert);
+
+})(module, console);
