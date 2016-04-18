@@ -86,6 +86,8 @@
 						params.idjerarquia = 1;
 						params.codigo = $scope.entidades.length + 1;
 						params.denominacion = 'Nueva carta de servicios';
+						params.url = 'http://';
+						params.fechaalta = new Date();
 						delete params._id;
 
 						//var nueva = new EntidadObjeto(params);
