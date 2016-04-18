@@ -128,7 +128,7 @@
 															</div>
 															{{indicadores[indicadorid].nombre}}
 														</td>
-														<td ng-repeat="(v,a) in indicadores[indicadorid].valores[aanualidad] track by $index" style="white-space:nowrap" class="text-center">
+														<td ng-repeat="(v,a) in indicadores[indicadorid].valores[aanualidad] track by $index" style="white-space:nowrap" class="text-right">
 															<div ng-show="W_Indicador">
 																<input ng-hide="$index == indicadores[indicadorid].valores[aanualidad].length - 1" ng-blur="updateIndicador(indicadorid)" type="text" style="width:3em; font-size:smaller; padding:1px; min-width:100%" class="text-right form-control" ng-model="indicadores[indicadorid].valores[aanualidad][v]" />
 																<span ng-if="$index == indicadores[indicadorid].valores[aanualidad].length - 1">
