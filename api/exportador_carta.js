@@ -22,10 +22,11 @@
 		this.models.objetivomodel = this.models.objetivo();
 		this.models.jerarquiamodel = this.models.jerarquia();
 		this.models.indicadormodel = this.models.indicador();
+		this.models.procedimientomodel = this.models.procedimiento();
 		this.templatefile = templatefile;
 	}
 
-	function getCell(worksheet, path, type){
+	function getCell(worksheet, path /*, type*/){
 		return worksheet.getCell(path);
 		/*
 		if (typeof worksheet[path] !== 'object'){
@@ -75,6 +76,21 @@
 		return defer.promise;
 	};
 
+	ExportadorCartas.prototype.loadProcedimientos = function(ids){
+		var restriccion = { '_id': {$in: ids} };
+		var defer = Q.defer();
+		this.models.procedimientomodel.find(restriccion).then(function(o){
+			var by_Id = {};
+			for (var i = 0, j = o.length; i < j; i++){
+				by_Id[ o[i]._id ] = o[i];
+			}
+			defer.resolve(by_Id);
+		}, function(err){
+			defer.reject(err);
+		});
+		return defer.promise;
+	};
+
 	ExportadorCartas.prototype.loadJerarquias = function(jerarquiaid){
 		var restriccion = { 'id': parseInt(jerarquiaid) };
 		var defer = Q.defer(),
@@ -86,7 +102,6 @@
 					restriccion = { 'id': {$in: o.ancestros} };
 
 					instance.models.jerarquiamodel.find(restriccion).select('nombrelargo id').exec().then(function(ancestros){
-						logger.log(ancestros);
 						if (typeof ancestros !== 'object'){
 							defer.reject({ error: 'ancestros no ha podido cargarse'});
 						} else {
@@ -177,6 +192,39 @@
 		}
 	}
 
+	function array_sum(arr){
+		return arr.reduce(function(a, b){ return a + b; });
+	}
+
+	function valueRowProcedimiento(worksheet, fila, anualidad, procedimiento, campo){
+		var datos = procedimiento.periodos['a' + anualidad] ? procedimiento.periodos['a' + anualidad][campo] : [],
+			thin = { style: 'thin' },
+			bordered = {
+				top: thin,
+				left: thin,
+				bottom: thin,
+				right: thin
+			},
+			row = worksheet.getRow(fila);
+		datos[0] ? getCell(worksheet, 'C' + fila, 'n').value = datos[0] : '';
+		datos[1] ? getCell(worksheet, 'D' + fila, 'n').value = datos[1] : '';
+		datos[2] ? getCell(worksheet, 'E' + fila, 'n').value = datos[2] : '';
+		datos[3] ? getCell(worksheet, 'F' + fila, 'n').value = datos[3] : '';
+		datos[4] ? getCell(worksheet, 'G' + fila, 'n').value = datos[4] : '';
+		datos[5] ? getCell(worksheet, 'H' + fila, 'n').value = datos[5] : '';
+		datos[6] ? getCell(worksheet, 'I' + fila, 'n').value = datos[6] : '';
+		datos[7] ? getCell(worksheet, 'J' + fila, 'n').value = datos[7] : '';
+		datos[8] ? getCell(worksheet, 'K' + fila, 'n').value = datos[8] : '';
+		datos[9] ? getCell(worksheet, 'L' + fila, 'n').value = datos[9] : '';
+		datos[10] ? getCell(worksheet, 'M' + fila, 'n').value = datos[10] : '';
+		datos[11] ? getCell(worksheet, 'N' + fila, 'n').value = datos[11] : '';
+		getCell(worksheet, 'O' + fila, 'n').value = array_sum(datos);
+
+		for (var i = 3; i < 16; i++){
+			row.getCell(i).border = bordered;
+		}
+	}
+
 	function valueRowFormula(worksheet, fila, anualidad, formula){
 		var datos = formula.valores['a' + anualidad];
 		var i, j = 13;
@@ -193,8 +241,8 @@
 		}
 	}
 
-	function fulfillFormula(worksheet, formula, fila, anualidad, indicadores){
-		var indicador,
+	function fulfillFormula(worksheet, formula, fila, anualidad, indicadores, procedimientos){
+		var indicador, procedimiento,
 			i = 0, j = 0,
 			bordered = {
 				top: {style: 'thin'},
@@ -219,6 +267,19 @@
 				logger.error('No se ha cargado:', formula.indicadores[i], indicadores);
 			}
 		}
+		if (typeof formula.procedimientos === 'object'){
+			for (i = 0, j = formula.procedimientos.length; i < j; i++, fila++){
+				if (typeof procedimientos[ formula.procedimientos[i].procedimiento ] === 'object'){
+					procedimiento = procedimientos[ formula.procedimientos[i].procedimiento ];
+
+					getCell(worksheet, 'B' + fila).value = procedimiento.denominacion + ' [' + formula.procedimientos[i].campo + ']';
+					getCell(worksheet, 'B' + fila).alignment = { wrapText: true };
+					valueRowProcedimiento(worksheet, fila, anualidad, procedimiento, formula.procedimientos[i].campo);
+				} else {
+					logger.error('No se ha cargado:', formula.procedimientos[i].procedimiento, procedimientos);
+				}
+			}
+		}
 		fila++;
 		fila++;
 		getCell(worksheet, 'B' + fila).value = 'META PARCIAL'; fila++;
@@ -230,7 +291,7 @@
 		return fila + 1;
 	}
 
-	function fulfillObjetivo(worksheet, objetivo, fila, anualidad, indicadores){
+	function fulfillObjetivo(worksheet, objetivo, fila, anualidad, indicadores, procedimientos){
 		getCell(worksheet, 'A' + fila).value = objetivo.index;
 		getCell(worksheet, 'A' + fila).font = {bold: true};
 		getCell(worksheet, 'A' + fila).alignment = {horizontal: 'center'};
@@ -239,7 +300,7 @@
 		getCell(worksheet, 'B' + fila).alignment = { wrapText: true };
 		fila += 2;
 		for (var i = 0, j = objetivo.formulas.length; i < j; i++){
-			fila = fulfillFormula(worksheet, objetivo.formulas[i], fila, anualidad, indicadores);
+			fila = fulfillFormula(worksheet, objetivo.formulas[i], fila, anualidad, indicadores, procedimientos);
 		}
 		return fila;
 	}
@@ -276,16 +337,31 @@
 		fila++;
 
 		for (i = 0, j = datos.objetivos.length, fila++; i < j; i++){
-			fila = fulfillObjetivo(worksheet, datos.objetivos[i], fila, datos.anualidad, datos.indicadores);
+			fila = fulfillObjetivo(worksheet, datos.objetivos[i], fila, datos.anualidad, datos.indicadores, datos.procedimientos);
 		}
 	}
+
+
 
 	ExportadorCartas.prototype.toFile = function(filename, entidadobjetoid, anualidad, creator){
 		var defer = Q.defer();
 		var instance = this;
 		Q.all([ this.loadEntidadObjeto(entidadobjetoid), this.loadObjetivos(entidadobjetoid) ])
 			.then(function(information){
-				Q.all( [ instance.loadJerarquias(information[0].idjerarquia), instance.loadIndicadores(information[0].idjerarquia) ])
+				var i, j, k, l, q, w;
+				var objetivos = information[1],
+					ids_procedimientos = [];
+				for (i = 0, j = objetivos.length; i < j; i++){
+					for (k = 0, l = objetivos[i].formulas.length; k < l; k++){
+						if (typeof objetivos[i].formulas[k].procedimientos === 'object'){
+							for ( q = 0, w = objetivos[i].formulas[k].procedimientos.length; q < w; q++){
+								ids_procedimientos.push( objetivos[i].formulas[k].procedimientos[q].procedimiento );
+							}
+						}
+					}
+				}
+
+				Q.all( [ instance.loadJerarquias(information[0].idjerarquia), instance.loadIndicadores(information[0].idjerarquia), instance.loadProcedimientos(ids_procedimientos) ])
 					.then(function(information2){
 						var workbook = new Excel.Workbook(),
 							datos = {
@@ -294,7 +370,8 @@
 								objetivos: information[1],
 								jerarquia: information2[0].jerarquia,
 								jerarquias: information2[0].jerarquias,
-								indicadores: information2[1]
+								indicadores: information2[1],
+								procedimientos: information2[2]
 							};
 
 						if (typeof creator === 'undefined'){

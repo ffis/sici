@@ -23,7 +23,7 @@ usage: mocha testExportadorCarta.js
 
 		describe('ExportadorCarta', function(){
 			var ec,
-				cartaid = '56ded61bb8f02d02feaa6270',
+				cartaid = '56617c4e9aa4f5ea615c1490',
 				testfile = '/tmp/testfile.xlsx',
 				anualidad = 2015;
 
@@ -77,7 +77,7 @@ usage: mocha testExportadorCarta.js
 	} else {
 		(function(){
 			var ec,
-				cartaid = '56617c4e9aa4f5ea615c1499',
+				cartaid = '56617c4e9aa4f5ea615c1490',
 				testfile = '/tmp/testfile.xlsx',
 				anualidad = 2015;
 			mongoose.set('debug', config.mongodb.debug);
