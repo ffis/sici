@@ -94,69 +94,92 @@
 
 			$rootScope.R = function (procedimiento) {
 				var def = $q.defer();
-				$rootScope.permisoscalculados.$promise.then(function () {
-					def.resolve(
-							$rootScope.permisoscalculados.procedimientoslectura.indexOf(procedimiento.codigo) !== -1 ||
-							$rootScope.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo) !== -1
-							);
-				}, function () {
+				if ($rootScope.permisoscalculados){
+					$rootScope.permisoscalculados.$promise.then(function () {
+						def.resolve(
+								$rootScope.permisoscalculados.procedimientoslectura.indexOf(procedimiento.codigo) !== -1 ||
+								$rootScope.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo) !== -1
+								);
+					}, function () {
+						def.reject();
+					});
+				} else {
 					def.reject();
-				});
+				}
 				return def.promise;
 			};
 
 			$rootScope.W = function (procedimiento) {
 				var def = $q.defer();
-				$rootScope.permisoscalculados.$promise.then(function () {
-					def.resolve( $rootScope.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo) !== -1 );
-				}, function () {
+				if ($rootScope.permisoscalculados){
+					$rootScope.permisoscalculados.$promise.then(function () {
+						def.resolve( $rootScope.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo) !== -1 );
+					}, function () {
+						def.reject();
+					});
+				} else {
 					def.reject();
-				});
+				}
 				return def.promise;
 			};
 
 			$rootScope.superuser = function () {
-				var defsuperuser = $q.defer();
-				$rootScope.permisoscalculados.$promise.then(function () {
-					defsuperuser.resolve( !!$rootScope.permisoscalculados.superuser );
-				}, function () {
-					defsuperuser.reject();
-				});
-				return defsuperuser.promise;
+				var def = $q.defer();
+				if ($rootScope.permisoscalculados){
+					$rootScope.permisoscalculados.$promise.then(function () {
+						def.resolve( !!$rootScope.permisoscalculados.superuser );
+					}, function () {
+						def.reject();
+					});
+				} else {
+					def.reject();
+				}
+				return def.promise;
 			};
 
 			$rootScope.jerarquialectura = function () {
 				var def = $q.defer();
-				$rootScope.permisoscalculados.$promise.then(function () {
-					def.resolve( $rootScope.permisoscalculados.jerarquialectura);
-				}, function () {
+				if ($rootScope.permisoscalculados){
+					$rootScope.permisoscalculados.$promise.then(function () {
+						def.resolve( $rootScope.permisoscalculados.jerarquialectura);
+					}, function () {
+						def.reject();
+					});
+				} else {
 					def.reject();
-				});
+				}
 				return def.promise;
 			};
 
 			$rootScope.jerarquiaescritura = function () {
 				var def = $q.defer();
-				$rootScope.permisoscalculados.$promise.then(function () {
-					def.resolve( $rootScope.permisoscalculados.jerarquiaescritura);
-				}, function () {
+				if ($rootScope.permisoscalculados){
+					$rootScope.permisoscalculados.$promise.then(function () {
+						def.resolve( $rootScope.permisoscalculados.jerarquiaescritura);
+					}, function () {
+						def.reject();
+					});
+				} else {
 					def.reject();
-				});
+				}
 				return def.promise;
 			};
 
 			$rootScope.grantoption = function () {
 				var def = $q.defer();
-				$rootScope.permisoscalculados.$promise.then(function () {
-					def.resolve( $rootScope.permisoscalculados.grantoption);
-				}, function () {
+				if ($rootScope.permisoscalculados){
+					$rootScope.permisoscalculados.$promise.then(function () {
+						def.resolve( $rootScope.permisoscalculados.grantoption);
+					}, function () {
+						def.reject();
+					});
+				} else {
 					def.reject();
-				});
+				}
 				return def.promise;
 			};
 
-			$rootScope.recalcularpermisos = function()
-			{
+			$rootScope.recalcularpermisos = function(){
 				if ($rootScope.logeado) {
 					$rootScope.permisoscalculados = PermisosCalculados.query({});
 				}
