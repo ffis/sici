@@ -1,6 +1,6 @@
 /*eslint no-underscore-dangle: [2, { "allow": ["_id"] }]*/
 
-(function(module){
+(function(module, logger){
 	'use strict';
 	function Crud(models, classname){
 		if (typeof models === 'undefined' && typeof classname === 'undefined'){
@@ -17,8 +17,7 @@
 			if (typeof id !== 'undefined' && id !== '' && id !== 0){
 				obj.findOne({'_id': id}, function (err, data) {
 					if (err) {
-						console.error(err);
-						res.status(500).json({'error': 'An error has occurred'});
+						res.status(500).json({'error': 'An error has occurred', details: err});
 						return;
 					}
 					res.json(data);
@@ -26,8 +25,7 @@
 			} else {
 				obj.find({}, function (err, data) {
 					if (err) {
-						console.error(err);
-						res.status(500).json({'error': 'An error has occurred'});
+						res.status(500).json({'error': 'An error has occurred', details: err});
 						return;
 					}
 					res.json(data);
@@ -44,13 +42,12 @@
 			if (typeof id !== 'undefined' && id !== '' && id !== 0){
 				obj.update({'_id': id}, content, { upsert: true }, function(err){
 					if (err){
-						console.error(err);
-						res.status(500).json({'error': 'An error has occurred'});
-					}else{
+						res.status(500).json({'error': 'An error has occurred', details: err});
+					} else {
 						res.json(content);
 					}
 				});
-			}else{
+			} else {
 				res.status(404).json({'error': 'Not found'});
 			}
 		};
@@ -64,17 +61,17 @@
 			if (typeof id !== 'undefined' && id !== '' && id !== 0){
 				obj.remove({'_id': id}, function(err){
 					if (err){
-						console.error(err);
-						res.status(500).json({'error': 'An error has occurred'});
-					}else{
+						logger.error(err);
+						res.status(500).json({'error': 'An error has occurred', details: err});
+					} else {
 						res.json(content);
 					}
 				});
-			}else{
+			} else {
 				res.status(404).json({'error': 'Not found'});
 			}
 		};
 	};
 
 	module.exports = Crud;
-})(module);
+})(module, console);
