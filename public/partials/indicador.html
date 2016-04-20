@@ -1,45 +1,58 @@
 <ol class="breadcrumb">
-    <li><a href="/carta/{{carta.idjerarquia}}">{{carta.denominacion}}</a></li>
-    <li><a href="/objetivo/{{objetivo._id}}">{{objetivo.denominacion}}</a></li>
+	<li><a href="/carta/{{carta.idjerarquia}}">{{carta.denominacion}}</a></li>
+	<li><a href="/objetivo/{{objetivo._id}}">{{objetivo.denominacion}}</a></li>
 </ol>
 <div class="row">
-    <div class="col-lg-12">
-        <div style="clear:both" class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>REST URL</th>
-                        <th>Frecuencia</th>
-                        <th>Acumulador</th>
-                        <th>Operaciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="indicador in indicadores" ng-class="{'danger' :  indicador._id == idindicador}">
-                        <td>
-                            <input ng-model="indicador.nombre" class="form-control" />
-                        </td>
-                        <td>
-                            <input ng-model="indicador.resturl" class="form-control" />
-                        </td>
-                        <td>
-                            <select ng-model="indicador.frecuencia" ng-options="o as o for o in frecuenciasIndicadores" class="form-control"></select>
-                        </td>
-                        <td>
-                            <select ng-model="indicador.acumulador" ng-options="func.value as func.name for func in functions" class="form-control"></select>
-                        </td>
-                        <td>
-                            <button ng-click="actualizar(indicador)" class="btn btn-sm btn-primary" title="Actualizar">
-                                <i class="fa fa-save"></i>
-                            </button>
-                            <button ng-click="eliminar(indicador)" class="btn btn-sm btn-danger">
-                                <i class="fa fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+	<div class="col-lg-12">
+		<div style="clear:both" class="table-responsive">
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Nombre</th>
+						<th>REST URL</th>
+						<th>Frecuencia</th>
+						<th>Acumulador</th>
+						<th>Operaciones</th>
+					</tr>
+				</thead>
+				<tfoot>
+					<tr>
+						<th><br />Nuevo indicador</th>
+						<td colspan="3">
+							<input ng-model="nuevo.nombre" class="form-control" />
+						</td>
+						<td>
+							<button ng-click="guardar(indicador)" class="btn btn-sm btn-primary" title="Guardar nuevo indicador">
+								<i class="fa fa-save"></i>
+							</button>
+						</td>
+					</tr>
+				</tfoot>
+				<tbody>
+					<tr ng-repeat="indicador in indicadores" ng-class="{'danger' :  indicador._id == idindicador}">
+						<td>
+							<input ng-model="indicador.nombre" class="form-control" />
+						</td>
+						<td>
+							<input ng-model="indicador.resturl" class="form-control" />
+						</td>
+						<td>
+							<select ng-model="indicador.frecuencia" ng-options="o as o for o in frecuenciasIndicadores" class="form-control"></select>
+						</td>
+						<td>
+							<select ng-model="indicador.acumulador" ng-options="func.value as func.name for func in functions" class="form-control"></select>
+						</td>
+						<td>
+							<button ng-click="actualizar(indicador)" class="btn btn-sm btn-primary" title="Actualizar">
+								<i class="fa fa-save"></i>
+							</button>
+							<button ng-click="eliminar(indicador)" class="btn btn-sm btn-danger">
+								<i class="fa fa-trash"></i>
+							</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
 </div>

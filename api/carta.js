@@ -615,6 +615,7 @@
 			acumulador: 'sum'
 		};
 
+		/*
 		indicadormodel.findOne({idjerarquia: idjerarquia, nombre: txt}, function(err, obj){
 			if (err){
 				defer.reject(err);
@@ -622,16 +623,17 @@
 				if (obj){
 					defer.resolve(obj);
 				} else {
-					new indicadormodel(indicador).save(function(erro, obj2){
-						if (erro){
-							defer.reject(erro);
-						} else {
-							defer.resolve(obj2);
-						}
-					});
-				}
+		*/
+		new indicadormodel(indicador).save(function(erro, obj2){
+			if (erro){
+				defer.reject(erro);
+			} else {
+				defer.resolve(obj2);
 			}
 		});
+		/*		}
+			}
+		}); */
 		return defer.promise;
 	};
 
@@ -644,6 +646,24 @@
 			defer.reject(err);
 		});
 		return defer.promise;
+	};
+
+	module.exports.newIndicador = function(models, Q){
+		return function(req, res){
+			var idjerarquia, txt;
+			if (typeof req.user !== 'undefined' && typeof req.user.permisoscalculados !== 'undefined' && req.user.permisoscalculados.superuser){
+				txt = req.body.nombre;
+				idjerarquia = parseInt(req.body.idjerarquia);
+				var indicadormodel = models.indicador();
+				registerIndicador(idjerarquia, txt, indicadormodel, Q).then(function(indicador){
+					res.json(indicador);
+				}, function(err){
+					res.status(500).json({error: 'Error registrando indicador', details: err });
+				});
+			} else {
+				res.status(403).json({'error': 'Not allowed'});
+			}
+		};
 	};
 
 	module.exports.extractAndSaveIndicadores = function(idjerarquia, objetivos, indicadormodel, Q){

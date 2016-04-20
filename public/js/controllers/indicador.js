@@ -7,14 +7,15 @@
 					$rootScope.nav = 'indicador';
 					$rootScope.setTitle('Indicadores');
 					$scope.functions = acumulatorFunctions;
-					$scope.frecuenciasIndicadores = ['anual', 'mensual', 'bimensual', 'trimestral', 'cuatrimestral', 'semestral'];
+					$scope.frecuenciasIndicadores = ['anual', 'mensual', 'bimestral', 'trimestral', 'cuatrimestral', 'semestral', 'bienal', 'discrecional'];
 					$scope.idjerarquia = $routeParams.idjerarquia;
-					$scope.organismo = Jerarquia.get({id: $scope.idjerarquia }); 
+					$scope.organismo = Jerarquia.get({id: $scope.idjerarquia });
 					$scope.indicadores = Indicador.query({idjerarquia: $scope.idjerarquia});
 					$scope.idindicador = ($routeParams.idindicador) ? ($routeParams.idindicador) : false;
 
 					$scope.nuevo = new Indicador();
 					$scope.nuevo.idjerarquia = $scope.idjerarquia;
+					$scope.nuevo.nombre = '';
 					$scope.actualizar = function(indicador){
 						indicador.$update(function(){
 							$rootScope.toaster('Indicador actualizado correctamente', 'Éxito', 'success');
@@ -35,13 +36,21 @@
 						}
 					};
 					$scope.guardar = function(){
-						Indicador.save($scope.nuevo, function() {
-							$scope.indicadores = Indicador.query({idjerarquia: $scope.idjerarquia});
-							$scope.nuevo = new Indicador();
-							$scope.nuevo.idjerarquia = $scope.idjerarquia;
-							$rootScope.toaster('Indicador creado correctamente', 'Éxito', 'success');
-						});
+						if ($scope.nuevo.nombre.trim() !== ''){
+							$scope.nuevo.nombre = $scope.nuevo.nombre.trim();
+							$scope.nuevo.$save().then(function() {
+								$scope.indicadores = Indicador.query({idjerarquia: $scope.idjerarquia});
+								$scope.nuevo = new Indicador();
+								$scope.nuevo.idjerarquia = $scope.idjerarquia;
+								$scope.nuevo.nombre = '';
+								$rootScope.toaster('Indicador creado correctamente', 'Éxito', 'success');
+							}, function(error) {
+								$log.log(error.data.error);
+								$rootScope.toaster(error.data.error, 'Error', 'error');
+							});
+						}
 					};
+
 
 				}]);
 
