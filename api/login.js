@@ -17,6 +17,7 @@
 			if (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime())
 			{
 				permisoscalculados.superuser = permisoscalculados.superuser || permisos[i].superuser;
+				permisoscalculados.jerarquialectura = permisoscalculados.jerarquialectura.concat( permisos[i].jerarquialectura);
 				permisoscalculados.jerarquiaescritura = permisoscalculados.jerarquiaescritura.concat( permisos[i].jerarquiaescritura);
 				permisoscalculados.procedimientosescritura = permisoscalculados.procedimientosescritura.concat( permisos[i].procedimientosescritura);
 				permisoscalculados.entidadobjetoescritura = permisoscalculados.entidadobjetoescritura.concat ( permisos[i].entidadobjetoescritura);
@@ -26,9 +27,16 @@
 			var k, l;
 			for (k = 0, l = permisos[i].jerarquialectura.length; k < l; k++){
 				if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime()) &&
-					(permisoscalculados.jerarquiaescritura.indexOf(permisos[i].jerarquialectura[k]) === -1 ) )
+					(permisoscalculados.jerarquialectura.indexOf(permisos[i].jerarquialectura[k]) === -1 ) )
 				{
 					permisoscalculados.jerarquialectura.push( permisos[i].jerarquialectura[k]);
+				}
+			}
+			for (k = 0, l = permisos[i].jerarquiaescritura.length; k < l; k++){
+				if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime()) &&
+					(permisoscalculados.jerarquiaescritura.indexOf(permisos[i].jerarquiaescritura[k]) === -1 ) )
+				{
+					permisoscalculados.jerarquiaescritura.push( permisos[i].jerarquiaescritura[k]);
 				}
 			}
 			for (k = 0, l = permisos[i].procedimientoslectura.length; k < l; k++){
