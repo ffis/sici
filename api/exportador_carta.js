@@ -26,18 +26,53 @@
 		this.templatefile = templatefile;
 	}
 
-	function getCell(worksheet, path /*, type*/){
-		return worksheet.getCell(path);
+	function Formulable(formula){
+		this.formula = formula;
+	}
+	Formulable.prototype.traduce = function(){ return { formula: '', result: ''}; };
+
+
+	function FormulaPorcentaje(formula){ this.formula = formula; }
+	FormulaPorcentaje.prototype = Formulable;
+	FormulaPorcentaje.prototype.traduce = function(worksheet, columna, fila, valor){
+		return valor;
 		/*
-		if (typeof worksheet[path] !== 'object'){
-			worksheet[path] = {};
-			if (typeof type === 'undefined'){
-				worksheet[path] = { v: '', t: 's'};
-			}else {
-				worksheet[path] = { v: '', t: type};
+		var celda = worksheet.getRow(fila).getCell(columna);
+		var letra = worksheet.getRow(fila).getCell(columna)._column.letter;
+		return { formula: '(' + letra + (fila - 5) + '/' + letra + (fila - 4) + ') * 100', result: valor };
+		*/
+	};
+
+	function formulaEsTraducible(formula){
+		if (formula && typeof formula.computer === 'string' && formula.computer !== ''){
+			try {
+				var pf = JSON.parse(formula.computer);
+				if (pf.length === 7 && pf[0].trim() === '(' && pf[2].trim() === '/' && pf[4].trim() === ')' && pf[5].trim() === '*' && pf[6].trim() === '100'){
+					logger.log('he encontrado formula', pf);
+					return new FormulaPorcentaje(formula);
+				}
+			} catch (exception){
+				logger.log('no es formula', formula.human, formula.computer, exception);
+				return false;
 			}
 		}
-		return worksheet[path];*/
+		logger.log('no es formula', formula.human, formula.computer);
+		return false;
+	}
+
+	function getCell(worksheet, path, type){
+		var t;
+		if (typeof type !== 'undefined'){
+			t = worksheet.getCell(path);
+			if (type === 'n'){
+				t.type = Excel.ValueType.Number;
+			} else if (type === 'f'){
+				t = worksheet.getCell(path);
+				t.type = Excel.ValueType.Formula;
+			}
+			return t;
+		}
+		return worksheet.getCell(path);
 	}
 
 	ExportadorCartas.prototype.loadEntidadObjeto = function(entidadobjetoid) {
@@ -172,23 +207,14 @@
 				bottom: thin,
 				right: thin
 			},
-			row = worksheet.getRow(fila);
-		datos[0] ? getCell(worksheet, 'C' + fila, 'n').value = datos[0] : '';
-		datos[1] ? getCell(worksheet, 'D' + fila, 'n').value = datos[1] : '';
-		datos[2] ? getCell(worksheet, 'E' + fila, 'n').value = datos[2] : '';
-		datos[3] ? getCell(worksheet, 'F' + fila, 'n').value = datos[3] : '';
-		datos[4] ? getCell(worksheet, 'G' + fila, 'n').value = datos[4] : '';
-		datos[5] ? getCell(worksheet, 'H' + fila, 'n').value = datos[5] : '';
-		datos[6] ? getCell(worksheet, 'I' + fila, 'n').value = datos[6] : '';
-		datos[7] ? getCell(worksheet, 'J' + fila, 'n').value = datos[7] : '';
-		datos[8] ? getCell(worksheet, 'K' + fila, 'n').value = datos[8] : '';
-		datos[9] ? getCell(worksheet, 'L' + fila, 'n').value = datos[9] : '';
-		datos[10] ? getCell(worksheet, 'M' + fila, 'n').value = datos[10] : '';
-		datos[11] ? getCell(worksheet, 'N' + fila, 'n').value = datos[11] : '';
-		datos[12] ? getCell(worksheet, 'O' + fila, 'n').value = datos[12] : '';
-
-		for (var i = 3; i < 16; i++){
-			row.getCell(i).border = bordered;
+			row = worksheet.getRow(fila),
+			cell;
+		for (var i = 0; i < 13; i++){
+			cell = row.getCell(3 + i, 'n');
+			if (datos[i]){
+				cell.value = datos[i];
+			}
+			row.getCell(3 + i).border = bordered;
 		}
 	}
 
@@ -229,10 +255,15 @@
 		var datos = formula.valores['a' + anualidad];
 		var i, j = 13;
 		var row = worksheet.getRow(fila), celda, bg;
+		var f = formulaEsTraducible(formula);
 		for (i = 0, j = 13; i < j; i++){
 			if (datos[i] && datos[i].resultado){
 				celda = row.getCell(3 + i);
-				celda.value = datos[0].resultado;
+				if (f){
+					celda.value = f.traduce(worksheet, 3 + i, fila, datos[i].resultado);
+				} else {
+					celda.value = datos[i].resultado;
+				}
 				bg = bgColorResultado(datos[i].resultado, formula);
 				if (bg !== ''){
 					celda.fill = {type: 'pattern', pattern: 'darkVertical', fgColor:{argb: bg}};
@@ -243,13 +274,7 @@
 
 	function fulfillFormula(worksheet, formula, fila, anualidad, indicadores, procedimientos){
 		var indicador, procedimiento,
-			i = 0, j = 0,
-			bordered = {
-				top: {style: 'thin'},
-				left: {style: 'thin'},
-				bottom: {style: 'thin'},
-				right: {style: 'thin'}
-			};
+			i = 0, j = 0;
 		worksheet.mergeCells('B' + fila + ':' + 'O' + fila);
 		getCell(worksheet, 'B' + fila).alignment = { wrapText: true };
 		getCell(worksheet, 'B' + fila).value = formula.human;
