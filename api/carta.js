@@ -121,6 +121,25 @@
 		};
 	};
 
+	module.exports.usosIndicadores = function(models){
+		return function(req, res){
+			if (req.user.permisoscalculados.superuser) {
+				var objetivomodel = models.objetivo();
+				objetivomodel.aggregate([
+					{$unwind: '$formulas'},
+					{$unwind: '$formulas.indicadores'},
+					{$group:{ _id: '$formulas.indicadores', count: {$sum: 1}}}
+				]).exec().then(function(result){
+					res.json(result);
+				}, function(err){
+					res.status(500).json({'error': 'An error has occurred', details: err});
+				});
+			} else {
+				res.status(403).json({'error': 'Not allowed'});
+			}
+		};
+	};
+
 	module.exports.indicador = function(models){
 		return function(req, res){
 			var indicadormodel = models.indicador();

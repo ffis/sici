@@ -157,6 +157,8 @@
 
 		app.get('/api/v2/restricted/registro', registro.registroActividad(models));
 
+		app.get('/api/v2/restricted/usosIndicadores', carta.usosIndicadores(models));
+
 		/* app.get('/api/v1/restricted/excelgesper', persona.importarGesper(models, Q)); */
 
 

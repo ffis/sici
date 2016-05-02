@@ -2,8 +2,8 @@
 	'use strict';
 
 	angular.module('sici')
-			.controller('IndicadorCtrl', ['$scope', '$routeParams', '$rootScope', '$window', '$log', 'Indicador', 'Jerarquia', 'acumulatorFunctions',
-				function ($scope, $routeParams, $rootScope, $window, $log, Indicador, Jerarquia, acumulatorFunctions) {
+			.controller('IndicadorCtrl', ['$scope', '$routeParams', '$rootScope', '$window', '$log', 'Indicador', 'Jerarquia', 'acumulatorFunctions', 'UsosIndicadores',
+				function ($scope, $routeParams, $rootScope, $window, $log, Indicador, Jerarquia, acumulatorFunctions, UsosIndicadores) {
 					$rootScope.nav = 'indicador';
 					$rootScope.setTitle('Indicadores');
 					$scope.functions = acumulatorFunctions;
@@ -12,6 +12,13 @@
 					$scope.organismo = Jerarquia.get({id: $scope.idjerarquia });
 					$scope.indicadores = Indicador.query({idjerarquia: $scope.idjerarquia});
 					$scope.idindicador = ($routeParams.idindicador) ? ($routeParams.idindicador) : false;
+					$scope.usosIndicadores = {};
+					UsosIndicadores.query(function(usos){
+						console.log(usos);
+						for (var i = 0, j = usos.length; i < j; i++){
+							$scope.usosIndicadores[ usos[i]._id ] = usos[i].count;
+						}
+					});
 
 					$scope.nuevo = new Indicador();
 					$scope.nuevo.idjerarquia = $scope.idjerarquia;
