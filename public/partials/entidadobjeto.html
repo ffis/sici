@@ -33,22 +33,25 @@
 							{{ jerarquias ['' + entidadobjeto.idjerarquia].nombrelargo }}
 							<hr />
 							<p class="text-center">
-								<a href="/carta/{{entidadobjeto.idjerarquia}}" class="btn btn-default btn-xs" target="_blank">
+								<a href="/carta/{{entidadobjeto.idjerarquia}}" class="btn btn-default btn-xs" target="_blank" title="Ver entidad objeto">
 									<span class="fa fa-eye"></span>
+								</a>
+								<a href="/indicador/{{entidadobjeto.idjerarquia}}" class="btn btn-default btn-xs" target="_blank" title="Ver indicadores">
+									<i class="fa fa-tasks" aria-hidden="true"></i>
 								</a>
 								<a class="btn btn-default btn-xs" target="_blank" href="/carta-printable/{{entidadobjeto.idjerarquia}}/{{entidadobjeto._id}}" title="Ver versi&oacute;n imprimible">
 									<span class="glyphicon glyphicon-print"></span>
 								</a>
-								<a href="{{entidadobjeto.url}}" class="btn btn-default btn-xs" target="_blank">
+								<a href="{{entidadobjeto.url}}" class="btn btn-default btn-xs" target="_blank" title="Ir a su URL">
 									<span class="fa fa-external-link"></span>
 								</a>
-								<span class="btn btn-primary btn-xs" ng-click="entidadobjeto.$editar = !entidadobjeto.$editar">
+								<span class="btn btn-primary btn-xs" ng-click="entidadobjeto.$editar = !entidadobjeto.$editar" title="Permitir edición">
 									<span class="fa fa-pencil cursor"></span>
 								</span>
-								<span class="btn btn-primary btn-xs" ng-click="download(entidadobjeto)">
+								<span class="btn btn-primary btn-xs" ng-click="download(entidadobjeto)" title="Descargar">
 									<span class="fa fa-arrow-down cursor"></span>
 								</span>
-								<span class="btn btn-danger btn-xs" ng-click="dropCarta(entidadobjeto)">
+								<span class="btn btn-danger btn-xs" ng-click="dropCarta(entidadobjeto)" title="Eliminar (CUIDADO)">
 									<span class="fa fa-trash cursor"></span>
 								</span>
 							</p>

@@ -14,7 +14,6 @@
 					$scope.idindicador = ($routeParams.idindicador) ? ($routeParams.idindicador) : false;
 					$scope.usosIndicadores = {};
 					UsosIndicadores.query(function(usos){
-						console.log(usos);
 						for (var i = 0, j = usos.length; i < j; i++){
 							$scope.usosIndicadores[ usos[i]._id ] = usos[i].count;
 						}
