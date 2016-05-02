@@ -88,6 +88,9 @@
 			return $resource('/api/v1/restricted/feedback/:id', {id: '@id' }, {update: {method: 'PUT' }}); }])
 		.factory('RegistroActividad', ['$resource', function($resource) {
 			return $resource('/api/v2/restricted/registro', {}, {query: {method: 'GET', isArray: true }}); }])
+		.factory('UsosIndicadores', ['$resource', function($resource){
+			return $resource('/api/v2/restricted/usosIndicadores');
+		}])
 	;
 	/* private services */
 
