@@ -19,7 +19,7 @@
 		var Procedimiento = models.procedimiento();
 		var deferMR = Q.defer();
 		var restriccion = {};
-		if (typeof idjerarquia !== 'undefined' && idjerarquia != null){
+		if (typeof idjerarquia !== 'undefined' && idjerarquia !== null){
 			restriccion['ancestros.id'] = idjerarquia;
 		}
 		restriccion.oculto = {'$ne': true};
@@ -28,16 +28,16 @@
 		if (typeof permisoscalculados !== 'undefined' && permisoscalculados && !permisoscalculados.superuser)
 		{
 			if (typeof permisoscalculados.procedimientoslectura === 'undefined'){
-					permisoscalculados.procedimientoslectura = [];
+				permisoscalculados.procedimientoslectura = [];
 			}
 			if (typeof permisoscalculados.procedimientosdirectalectura === 'undefined'){
-					permisoscalculados.procedimientosdirectalectura = [];
+				permisoscalculados.procedimientosdirectalectura = [];
 			}
 			if (typeof permisoscalculados.procedimientosdirectaescritura === 'undefined'){
-					permisoscalculados.procedimientosdirectaescritura = [];
+				permisoscalculados.procedimientosdirectaescritura = [];
 			}
 			if (typeof permisoscalculados.procedimientosescritura === 'undefined'){
-					permisoscalculados.procedimientosescritura = [];
+				permisoscalculados.procedimientosescritura = [];
 			}
 			restriccion.codigo = { '$in': permisoscalculados.procedimientosdirectalectura
 							.concat(permisoscalculados.procedimientoslectura)
@@ -605,8 +605,8 @@
 									ws[ XLSX.utils.encode_cell({c: 0, r: pos}) ] = cellLogin;
 									ws[ XLSX.utils.encode_cell({c: 1, r: pos}) ] = cellPlaza;
 									ws[ XLSX.utils.encode_cell({c: 2, r: pos}) ] = {v: jerarquiaLectura, t: 'n'};
-									ws[ XLSX.utils.encode_cell({c: 3, r: pos}) ] = {v: jerarquiasById[ jerarquia ] ? jerarquiasById[ jerarquiaLectura ].nombrelargo : '', t: 's'};
-									ws[ XLSX.utils.encode_cell({c: 4, r: pos}) ] = {v: jerarquiasById[ jerarquia ] ? jerarquiasById[ jerarquiaLectura ].ancestros.length : '', t: 'n'};
+									ws[ XLSX.utils.encode_cell({c: 3, r: pos}) ] = {v: jerarquiasById[ jerarquiaLectura ] ? jerarquiasById[ jerarquiaLectura ].nombrelargo : '', t: 's'};
+									ws[ XLSX.utils.encode_cell({c: 4, r: pos}) ] = {v: jerarquiasById[ jerarquiaLectura ] ? jerarquiasById[ jerarquiaLectura ].ancestros.length : '', t: 'n'};
 									ws[ XLSX.utils.encode_cell({c: 5, r: pos}) ] = {v: 'NO', t: 's'};
 									ws[ XLSX.utils.encode_cell({c: 6, r: pos}) ] = {v: 'SÍ', t: 's'};
 									ws[ XLSX.utils.encode_cell({c: 7, r: pos}) ] = cellAdministrador;
@@ -752,7 +752,7 @@
 
 					var wb = new Workbook();
 					wss.forEach(function (ws) {
-						if (typeof ws !== undefined && ws != null) {
+						if (typeof ws !== undefined && ws !== null) {
 							wb.SheetNames.push(ws.wsName);
 							wb.Sheets[ws.wsName] = ws.sheet;
 						}
