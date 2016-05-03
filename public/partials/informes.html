@@ -52,7 +52,7 @@
 									[{{elemen.id}}] &nbsp;
 								</strong>
 								<span ng-click="setSeleccionado(elemen)" class="cursor" title="Engloba {{elemen.numprocedimientos}} procedimientos">
-									{{elemen.title}} 
+									{{elemen.title}}
 								</span>
 								<span class="badge pull-right">{{elemen.numprocedimientos}}</span>
 								</p>
@@ -63,7 +63,7 @@
 											[{{eleme.id}}] &nbsp;
 										</strong>
 										<span ng-class="{'bg-danger':eleme.id==seleccionado.id }" ng-click="setSeleccionado(eleme)" class="cursor" title="Engloba {{eleme.numprocedimientos}} procedimientos">
-											{{eleme.title}} 
+											{{eleme.title}}
 										</span>
 										<span class="badge pull-right">{{eleme.numprocedimientos}}</span>
 										</p>
@@ -74,7 +74,7 @@
 													[{{elem.id}}] &nbsp;
 												</strong>
 												<span ng-class="{'bg-danger':elem.id==seleccionado.id }" ng-click="setSeleccionado(elem)" class="cursor"  title="Engloba {{elem.numprocedimientos}} procedimientos">
-													{{elem.title}} 
+													{{elem.title}}
 												</span>
 												<span class="badge pull-right">{{elem.numprocedimientos}}</span>
 												</p>
@@ -90,8 +90,15 @@
 		</div>
 	</div>
 	<div ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated" id="detallesjerarquia" ng-If="seleccionado ">
+		<div class="col-md-12 text-right">
+			<select ng-model="anualidad" ng-options="a.value as a.name for a in anyos"></select>
+		</div>
 		<table class="table table-striped table-bordered table-condensed table-hover" id="procedimientostable" ng-If="tienePermiso(seleccionado)">
-			<caption ng-click="mutextoculto()" class="cursor"> <span class="glyphicon glyphicon-fullscreen pull-right"></span> <h2>{{seleccionado.title}}</h2></caption>
+			<caption ng-click="mutextoculto()" class="cursor">
+				<span class="glyphicon glyphicon-fullscreen pull-right"></span>
+
+				<h2>{{seleccionado.title}}</h2>
+			</caption>
 			<thead>
 				<tr>
 					<th>Pulse para seleccionar una jerarquía más específica</th>
@@ -115,17 +122,17 @@
 						<a href="/actividad/{{nodo.id}}">{{nodo.numprocedimientos}}</a></td>
 				</tr>
 				<tr>
-					<th>N&ordm; de procedimientos con datos en 2014</th>
-					<td colspan="{{columnasocultas ? 1 : 3}}" style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{fnGetStatsNode(seleccionado.id, 2014).value.numProcedimientosConSolicitudes}}</td>
-					<td colspan="{{columnasocultas ? 1 : 3}}" ng-repeat="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{fnGetStatsNode(nodo.id, 2014).value.numProcedimientosConSolicitudes}}</td>
+					<th>N&ordm; de procedimientos con datos en {{anualidad}}</th>
+					<td colspan="{{columnasocultas ? 1 : 3}}" style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{fnGetStatsNode(seleccionado.id, anualidad).value.numProcedimientosConSolicitudes}}</td>
+					<td colspan="{{columnasocultas ? 1 : 3}}" ng-repeat="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{fnGetStatsNode(nodo.id, anualidad).value.numProcedimientosConSolicitudes}}</td>
 				</tr>
 				<tr>
-					<th>N&ordm; de procedimientos con datos en 2015</th>
-					<td colspan="{{columnasocultas ? 1 : 3}}" style="text-align:right" data-node-id="{{seleccionado.id}}" ng-class="{'warning': detallado.id==seleccionado.id}">{{fnGetStatsNode(seleccionado.id, 2015).value.numProcedimientosConSolicitudes}}</td>
-					<td colspan="{{columnasocultas ? 1 : 3}}" ng-repeat="nodo in seleccionado.nodes" style="text-align:right" data-node-id="{{nodo.id}}" ng-class="{'warning': detallado.id==nodo.id}">{{fnGetStatsNode(nodo.id, 2015).value.numProcedimientosConSolicitudes}}</td>
+					<th>N&ordm; de procedimientos con datos en {{anualidad + 1}}</th>
+					<td colspan="{{columnasocultas ? 1 : 3}}" style="text-align:right" data-node-id="{{seleccionado.id}}" ng-class="{'warning': detallado.id==seleccionado.id}">{{fnGetStatsNode(seleccionado.id, anualidad + 1).value.numProcedimientosConSolicitudes}}</td>
+					<td colspan="{{columnasocultas ? 1 : 3}}" ng-repeat="nodo in seleccionado.nodes" style="text-align:right" data-node-id="{{nodo.id}}" ng-class="{'warning': detallado.id==nodo.id}">{{fnGetStatsNode(nodo.id, anualidad + 1).value.numProcedimientosConSolicitudes}}</td>
 				</tr>
 				<tr class="info">
-					<th>AÑO 2013</th>
+					<th>AÑO {{anualidad - 1}}</th>
 					<th style="text-align:center" ng-class="{'warning': detallado.id==seleccionado.id}">TOTALES</th>
 					<th style="text-align:center" ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}">MEDIAS MENSUALES</th>
 					<th style="text-align:center" ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></th>
@@ -134,16 +141,16 @@
 					<th style="text-align:center" ng-if="!columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></th>
 				</tr>
 				<tr>
-					<th>Resueltos en 2013 totales</th>
-					<th style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{getTotales(seleccionado.id, 2013, 'total_resueltos') | number}}</th>
-					<th ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}">{{(getTotales(seleccionado.id, 2013, 'total_resueltos')/12)| number:2}}</th>
+					<th>Resueltos en {{anualidad - 1}} totales</th>
+					<th style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{getTotales(seleccionado.id, anualidad - 1, 'total_resueltos') | number}}</th>
+					<th ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}">{{(getTotales(seleccionado.id, anualidad - 1, 'total_resueltos')/12)| number:2}}</th>
 					<th ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></th>
-					<th ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{getTotales(nodo.id, 2013, 'total_resueltos') | number}}</th>
-					<th ng-if="!columnasocultas" ng-class="{'warning': detallado.id==nodo.id}">{{(getTotales(nodo.id, 2013, 'total_resueltos')/12)| number:2}}</th>
+					<th ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{getTotales(nodo.id, anualidad - 1, 'total_resueltos') | number}}</th>
+					<th ng-if="!columnasocultas" ng-class="{'warning': detallado.id==nodo.id}">{{(getTotales(nodo.id, anualidad - 1, 'total_resueltos')/12)| number:2}}</th>
 					<th ng-if="!columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></th>
 				</tr>
 				<tr class="info">
-					<th>AÑO 2014</th>
+					<th>AÑO {{anualidad }}</th>
 					<th style="text-align:center" ng-class="{'warning': detallado.id==seleccionado.id}">TOTALES</th>
 					<th style="text-align:center" ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}">MEDIAS MENSUALES</th>
 					<th style="text-align:center" ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></th>
@@ -153,65 +160,65 @@
 				</tr>
 				<tr>
 					<th>Solicitados</th>
-					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{getTotales(seleccionado.id, 2014, 'solicitados') | number}}</td>
-					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}">{{(getTotales(seleccionado.id, 2014, 'solicitados')/12)| number:2}}</td>
+					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{getTotales(seleccionado.id, anualidad, 'solicitados') | number}}</td>
+					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}">{{(getTotales(seleccionado.id, anualidad, 'solicitados')/12)| number:2}}</td>
 					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
-					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{getTotales(nodo.id, 2014, 'solicitados') | number}}</td>
-					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==nodo.id}">{{(getTotales(nodo.id, 2014, 'solicitados')/12) | number:2}}</td>
+					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{getTotales(nodo.id, anualidad, 'solicitados') | number}}</td>
+					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==nodo.id}">{{(getTotales(nodo.id, anualidad, 'solicitados')/12) | number:2}}</td>
 					<td ng-if="!columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></td>
 				</tr>
 				<tr>
 					<th>Iniciados</th>
-					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{getTotales(seleccionado.id, 2014, 'iniciados') | number}}</td>
-					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}">{{(getTotales(seleccionado.id, 2014, 'iniciados')/12) | number:2}}</td>
+					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{getTotales(seleccionado.id, anualidad, 'iniciados') | number}}</td>
+					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}">{{(getTotales(seleccionado.id, anualidad, 'iniciados')/12) | number:2}}</td>
 					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
-					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{getTotales(nodo.id, 2014, 'iniciados') | number}}</td>
-					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==nodo.id}">{{(getTotales(nodo.id, 2014, 'iniciados')/12) | number:2}}</td>
+					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{getTotales(nodo.id, anualidad, 'iniciados') | number}}</td>
+					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==nodo.id}">{{(getTotales(nodo.id, anualidad, 'iniciados')/12) | number:2}}</td>
 					<td ng-if="!columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></td>
 				</tr>
 				<tr>
 					<th>Resueltos totales</th>
-					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{getTotales(seleccionado.id, 2014, 'total_resueltos') | number}}</td>
-					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}">{{(getTotales(seleccionado.id, 2014, 'total_resueltos')/12) | number:2}}</td>
+					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{getTotales(seleccionado.id, anualidad, 'total_resueltos') | number}}</td>
+					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}">{{(getTotales(seleccionado.id, anualidad, 'total_resueltos')/12) | number:2}}</td>
 					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
-					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{getTotales(nodo.id, 2014, 'total_resueltos')|number}}</td>
+					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{getTotales(nodo.id, anualidad, 'total_resueltos')|number}}</td>
 					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==nodo.id}"></td>
 					<td ng-if="!columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></td>
 				</tr>
 				<tr>
 					<th>{{'t_medio_habiles' | translate }}</th>
-					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{fnGetStatsNode(seleccionado.id, 2014).value['t_medio_habiles_anual'].avg |number}}</td>
+					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{fnGetStatsNode(seleccionado.id, anualidad).value['t_medio_habiles_anual'].avg |number}}</td>
 					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
 					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
-					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{fnGetStatsNode(nodo.id, 2014).value['t_medio_habiles_anual'].avg |number}}</td>
+					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{fnGetStatsNode(nodo.id, anualidad).value['t_medio_habiles_anual'].avg |number}}</td>
 					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==nodo.id}"></td>
 					<td ng-if="!columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></td>
 				</tr>
 				<tr>
 					<th>{{'t_medio_naturales' | translate }}</th>
-					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{fnGetStatsNode(seleccionado.id, 2014).value['t_medio_naturales_anual'].avg | number}}</td>
+					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{fnGetStatsNode(seleccionado.id, anualidad).value['t_medio_naturales_anual'].avg | number}}</td>
 					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
 					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
-					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{fnGetStatsNode(nodo.id, 2014).value['t_medio_naturales_anual'].avg | number}}</td>
+					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{fnGetStatsNode(nodo.id, anualidad).value['t_medio_naturales_anual'].avg | number}}</td>
 					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==nodo.id}"></td>
 					<td ng-if="!columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></td>
 				</tr>
 				<tr>
 					<th>Pendientes (a final de periodo= ultimos pendientes)</th>
-					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{fnGetStatsNode(seleccionado.id, 2014).value.pendientes[11]| number}}</td>
+					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{fnGetStatsNode(seleccionado.id, anualidad).value.pendientes[11]| number}}</td>
 					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
 					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
-					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{fnGetStatsNode(nodo.id, 2014).value.pendientes[11]  | number}}</td>
+					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{fnGetStatsNode(nodo.id, anualidad).value.pendientes[11]  | number}}</td>
 					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==nodo.id}"></td>
 					<td ng-if="!columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></td>
 				</tr>
 				<tr ng-repeat="campo in campos">
 					<th>{{campo | translate}}</th>
-					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{getTotales(seleccionado.id, 2014, campo) | number}}</td>
-					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}">{{(getTotales(seleccionado.id, 2014, campo)/12) | number:2}}</td>
+					<td style="text-align:right" ng-class="{'warning': detallado.id==seleccionado.id}">{{getTotales(seleccionado.id, anualidad, campo) | number}}</td>
+					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}">{{(getTotales(seleccionado.id, anualidad, campo)/12) | number:2}}</td>
 					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==seleccionado.id}"></td>
-					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{getTotales(nodo.id, 2014, campo) | number}}</td>
-					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==nodo.id}">{{(getTotales(nodo.id, 2014, campo)/12) | number:2}}</td>
+					<td ng-repeat-start="nodo in seleccionado.nodes" style="text-align:right" ng-class="{'warning': detallado.id==nodo.id}">{{getTotales(nodo.id, anualidad, campo) | number}}</td>
+					<td ng-if="!columnasocultas" ng-class="{'warning': detallado.id==nodo.id}">{{(getTotales(nodo.id, anualidad, campo)/12) | number:2}}</td>
 					<td ng-if="!columnasocultas" ng-repeat-end ng-class="{'warning': detallado.id==nodo.id}"></td>
 				</tr>
 			</tbody>
@@ -219,7 +226,7 @@
 		<p><button class="button btn" ng-click="mostrarcolumnasocultas()">Mostrar columnas ocultas</button></p>
 		<div ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated" id="detallesNodo" ng-If="detallado">
 			<table class="table table-striped table-bordered table-condensed table-hover full" id="detallestable">
-				<caption><h3>{{detallado.title}}</h3> 2014</caption>
+				<caption><h3>{{detallado.title}}</h3> {{anualidad}}</caption>
 				<thead>
 					<tr>
 						<th>Indicador</th>
@@ -236,19 +243,19 @@
 				<tbody>
 					<tr>
 						<th>Solicitados</th>
-						<td ng-repeat="valor in fnGetStatsNode(detallado.id, 2014, campo).value['solicitados'] track by $index" style="text-align:right">{{ valor | number}}</td>
+						<td ng-repeat="valor in fnGetStatsNode(detallado.id, anualidad, campo).value['solicitados'] track by $index" style="text-align:right">{{ valor | number}}</td>
 				   </tr>
 					<tr>
 						<th>Iniciados</th>
-						<td ng-repeat="valor in fnGetStatsNode(detallado.id, 2014, campo).value['iniciados'] track by $index" style="text-align:right">{{ valor | number}}</td>
+						<td ng-repeat="valor in fnGetStatsNode(detallado.id, anualidad, campo).value['iniciados'] track by $index" style="text-align:right">{{ valor | number}}</td>
 					</tr>
 					<tr>
 						<th>Resueltos totales</th>
-						<td ng-repeat="valor in fnGetStatsNode(detallado.id, 2014, campo).value['total_resueltos'] track by $index" style="text-align:right">{{ valor | number}}</td>
+						<td ng-repeat="valor in fnGetStatsNode(detallado.id, anualidad, campo).value['total_resueltos'] track by $index" style="text-align:right">{{ valor | number}}</td>
 					</tr>
 					<tr ng-repeat="campo in campos.concat(['t_medio_habiles','t_medio_naturales'])">
 						<th>{{campo | translate}}</th>
-						<td ng-repeat="valor in fnGetStatsNode(detallado.id, 2014, campo).value[campo] track by $index" style="text-align:right">{{ valor | number}}</td>
+						<td ng-repeat="valor in fnGetStatsNode(detallado.id, anualidad, campo).value[campo] track by $index" style="text-align:right">{{ valor | number}}</td>
 					</tr>
 				</tbody>
 			</table>

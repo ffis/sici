@@ -36,7 +36,7 @@
 				$scope.fj = function(item) {
 					if ($scope.jerarquia.indexOf(item.id) !== -1 ){ return true;	}
 					if (item.nodes){
-						for(var i = 0; i < item.nodes.length; i++){
+						for (var i = 0; i < item.nodes.length; i++){
 							if ($scope.filtrojerarquia(item.nodes[i])){
 								return true;
 							}
@@ -56,10 +56,11 @@
 
 				var maxAnyo = new Date().getFullYear();
 
-				for(var anyo = 2014; anyo <= maxAnyo; anyo++){
-					$scope.anyos.push( {code: 'a' + anyo, name: '' + anyo});
+				for (var anyo = 2014; anyo <= maxAnyo; anyo++){
+					$scope.anyos.push( {code: 'a' + anyo, name: '' + anyo, value: anyo});
 				}
 				$scope.anyoSelected = $scope.anyos[ $scope.anyos.length - 1 ];
+				$scope.anualidad = parseInt($scope.anyos[ $scope.anyos.length - 2 ].name);
 				$scope.clasefuncionalidades = 'col-md-' + (12 / $scope.funcionalidades.length).toFixed(0);
 
 				$scope.invoke = function (cmd, anyoSelected) {
@@ -68,8 +69,7 @@
 						return;
 					}
 					$scope.actualizando++;
-					switch(cmd)
-					{
+					switch (cmd) {
 						case 'descargarexcel':
 							if (!anyoSelected || !anyoSelected.code || anyoSelected.code === '') {
 								$scope.actualizando--;
@@ -119,7 +119,7 @@
 						if ($scope.detallado && detallad.id === $scope.detallado.id)
 						{
 							$scope.detallado = false;
-						}else{
+						} else {
 							$scope.detallado = detallad;
 							$timeout(function(){
 								$('body').animate({scrollTop: $('#detallesNodo').offset().top}, 'slow');
@@ -142,14 +142,11 @@
 					return $scope.tienePermisoVar;
 				};
 
-
-
-
 				$scope.fnGetStatsNode = function(nodoid, anualidad){
 					if (cached && cached._id && cached._id.idjerarquia === nodoid && cached._id.anualidad === anualidad){
 						return cached;
 					}
-					for(var i = 0, j = $scope.stats.length; i < j; i++){
+					for (var i = 0, j = $scope.stats.length; i < j; i++){
 						if ($scope.stats[i]._id.idjerarquia === nodoid && $scope.stats[i]._id.anualidad === anualidad){
 							cached = $scope.stats[i];
 							return cached;
