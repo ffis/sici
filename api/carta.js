@@ -103,13 +103,6 @@
 	module.exports.objetivosStats = function(models){
 		return function(req, res){
 			var objetivomodel = models.objetivo();
-			/*
-			objetivomodel.find().exec().then(function(data){
-				res.json(data);
-			}, function(err){
-				res.status(500).json({'error': 'An error has occurred', details: err});
-			});
-			*/
 			var ag = [{$group: {_id: '$carta', count: {$sum: 1}, formulas: {$addToSet: '$formulas.computer' } } } ];
 			objetivomodel
 				.aggregate(ag)
@@ -264,6 +257,13 @@
 									indicador.pendiente = actualizacion.pendiente;
 								}
 
+								if (typeof indicador.valoresacumulados === 'undefined'){
+									indicador.valoresacumulados = {
+										'a2015': [null, null, null, null, null, null, null, null, null, null, null, null, null ], /* 13 elementos */
+										'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null ] /* 13 elementos */
+									};
+								}
+
 								if (indicador.acumulador === 'sum'){
 									for (attr in indicador.valores){
 										suma = 0;
@@ -274,8 +274,10 @@
 												indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i]);
 												suma += indicador.valores[attr][i];
 											}
+											indicador.valoresacumulados[attr][i] = suma;
 										}
 										indicador.valores[attr][ indicador.valores[attr].length - 1 ] = suma;
+										indicador.valoresacumulados[attr][ indicador.valores[attr].length - 1 ] = suma;
 									}
 								} else if (indicador.acumulador === 'mean'){
 									for (attr in indicador.valores){
@@ -291,25 +293,30 @@
 													nindicadoresdistintosde0++;
 												}
 											}
+											indicador.valoresacumulados[attr][i] = suma;
 										}
 										indicador.valores[attr][ indicador.valores[attr].length - 1 ] = (nindicadoresdistintosde0 > 0) ? suma / nindicadoresdistintosde0 : 0;
+										indicador.valoresacumulados[attr][ indicador.valores[attr].length - 1 ] = suma;
 									}
 								} else if (indicador.acumulador === 'max'){
 									for (attr in indicador.valores){
-										max = 0;
+										max = 0, suma = 0;
 										for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
 											if (actualizacion.valores[attr][i] === null || actualizacion.valores[attr][i] === ''){
 												indicador.valores[attr][i] = null;
 											} else {
 												indicador.valores[attr][i] = actualizacion.valores[attr][i] === null || isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i]);
 												max = (max < indicador.valores[attr][i]) ? indicador.valores[attr][i] : max;
+												suma += indicador.valores[attr][i];
 											}
+											indicador.valoresacumulados[attr][i] = suma;
 										}
 										indicador.valores[attr][ indicador.valores[attr].length - 1 ] = max;
+										indicador.valoresacumulados[attr][ indicador.valores[attr].length - 1 ] = suma;
 									}
 								} else if (indicador.acumulador === 'min'){
 									for (attr in indicador.valores){
-										min = false;
+										min = false, suma = 0;
 										for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
 											if (actualizacion.valores[attr][i] === null || actualizacion.valores[attr][i] === ''){
 												indicador.valores[attr][i] = null;
@@ -318,9 +325,12 @@
 												if (indicador.valores[attr][i] !== 0 && (!min || min > indicador.valores[attr][i])){
 													min = indicador.valores[attr][i];
 												}
+												suma += indicador.valores[attr][i];
 											}
+											indicador.valoresacumulados[attr][i] = suma;
 										}
 										indicador.valores[attr][ indicador.valores[attr].length - 1 ] = min;
+										indicador.valoresacumulados[attr][ indicador.valores[attr].length - 1 ] = suma;
 									}
 								}
 								for (attr in indicador.observaciones){
@@ -329,6 +339,7 @@
 									}
 								}
 								indicador.markModified('valores');
+								indicador.markModified('valoresacumulados');
 								indicador.markModified('observaciones');
 								indicador.markModified('medidas');
 								indicador.fechaversion = new Date();
@@ -624,6 +635,10 @@
 			observaciones: {
 				'a2015': ['', '', '', '', '', '', '', '', '', '', '', '', '' ],
 				'a2016': ['', '', '', '', '', '', '', '', '', '', '', '', '' ]
+			},
+			valoresacumulados: {
+				'a2015': [null, null, null, null, null, null, null, null, null, null, null, null, null ], /* 13 elementos */
+				'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null ] /* 13 elementos */
 			},
 			fechaversion: new Date(),
 			medidas: {},

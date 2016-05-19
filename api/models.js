@@ -241,7 +241,8 @@
 			'acumulador': String,
 			'valores': 'Mixed',
 			'observaciones': 'Mixed',
-			'medidas': 'Mixed'
+			'medidas': 'Mixed',
+			'valoresacumulados': 'Mixed'
 		},
 		operador: {
 			'texto': String,
@@ -292,6 +293,7 @@
 		schemasfields.indicador.valores = Schema.Types.Mixed;
 		schemasfields.indicador.observaciones = Schema.Types.Mixed;
 		schemasfields.indicador.medidas = Schema.Types.Mixed;
+		schemasfields.indicador.valoresacumulados = Schema.Types.Mixed;
 
 		for (var name in schemasfields){
 			exports[name](mongoose);
