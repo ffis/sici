@@ -47,7 +47,7 @@
 						<td>
 							<select ng-model="indicador.acumulador" ng-options="func.value as func.name for func in functions" class="form-control"></select>
 						</td>
-						<td class="text-right">
+						<td class="text-right" ng-class="{ 'danger': usosIndicadores[ indicador._id] !== 1 }">
 							<span>{{usosIndicadores[ indicador._id] }}</span>
 						</td>
 						<td>
