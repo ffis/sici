@@ -1481,3 +1481,13 @@ drag-formula.drag-enter{
     width: 100px;
     height: auto;
 }
+
+organismos .list-group-item {
+    padding-right: 0px;
+    padding-left: 5px;
+    padding-bottom: 0;
+}
+
+organismos .list-group{
+    margin-bottom: 5px;
+}
