@@ -22,8 +22,8 @@
 								{{elemen.title}}
 							</span>
 						</p>
-						<ul ng-if="elemen.nodes" style="clear:both;padding-left:0.3em">
-							<li ng-repeat="eleme in elemen.nodes | filter:texto |filter:filtrojerarquia" ng-class="{'list-group-item-danger':eleme.id==seleccionado.id}" >
+						<ul class="list-group" ng-if="elemen.nodes" style="clear:both;padding-left:0.3em">
+							<li class="list-group-item" ng-repeat="eleme in elemen.nodes | filter:texto |filter:filtrojerarquia" ng-class="{'list-group-item-danger':eleme.id==seleccionado.id}" >
 								<span class="badge pull-right" title="Engloba {{eleme[attr]}} {{tipoelementos}}">{{eleme[attr]}}</span>
 								<p ng-class="{'text-muted': eleme[attr]===0 }">
 									<strong>[{{eleme.id}}] &nbsp;</strong>
@@ -31,8 +31,8 @@
 										{{eleme.title}}
 									</span>
 								</p>
-								<ul ng-if="eleme.nodes" style="clear:both;padding-left:0.3em">
-									<li ng-repeat="elem in eleme.nodes | filter:texto |filter:filtrojerarquia" ng-class="{'list-group-item-danger':elem.id==seleccionado.id }">
+								<ul class="list-group" ng-if="eleme.nodes" style="clear:both;padding-left:0.3em">
+									<li class="list-group-item" ng-repeat="elem in eleme.nodes | filter:texto |filter:filtrojerarquia" ng-class="{'list-group-item-danger':elem.id==seleccionado.id }">
 										<span class="badge pull-right" title="Engloba {{elem[attr]}} {{tipoelementos}}">{{elem[attr]}}</span>
 										<p ng-class="{'text-muted': elem[attr]===0 , 'text-danger':elem.id==seleccionado.id }">
 											<strong>[{{elem.id}}] &nbsp;</strong>
@@ -40,8 +40,8 @@
 												{{elem.title}}
 											</span>
 										</p>
-										<ul ng-if="elem.nodes" style="clear:both;padding-left:0.3em">
-											<li ng-repeat="ele in elem.nodes | filter:texto |filter:filtrojerarquia" ng-class="{'list-group-item-danger':ele.id==seleccionado.id }">
+										<ul class="list-group" ng-if="elem.nodes" style="clear:both;padding-left:0.3em">
+											<li class="list-group-item" ng-repeat="ele in elem.nodes | filter:texto |filter:filtrojerarquia" ng-class="{'list-group-item-danger':ele.id==seleccionado.id }">
 												<span class="badge pull-right" title="Engloba {{ele[attr]}} {{tipoelementos}}">{{ele[attr]}}</span>
 												<p ng-class="{'text-muted': ele[attr]===0, 'text-danger': ele.id==seleccionado.id }">
 													<strong>[{{ele.id}}] &nbsp;</strong>
@@ -49,8 +49,8 @@
 														{{ele.title}}
 													</span>
 												</p>
-												<ul ng-if="ele.nodes" style="clear:both;padding-left:0.3em">
-													<li ng-repeat="el in ele.nodes | filter:texto |filter:filtrojerarquia" ng-class="{'list-group-item-danger':el.id==seleccionado.id }">
+												<ul class="list-group" ng-if="ele.nodes" style="clear:both;padding-left:0.3em">
+													<li class="list-group-item" ng-repeat="el in ele.nodes | filter:texto |filter:filtrojerarquia" ng-class="{'list-group-item-danger':el.id==seleccionado.id }">
 														<span class="badge pull-right" title="Engloba {{el[attr]}} {{tipoelementos}}">{{el[attr]}}</span>
 														<p ng-class="{'text-muted': el[attr]===0 }" ng-class="{'text-danger':el.id==seleccionado.id }">
 															<strong>[{{el.id}}] &nbsp;</strong>
