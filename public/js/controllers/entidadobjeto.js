@@ -1,13 +1,15 @@
 (function(angular){
 	'use strict';
 	angular.module('sici')
-		.controller('EntidadObjetoCtrl', ['$rootScope', '$scope', '$routeParams', '$window', '$http', 'EntidadObjeto', 'ObjetivoStats', 'Jerarquia',
-			function ($rootScope, $scope, $routeParams, $window, $http, EntidadObjeto, ObjetivoStats, Jerarquia) {
+		.controller('EntidadObjetoCtrl', ['$rootScope', '$scope', '$routeParams', '$window', '$http', 'EntidadObjeto', 'ObjetivoStats', 'Jerarquia', 'Indicador', 'PlanMejoraList', 'AccionMejora',
+			function ($rootScope, $scope, $routeParams, $window, $http, EntidadObjeto, ObjetivoStats, Jerarquia, Indicador, PlanMejoraList, AccionMejora) {
 				$rootScope.nav = 'EntidadObjeto';
 				$rootScope.setTitle('Entidad Objeto');
 				$scope.entidades = false;
 				$scope.filtro = '';
 				$scope.objetivostats = ObjetivoStats.query();
+				$scope.indicadores = {};
+
 				$scope.getCount = function(_id){
 					for (var i = 0, j = $scope.objetivostats.length; i < j; i++){
 						if ($scope.objetivostats[i]._id === _id){
@@ -16,6 +18,11 @@
 					}
 					return 0;
 				};
+				$scope.anualidades = [];
+				for (var anualidad = 2015, maxanualidad = new Date().getFullYear(); anualidad <= maxanualidad; anualidad++ ){
+					$scope.anualidades.push({label: anualidad, value: 'a' + anualidad});
+				}
+				$scope.anualidad = $scope.anualidades[ $scope.anualidades.length - 1];
 				$scope.getFormulasStats = function(_id){
 					for (var i = 0, j = $scope.objetivostats.length; i < j; i++){
 						if ($scope.objetivostats[i]._id === _id){
@@ -34,6 +41,57 @@
 					return '0/0';
 				};
 
+				$scope.getIndicadoresStats = function(idjerarquia, anualidad){
+					if (!idjerarquia || typeof $scope.indicadores[idjerarquia] === 'undefined'){ return '';}
+					var indicadoresOK = 0;
+					for (var i = 0, j = $scope.indicadores[idjerarquia].length; i < j; i++){
+						if ($rootScope.isIndicadorCumplimentado($scope.indicadores[idjerarquia][i], anualidad)){
+							indicadoresOK++;
+						}
+					}
+					return indicadoresOK + '/' + $scope.indicadores[idjerarquia].length;
+				};
+
+				$scope.planesmejora = {};
+				$scope.acciones = {};
+
+
+				var h = function(anualidad, id){
+					return function(objs){
+						$scope.acciones[anualidad][id] = 0;
+						var inc = function(os){
+							$scope.acciones[anualidad][id] += os.length;
+						};
+						for (var i = 0, j = objs.length; i < j; i++){
+							AccionMejora.query({plan: objs[i]._id}, inc);
+						}
+					};
+				};
+				$scope.getPlanes = function(entidadobjeto, anualidad){
+					if (typeof $scope.planesmejora[anualidad] === 'undefined'){
+						$scope.planesmejora[anualidad] = {};
+					}
+					if (typeof $scope.acciones[anualidad] === 'undefined'){
+						$scope.acciones[anualidad] = {};
+					}
+					if (typeof $scope.acciones[anualidad][entidadobjeto._id] === 'undefined'){
+						$scope.acciones[anualidad][entidadobjeto.idjerarquia] = [];
+					}
+					if (entidadobjeto.idjerarquia === 0){
+						$scope.planesmejora[anualidad][ entidadobjeto._id] = [];
+						$scope.acciones[anualidad][entidadobjeto._id] = 0;
+					}
+					if (typeof $scope.planesmejora[anualidad][ entidadobjeto._id] === 'undefined'){
+						$scope.planesmejora[anualidad][ entidadobjeto._id] =
+							entidadobjeto.idjerarquia > 0
+							? PlanMejoraList.query({idjerarquia: entidadobjeto.idjerarquia, anualidad: anualidad }, h(anualidad, entidadobjeto._id))
+							: [];
+					} else {
+						return $scope.planesmejora[anualidad][ entidadobjeto._id].length;
+					}
+					return '-';
+				};
+
 				$scope.load = function(){
 					$scope.entidades = EntidadObjeto.query( function(){
 						for (var i = 0, j = $scope.entidades.length; i < j; i++){
@@ -47,9 +105,11 @@
 					idjerarquia = parseInt(idjerarquia);
 					if (typeof $scope.jerarquias['' + idjerarquia] === 'undefined'){
 						$scope.jerarquias['' + idjerarquia] = Jerarquia.get({id: idjerarquia});
+						$scope.indicadores[idjerarquia] = Indicador.query({idjerarquia: idjerarquia });
 					}
 				};
 				$scope.load();
+
 				$scope.actualizar = function(entidadobjeto, clave){
 					if (clave === 'idjerarquia'){
 						$scope.cargaJerarquia(entidadobjeto[clave]);

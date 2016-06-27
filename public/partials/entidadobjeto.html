@@ -7,22 +7,33 @@
 			</div>
 			<table class="table table-striped table-hover hidden-print" ng-If="$root.permisoscalculados.superuser">
 				<caption>
-					<div class="pull-right">
-						<input type="text" class="form-control" placeholder="Filtro..." ng-model="filtro" />
+					<div class="col-md-12">
+						<div class="col-md-4">
+						</div>
+						<div class="col-md-4 text-center">
+							<h4>Entidades objeto</h4>
+						</div>
+						<div class="col-md-2">
+							<select class="form-control" ng-model="anualidad" ng-options="an as an.label for an in anualidades" />
+						</div>
+						<div class="col-md-2">
+							<input type="text" class="form-control" placeholder="Filtro..." ng-model="filtro" />
+						</div>
 					</div>
-					Entidades objeto
 				</caption>
 				<thead>
 					<tr>
 						<th>ID</th>
 						<th ng-If="clave!='_id'" ng-repeat="(clave, valor) in entidades[0]">{{clave}}</th>
-						<th>Objetivos</th>
+						<th>Compromisos</th>
 						<th>Fórmulas</th>
+						<th>Indicadores<br />{{anualidad.label}}</th>
+						<th>Planes de mejora<br />{{anualidad.label}}</th>
 					</tr>
 				</thead>
 				<tfoot>
 					<tr>
-						<td class="text-center" colspan="{{(entidades[0] | keylength) + 1 }}">Nº de registros mostrados: <strong>{{entidades.length}}</strong></td>
+						<td class="text-center" colspan="{{(entidades[0] | keylength) + 3 }}">Nº de registros mostrados: <strong>{{entidades.length}}</strong></td>
 					</tr>
 				</tfoot>
 				<tbody ng-repeat="entidadobjeto in entidades | orderBy:'denominacion' | filter:filtro">
@@ -30,7 +41,7 @@
 						<th>{{entidadobjeto._id}}<br />
 							{{entidadobjeto.denominacion}}
 							<br /><hr />
-							{{ jerarquias ['' + entidadobjeto.idjerarquia].nombrelargo }}
+							{{ jerarquias['' + entidadobjeto.idjerarquia].nombrelargo }}
 							<hr />
 							<p class="text-center">
 								<a href="/carta/{{entidadobjeto.idjerarquia}}" class="btn btn-default btn-xs" target="_blank" title="Ver entidad objeto">
@@ -65,6 +76,12 @@
 						</td>
 						<td class="text-center">
 							{{getFormulasStats(entidadobjeto._id) }}
+						</td>
+						<td class="text-right">
+							<a href="/indicador/{{entidadobjeto.idjerarquia}}" target="_blank">{{getIndicadoresStats(entidadobjeto.idjerarquia, anualidad.value)}}</a>
+						</td>
+						<td class="text-right">
+							<a href="/carta-informe/{{entidadobjeto.idjerarquia}}/{{entidadobjeto._id}}/{{anualidad.label}}" title="{{acciones[anualidad.label][ entidadobjeto._id ] }} acciones de mejora en {{getPlanes(entidadobjeto, anualidad.label)}} planes" target="_blank"> {{acciones[anualidad.label][ entidadobjeto._id ] }}</a>
 						</td>
 					</tr>
 				</tbody>
