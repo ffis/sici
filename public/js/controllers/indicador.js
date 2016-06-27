@@ -7,10 +7,22 @@
 					$rootScope.nav = 'indicador';
 					$rootScope.setTitle('Indicadores');
 					$scope.functions = acumulatorFunctions;
+					$scope.cumplimentaciones = {};
 					$scope.frecuenciasIndicadores = ['anual', 'mensual', 'bimestral', 'trimestral', 'cuatrimestral', 'semestral', 'bienal', 'discrecional'];
 					$scope.idjerarquia = $routeParams.idjerarquia;
 					$scope.organismo = Jerarquia.get({id: $scope.idjerarquia });
-					$scope.indicadores = Indicador.query({idjerarquia: $scope.idjerarquia});
+					$scope.indicadores = Indicador.query({idjerarquia: $scope.idjerarquia}, function(){
+						for (var i = 0, j = $scope.indicadores.length; i < j; i++){
+							$scope.cumplimentaciones[$scope.indicadores[i]._id] = [];
+							for (var anualidad in $scope.indicadores[i].valores){
+								$scope.cumplimentaciones[$scope.indicadores[i]._id].push( {
+									anualidad: anualidad.replace('a', ''),
+									cumplimentado: $rootScope.isIndicadorCumplimentado($scope.indicadores[i], anualidad)
+								});
+							}
+							$scope.cumplimentaciones[$scope.indicadores[i]._id].sort( function(a, b){ return a.anualidad - b.anualidad; } );
+						}
+					});
 					$scope.idindicador = ($routeParams.idindicador) ? ($routeParams.idindicador) : false;
 					$scope.usosIndicadores = {};
 					UsosIndicadores.query(function(usos){
@@ -18,6 +30,7 @@
 							$scope.usosIndicadores[ usos[i]._id ] = usos[i].count;
 						}
 					});
+
 
 					$scope.nuevo = new Indicador();
 					$scope.nuevo.idjerarquia = $scope.idjerarquia;

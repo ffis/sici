@@ -1,6 +1,5 @@
 <ol class="breadcrumb">
-	<li><a href="/carta/{{carta.idjerarquia}}">{{carta.denominacion}}</a></li>
-	<li><a href="/objetivo/{{objetivo._id}}">{{objetivo.denominacion}}</a></li>
+	<li><a href="/carta/{{organismo.id}}">{{organismo.nombrelargo}}</a></li>
 </ol>
 <div class="row">
 	<div class="col-lg-12">
@@ -14,13 +13,14 @@
 						<th>Frecuencia</th>
 						<th>Acumulador</th>
 						<th>Usos</th>
+						<th>Cumplimentaciones</th>
 						<th>Operaciones</th>
 					</tr>
 				</thead>
 				<tfoot>
 					<tr>
 						<th><br />Nuevo indicador</th>
-						<td colspan="5">
+						<td colspan="6">
 							<input ng-model="nuevo.nombre" class="form-control" />
 						</td>
 						<td>
@@ -49,6 +49,9 @@
 						</td>
 						<td class="text-right" ng-class="{ 'danger': usosIndicadores[ indicador._id] !== 1 }">
 							<span>{{usosIndicadores[ indicador._id] }}</span>
+						</td>
+						<td class="text-center">
+							<h5><span ng-repeat="c in cumplimentaciones[ indicador._id ]" class="label" ng-class="{'label-success': c.cumplimentado, 'label-danger':!c.cumplimentado}" style="margin-right:1em">{{c.anualidad}}</span></h5>
 						</td>
 						<td>
 							<button ng-click="actualizar(indicador)" class="btn btn-sm btn-primary" title="Actualizar">

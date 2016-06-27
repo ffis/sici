@@ -61,6 +61,17 @@
 					$location.path('/procedimiento/' + $rootScope.procedimiento);
 				}
 			};
+			$rootScope.isIndicadorCumplimentado = function(indicador, anualidad){
+				if (typeof anualidad === 'undefined'){ return false;}
+				if (typeof indicador.valores === 'undefined'){ return false;}
+				if (typeof indicador.valores[anualidad] === 'undefined'){ return false;}
+				for (var i = 0, j = indicador.valores[anualidad].length; i < j; i++){
+					if (typeof indicador.valores[anualidad][i] !== 'undefined' && indicador.valores[anualidad][i] !== null){
+						return true;
+					}
+				}
+				return false;
+			};
 			$rootScope.isInt = function(n){
 				return parseInt(n) === n;
 			};
