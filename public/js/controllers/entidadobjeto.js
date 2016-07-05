@@ -184,7 +184,7 @@
 						}
 					}
 				};
-
+				$scope.descargando = false;
 				$scope.downloadxls = function(){
 					$scope.descargando = true;
 					$http.get('/api/v2/restricted/exportadorIndicador')

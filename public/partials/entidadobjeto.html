@@ -4,7 +4,7 @@
 			<h3>Entidades objeto</h3>
 			<div class="hidden-print col-sm-12 text-center">
 				<span class="btn btn-primary" ng-click="newCarta()">Registar una nueva carta de compromisos</span>
-				<span class="btn btn-primary" ng-click="downloadxls()">Descargar listado indicadores</span>
+				<span class="btn btn-primary" ng-click="downloadxls()" ng-class="{'disabled': descargando}">Descargar listado indicadores</span>
 			</div>
 			<table class="table table-striped table-hover hidden-print" ng-show="$root.permisoscalculados.superuser">
 				<caption>
