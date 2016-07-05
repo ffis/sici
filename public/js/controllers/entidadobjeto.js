@@ -184,6 +184,19 @@
 						}
 					}
 				};
+
+				$scope.downloadxls = function(){
+					$scope.descargando = true;
+					$http.get('/api/v2/restricted/exportadorIndicador')
+						.then(function (res) {
+							$scope.descargando = false;
+							var url = '/download/' + res.data.time + '/' + res.data.hash + '?extension=' + res.data.extension;
+							$window.location = url;
+						}, function() {
+							$scope.descargando = false;
+							$rootScope.toaster('Error al descargar el informe', 'Error', 'error');
+						});
+				};
 			}
 		]);
 })(angular);

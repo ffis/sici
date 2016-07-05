@@ -144,6 +144,10 @@
 		/*fake public */
 		app.delete('/api/v1/public/procedimiento/:codigo', procedimiento.deleteProcedimiento(Q, models, recalculate));
 
+		var Ei = require('./api/exportador_indicador'),
+			exportadorIndicador = new Ei(models, path.join(config.templates.xlsxcartas));
+		app.get('/api/v2/restricted/exportadorIndicador', exportadorIndicador.toExpress(app, md5, cfg));
+
 		app.get('/api/v1/restricted/reglasinconsistencias', reglainconsistencia.getReglaInconsistencia(models));
 		app.get('/api/v1/restricted/reglasinconsistencias/:id', reglainconsistencia.getReglaInconsistencia(models));
 		app.post('/api/v1/restricted/reglasinconsistencias', reglainconsistencia.newReglaInconsistencia(models));
@@ -286,6 +290,7 @@
 		var Ec = require('./api/exportador_carta'),
 			exportadorCarta = new Ec(models, path.join(config.templates.xlsxcartas));
 		app.get('/api/v2/public/exportadorCarta/:id/:anualidad', exportadorCarta.toExpress(app, md5, cfg));
+
 
 		app.get('/api/v2/public/objetivosStats', carta.objetivosStats(models, Q));
 
