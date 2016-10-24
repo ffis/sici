@@ -53,6 +53,20 @@
 												</span>
 												<span class="badge pull-right">{{elem.numprocedimientos}}</span>
 												</p>
+
+												<ul ng-if="elem.nodes" style="clear:both">
+													<li ng-repeat="ele in elem.nodes |filter:texto |filter:filtrojerarquia">
+													<p>
+														<strong>
+															[{{ele.id}}] &nbsp;
+														</strong>
+														<span ng-class="{'bg-danger':ele.id==seleccionado.id }" ng-click="setSeleccionado(ele)" class="cursor"  title="Engloba {{ele.numprocedimientos}} procedimientos">
+															{{ele.title}}
+														</span>
+														<span class="badge pull-right">{{ele.numprocedimientos}}</span>
+														</p>
+													</li>
+												</ul>
 											</li>
 										</ul>
 									</li>
