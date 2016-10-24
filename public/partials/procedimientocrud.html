@@ -15,7 +15,7 @@
 						<strong>
 							[{{element.id}}] &nbsp;
 						</strong>
-						<span ng-click="setSeleccionado(element)" class="cursor"  title="Engloba {{element.numprocedimientos}} procedimientos">
+						<span ng-click="setSeleccionado(element)" class="cursor" title="Engloba {{element.numprocedimientos}} procedimientos">
 							{{element.title}} 
 						</span>
 						<span class="badge pull-right">{{element.numprocedimientos}}</span>
@@ -26,7 +26,7 @@
 								<strong>
 									[{{elemen.id}}] &nbsp;
 								</strong>
-								<span ng-click="setSeleccionado(elemen)" class="cursor" title="Engloba {{elemen.numprocedimientos}} procedimientos">
+								<span ng-class="{'text-muted': elemen.numprocedimientos === 0 }" ng-click="setSeleccionado(elemen)" class="cursor" title="Engloba {{elemen.numprocedimientos}} procedimientos">
 									{{elemen.title}} 
 								</span>
 								<span class="badge pull-right">{{elemen.numprocedimientos}}</span>
@@ -37,7 +37,7 @@
 										<strong>
 											[{{eleme.id}}] &nbsp;
 										</strong>
-										<span ng-class="{'bg-danger':eleme.id==seleccionado.id }" ng-click="setSeleccionado(eleme)" class="cursor" title="Engloba {{eleme.numprocedimientos}} procedimientos">
+										<span ng-class="{'bg-danger':eleme.id==seleccionado.id, 'text-muted': eleme.numprocedimientos === 0 }" ng-click="setSeleccionado(eleme)" class="cursor" title="Engloba {{eleme.numprocedimientos}} procedimientos">
 											{{eleme.title}} 
 										</span>
 										<span class="badge pull-right">{{eleme.numprocedimientos}}</span>
@@ -48,7 +48,7 @@
 												<strong>
 													[{{elem.id}}] &nbsp;
 												</strong>
-												<span ng-class="{'bg-danger':elem.id==seleccionado.id }" ng-click="setSeleccionado(elem)" class="cursor"  title="Engloba {{elem.numprocedimientos}} procedimientos">
+												<span ng-class="{'bg-danger':elem.id==seleccionado.id, 'text-muted': elem.numprocedimientos === 0 }" ng-click="setSeleccionado(elem)" class="cursor"  title="Engloba {{elem.numprocedimientos}} procedimientos">
 													{{elem.title}} 
 												</span>
 												<span class="badge pull-right">{{elem.numprocedimientos}}</span>
@@ -60,7 +60,7 @@
 														<strong>
 															[{{ele.id}}] &nbsp;
 														</strong>
-														<span ng-class="{'bg-danger':ele.id==seleccionado.id }" ng-click="setSeleccionado(ele)" class="cursor"  title="Engloba {{ele.numprocedimientos}} procedimientos">
+														<span ng-class="{'bg-danger':ele.id==seleccionado.id, 'text-muted': ele.numprocedimientos === 0 }" ng-click="setSeleccionado(ele)" class="cursor"  title="Engloba {{ele.numprocedimientos}} procedimientos">
 															{{ele.title}}
 														</span>
 														<span class="badge pull-right">{{ele.numprocedimientos}}</span>
