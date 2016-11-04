@@ -136,20 +136,23 @@
 			$scope.isFiltroSelected = function(filtro, key, fa){
 				return (typeof filtro[key] !== 'undefined' && fa.name === filtro[key]);
 			};
+
+			function sparkline(){
+				$.each($('.sparkline'), function(k, v){
+					var obj = '[' + $(v).data('value') + ']';
+					var t;
+					try {
+						t = JSON.parse( '' + obj );
+						$(v).sparkline( t, {type: 'bar', barColor: '#a94442'});
+					} catch (e) {
+						/*$log.error('sparkline mal formed VALUE WAS:' + t , obj);*/
+						$(v).sparkline( [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], {type: 'bar', barColor: '#a94442'});
+					}
+				}
+			}
+
 			$scope.sparkline = function(){
-				$timeout( function(){
-					$('.sparkline').each( function(){
-						var obj = $(this).data('value');
-						var t;
-						try {
-							t = JSON.parse( obj );
-							$(this).sparkline( t, {type: 'bar', barColor: '#a94442'});
-						} catch (e) {
-							/*$log.error('sparkline mal formed VALUE WAS:' + t , obj);*/
-							$(this).sparkline( [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], {type: 'bar', barColor: '#a94442'});
-						}
-					});
-				}, 5);
+				$timeout(sparkline, 5);
 			};
 
 			$scope.filtrotxtprocedimiento = {};
