@@ -148,7 +148,7 @@
 						/*$log.error('sparkline mal formed VALUE WAS:' + t , obj);*/
 						$(v).sparkline( [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], {type: 'bar', barColor: '#a94442'});
 					}
-				}
+				});
 			}
 
 			$scope.sparkline = function(){
