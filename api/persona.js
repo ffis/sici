@@ -224,7 +224,7 @@
 						} else {
 							var regPlaza = new RegExp(/[A-Z]{2}\d{5}/);
 							if (regPlaza.test(req.params.regex)) {
-								exports.registroPersonaWS(req.params.regex, models, Q).then(function (resultado) {
+								exports.registroPersonaWS(req.params.regex, models, Q, cfg).then(function (resultado) {
 									res.json(resultado);
 								}, function (erro) {
 									console.error(erro);
