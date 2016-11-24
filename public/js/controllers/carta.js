@@ -170,7 +170,10 @@
 							if ($scope.cartasservicio.length > 0){
 								var seleccionada = $scope.cartasservicio[0];
 								if (typeof $routeParams.idcarta !== 'undefined'){
-									seleccionada = $scope.cartasservicio.filter(function(a){ return a._id === $routeParams.idcarta; });
+									var seleccionadas = $scope.cartasservicio.filter(function(a){ return a._id == $routeParams.idcarta; });
+									if (seleccionadas.length > 0){
+										seleccionada = seleccionadas[0];
+									}
 								}
 
 								$scope.setCartaServicio(seleccionada);
