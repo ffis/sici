@@ -168,7 +168,12 @@
 								$scope.cartasservicio[i].urlprintable = '/carta-printable/' + $scope.idjerarquia + '/' + $scope.cartasservicio[i]._id;
 							}
 							if ($scope.cartasservicio.length > 0){
-								$scope.setCartaServicio($scope.cartasservicio[0]);
+								var seleccionada = $scope.cartasservicio[0];
+								if (typeof $routeParams.idcarta !== 'undefined'){
+									seleccionada = $scope.cartasservicio.filter(function(a){ return a._id === $routeParams.idcarta; });
+								}
+
+								$scope.setCartaServicio(seleccionada);
 							} else {
 								$scope.setCartaServicio();
 							}
@@ -309,6 +314,7 @@
 					return 'background-color:' + result + '!important';
 					//return {'background-color': result};
 				};
+
 				$scope.downloadxls = function(){
 					$scope.descargando = true;
 					$http.get('/api/v2/public/exportadorCarta/' + $scope.cartaservicioseleccionada._id + '/' + $scope.anualidad)

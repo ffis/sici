@@ -33,7 +33,7 @@
 						{{cartaservicioseleccionada.expediente}} {{cartaservicioseleccionada.denominacion}} <span class="caret" ng-if="cartasservicio.length > 1"></span>
 						</button>
 						<ul class="dropdown-menu" ng-if="cartasservicio.length > 1">
-							<li ng-if="cartaservicioseleccionada._id != c._id" ng-repeat="c in cartasservicio"><a href="{{c.urledicion}}">{{c.expediente}} {{c.denominacion}}</a></li>
+							<li ng-repeat="c in cartasservicio"><a href="{{c.urledicion}}">{{c.expediente}} {{c.denominacion}}</a></li>
 						</ul>
 						<select ng-model="anualidad" class="btn btn-default" ng-change="refreshAnualidad(anualidad)" ng-options='o as o for o in anualidades'></select>
 					</div>
