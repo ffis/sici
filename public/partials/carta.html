@@ -43,7 +43,7 @@
 				</p>
 				<br style="clear:both" />
 			</p>
-			<table class="table table-bordered table-condensed table-hover" id="cartastable" style="width:100%">
+			<table class="table table-bordered table-condensed table-hover" id="cartastable" style="width:100%;page-break-inside:auto ">
 				<thead>
 					<tr>
 						<th ng-class="{danger:orderby=='codigo' }" ng-click="reverse=!reverse;orderby='codigo'">{{'codigo'|translate}}</th>
@@ -60,7 +60,7 @@
 					</tr>
 				</tfoot>
 				<tbody>
-					<tr ng-repeat="objetivo in objetivos" ng-style="{'background-color': getPastel(objetivo.index) }" ng-init="indexobjetivo=$index">
+					<tr style=" page-break-inside:avoid; page-break-after:always" ng-repeat="objetivo in objetivos" ng-style="{'background-color': getPastel(objetivo.index) }" ng-init="indexobjetivo=$index">
 						<th class="text-center">
 							<p>{{objetivo.index}}</p>
 							<div class="btn-group-vertical" role="group">
