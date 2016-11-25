@@ -24,6 +24,9 @@
 			<div ng-repeat="obj in indicadores" ng-drag="true" ng-drag-data="obj">
 				{{obj.texto}}
 			</div>
+			<div ng-repeat="obj in indicadores" ng-drag="true" ng-drag-data="obj">
+				{{obj.texto}}
+			</div>
 		</div>
 		<br />
 
@@ -40,9 +43,7 @@
 		<h4><span class="label label-primary"><i class="fa fa-calculator"></i> Fórmula</span></h4>
 		<div class="row">
 			<div class="col-xs-2 drag-formula" ng-repeat="obj in formulaObjects track by $index" ng-drop="true" ng-drop-success="onDropFormula($index, $data, $event)">
-				<div ng-drag="true" ng-drag-data="obj" style="background-color: {{obj.color}} !important">
-					{{obj.texto}}
-				</div>
+				<div ng-drag="true" ng-drag-data="obj" style="min-height: 3em; background-color: {{obj.color}} !important;">{{obj.texto}}</div>
 			</div>
 		</div>
 
