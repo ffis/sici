@@ -97,6 +97,7 @@
 								max = a;
 							}
 						}
+						$scope.anualidades.sort();
 						/*
 						$scope.aanualidad = max;
 						$scope.anualidad = parseInt(max.replace('a', ''));
