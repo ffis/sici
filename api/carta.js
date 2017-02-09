@@ -646,15 +646,18 @@
 			resturl: '/indicador/' + counterIndicador,
 			valores: {
 				'a2015': [null, null, null, null, null, null, null, null, null, null, null, null, null ], /* 13 elementos */
-				'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null ] /* 13 elementos */
+				'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null ], /* 13 elementos */
+				'a2017': [null, null, null, null, null, null, null, null, null, null, null, null, null ] /* 13 elementos */
 			},
 			observaciones: {
 				'a2015': ['', '', '', '', '', '', '', '', '', '', '', '', '' ],
-				'a2016': ['', '', '', '', '', '', '', '', '', '', '', '', '' ]
+				'a2016': ['', '', '', '', '', '', '', '', '', '', '', '', '' ],
+				'a2017': ['', '', '', '', '', '', '', '', '', '', '', '', '' ]
 			},
 			valoresacumulados: {
 				'a2015': [null, null, null, null, null, null, null, null, null, null, null, null, null ], /* 13 elementos */
-				'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null ] /* 13 elementos */
+				'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null ], /* 13 elementos */
+				'a2017': [null, null, null, null, null, null, null, null, null, null, null, null, null ] /* 13 elementos */
 			},
 			fechaversion: new Date(),
 			medidas: {},
