@@ -260,13 +260,18 @@
 								if (typeof indicador.valoresacumulados === 'undefined'){
 									indicador.valoresacumulados = {
 										'a2015': [null, null, null, null, null, null, null, null, null, null, null, null, null ], /* 13 elementos */
-										'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null ] /* 13 elementos */
+										'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null ], /* 13 elementos */
+										'a2017': [null, null, null, null, null, null, null, null, null, null, null, null, null ] /* 13 elementos */
 									};
 								}
 
 								if (indicador.acumulador === 'sum'){
 									for (attr in indicador.valores){
 										suma = 0;
+
+										if (typeof indicador.valoresacumulados[attr] === 'undefined'){
+											indicador.valoresacumulados[attr] = [null, null, null, null, null, null, null, null, null, null, null, null, null ];
+										}
 										for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
 											if (actualizacion.valores[attr][i] === null || actualizacion.valores[attr][i] === ''){
 												indicador.valores[attr][i] = null;
@@ -283,6 +288,9 @@
 									for (attr in indicador.valores){
 										suma = 0;
 										var nindicadoresdistintosde0 = 0;
+										if (typeof indicador.valoresacumulados[attr] === 'undefined'){
+											indicador.valoresacumulados[attr] = [null, null, null, null, null, null, null, null, null, null, null, null, null ];
+										}
 										for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
 											if (actualizacion.valores[attr][i] === null || actualizacion.valores[attr][i] === ''){
 												indicador.valores[attr][i] = null;
@@ -300,7 +308,11 @@
 									}
 								} else if (indicador.acumulador === 'max'){
 									for (attr in indicador.valores){
-										max = 0, suma = 0;
+										max = 0;
+										suma = 0;
+										if (typeof indicador.valoresacumulados[attr] === 'undefined'){
+											indicador.valoresacumulados[attr] = [null, null, null, null, null, null, null, null, null, null, null, null, null ];
+										}
 										for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
 											if (actualizacion.valores[attr][i] === null || actualizacion.valores[attr][i] === ''){
 												indicador.valores[attr][i] = null;
@@ -316,7 +328,11 @@
 									}
 								} else if (indicador.acumulador === 'min'){
 									for (attr in indicador.valores){
-										min = false, suma = 0;
+										min = false;
+										suma = 0;
+										if (typeof indicador.valoresacumulados[attr] === 'undefined'){
+											indicador.valoresacumulados[attr] = [null, null, null, null, null, null, null, null, null, null, null, null, null ];
+										}
 										for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
 											if (actualizacion.valores[attr][i] === null || actualizacion.valores[attr][i] === ''){
 												indicador.valores[attr][i] = null;
