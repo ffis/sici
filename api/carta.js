@@ -36,19 +36,19 @@
 						replace: '/indicador/' + indicadores[k]._id + '/valores/[anualidad]/[mes]'
 					});
 					break;
-				}else if (partes[i].toLowerCase() === 'x 100'){
+				} else if (partes[i].toLowerCase() === 'x 100'){
 					frasesAReemplazar.push({
 						search: partes[i],
 						replace: '* 100'
 					});
 					break;
-				}else if (partes[i].toLowerCase() === 'x100'){
+				} else if (partes[i].toLowerCase() === 'x100'){
 					frasesAReemplazar.push({
 						search: partes[i],
 						replace: '* 100'
 					});
 					break;
-				}else if (partes[i].toLowerCase() === ') x 100'){
+				} else if (partes[i].toLowerCase() === ') x 100'){
 					frasesAReemplazar.push({
 						search: partes[i],
 						replace: ') * 100'
@@ -69,7 +69,7 @@
 				for (i = 0, j = frasesAReemplazar.length; i < j; i++){
 					if (formulacomputer.indexOf(frasesAReemplazar[i].search) > -1){
 						formulacomputer = formulacomputer.replace(frasesAReemplazar[i].search, '@');
-					}else if (formulacomputer.indexOf(uncapitalizeFirst(frasesAReemplazar[i].search) ) > -1){
+					} else if (formulacomputer.indexOf(uncapitalizeFirst(frasesAReemplazar[i].search) ) > -1){
 						formulacomputer = formulacomputer.replace(uncapitalizeFirst(frasesAReemplazar[i].search), '@');
 					} else {
 						fallo = true;
@@ -119,9 +119,9 @@
 			if (req.user.permisoscalculados.superuser) {
 				var objetivomodel = models.objetivo();
 				objetivomodel.aggregate([
-					{$unwind: '$formulas'},
-					{$unwind: '$formulas.indicadores'},
-					{$group:{ _id: '$formulas.indicadores', count: {$sum: 1}}}
+					{ $unwind: '$formulas' },
+					{ $unwind: '$formulas.indicadores' },
+					{ $group: { _id: '$formulas.indicadores', count: { $sum: 1}}}
 				]).exec().then(function(result){
 					res.json(result);
 				}, function(err){
@@ -138,7 +138,7 @@
 			var indicadormodel = models.indicador();
 			if (typeof req.params.id !== 'undefined'){
 				var id = req.params.id;
-				var restriccion = { _id : models.ObjectId(id) };
+				var restriccion = { _id: models.ObjectId(id) };
 				if (!req.user.permisoscalculados.superuser) {
 					restriccion['$or'] = [
 						{
@@ -202,9 +202,9 @@
 					}
 					if (req.user.permisoscalculados.superuser ||
 						req.user.permisoscalculados.jerarquiaescritura.indexOf(indicador.idjerarquia) !== -1){
-						objetivomodel.find({'formulas.indicadores': models.ObjectId(id)}, function(err, objetivos){
-							if (err){
-								res.status(500).json({'error': 'An error has occurred', details: err});
+						objetivomodel.find({'formulas.indicadores': models.ObjectId(id)}, function(erro, objetivos){
+							if (erro){
+								res.status(500).json({'error': 'An error has occurred', details: erro});
 								return;
 							}
 							if (objetivos && objetivos.length > 0){
@@ -486,7 +486,7 @@
 					});
 				});
 				return;
-			}else if (req.query.carta === 'undefined'){
+			} else if (req.query.carta === 'undefined'){
 				res.status(404).json({error: 'Not found.'});
 				return;
 			}
@@ -549,7 +549,7 @@
 				var detalle = $descripcion.text().trim();
 				if (detalle.indexOf('COMPROMISOS DE CALIDAD E INDICADORES') >= 0){
 					encontrado = true;
-				}else if (encontrado && detalle.indexOf('DERECHOS DE LOS CIUDADANOS') >= 0){
+				} else if (encontrado && detalle.indexOf('DERECHOS DE LOS CIUDADANOS') >= 0){
 					encontrado = false;
 					if (enunciado !== '' && formulas.length > 0){
 						response.push({
@@ -565,11 +565,11 @@
 						enunciado = detalle;
 						formulas = [];
 					}
-				}else if (encontrado){
+				} else if (encontrado){
 					if (detalle.indexOf(contador) === 0){
 						enunciado = detalle;
 						formulas = [];
-					}else if (detalle.indexOf( '' + (parseInt(contador) + 1) ) === 0){
+					} else if (detalle.indexOf( '' + (parseInt(contador) + 1) ) === 0){
 						if (formulas.length > 0){
 							response.push({
 								denominacion: enunciado.replace('' + contador, ''),
@@ -584,7 +584,7 @@
 						contador = '' + (parseInt(contador) + 1);
 						enunciado = detalle;
 						formulas = [];
-					}else if (detalle !== ''){
+					} else if (detalle !== ''){
 						var meta = extraeMeta(detalle);
 						var intervalos = extraeIntervalos(meta);
 						var formula = {
@@ -600,6 +600,9 @@
 									{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null},
 									{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}],
 								'a2016': [
+									{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null},
+									{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}],
+								'a2017': [
 									{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null},
 									{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}]
 							}
@@ -828,13 +831,13 @@
 					if (err){
 						res.status(500).json({'error': 'An error has occurred', details: err});
 						return;
-					}else if (carta){
+					} else if (carta){
 						var defer = Q.defer(),
 							defer2 = Q.defer();
 						var fn = function(def){
-							return function(err){
-								if (err){
-									def.reject(err);
+							return function(erro){
+								if (erro){
+									def.reject(erro);
 								} else {
 									def.resolve();
 								}
@@ -870,7 +873,7 @@
 					if (err){
 						res.status(500).json({'error': 'An error has occurred', details: err});
 						return;
-					}else if (data){
+					} else if (data){
 						module.exports.downloadCarta(data, Crawler, Q).then(function(objetivos){
 							if (objetivos.length === 0){
 								res.status(500).json({'error': 'Empty page'});
@@ -918,5 +921,4 @@
 		});
 		return defer.promise;
 	};
-
 })(module, console);
