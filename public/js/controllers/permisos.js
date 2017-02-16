@@ -1007,8 +1007,8 @@
 					});
 
 					$scope.showPersona = function (persona){
-						return (persona && persona.login && persona.codplaza && persona.nombre && persona.apellidos) ?
-							(persona.login + '-' + persona.codplaza + '-' + persona.nombre + ' ' + persona.apellidos) : '';
+						return (persona && persona.login && persona.nombre && persona.apellidos) ?
+							(persona.login + (persona.codplaza ? ('-' + persona.codplaza) : '') + '-' + persona.nombre + ' ' + persona.apellidos) : '';
 					};
 
 					$scope.getPersona = function(permiso){
