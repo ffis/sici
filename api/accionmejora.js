@@ -5,9 +5,9 @@
 		return function(req, res){
 			var AccionMejora = models.accionmejora(),
 				content = req.body;
-			new AccionMejora(content).save( function(e){
+			new AccionMejora(content).save(function(e){
 				if (e){
-					res.status(400).json({'error': 'An error has occurred'});
+					res.status(500).json({'error': 'An error has occurred'});
 				} else {
 					res.json(content);
 				}
@@ -18,7 +18,8 @@
 	module.exports.get = function (models) {
 		return function (req, res) {
 			var accionmejoramodel = models.accionmejora(),
-				id = req.params.id;
+				id = req.params.id,
+				restricciones = {};
 			if (id){
 				accionmejoramodel.findOne({'_id': models.ObjectId(id) }, function (err, data) {
 					if (err) {
@@ -28,12 +29,19 @@
 					res.json(data);
 				});
 			} else {
-
-				accionmejoramodel.find({'plan': (req.query.plan) }).then(function(acciones){
-					res.json(acciones);
-				}, function(err){
-					res.status(500).json({'error': 'An error has occurred', details: err});
-				});
+				if (typeof req.query.plan !== 'undefined'){
+					restricciones.plan = req.query.plan;
+				}
+				if (typeof req.query.idjerarquia !== 'undefined' && parseInt(req.query.idjerarquia) > 0){
+					restricciones.entidad = parseInt(req.query.idjerarquia);
+				}
+				accionmejoramodel
+					.find(restricciones)
+					.then(function(acciones){
+						res.json(acciones);
+					}, function(err){
+						res.status(500).json({'error': 'An error has occurred', details: err});
+					});
 			}
 		};
 	};
