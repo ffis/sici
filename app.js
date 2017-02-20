@@ -56,6 +56,7 @@
 	app.set('mongosrv', process.env.MONGOSVR || config.mongodb.connectionString );
 
 	logger.log('Estableciendo conexión a ' + app.get('mongosrv'));
+	mongoose.Promise = require('q').Promise;
 	//Inicialización mongoose
 	mongoose.connect(app.get('mongosrv'));
 	models.init(mongoose);
@@ -211,7 +212,7 @@
 		app.put('/api/v2/public/accionmejora/:id', accionmejora.update(models));
 		app.delete('/api/v2/public/accionmejora/:id', accionmejora.remove(models));
 
-		app.get('/api/v1/public/mapReducePeriodos', function(req, res){ exportador.mapReducePeriodos(Q, models, null, req.user.permisoscalculados).then(function(r){ res.json(r); }); });
+		app.get('/api/v1/public/mapReducePeriodos', function(req, res){ exportador.mapReducePeriodos(Q, models, null, req.user.permisoscalculados).then(function(r){ res.json(r); }, function(erro){ res.status(500).json(erro); }); });
 		app.post('/api/v1/public/updateByFile', upload.update(), csvsici.parse(models));
 		app.post('/api/v1/public/updateByFileIE', upload.update(), csvsici.parse(models));
 		app.get('/api/v1/public/aggregate/:anualidad/:campo', api.aggregate(cfg, models));
