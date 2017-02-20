@@ -23,7 +23,7 @@
     "mathjs": "^2.5.0",
     "md5": "",
     "memwatch-next": "^0.2.10",
-    "mongodb": "^2.1.0",
+    "mongodb": "^2.2.24",
     "mongoose": "^4.3.0",
     "multer": "^0.1.7",
     "q": "^1.0.1",
