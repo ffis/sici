@@ -15,7 +15,6 @@
 	}
 
 	exports.mapReducePeriodos = function (Q, models, idjerarquia, permisoscalculados ) {
-		/* TODO: replace this shit of code. MapReduce sucks! */
 		var Procedimiento = models.procedimiento();
 		var deferMR = Q.defer();
 		var restriccion = {};
@@ -25,8 +24,7 @@
 		restriccion.oculto = {'$ne': true};
 		restriccion.eliminado = {'$ne': true};
 
-		if (typeof permisoscalculados !== 'undefined' && permisoscalculados && !permisoscalculados.superuser)
-		{
+		if (typeof permisoscalculados !== 'undefined' && permisoscalculados && !permisoscalculados.superuser){
 			if (typeof permisoscalculados.procedimientoslectura === 'undefined'){
 				permisoscalculados.procedimientoslectura = [];
 			}
@@ -39,141 +37,140 @@
 			if (typeof permisoscalculados.procedimientosescritura === 'undefined'){
 				permisoscalculados.procedimientosescritura = [];
 			}
-			restriccion.codigo = { '$in': permisoscalculados.procedimientosdirectalectura
-							.concat(permisoscalculados.procedimientoslectura)
-							.concat(permisoscalculados.procedimientosdirectaescritura)
-							.concat(permisoscalculados.procedimientosescritura) };
+			restriccion.codigo = {
+				'$in': permisoscalculados.procedimientosdirectalectura
+					.concat(permisoscalculados.procedimientoslectura)
+					.concat(permisoscalculados.procedimientosdirectaescritura)
+					.concat(permisoscalculados.procedimientosescritura)
+			};
 		}
 
-		Procedimiento.find(restriccion, {'ancestros.id': 1, 'periodos': 1}, function(error, procedimientos){
-			if (error){
-				deferMR.reject(error);
-			}
+		var fnMap = function(){
+			for (var a in this.periodos){
+				var anualidad = parseInt(a.replace('a', ''));
+				if (anualidad > 0){
+					
+					var val = this.periodos[a];
+					var tmn, tmh;
+					
+					val.procedimientos = [ this.codigo ];
+					val.numProcedimientos = val.procedimientos.length;
+					val.numProcedimientosConSolicitudes = 0;
 
+					var t_medio_naturales_new = [];
+					var t_medio_habiles_new = [];
+					for (mes = 0; mes < 12; mes++){
+						tmn = {
+							count: typeof val.t_medio_naturales === 'object' && typeof val.t_medio_naturales[mes] === 'number' && parseInt(val.t_medio_naturales[mes]) > 0 ? 1 : 0,
+							value: typeof val.t_medio_naturales === 'object' && typeof val.t_medio_naturales[mes] === 'number' && parseInt(val.t_medio_naturales[mes]) > 0 ? parseInt(val.t_medio_naturales[mes]) : 0
+						};
+						tmh = {
+							count: (typeof val.t_medio_habiles === 'object' && typeof val.t_medio_habiles[mes] === 'number' && parseInt(val.t_medio_habiles[mes]) > 0) ? 1 : 0,
+							value: (typeof val.t_medio_habiles === 'object' && typeof val.t_medio_habiles[mes] === 'number' && parseInt(val.t_medio_habiles[mes]) > 0) ? parseInt(val.t_medio_habiles[mes]) : 0
+						};
+						t_medio_naturales_new.push(tmn);
+						t_medio_habiles_new.push(tmh);
+					}
 
-			var returnValue = { };
-			var d = new Date();
+					val.t_medio_naturales = t_medio_naturales_new;
+					val.t_medio_habiles = t_medio_habiles_new;
 
-			//map phase
-			for (var i = 0, j = procedimientos.length; i < j; i++)
-			{
-				for (var i2 = 0, j2 = procedimientos[i].ancestros.length; i2 < j2; i2++)
-				{
-					for (var anualidad = 2013; anualidad <= d.getFullYear(); anualidad++)
-					{
-						if (typeof procedimientos[i].periodos['a' + anualidad] === 'undefined')
-						{
-							logger.error('El procedimiento ' + procedimientos[i].codigo + ' no tiene anualidad ' + anualidad);
-							continue;
-						}
-						var key = { anualidad: anualidad, idjerarquia: procedimientos[i].ancestros[i2].id };
-						var keyStr = JSON.stringify(key);
-						if (typeof returnValue [ keyStr ] === 'undefined'){
-							returnValue [ keyStr ] = [];
-						}
-						returnValue [ keyStr ].push(procedimientos[i].periodos['a' + anualidad]);
+					if (val.totalsolicitudes > 0) {
+						val.numProcedimientosConSolicitudes++;
+					}
+					
+					for (var i2 = 0, j2 = this.ancestros.length; i2 < j2; i2++){
+						var key = { anualidad: anualidad, idjerarquia: this.ancestros[i2].id };
+						emit(key, val);
 					}
 				}
 			}
+		};
 
+		var fnReduce = function(key, values){
+			var i, j, k, l;
+			var mes = 0;
+			var sumas = {};
+			var attrs = [
+				'total_resueltos', 'solicitados',
+				'iniciados',
+				'resueltos_1', 'resueltos_5', 'resueltos_10', 'resueltos_15',
+				'resueltos_30', 'resueltos_45', 'resueltos_mas_45',
+				'resueltos_desistimiento_renuncia_caducidad',
+				'resueltos_prescripcion',
+				'en_plazo', 'quejas', 'recursos',
+				'fuera_plazo', 'pendientes'
+			];
 
-
-			var fnReduce = function(key, values){
-				var mes = 0;
-				var sumas = {};
-				var attrs = [
-					'total_resueltos', 'solicitados',
-					'iniciados',
-					'resueltos_1', 'resueltos_5', 'resueltos_10', 'resueltos_15',
-					'resueltos_30', 'resueltos_45', 'resueltos_mas_45',
-					'resueltos_desistimiento_renuncia_caducidad',
-					'resueltos_prescripcion',
-					'en_plazo', 'quejas', 'recursos',
-					'fuera_plazo', 'pendientes'
-				];
-
-				attrs.forEach(function (attr) {
-					sumas[attr] = [];
-					for (var mes = 0; mes < 12; mes++) {
-						sumas[attr][mes] = 0;
-						for (var i = 0, j = values.length; i < j; i++) {
-							if (values[i][attr]) {
-								sumas[attr][mes] += parseInt(values[i][attr][mes]);
-							}
+			attrs.forEach(function (attr) {
+				sumas[attr] = [];
+				for (var mes = 0; mes < 12; mes++) {
+					sumas[attr][mes] = 0;
+					for (var i = 0, j = values.length; i < j; i++) {
+						if (values[i][attr]) {
+							sumas[attr][mes] += parseInt(values[i][attr][mes]);
 						}
 					}
-				});
+				}
+			});
+			sumas.procedimientos = [];
+			sumas.t_medio_naturales = [];
+			sumas.t_medio_habiles = [];
+			for (mes = 0; mes < 12; mes++){
+				sumas.t_medio_naturales.push( { count: 0, value: 0} );
+				sumas.t_medio_habiles.push( { count: 0, value: 0} );
+			}
 
-				sumas.totalsolicitudes = 0;
-				sumas.numProcedimientos = values.length;
-				sumas.procedimientos = [];
-				sumas.numProcedimientosConSolicitudes = 0;
-				sumas.t_medio_naturales = [];
-				sumas.t_medio_habiles = [];
+			for (i = 0, j = values.length; i < j; i++){
+				for (k = 0, l = values[i].procedimientos.length; k < l; k++){
+					sumas.procedimientos.push(values[i].procedimientos[k]);
+				}
 				for (mes = 0; mes < 12; mes++){
-					sumas.t_medio_naturales.push( { count: 0, value: 0} );
-					sumas.t_medio_habiles.push( { count: 0, value: 0} );
+					sumas.t_medio_naturales[mes].count += values[i].t_medio_naturales[mes].count;
+					sumas.t_medio_naturales[mes].value += values[i].t_medio_naturales[mes].value;
+					sumas.t_medio_habiles[mes].count += values[i].t_medio_habiles[mes].count;
+					sumas.t_medio_habiles[mes].value += values[i].t_medio_habiles[mes].value;
 				}
-
-
-				for (var i = 0, j = values.length; i < j; i++) {
-					sumas.procedimientos.push(values[i].codigo);
-					if (values[i].totalsolicitudes > 0) {
-						sumas.numProcedimientosConSolicitudes++;
-						sumas.totalsolicitudes += values[i].totalsolicitudes;
-					}
-					if (key.anualidad > 2013){
-						for (mes = 0; mes < 12; mes++){
-							if (values[i].total_resueltos[mes] > 0)
-							{
-								if (values[i].t_medio_naturales[mes] > 0)
-								{
-									sumas.t_medio_naturales[mes].count++;
-									sumas.t_medio_naturales[mes].value += values[i].t_medio_naturales[mes];
-								}
-								if (values[i].t_medio_habiles[mes] > 0)
-								{
-									sumas.t_medio_habiles[mes].count++;
-									sumas.t_medio_habiles[mes].value += values[i].t_medio_habiles[mes];
-								}
-							}
-						}
-					}
-				}
-				sumas.t_medio_naturales_anual = { count: 0, value: 0, avg: 0 };
-				sumas.t_medio_habiles_anual = { count: 0, value: 0, avg: 0 };
-				for (mes = 0; mes < 12; mes++){
-					sumas.t_medio_naturales_anual.count += sumas.t_medio_naturales[mes].count;
-					sumas.t_medio_naturales_anual.value += sumas.t_medio_naturales[mes].value;
-					sumas.t_medio_habiles_anual.count += sumas.t_medio_habiles[mes].count;
-					sumas.t_medio_habiles_anual.value += sumas.t_medio_habiles[mes].value;
-
-					sumas.t_medio_naturales[mes] = (sumas.t_medio_naturales[mes].count === 0 ) ? 0 : parseFloat( (sumas.t_medio_naturales[mes].value / sumas.t_medio_naturales[mes].count).toFixed(2) );
-					sumas.t_medio_habiles[mes] = (sumas.t_medio_habiles[mes].count === 0 ) ? 0 : parseFloat( (sumas.t_medio_habiles[mes].value / sumas.t_medio_habiles[mes].count).toFixed(2) );
-				}
-				sumas.t_medio_naturales_anual.avg = (sumas.t_medio_naturales_anual.count === 0 ) ? 0 : parseFloat( (sumas.t_medio_naturales_anual.value / sumas.t_medio_naturales_anual.count).toFixed(2) );
-				sumas.t_medio_habiles_anual.avg = (sumas.t_medio_habiles_anual.count === 0 ) ? 0 : parseFloat( (sumas.t_medio_habiles_anual.value / sumas.t_medio_habiles_anual.count).toFixed(2) );
-
-				return sumas;
-			};
-			//reduce phase
-			var results = [];
-			for (var keyStr in returnValue){
-				var keyV = JSON.parse(keyStr);
-				results.push({_id: keyV, value: fnReduce(keyV, returnValue[keyStr]) });
 			}
+			sumas.numProcedimientos = sumas.procedimientos.length;
+			sumas.numProcedimientosConSolicitudes = values.reduce(function(prev, elem){ return prev + elem.numProcedimientosConSolicitudes; }, 0);
+
+			return sumas;
+		};
+
+		var fnFinalize = function(key, val){
+			val.t_medio_naturales_anual = { count: 0, value: 0, avg: 0 };
+			val.t_medio_habiles_anual = { count: 0, value: 0, avg: 0 };
+			val.debug = JSON.parse(JSON.stringify(val.t_medio_naturales));
+			for (var mes = 0; mes < 12; mes++){
+				val.t_medio_naturales_anual.count += val.t_medio_naturales[mes].count;
+				val.t_medio_naturales_anual.value += val.t_medio_naturales[mes].value;
+				val.t_medio_habiles_anual.count += val.t_medio_habiles[mes].count;
+				val.t_medio_habiles_anual.value += val.t_medio_habiles[mes].value;
 
 
-			if (typeof idjerarquia === 'undefined' || idjerarquia === null ){
-				deferMR.resolve(results);
+				val.t_medio_naturales[mes] = (val.t_medio_naturales[mes].count === 0 ) ? 0 : parseFloat( (val.t_medio_naturales[mes].value / val.t_medio_naturales[mes].count).toFixed(2) );
+				val.t_medio_habiles[mes] = (val.t_medio_habiles[mes].count === 0 ) ? 0 : parseFloat( (val.t_medio_habiles[mes].value / val.t_medio_habiles[mes].count).toFixed(2) );
+			}
+			val.t_medio_naturales_anual.avg = (val.t_medio_naturales_anual.count === 0 ) ? 0 : parseFloat( (val.t_medio_naturales_anual.value / val.t_medio_naturales_anual.count).toFixed(2) );
+			val.t_medio_habiles_anual.avg = (val.t_medio_habiles_anual.count === 0 ) ? 0 : parseFloat( (val.t_medio_habiles_anual.value / val.t_medio_habiles_anual.count).toFixed(2) );
+
+			return val;
+		};
+
+		var mr = {
+			query: restriccion,
+			map: fnMap,
+			reduce: fnReduce,
+			finalize: fnFinalize
+		};
+
+		Procedimiento.mapReduce(mr, function(err, res){
+			if (err){
+				err.extracode = 155;
+				deferMR.reject(err);
 			} else {
-				var periodos = {};
-				results.forEach(function (result) {
-					if (result._id.idjerarquia === idjerarquia) {
-						periodos[parseInt(result._id.anualidad)] = result.value;
-					}
-				});
-				deferMR.resolve(periodos);
+				deferMR.resolve(res);
 			}
 		});
 
@@ -209,7 +206,7 @@
 
 	exports.tablaResultadosJerarquiaDesglosado = function(Q, models, jerarquia, permisoscalculados) {
 		var defer = Q.defer();
-		var defer_descendientes = Q.defer();
+		var deferDescendientes = Q.defer();
 		var Jerarquia = models.jerarquia();
 		var indicadores = ['Solicitados', 'Iniciados', 'Quejas presentadas en el mes', 'Recursos presentados en el mes', 'Resueltos < 1', 'Resueltos 1 < 5',
 			'Resueltos 5 < 10', 'Resueltos 10 < 15', 'Resueltos 15 < 30', 'Resueltos 30 < 45', 'Resueltos > 45',
@@ -226,15 +223,15 @@
 			{ id: true, _id: false, nombre: true, numProcedimientos: true, nombrelargo: true },
 			function(err, hijos){
 				if (err){
-					defer_descendientes.reject(err);
+					deferDescendientes.reject(err);
 				}
 				else {
-					defer_descendientes.resolve(hijos);
+					deferDescendientes.resolve(hijos);
 				}
 			}
 		);
 
-		Q.all([defer_descendientes.promise, exports.mapReducePeriodos(Q, models, null, permisoscalculados)]).then(
+		Q.all([deferDescendientes.promise, exports.mapReducePeriodos(Q, models, null, permisoscalculados)]).then(
 			function(allData) {
 				var hijos = allData[0], results = allData[1];
 				hijos = ([ {nombrelargo: jerarquia.nombrelargo, nombre: jerarquia.nombre, id: jerarquia.id} ]).concat(hijos);
@@ -253,6 +250,7 @@
 					}
 				});
 				var rowhead = 4;
+				var ir = rowhead + 1;
 				var columnhead = 4;
 				var ws = {};
 				var ic = columnhead + 1;
@@ -275,7 +273,6 @@
 				}
 				max_c = ic + k;
 				ic = columnhead;
-				var ir = rowhead + 1;
 				if (typeof periodos[jerarquia.id] === 'undefined'){
 					periodos[jerarquia.id] = {};
 				}
@@ -460,9 +457,9 @@
 					}
 					var padreDefer = Q.defer();
 					if (typeof proc.padre !== 'undefined' && proc.padre !== null) {
-						Procedimiento.findOne({codigo: proc.padre}, {codigo: true, denominacion: true}, function (err, padre) {
-							if (err) {
-								padreDefer.reject(err);
+						Procedimiento.findOne({codigo: proc.padre}, {codigo: true, denominacion: true}, function (erro, padre) {
+							if (erro) {
+								padreDefer.reject(erro);
 							} else {
 								ws[ XLSX.utils.encode_cell({c: 4, r: pos}) ] = {v: '[' + padre.codigo + '] ' + padre.denominacion, t: 's'};
 								ws[ XLSX.utils.encode_cell({c: 3, r: pos}) ] = {v: 'Padre', t: 's'};
@@ -924,5 +921,4 @@
 			}
 		};
 	};
-
 })(exports, console);
