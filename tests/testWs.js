@@ -16,6 +16,8 @@ usage: env TESTUSER=carmuser mocha testWs.js
 		persona = require('../api/persona'),
 		config = require('../config.json');
 
+	mongoose.Promise = require('q').Promise;
+
 	if (typeof describe === 'function')
 	{
 		describe('CARM WS', function(){
@@ -56,7 +58,6 @@ usage: env TESTUSER=carmuser mocha testWs.js
 								}
 							}
 						}
-
 						done();
 					}, function(err){
 						logger.error(err);
