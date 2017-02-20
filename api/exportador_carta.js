@@ -4,18 +4,7 @@
 	var assert = require('assert');
 	var Excel = require('exceljs'),
 		Q = require('q');
-/*
-	function Workbook() {
-		if (!(this instanceof Workbook)){
-			var r = new Workbook();
-			r.SheetNames = [];
-			r.Sheets = [];
-			return r;
-		}
-		this.SheetNames = [];
-		this.Sheets = {};
-	}
-*/
+
 	function ExportadorCartas(models, templatefile){
 		this.models = models;
 		this.models.entidadobjetomodel = this.models.entidadobjeto();
@@ -48,7 +37,7 @@
 			try {
 				var pf = JSON.parse(formula.computer);
 				if (pf.length === 7 && pf[0].trim() === '(' && pf[2].trim() === '/' && pf[4].trim() === ')' && pf[5].trim() === '*' && pf[6].trim() === '100'){
-					logger.log('he encontrado formula', pf);
+					//logger.log('he encontrado formula', pf);
 					return new FormulaPorcentaje(formula);
 				}
 			} catch (exception){
@@ -79,9 +68,7 @@
 		var defer = Q.defer();
 		this.models.entidadobjetomodel.findOne({_id: entidadobjetoid}).then(function(o){
 			defer.resolve(o);
-		}, function(err){
-			defer.reject(err);
-		});
+		}, defer.reject);
 		return defer.promise;
 	};
 
@@ -90,9 +77,7 @@
 		var defer = Q.defer();
 		this.models.objetivomodel.find(restriccion).sort({'index': 1}).then(function(o){
 			defer.resolve(o);
-		}, function(err){
-			defer.reject(err);
-		});
+		}, defer.reject);
 		return defer.promise;
 	};
 
@@ -105,9 +90,7 @@
 				by_Id[ o[i]._id ] = o[i];
 			}
 			defer.resolve(by_Id);
-		}, function(err){
-			defer.reject(err);
-		});
+		}, defer.reject);
 		return defer.promise;
 	};
 
@@ -120,9 +103,7 @@
 				by_Id[ o[i]._id ] = o[i];
 			}
 			defer.resolve(by_Id);
-		}, function(err){
-			defer.reject(err);
-		});
+		}, defer.reject);
 		return defer.promise;
 	};
 
@@ -415,7 +396,7 @@
 						.then(function() {
 							logger.log('fichero almacenado');
 							defer.resolve(workbook);
-						});
+						}, defer.reject);
 					},
 					function(err){
 						defer.reject({error: 'Cannot load metadata', details: err});
