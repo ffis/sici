@@ -12,6 +12,7 @@
 						<th style="width: 10%">REST URL</th>
 						<th>Frecuencia</th>
 						<th>Acumulador</th>
+						<th>Tipo</th>
 						<th>Usos</th>
 						<th>Cumplimentaciones</th>
 						<th>Operaciones</th>
@@ -20,7 +21,7 @@
 				<tfoot>
 					<tr>
 						<th><br />Nuevo indicador</th>
-						<td colspan="6">
+						<td colspan="7">
 							<input ng-model="nuevo.nombre" class="form-control" />
 						</td>
 						<td>
@@ -46,6 +47,9 @@
 						</td>
 						<td>
 							<select ng-model="indicador.acumulador" ng-options="func.value as func.name for func in functions" class="form-control"></select>
+						</td>
+						<td>
+							<select ng-model="indicador.tipo" ng-options="o as o for o in tiposIndicadores" class="form-control"></select>
 						</td>
 						<td class="text-right" ng-class="{ 'danger': usosIndicadores[ indicador._id] !== 1 }">
 							<span>{{usosIndicadores[ indicador._id] }}</span>

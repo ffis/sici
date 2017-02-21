@@ -253,6 +253,7 @@
 									indicador.resturl = actualizacion.resturl;
 									indicador.vinculacion = actualizacion.vinculacion;
 									indicador.acumulador = actualizacion.acumulador;
+									indicador.tipo = actualizacion.tipo;
 									indicador.frecuencia = actualizacion.frecuencia;
 									indicador.pendiente = actualizacion.pendiente;
 								}

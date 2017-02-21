@@ -9,6 +9,7 @@
 					$scope.functions = acumulatorFunctions;
 					$scope.cumplimentaciones = {};
 					$scope.frecuenciasIndicadores = ['anual', 'mensual', 'bimestral', 'trimestral', 'cuatrimestral', 'semestral', 'bienal', 'discrecional'];
+					$scope.tiposIndicadores = ['Conformidad', 'Servicio', 'Satisfacción', 'Gestión', 'Gestión-SICI-Actividad'];
 					$scope.idjerarquia = $routeParams.idjerarquia;
 					$scope.organismo = Jerarquia.get({id: $scope.idjerarquia });
 					$scope.indicadores = Indicador.query({idjerarquia: $scope.idjerarquia}, function(){
