@@ -239,6 +239,7 @@
 			'frecuencia': String,
 			'pendiente': Boolean,
 			'acumulador': String,
+			'tipo': String,
 			'valores': 'Mixed',
 			'observaciones': 'Mixed',
 			'medidas': 'Mixed',
