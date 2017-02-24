@@ -89,10 +89,13 @@
 			logger.log(registros.length + ' registros');
 			logger.log('Fichero volcado con éxito en: ' + path.join(__dirname, 'data', 'output.json'));
 			logger.log('Pasos:');
-			logger.log("\tmongodump -h localhost --db test -c jerarquia");
-			logger.log("\tmongoimport --host localhost --db test --collection jerarquia --file data/output.json --jsonArray --drop");
+			logger.log("\tmongodump -h mongosvr --db sici -c jerarquia");
+			logger.log("\tmongoimport --host mongosvr --db sici --collection jerarquia --file data/output.json --jsonArray --drop");
+			logger.log("\tmongo mongosvr/sici");
+			logger.log("\t\tdb.jerarquia.update({id:1}, {$set: {ancestrodirecto : null}});");
+			logger.log("\t")
 			logger.log('En caso de crisis:');
-			logger.log("\tmongorestore --db test -c jerarquia -h localhost --drop dump/sici/jerarquia.bson");
+			logger.log("\tmongorestore --db sici -c jerarquia -h mongosvr --drop dump/sici/jerarquia.bson");
 		});
 	}
 
@@ -128,9 +131,13 @@
 			logger.log(idsjerarquias.length + ' jerarquias usadas en procedimientos');
 			mongoose.disconnect();
 			logger.log('Running tests');
-			run_tests(idsjerarquias);
-			transformar();
-			volcarJSON();
+			try{
+				run_tests(idsjerarquias);
+				transformar();
+				volcarJSON();
+			}catch(excepcion){
+				console.error(excepcion);
+			}
 		}, function(err){
 			logger.error('Error al conectarse con la base de datos', err);
 			mongoose.disconnect();
