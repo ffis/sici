@@ -2,17 +2,16 @@
 	'use strict';
 
 	var os = require('os');
+	var encoding = require('encoding');
+	var XLSX = require('xlsx');
 	var Browser = false;
 	if (os.platform() === 'linux'){
 		Browser = require('zombie');
 	}
 
-	var encoding = require('encoding');
-	var XLSX = require('xlsx');
-
-	function parseStr2Int (str){
+	function parseStr2Int(str){
 		var valor = parseInt(str);
-		if(isNaN(valor)) { valor = 0;}
+		if (isNaN(valor)) { valor = 0;}
 		return valor;
 	}
 
@@ -38,8 +37,8 @@
 		}
 	}
 
-	for (var prefix = 'A'.charCodeAt(0), prefixk = 'Z'.charCodeAt(0); prefix <= prefixk;prefix++){
-		for (var prefixi = 'A'.charCodeAt(0), prefixj = 'Z'.charCodeAt(0); prefixi <= prefixj;prefixi++){
+	for (var prefix = 'A'.charCodeAt(0), prefixk = 'Z'.charCodeAt(0); prefix <= prefixk; prefix++){
+		for (var prefixi = 'A'.charCodeAt(0), prefixj = 'Z'.charCodeAt(0); prefixi <= prefixj; prefixi++){
 			for (var i = 'A'.charCodeAt(0), j = 'Z'.charCodeAt(0); i <= j; i++){
 				mapping.push( String.fromCharCode(prefix) + String.fromCharCode(prefixi) + String.fromCharCode(i) );
 				index++;
@@ -110,16 +109,16 @@
 			]
 		};
 
-		for(var campo in nuevomapping){
+		for (var campo in nuevomapping){
 			objeto[campo] = objeto[ nuevomapping [ campo] ];
-			delete  objeto[ nuevomapping [ campo] ];
+			delete objeto[ nuevomapping [ campo] ];
 		}
 		if (!objeto.periodos.a2014){
 			objeto.periodos.a2014 = {};
 		}
-		for(var f in mappinganyo){
+		for (var f in mappinganyo){
 			objeto.periodos.a2014[f] = objeto[ mappinganyo [ f ] ];
-			delete  objeto[ mappinganyo [ f ] ];
+			delete objeto[ mappinganyo [ f ] ];
 		}
 
 		eliminar.forEach(function(c){
@@ -139,8 +138,8 @@
 			Importaciones.find(restriccion, function(err, datos){
 				if (err){
 					console.error(err);
-					res.status(500).send(JSON.stringify(err));
-				}else{
+					res.status(500).json(err);
+				} else {
 					res.json(datos);
 				}
 			});
@@ -161,8 +160,8 @@
 			Importaciones.update(restriccion, {$set: {mostrable: false}}, function(err, datos){
 				if (err){
 					console.error(err);
-					res.status(500).send(JSON.stringify(err));
-				}else{
+					res.status(500).json(err);
+				} else {
 					res.json(datos);
 				}
 			});
@@ -182,8 +181,8 @@
 			Importaciones.find(restriccion, function(err, datos){
 				if (err){
 					console.error(err);
-					res.status(500).send(JSON.stringify(err));
-				}else{
+					res.status(500).json(err);
+				} else {
 					//estructura cargada, tratar atributo
 					//output: [{indicador:solicitados, proceso:1099, mes:01/6/2014, valor:0, fecha:04/09/2014, usuario:MLA25P},…]
 					var defs = [];
@@ -193,14 +192,14 @@
 								if (err){
 									console.error(erro);
 									def.reject(erro);
-								}else{
+								} else {
 									def.resolve(codigo);
 								}
 						});
 					};
 					datos.forEach(function(registro){
 						registro.output.forEach(function(linea){
-							try{
+							try {
 								var codigo = linea.proceso,
 									anualidad = linea.mes.split('/')[2],
 									mes = parseInt(linea.mes.split('/')[1]) - 1,
@@ -215,7 +214,7 @@
 
 									fn(codigo, r, def);
 								}
-							}catch(exc){
+							} catch (exc) {
 								console.error(exc);
 							}
 						});
@@ -231,7 +230,7 @@
 							Procedimiento.findOne({codigo: codigo}, function(erro, procedimiento){
 								if (erro){
 									def.reject(erro);
-								}else{
+								} else {
 									recalculate.softCalculateProcedimiento(Q, models, procedimiento).then(function(procedimiento){
 										recalculate.softCalculateProcedimientoCache(Q, models, procedimiento).then(function(procedimiento){
 											P.saveVersion(models, Q, procedimiento).then(function(){
@@ -239,7 +238,7 @@
 												procedimiento.save(function (error) {
 													if (error){
 														def.reject(error);
-													}else{
+													} else {
 														def.resolve();
 													}
 												});
@@ -257,9 +256,9 @@
 						});
 						Q.all(defs).then(function(){
 							Importaciones.update(restriccion, {$set: {mostrable: false}}, function(erro, dato){
-								if (err){
-									console.error(erro); res.status(500).send(erro).end();
-								}else{
+								if (erro){
+									console.error(erro); res.status(500).json(erro);
+								} else {
 									res.json(dato[0]);
 								}
 							});
@@ -272,33 +271,36 @@
 
 
 	module.exports.parseGS = function(){
-		return function (req, res)
-		{
+		return function (req, res){
 				if (!Browser){
 					res.json({});
-				}else{
+				} else {
 					var id = parseInt(req.params.id);
-					var url = 'http://www.carm.es/web/pagina?IDTIPO=240&IDCONTENIDO=' + id;
-					var browser = new Browser();
+					if (id > 0){
+						var url = 'http://www.carm.es/web/pagina?IDTIPO=240&IDCONTENIDO=' + id;
+						var browser = new Browser();
 
-					browser.visit(url).then(function() {
-						var datos = {};
-						var campos = browser.querySelectorAll('.campoProcedimiento');
-						var lista = turnObjToArray(campos);
-						lista.forEach(function(detalle){
-							var campo = detalle.childNodes && detalle.childNodes.length > 0 ? detalle.childNodes.item(0).textContent : detalle.textContent;
-							var valorDiv = detalle.nextSibling;
-							var parent = valorDiv.parentNode;
-							var valor = typeof parent.innerHTML === 'string' ? parent.innerHTML : false;
-							if (valor){
-								datos[campo] = valor;
-							}
+						browser.visit(url).then(function() {
+							var datos = {};
+							var campos = browser.querySelectorAll('.campoProcedimiento');
+							var lista = turnObjToArray(campos);
+							lista.forEach(function(detalle){
+								var campo = detalle.childNodes && detalle.childNodes.length > 0 ? detalle.childNodes.item(0).textContent : detalle.textContent;
+								var valorDiv = detalle.nextSibling;
+								var parent = valorDiv.parentNode;
+								var valor = typeof parent.innerHTML === 'string' ? parent.innerHTML : false;
+								if (valor){
+									datos[campo] = valor;
+								}
+							});
+							res.json(datos);
+						}, function(error){
+							console.error(error);
+							res.status(500).json('Error').end();
 						});
-						res.json(datos);
-					}, function(error){
-						console.error(error);
-						res.status(500).send('Error').end();
-					});
+					} else {
+						res.status(404).end();
+					}
 				}
 		};
 	};
@@ -355,18 +357,15 @@
 
 				if (!Crawler){
 					res.json({});
-				}else{
+				} else {
 					var c = new Crawler({'maxConnections': 10, 'callback': cb(deferred) });
 					c.queue(url);
 					deferred.promise.then(function (v){
 						res.json(v);
 					}, function(){
-						res.json ({});
+						res.json({});
 					});
 				}
-				/*}else{
-					res.json(data);
-				}*/
 			});
 		};
 	};
@@ -379,13 +378,10 @@
 		var fields = { lista: [], tipos: {}};
 		var objetos = [];
 
-		for(var fila = 2; fila < maxrows; fila++)
-		{
-			if (fila === 2)
-			{
+		for (var fila = 2; fila < maxrows; fila++){
+			if (fila === 2){
 				//cabecera
-				for(var columna = 1; columna < 55550; columna++)
-				{
+				for (var columna = 1; columna < 1000; columna++){
 					var n = getColumn(columna);
 					if (n === 'HP'){ break; }
 					var idx = getColumn(columna) + fila;
@@ -400,11 +396,11 @@
 					fields.lista.push(campo);
 					fields.tipos[campo] = (typeof fields.tipos[campo] !== 'undefined') ? 'array' : 'object';
 				}
-			}else{
+			} else {
 
 				var objeto = {};
 
-				for(var columna = 1, maxcolumna = fields.lista.length; columna < maxcolumna; columna++) {
+				for (var columna = 1, maxcolumna = fields.lista.length; columna < maxcolumna; columna++) {
 					var n = getColumn(columna);
 					if (n === 'HP'){ break; }
 					var idx = getColumn(columna) + fila;
@@ -421,12 +417,11 @@
 						valor.v = parseStr2Int(valor.v);
 					}
 
-					if (typeof objeto[campo] === 'undefined')
-					{
+					if (typeof objeto[campo] === 'undefined'){
 						if (tipo === 'array' || tipo === 'object'){
 							objeto[campo] = (tipo === 'array' ? [valor.v] : valor.v);
 						}
-					}else{
+					} else {
 						if (!Array.isArray(objeto[campo])) {
 							console.error(campo + ' deberia ser un array');
 							continue;
@@ -435,7 +430,7 @@
 					}
 				}
 				objeto = transformExcel2Procedimiento(objeto);
-				if (!objeto) { break; }
+				if (!objeto){ break; }
 				objetos.push(objeto);
 			}
 		}
@@ -465,22 +460,6 @@
 			response.fail(err);
 		});
 		return response.promise;
-	};
-
-
-
-	module.exports.testImportadorExcel = function(Q, models, recalculate){
-		return function(req, res){
-			var path = '../1.xlsm';
-			var worksheetName = 'BD';
-			var maxrows = 50;
-
-			var procedimientos = exports.parseExcel(path, worksheetName, maxrows);
-			module.exports.postParseExcel(Q, models, procedimientos, recalculate).then
-			(function(procedimientos){
-				res.json(procedimientos);
-			});
-		};
 	};
 
 })(module);
