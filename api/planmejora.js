@@ -116,7 +116,7 @@
 					} else {
 						jerarquia.descendientes.push(parseInt(req.params.idjerarquia));
 
-						var restriccion =
+						var restriction =
 							(typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))) ?
 							(typeof req.params.recursivo === 'undefined' || !JSON.parse(req.params.recursivo) ?
 								{'$and': [
@@ -134,17 +134,17 @@
 							]};
 
 						if (typeof req.query.anualidad !== 'undefined'){
-							restriccion.anualidad = parseInt(req.query.anualidad);
+							restriction.anualidad = parseInt(req.query.anualidad);
 						}
 
-						var query = PlanMejora.find(restriccion);
+						var query2 = PlanMejora.find(restriction);
 						if (typeof fields !== 'undefined') {
-							query.select(fields);
+							query2.select(fields);
 						}
-						query.exec().then(function(data){
+						query2.exec().then(function(data){
 							res.json(data);
-						}, function(err){
-							res.status(500).json({'error': 'An error has occurred', details: err, restriccion: restriccion});
+						}, function(erro){
+							res.status(500).json({'error': 'An error has occurred', details: erro, restriction: restriction });
 						});
 					}
 				});
