@@ -649,15 +649,21 @@
 	module.exports.saveVersion = function (models, Q, procedimiento) {
 		var defer = Q.defer(),
 			Historico = models.historico(),
-			v = JSON.parse(JSON.stringify(procedimiento));
-
-		delete v._id;
-		var version = new Historico(v);
-		version.save().then(function(){
+			v;
+		if (!Array.isArray(procedimiento)){
+			procedimiento = [ procedimiento ];
+		}
+		if (procedimiento.length === 0){
 			defer.resolve();
-		}, function (err) {
-			defer.reject(err);
-		});
+		} else {
+			v = procedimiento.map(function(p){
+				var t = JSON.parse(JSON.stringify(p));
+				delete t._id;
+				return t;
+			});
+				
+			Historico.insertMany(v).then(defer.resolve, defer.reject);
+		}
 		return defer.promise;
 	};
 

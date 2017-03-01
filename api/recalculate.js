@@ -291,30 +291,17 @@
 		return deferred.promise;
 	};
 
-	//comprobar si el periodo esta cerrado es cosa
-	//del crud
 
-	//'ancestros' : [ jerarquia],
-	//responsables : [persona]
-	module.exports.softCalculateProcedimientoCache = function (Q, models, procedimiento) {
+	function cacheJerarquias(Jerarquia){
 		var deferred = Q.defer();
-		var deferredJerarquia = Q.defer();
-		var deferredPersona = Q.defer();
+		var jerarquias = {};
 
-		procedimiento.ancestros = [];
-		procedimiento.responsables = [];
 
-		var idjerarquia = procedimiento.idjerarquia;
-		var Jerarquia = models.jerarquia();
-		var Persona = models.persona();
-		if (!idjerarquia) {
-			//parche inconsistencia
-			procedimiento.idjerarquia = 1;
-			idjerarquia = procedimiento.idjerarquia;
-		}
-		if (idjerarquia) {
 
-			Jerarquia.findOne({id: idjerarquia}, function (err, jerarquia) {
+		Jerarquia.find(function (err, jerarquias) {
+
+
+
 				if (err) {
 					deferred.reject(err);
 					return;
@@ -332,6 +319,56 @@
 					deferredJerarquia.resolve(jerarquias);
 				});
 			});
+
+		return deferred.promise;
+	}
+
+
+	//comprobar si el periodo esta cerrado es cosa
+	//del crud
+
+	//'ancestros' : [ jerarquia],
+	//responsables : [persona]
+	module.exports.softCalculateProcedimientoCache = function (Q, models, procedimiento, api) {
+
+		var deferred = Q.defer();
+		var deferredJerarquia = Q.defer();
+		var deferredPersona = Q.defer();
+
+		procedimiento.ancestros = [];
+		procedimiento.responsables = [];
+
+		var idjerarquia = procedimiento.idjerarquia;
+		var Jerarquia = models.jerarquia();
+		var Persona = models.persona();
+		if (!idjerarquia) {
+			//parche inconsistencia
+			procedimiento.idjerarquia = 1;
+			idjerarquia = procedimiento.idjerarquia;
+		}
+		if (idjerarquia){
+			if (typeof api === 'object'){
+				deferredJerarquia.resolve( api.getAncestros(idjerarquia) );
+			} else {
+				Jerarquia.findOne({id: idjerarquia}, function (err, jerarquia) {
+					if (err) {
+						deferred.reject(err);
+						return;
+					}
+					if (!jerarquia) {
+						deferred.resolve([]);
+						return;
+					}
+					var ids = [idjerarquia].concat(jerarquia.ancestros);
+
+					Jerarquia.find({id: {'$in': ids}}, function (id, jerarquias) {
+						jerarquias.sort(function (j1, j2) {
+							return j2.ancestros.length - j1.ancestros.length;
+						});
+						deferredJerarquia.resolve(jerarquias);
+					});
+				});
+			}
 		} else {
 			deferredJerarquia.resolve([]);
 		}
@@ -349,6 +386,7 @@
 
 		Q.all([deferredJerarquia.promise, deferredPersona.promise]).then(function (datos) {
 			var i;
+
 			procedimiento.ancestros = datos[0];//jerarquias;
 			procedimiento.responsables = datos[1];//personas;
 			if (typeof procedimiento.ancestros !== 'undefined') {
@@ -374,7 +412,6 @@
 	module.exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
 		var deferred = Q.defer();
 
-		//logger.log('softCalculateProcedimiento ' + procedimiento.codigo);
 		//para cada periodo
 		if (typeof procedimiento.periodos !== 'object') {
 			logger.error('Error en procedimiento ' + procedimiento.codigo);
@@ -383,8 +420,7 @@
 			return deferred.promise;
 		}
 
-		for (var periodo in procedimiento.periodos)
-		{
+		for (var periodo in procedimiento.periodos){
 			if (typeof procedimiento.periodos[ periodo ] !== 'object'){
 				continue;
 			}
@@ -471,11 +507,12 @@
 		return deferred.promise;
 	};
 
-	module.exports.fullSyncprocedimiento = function (Q, models, fnprocedimiento) {
+	module.exports.fullSyncprocedimiento = function (Q, models, fnprocedimiento, api) {
 		var deferred = Q.defer(),
 			Procedimiento = models.procedimiento(),
 			informes = [];
 
+		var pendientes = [];
 		Procedimiento.find({}, function (err, procedimientos) {
 			if (err) {
 				deferred.reject(err);
@@ -483,30 +520,35 @@
 			}
 
 			var defs = [];
+			var versionsToSave = [];
 			procedimientos.forEach(function (procedimiento) {
+				pendientes.push(procedimiento.codigo);
 				var promise = Q.defer();
 				var f = function (promise, procedimiento) {
 					var proccodigo = procedimiento.codigo;
 					exports.softCalculateProcedimiento(Q, models, procedimiento).then(function (procedimiento) {
-						exports.softCalculateProcedimientoCache(Q, models, procedimiento).then(function (procedimiento) {
+						exports.softCalculateProcedimientoCache(Q, models, procedimiento, api).then(function (procedimiento) {
 							if (!procedimiento.codigo)
 							{
 								informes.push({codigo: proccodigo, status: 500});
 								promise.reject(procedimiento);
 							} else {
-								fnprocedimiento.saveVersion(models, Q, procedimiento).then(function () {
-									procedimiento.markModified('periodos');
-									procedimiento.save(function (error) {
-										if (error) {
-											logger.error(error);
-											informes.push({codigo: procedimiento.codigo, status: 500});
-											promise.reject(error);
-										} else {
-											informes.push({codigo: procedimiento.codigo, status: 200, procedimiento: procedimiento});
-											promise.resolve();
+								versionsToSave.push(procedimiento);
+								procedimiento.markModified('periodos');
+								procedimiento.save(function (error) {
+									if (error) {
+										informes.push({codigo: procedimiento.codigo, status: 500});
+										promise.reject(error);
+									} else {
+										informes.push({codigo: procedimiento.codigo, status: 200, procedimiento: procedimiento});
+										var index = pendientes.indexOf(procedimiento.codigo)
+										if (index > -1) {
+											pendientes.splice(index, 1);
 										}
-									});
+										promise.resolve();
+									}
 								});
+							
 							}
 						}, function (err) {
 							informes.push({codigo: proccodigo, status: 500});
@@ -522,8 +564,15 @@
 			});
 
 			Q.all(defs).then(function () {
-				deferred.resolve(informes);
+				fnprocedimiento.saveVersion(models, Q, versionsToSave)
+					.then(function () {
+						deferred.resolve(informes);
+					}, function (err) {
+						err.informes = informes;
+						promise.reject(err);
+					});
 			}, function (err) {
+				err.informes = informes;
 				deferred.reject(err);
 			});
 		});
@@ -756,17 +805,30 @@
 		return deferred.promise;
 	};
 
+	function errorHandler(res){
+		return function(e){
+			console.error(e);
+			res.status(500).json(e);
+		};
+	}
+
 	module.exports.fprocedimiento = function (Q, models, fnprocedimiento, api) {
 		return function (req, res) {
+			var errHdl;
 			if (req.user.permisoscalculados.superuser) {
+				errHdl = errorHandler(res);
+
 				api.resetCache();
-				exports
-					.fullSyncprocedimiento(Q, models, fnprocedimiento)
-					.then(function () {
-						res.json({});
-					}, function (e) {
-						res.status(500).send(JSON.stringify(e)).end();
-					});
+				api.calculateArbol(Q, models)
+					.then(function(){
+						module
+							.exports
+							.fullSyncprocedimiento(Q, models, fnprocedimiento, api)
+							.then(function () {
+								res.json({});
+							}, errHdl);
+					}, errHdl);
+				
 			} else {
 				res.status(401).send('Carece de permisos').end();
 			}
