@@ -668,6 +668,7 @@
 			vinculacion: null,
 			unidad: null,
 			frecuencia: 'mensual',
+			tipo: 'Servicio',
 			pendiente: false,
 			acumulador: 'sum'
 		};
