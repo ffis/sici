@@ -31,15 +31,71 @@
      * { _id: number, id: number, title: string, nodes: [], numprocedimientos: number, numcartas: number}
 	 */
 	var cachedArbol = {};
+	var hijos = [];
+	var idsraiz = [];
+	var mappingXid = [];
 	module.exports.resetCache = function(){
 		cachedArbol = {};
+		hijos = [];
+		idsraiz = [];
+		mappingXid = [];
+	};
+
+	module.exports.getHijos = function(idjerarquia, filterfn){
+		if (!hijos[ idjerarquia ]){ return null; }
+
+		var returnval = [];
+		for (var i = 0, j = hijos[ idjerarquia ].length; i < j; i++){
+			var nodo = hijos[ idjerarquia ][i];
+			if (typeof filterfn === 'undefined' || filterfn(nodo)){
+				returnval.push({_id: nodo._id, id: nodo.id, title: nodo.nombrelargo, nodes: module.exports.getHijos(nodo.id), numprocedimientos: nodo.numprocedimientos, numcartas: nodo.numcartas});
+			}
+		}
+		return returnval;
+	};
+
+	module.exports.getAncestros = function(idjerarquia){
+		var returnval = [],
+			nodo = mappingXid[ idjerarquia ];
+		for (var i = 0, j = nodo.ancestros.length; i < j; i++) {
+			returnval.push(mappingXid[ nodo.ancestros[i] ]);
+		}
+
+		return returnval;
+	};
+
+	module.exports.calculateArbol = function(Q, models){
+		var deferred = Q.defer();
+		var Jerarquia = models.jerarquia();
+		module.exports.resetCache();
+
+		Jerarquia.find({}, function(err, jerarquias){
+			if (err){
+				deferred.reject(err);
+				return;
+			}
+
+			jerarquias.forEach(function(jerarquia){
+				mappingXid [ jerarquia.id ] = jerarquia;
+				if (jerarquia.ancestros.length === 0){
+					idsraiz.push(jerarquia.id);
+				}
+				if (jerarquia.ancestrodirecto){
+					if (!hijos[ jerarquia.ancestrodirecto ]){
+						hijos [ jerarquia.ancestrodirecto ] = [];
+					}
+					hijos [ jerarquia.ancestrodirecto ].push(jerarquia);
+				}
+			});
+
+			deferred.resolve(cachedArbol);
+		});
+		return deferred.promise;
 	};
 
 	module.exports.arbol = function(Q, models){
 		return function(req, res){
-			var Jerarquia = models.jerarquia();
 			var returnValue = [];
-			var hijos = [];
 			var filterfn;
 			var cachedkey = (typeof req.params.withemptynodes === 'undefined' || !req.params.withemptynodes) ? 'all' : 'notempty';
 			if (typeof req.params.withemptynodes === 'undefined' || !req.params.withemptynodes){
@@ -65,52 +121,29 @@
 			else {
 				filterfn = function(){ return true; };
 			}
-			if (typeof cachedArbol[cachedkey] !== 'undefined'){
+			if (typeof cachedArbol[cachedkey] === 'object'){
 				res.json( cachedArbol[cachedkey] );
 				return;
 			}
 
-			Jerarquia.find({}, function(err, jerarquias)
-			{
-				if (err){
-					res.status(500).send(err); log.error(err); return;
-				}
-				var mappingXid = [];
-				var idsraiz = [];
-				jerarquias.forEach(function(jerarquia){
-					mappingXid [ jerarquia.id ] = jerarquia;
-					if (jerarquia.ancestros.length === 0){
-						idsraiz.push(jerarquia.id);
-					}
-					if (jerarquia.ancestrodirecto){
-						if (!hijos[ jerarquia.ancestrodirecto ]){
-							hijos [ jerarquia.ancestrodirecto ] = [];
-						}
-						hijos [ jerarquia.ancestrodirecto ].push(jerarquia);
-					}
-				});
-
-				var getHijos = function ( idjerarquia ){
-					if (!hijos[ idjerarquia ]){ return null; }
-					var returnval = [];
-					for (var i = 0, j = hijos[ idjerarquia ].length; i < j; i++){
-						var nodo = hijos[ idjerarquia ][i];
-						if (filterfn(nodo)){
-							returnval.push({_id: nodo._id, id: nodo.id, title: nodo.nombrelargo, nodes: getHijos( nodo.id ), numprocedimientos: nodo.numprocedimientos, numcartas: nodo.numcartas});
-						}
-					}
-					return returnval;
-				};
-
+			var answer = function(){
 				idsraiz.forEach(function(idraiz){
 					var nodo = mappingXid[idraiz];
 					if (filterfn(nodo)){
-						returnValue.push({_id: nodo._id, id: nodo.id, title: nodo.nombrelargo, nodes: getHijos(nodo.id), numprocedimientos: nodo.numprocedimientos, numcartas: nodo.numcartas });
+						returnValue.push({_id: nodo._id, id: nodo.id, title: nodo.nombrelargo, nodes: module.exports.getHijos(nodo.id, filterfn), numprocedimientos: nodo.numprocedimientos, numcartas: nodo.numcartas });
 					}
 				});
 				cachedArbol[cachedkey] = returnValue;
 				res.json(returnValue);
-			});
+			};
+
+			if (hijos.length === 0){
+				module.exports
+					.calculateArbol(Q, models)
+					.then(answer, function(err){ res.status(500).json(err); });
+			} else {
+				answer();
+			}
 		};
 	};
 
@@ -119,9 +152,10 @@
 			var modelname = req.params.modelname;
 			var fields = req.query.fields;
 			var permitidas = ['reglasinconsistencias', 'crawled'];
-			if (typeof models[modelname] !== 'function' || permitidas.indexOf(modelname) === -1)
-			{
-				log.error(modelname + ' doesn\'t exists in model'); res.status(500).end(); return ;
+			if (typeof models[modelname] !== 'function' || permitidas.indexOf(modelname) === -1){
+				var message = modelname + ' doesn\'t exists in model';
+				log.error(message);
+				res.status(500).json({err: message}); return;
 			}
 			var Loader = models[modelname]();
 			var restricciones = {'oculto': {'$ne': true}, 'eliminado': {'$ne': true}};
@@ -142,7 +176,7 @@
 				query.select(fields);
 			}
 			query.exec(function(err, data){
-				if (err) { log.error(err); res.status(500); res.end(); return ; }
+				if (err) { log.error(err); res.status(500).json(err); return; }
 				res.json(data);
 			});
 		};
@@ -219,7 +253,7 @@
 			group.push({'$sort': { 'count': -1 } });
 			//console.log(JSON.stringify(group));
 			connection.aggregate(group, function(err, data){
-				if (err) { log.error(err); res.status(500); res.end(); return ; }
+				if (err) { log.error(err); res.status(500).json(err); return; }
 				res.json(data);
 			});
 		};
