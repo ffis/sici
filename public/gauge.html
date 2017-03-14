@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html ng-app="gauge">
+	<head>
+		<meta charset="utf8">
+		<base href="/">
+		<title>Gauge</title>
+	</head>
+	<body>
+		<div ng-controller="RadialCtrl">
+			<div width="10em" major-graduations="{{formula.uppervalue < 5 ? formula.uppervalue + 1 : 5}}" ng-radial-gauge ranges="formula.intervalos" value="formula.gaugevalue[aanualidad]" value-unit="unit" precision="precision" lower-limit="0" upper-limit="formula.uppervalue"></div>
+		</div>
+		<script src="/bower_components/jquery/dist/jquery.js"></script>
+		<script src="/bower_components/angular/angular.js"></script>
+		<script src="/bower_components/angular-i18n/angular-locale_es-es.js"></script>
+		<script src="/bower_components/d3/d3.min.js"></script>
+		<script src="/bower_components/nvd3/nv.d3.min.js"></script>
+		<script src="/bower_components/ngRadialGauge/src/ng-radial-gauge-dir.js"></script>
+		<script>
+			(function(angular){
+				angular
+					.module('gauge', ['ngRadialGauge'])
+					.controller('RadialCtrl', ['$scope', function($scope){
+						$scope.aanualidad = 'a2015';
+						$scope.formula = {
+							uppervalue: 200,
+							gaugevalue: {
+								'a2015': 50
+							},
+							intervalos: [
+								{min: 0, max: 25, mensaje: "Peligro", color: "#C50200", alerta: "4", _id: "56b35720c0f888cc07bab400"},
+								{min: 25, max: 50, mensaje: "Aviso", color: "#FF7700", alerta: "3", _id: "56b35720c0f888cc07bab3ff"},
+								{min: 50, max: 75, mensaje: "Normal", color: "#FDC702", alerta: "2", _id: "56b35720c0f888cc07bab3fe"},
+								{min: 75, max: 100, mensaje: "Éxito", color: "#8DCA2F", alerta: "1", _id: "56b35720c0f888cc07bab3fd"},
+								{min: 100, max: 200, mensaje: "Superado éxito", color: "#C6E497", alerta: "0"}
+							]
+						};
+						$scope.unit = '';
+						$scope.precision = 2;
+					}]);
+			})(angular);
+		</script>
+	</body>
+</html>
+
+
