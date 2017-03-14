@@ -1,14 +1,13 @@
 (function(module, log){
 	'use strict';
-
-	var mongoose = undefined;
+	var mongoose = false;
 	var schemas = {};
-
+	var mapconstructors = {};
 	var schemasfields = {
-		crawled: { 'id': Number, 'jerarquia': [String], 'completo': String, 'oculto': Boolean, 'eliminado': Boolean },
-		guiacarm: {	'id': Number, 'titulo': String },
-		settings: { version: Number, 'secret': String, 'secret2': String, 'anyo': String, 'port': Number, 'urlbasedecrypt': String, logincarm: Boolean, ws_url: String, ws_user: String, ws_pwd: String, downloadhashprefix: String, session_time: Number },
-		reglasinconsistencias: { 'titulo': String, 'restriccion': String},
+		crawled: {'id': Number, 'jerarquia': [String], 'completo': String, 'oculto': Boolean, 'eliminado': Boolean, 'expires': Date},
+		guiacarm: {'id': Number, 'titulo': String},
+		settings: {'version': Number, 'secret': String, 'secret2': String, 'anyo': String, 'port': Number, 'urlbasedecrypt': String, 'logincarm': Boolean, 'ws_url': String, 'ws_user': String, 'ws_pwd': String, 'downloadhashprefix': String, 'session_time': Number},
+		reglasinconsistencias: {'titulo': String, 'restriccion': String},
 		historico: {},
 		historicoindicador: {},
 		//periodo: { a2013:[Number], a2014:[Number], a2015:[Number], a2016:[Number] },
@@ -36,11 +35,14 @@
 			'habilitado': Boolean,
 			'ultimologin': Date,
 			'ultimoupdate': Date,
-			'contrasenya': String
+			'contrasenya': String,
+			'actualizaciones': [{
+				'fecha': Date,
+				'comentario': String
+			}]
 		},
 		permiso: {
 			'codplaza': String,
-
 			'login': String,
 			'jerarquialectura': [Number], /*calculados, cacheados*/
 			'jerarquiaescritura': [Number], /*calculados, cacheados*/
@@ -48,19 +50,16 @@
 			'procedimientosescritura': [String], /*calculados, cacheados*/
 			'entidadobjetolectura': [String],  /*calculados, cacheados*/
 			'entidadobjetoescritura': [String], /*calculados, cacheados*/
-
 			'jerarquiadirectalectura': [Number], /*reales, asignados*/
 			'jerarquiadirectaescritura': [Number], /*reales, asignados*/
 			'procedimientosdirectalectura': [String], /*reales, asignados*/
 			'procedimientosdirectaescritura': [String], /*reales, asignados*/
 			'entidadobjetodirectalectura': [String],  /*reales, asignados*/
 			'entidadobjetodirectaescritura': [String], /*reales, asignados*/
-
 			'caducidad': Date,
 			'descripcion': String,
 			'grantoption': Boolean, /* puede clonar su permiso */
 			'superuser': Number,
-
 			'cod_plaza_grantt': String
 		},
 		registroactividad: {
@@ -187,8 +186,7 @@
 				},
 				'a2014': plantillaanualidad
 			}*/
-		},
-		/* dic-2015 */
+		}, /* dic-2015 */
 		entidadobjeto: {
 			'codigo': Number,
 			'denominacion': String,
@@ -198,7 +196,7 @@
 			'tipoentidad': String,
 			'fechaalta': Date,
 			'fechafin': Date,
-			'fechaversion': { type: Date, default: Date.now },
+			'fechaversion': {type: Date, default: Date.now},
 			'eliminado': Boolean,
 			'expediente': String
 		},
@@ -220,7 +218,7 @@
 				'valores': 'Mixed',
 				'indicadores': 'Mixed',
 				'procedimientos': 'Mixed',
-				'intervalos':[{
+				'intervalos': [{
 					'min': Number,
 					'max': Number,
 					'mensaje': String,
@@ -234,7 +232,7 @@
 			'nombre': String,
 			'idjerarquia': Number,
 			'resturl': String,
-			'fechaversion': { type: Date, default: Date.now },
+			'fechaversion': {type: Date, default: Date.now},
 			'vinculacion': String,
 			'frecuencia': String,
 			'pendiente': Boolean,
@@ -255,30 +253,37 @@
 		return schemasfields[name];
 	};
 
-	function schemaConstructor(name, mongoose, strict){
-		if (typeof schemas[name] !== 'undefined'){ return schemas[name]; }
-		if (typeof mongoose === 'undefined'){ throw new Error('Debe inicializar el schema previamente a su uso.'); }
-		var Schema = mongoose.Schema,
+	function schemaConstructor(name, mongooselib, strict){
+		if (typeof schemas[name] !== 'undefined'){
+
+			return schemas[name];
+		}
+		if (typeof mongooselib === 'undefined'){
+
+			throw new Error('Debe inicializar el schema previamente a su uso.');
+		}
+		const Schema = mongooselib.Schema,
 			fields = schemasfields[name] ? schemasfields[name] : {},
-			cfg = { collection: name };
+			cfg = {collection: name};
 		if (Object.keys(fields).length === 0 || !strict){
 			cfg.strict = false;
 		}
-		var objSchema = new Schema(fields, cfg);
-		schemas[name] = mongoose.model(name, objSchema);
+		const objSchema = new Schema(fields, cfg);
+		schemas[name] = mongooselib.model(name, objSchema);
 
 		if (typeof schemasfields[name] === 'undefined'){
-			log.error(__filename + ':' + schemasfields[name]);
+			log.error(__filename, schemasfields[name]);
 		}
 
 		return schemas[name];
 	}
-	module.exports.ObjectId = function(o){
+	module.exports.ObjectId = module.exports.objectId = function(o){
+
 		return mongoose.Types.ObjectId(o);
 	};
 	module.exports.init = function(mongoos) {
 		mongoose = mongoos;
-		var Schema = mongoose.Schema;
+		const Schema = mongoose.Schema;
 		schemasfields.crawled.any = Schema.Types.Mixed;
 		schemasfields.registroactividad.req = Schema.Types.Mixed;
 		schemasfields.procedimiento.ancestros = Schema.Types.Mixed;
@@ -296,24 +301,28 @@
 		schemasfields.indicador.medidas = Schema.Types.Mixed;
 		schemasfields.indicador.valoresacumulados = Schema.Types.Mixed;
 
-		for (var name in schemasfields){
-			exports[name](mongoose);
+		for (const name in schemasfields){
+			if (schemasfields.hasOwnProperty(name)) {
+				exports[name](mongoose);
+			}
 		}
 	};
 
-	var mapconstructors = {};
-
 	function constructorschema(name){
-		return function(mongoose) {
+		return function(mgse) {
 			if (mapconstructors[name]){
 				return mapconstructors[name];
 			}
-			return mapconstructors[name] = schemaConstructor(name, mongoose, true);
+			mapconstructors[name] = schemaConstructor(name, mgse, true);
+
+			return mapconstructors[name];
 		};
 	}
 
 	for (var name in schemasfields){
-		module.exports[name] = constructorschema(name);
+		if (schemasfields.hasOwnProperty(name)) {
+			module.exports[name] = constructorschema(name);
+		}
 	}
 
 })(module, console);

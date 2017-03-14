@@ -84,7 +84,7 @@
 									$scope.respuestas.push({
 										clase: 'alert-success', mensaje: 'Ha funcionado perfectamente.'
 									});
-									var url = '/download/' + token.time + '/' + token.hash;
+									var url = '/api/v1/download/' + token.time + '/' + token.hash;
 									$window.location = url;
 								}, function() {
 									$scope.actualizando--;

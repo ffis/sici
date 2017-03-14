@@ -1,168 +1,135 @@
-(function(module){
+(function(module, logger){
 	'use strict';
-	var math = require('mathjs'),
+
+	const math = require('mathjs'),
 		Q = require('q');
 
-	function Math(modelss){
+	function MathLib(modelss){
 		this.models = modelss;
 	}
-	Math.prototype.eval = function(expr){
+	MathLib.prototype.eval = function(expr){
 		return math.eval(expr);
 	};
 
-	var extractValue = function(partes, expresion, variables, obj){
-		var valor;
-		for (var i = 3, j = partes.length; i < j; i++){
+	function extractValue(partes, expresion, variables, obj){
+		let valor = 0;
+		for (let i = 3, j = partes.length; i < j; i++){
 			if (partes[i].indexOf('[') === 0 && partes[i].indexOf(']') === partes[i].length - 1 ){
 				//se busca el valor en el diccionario de variables
-				var nombrevariable = partes[i].substr(1, partes[i].length - 2);
-				if (typeof variables[nombrevariable] !== 'undefined'){
-					valor = variables[nombrevariable];
-				} else {
-					console.error('No existe la variable:' + nombrevariable);
+				const nombrevariable = partes[i].substr(1, partes[i].length - 2);
+				if (typeof variables[nombrevariable] === 'undefined'){
+					logger.error('No existe la variable:' + nombrevariable);
 					valor = partes[i];
+				} else {
+					valor = variables[nombrevariable];
 				}
 			} else {
 				valor = partes[i];
 			}
-			if (valor === '12' && typeof obj[ valor ] === 'undefined' && typeof obj === 'object'){
+			if (valor === '12' && typeof obj[valor] === 'undefined' && typeof obj === 'object'){
 				//caso especial procedimiento, debe ser la suma de los anteriores
 				return obj.reduce(function(p, o){
-					if (!o){
-						return p;
-					}
-					return p + o;
-				});
+
+					return o ? p + o : p;
+				}, 0);
 			}
-			if (typeof obj[ valor ] !== 'undefined'){
-				obj = obj[ valor ];
-			} else {
+			if (typeof obj[valor] === 'undefined'){
+
 				return expresion;
 			}
+
+			obj = obj[valor];
 		}
+
 		return obj;
-	};
+	}
 
-	var replace = function(variables){
+	function replace(variables){
 		return function(expresion){
-			var partes,
-				idIndicador, idProcedimiento,
-				indicador, procedimiento /*, campo*/;
-
 			if (expresion.indexOf('/') === 0 && expresion.trim() !== '/'){
-				partes = expresion.split('/');
+				const partes = expresion.split('/');
+
+				if (partes.length >= 3 && (expresion.indexOf('/indicador') === 0 || expresion.indexOf('/procedimiento') === 0)){
+					return extractValue(partes, expresion, variables, variables[partes[2]]);
+				}
 			}
 
-			if (expresion.indexOf('/indicador') === 0){
-				idIndicador = partes[2];
-				indicador = variables[idIndicador];
-
-				return extractValue(partes, expresion, variables, indicador);
-			} else if (expresion.indexOf('/procedimiento') === 0){
-				/* /procedimiento/_id/periodos/[anualidad]/atributo/[mes] */
-				idProcedimiento = partes[2];
-				procedimiento = variables[idProcedimiento];
-//				campo = partes[5];
-//				console.log(expresion, variables, procedimiento, campo);
-
-				return extractValue(partes, expresion, variables, procedimiento);
-
-			} else {
-				return expresion;
-			}
+			return expresion;
 		};
-	};
+	}
 
-	Math.prototype.evalFormula = function(str, cb){
-		var indicadormodel = this.models.indicador(),
+	MathLib.prototype.evalFormula = function(str, cb){
+		const indicadormodel = this.models.indicador(),
 			procedimientomodel = this.models.procedimiento(),
-			i, j, anualidad, idIndicador, idProcedimiento, partes;
+			objectid = this.models.ObjectId;
+		let partes = [];
 		try {
 			partes = JSON.parse(str);
 		} catch (err){
 			cb(err);
+
 			return;
 		}
-		var	returnValue = {},
-			modoAnualidad = false,
-			modoMes = false,
-			promises = [], tokens = [],
-			indicadoresACargar = {}, procedimientosACargar = {}, variables = {}, scope = {},
-			resultado, defer;
+		const returnValue = {},
+			scope = {};
 
-		for (i = 0, j = partes.length; i < j; i++){
-			if (partes[i].indexOf('[anualidad]') > -1){
-				modoAnualidad = true;
-			}
-			if (partes[i].indexOf('[mes]') > -1){
-				modoMes = true;
-			}
-		}
+		const modoAnualidad = partes.some(function(s){ return s.indexOf('[anualidad]') > -1; });
+		//,	modoMes = partes.some(function(str){ return str.indexOf('[mes]') > -1; });
 
-		for (i = 0, j = partes.length; i < j; i++){
-			if (partes[i].indexOf('/indicador') === 0){
-				tokens = partes[i].split('/');
-				idIndicador = tokens[2].trim();
-				if (idIndicador.length === 24 || idIndicador.length === 12){
-					indicadoresACargar[idIndicador] = false;
-				} else {
-					cb({error: '_id mal formado:' + idIndicador});
-				}
-			}else if (partes[i].indexOf('/procedimiento') === 0){
-				tokens = partes[i].split('/'),
-				idProcedimiento = tokens[2].trim();
-				if (idProcedimiento.length === 24 || idProcedimiento.length === 12){
-					procedimientosACargar[idProcedimiento] = false;
-				} else {
-					cb({error: '_id mal formado:' + idProcedimiento});
+		const elementosACargar = partes.reduce(function(prev, parte){
+			const esProcedimiento = parte.indexOf('/procedimiento') === 0;
+			const esIndicador = parte.indexOf('/indicador') === 0;
+			if (esProcedimiento || esIndicador){
+				const tokens = partes.split('/'),
+					id = tokens.length >= 3 ? tokens[2].trim() : '';
+				if (id.length === 24 || id.length === 12){
+					const tipo = esProcedimiento ? 'procedimientos' : 'indicadores';
+					prev[tipo][id] = true;
 				}
 			}
-		}
 
-		var setACargar = function(promise, id, collection){
-			return function(erro, obj){
-				if (erro){
-					promise.reject(erro);
-				} else if (!obj){
-					promise.reject({'error': 'Not found', _id: id});
-				} else {
-					collection[obj._id] = obj;
-					promise.resolve(obj);
-				}
-			};
-		};
-		for (idIndicador in indicadoresACargar){
-			defer = Q.defer();
-			indicadormodel.findOne({_id: this.models.ObjectId(idIndicador)}, setACargar(defer, idIndicador, variables));
-			promises.push(defer.promise);
-		}
-		for (idProcedimiento in procedimientosACargar){
-			defer = Q.defer();
-			procedimientomodel.findOne({_id: this.models.ObjectId(idProcedimiento)}, setACargar(defer, idProcedimiento, variables));
-			promises.push(defer.promise);
-		}
+			return prev;
+		}, {indicadores: {}, procedimientos: {}});
 
+		const promises = [].concat(Object.keys(elementosACargar.indicadores).map(function(idIndicador){
+			return indicadormodel.findOne({_id: objectid(idIndicador)}).exec();
+		}), Object.keys(elementosACargar.procedimientos).map(function(idProcedimiento){
+			return procedimientomodel.findOne({_id: objectid(idProcedimiento)}).exec();
+		}));
 
-		Q.all(promises).then(function(){
+		Q.all(promises).then(function(varis){
+			if (varis.some(function(o){ return !o; })){
+				cb({error: 'One of the variables cannot be resolved'});
+
+				return;
+			}
+
+			const variables = varis.reduce(function(prev, obj){
+					prev[obj._id] = obj;
+
+					return prev;
+				}, {}).filter(function(idIndicador){
+					return (typeof variables[idIndicador].valores !== 'undefined');
+				});
+			const vars = JSON.parse(JSON.stringify(variables));
+			function entero(v){
+				return parseFloat(v, 10).toFixed(0);
+			}
+			scope.entero = entero;
+
 			if (modoAnualidad){
-				var entero = function(v){ parseFloat(v).toFixed(0); };
 				//suponemos que ambos indicadores tienen las mismas anualidades
-				var vars = JSON.parse(JSON.stringify(variables));
-				for (idIndicador in variables){
-					if (typeof variables[idIndicador].valores === 'undefined'){
-						continue;
-					}
-					for (anualidad in variables[idIndicador].valores){
+
+				for (const idIndicador in variables){
+					for (const anualidad in variables[idIndicador].valores){
 						returnValue[anualidad] = [];
 						vars.anualidad = anualidad;
-						for (var mes in variables[idIndicador].valores[anualidad]){
+						for (const mes in variables[idIndicador].valores[anualidad]){
 							vars.mes = mes;
-							var formula = partes.map(replace(vars));
-							var formulastr = formula.join('');
-							scope = {
-								entero: entero
-							};
-							resultado = 0;
+							const formula = partes.map(replace(vars));
+							const formulastr = formula.join('');
+							
+							let resultado = 0;
 							try {
 								if (formula.filter(function(a){ return a === null; }).length === 0){
 									resultado = math.parse(formulastr).compile().eval(scope);
@@ -170,7 +137,7 @@
 									resultado = null;
 								}
 							} catch (e) {
-								console.error(118, e);
+								logger.error(118, e);
 							}
 							returnValue[anualidad].push({formula: formula, resultado: resultado});
 						}
@@ -178,13 +145,11 @@
 					break;
 				}
 			}
+
 			cb(null, returnValue);
-		}, function(err){
-			cb(err);
-		});
+		}, cb);
 	};
 
-	module.exports = Math;
+	module.exports = MathLib;
 
-})(module);
-
+})(module, console);

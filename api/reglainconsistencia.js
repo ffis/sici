@@ -1,68 +1,43 @@
 (function(module){
 	'use strict';
 
-	module.exports.getReglaInconsistencia = function(models){
-		return function(req, res){
-			var Reglasinconsistencias = models.reglasinconsistencias();
-			var id = req.params.id;
-			if (typeof id !== 'undefined')
-			{
-				Reglasinconsistencias.findOne({'_id': id}, function(err, data){
-					if (err) { console.error(err); res.status(500).end(); return; }
-					res.json(data);
-				});
-			}else{
-				Reglasinconsistencias.find({}, function(err, data){
-					if (err) { console.error(err); res.status(500).end(); return; }
-					res.json(data);
-				});
-			}
-		};
+	module.exports.getReglaInconsistencia = function(req, res){
+		const reglasinconsistenciasmodel = req.metaenvironment.models.reglasinconsistencias(),
+			id = req.params.id;
+		if (typeof id === 'string' && id !== ''){
+			reglasinconsistenciasmodel.findOne({'_id': req.metaenvironment.models.ObjectId(id)}).exec().then(req.eh.okHelper(res, true), req.eh.errorHelper(res));
+		} else {
+			reglasinconsistenciasmodel.find({}, req.eh.cb(res));
+		}
 	};
 
-
-	module.exports.updateReglaInconsistencia = function(models){
-		return function(req, res) {
-			var Reglasinconsistencias = models.reglasinconsistencias();
-			var id = req.params.id;
-
-			var content = req.body;
-			Reglasinconsistencias.update({'_id': id}, content, { upsert: true }, function(e){
-				if (e){
-					res.send({'error': 'An error has occurred'}).end();
-				}else{
-					res.json(content).end();
-				}
-			});
-		};
+	module.exports.updateReglaInconsistencia = function(req, res) {
+		const reglasinconsistenciasmodel = req.metaenvironment.models.reglasinconsistencias(),
+			id = req.params.id,
+			content = JSON.parse(JSON.stringify(req.body));
+		if (typeof id === 'string' && id !== ''){
+			Reflect.deleteProperty(content, '_id');
+			reglasinconsistenciasmodel.update({'_id': id}, content, {upsert: false}, req.eh.cbWithDefaultValue(res, req.body));
+		} else {
+			req.eh.notFoundHelper(res);
+		}
 	};
 
-	module.exports.newReglaInconsistencia = function(models){
-		return function(req, res) {
-			var Reglasinconsistencias = models.reglasinconsistencias();
-			var content = req.body;
-			new Reglasinconsistencias(content).save(function(e){
-				if (e){
-					res.send({'error': 'An error has occurred'});
-				}else{
-					res.json(content);
-				}
-			});
-		};
+	module.exports.newReglaInconsistencia = function(req, res) {
+		const reglasinconsistenciasmodel = req.metaenvironment.models.reglasinconsistencias(),
+			content = req.body;
+		reglasinconsistenciasmodel.create(content, req.eh.cbWithDefaultValue(res, content));
 	};
 
-	module.exports.removeReglaInconsistencia = function(models){
-		return function(req, res) {
-			var Reglasinconsistencias = models.reglasinconsistencias();
-			var id = req.params.id;
-			var content = req.body;
-			Reglasinconsistencias.remove({'_id': id}, function(e){
-				if (e){
-					res.send({'error': 'An error has occurred'}).end();
-				}else{
-					res.json(content);
-				}
-			});
-		};
+	module.exports.removeReglaInconsistencia = function(req, res) {
+		const reglasinconsistenciasmodel = req.metaenvironment.models.reglasinconsistencias(),
+			id = req.params.id,
+			content = req.body;
+		if (typeof id === 'string' && id !== ''){
+			reglasinconsistenciasmodel.remove({'_id': req.metaenvironment.models.ObjectId(id)}, req.eh.cbWithDefaultValue(res, content));
+		} else {
+			req.eh.notFoundHelper(res);
+		}
 	};
+
 })(module);

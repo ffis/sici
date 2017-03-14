@@ -1,262 +1,78 @@
-(function(module, log){
-	/** @module api */
+(function(module){
 	'use strict';
+	const express = require('express'),
+		expressJwt = require('express-jwt'),
+		path = require('path'),
+		V1 = require('./v1'),
+		V2 = require('./v2'),
+		Bot = require('./bot');
 
-	/**
-	 * Log de actividad. Helper para expressjs.
-	 * Registra el usuario que realiza la petición, la fecha, la url, las cabeceras de la petición así como el cuerpo de la misma.
-	 * El almacenamiento se realiza en un objeto del modelo Registroactividad.
-	 */
-	module.exports.log = function(models){
-		return function(req, res, next){
-			var Registroactividad = models.registroactividad();
-			var data = {
-				usr: req.user.login,
-				fecha: new Date(),
-				url: req.url,
-				req: {
-					headers: req.headers,
-					body: req.body
-				}
-			};
-			(new Registroactividad(data)).save();
+	const Ec = require('./exportador_carta'),
+		Ei = require('./exportador_indicador');
+
+	function Api(models, cfg, settings){
+
+		const metaenvironment = {
+			accionmejora: require('./accionmejora'),
+			api: require('./util'),
+			cartadocx: require('./carta_docx'),
+			carta: require('./carta'),
+			csvsici: require('./csvsici'),
+			entidadobjeto: require('./entidadobjeto'),
+			expresshelper: require('./expresshelper'),
+			etiqueta: require('./etiqueta'),
+			expediente: require('./expediente'),
+			exportador: require('./exportador'),
+			exportadorCarta: new Ec(models, path.join(settings.templates.xlsxcartas)),
+			exportadorIndicador: new Ei(models, path.join(settings.templates.xlsxcartas)),
+			feedback: require('./feedback'),
+			importador: require('./importador'),
+			jerarquia: require('./jerarquia'),
+			logincarm: require('./login.carm'),
+			login: require('./login'),
+			operador: require('./operador'),
+			periodos: require('./periodos'),
+			permiso: require('./permiso'),
+			persona: require('./persona'),
+			planmejora: require('./planmejora'),
+			procedimiento: require('./procedimiento'),
+			recalculate: require('./recalculate'),
+			registro: require('./registro'),
+			reglainconsistencia: require('./reglainconsistencia'),
+			upload: require('./upload'),
+			settings: settings,
+			cfg: cfg,
+			models: models
+		};
+		
+		this.app = new express.Router();
+		this.app.use('/', function(req, res, next){
+			req.metaenvironment = metaenvironment;
+			req.eh = metaenvironment.expresshelper;
 			next();
-		};
-	};
-
-	/**
-	 * Estructura de árbol para seleccionar entidades
-	 * @param {boolean} withemptynodes - Si es verdadero muestra todos los nodos. Por defecto es falso.
-	 * @returns {Array} Un array de objetos con esta estructura
-     * { _id: number, id: number, title: string, nodes: [], numprocedimientos: number, numcartas: number}
-	 */
-	var cachedArbol = {};
-	var hijos = [];
-	var idsraiz = [];
-	var mappingXid = [];
-	module.exports.resetCache = function(){
-		cachedArbol = {};
-		hijos = [];
-		idsraiz = [];
-		mappingXid = [];
-	};
-
-	module.exports.getHijos = function(idjerarquia, filterfn){
-		if (!hijos[ idjerarquia ]){ return null; }
-
-		var returnval = [];
-		for (var i = 0, j = hijos[ idjerarquia ].length; i < j; i++){
-			var nodo = hijos[ idjerarquia ][i];
-			if (typeof filterfn === 'undefined' || filterfn(nodo)){
-				returnval.push({_id: nodo._id, id: nodo.id, title: nodo.nombrelargo, nodes: module.exports.getHijos(nodo.id), numprocedimientos: nodo.numprocedimientos, numcartas: nodo.numcartas});
-			}
-		}
-		return returnval;
-	};
-
-	module.exports.getAncestros = function(idjerarquia){
-		var returnval = [],
-			nodo = mappingXid[ idjerarquia ];
-		for (var i = 0, j = nodo.ancestros.length; i < j; i++) {
-			returnval.push(mappingXid[ nodo.ancestros[i] ]);
-		}
-
-		return returnval;
-	};
-
-	module.exports.calculateArbol = function(Q, models){
-		var deferred = Q.defer();
-		var Jerarquia = models.jerarquia();
-		module.exports.resetCache();
-
-		Jerarquia.find({}, function(err, jerarquias){
-			if (err){
-				deferred.reject(err);
-				return;
-			}
-
-			jerarquias.forEach(function(jerarquia){
-				mappingXid [ jerarquia.id ] = jerarquia;
-				if (jerarquia.ancestros.length === 0){
-					idsraiz.push(jerarquia.id);
-				}
-				if (jerarquia.ancestrodirecto){
-					if (!hijos[ jerarquia.ancestrodirecto ]){
-						hijos [ jerarquia.ancestrodirecto ] = [];
-					}
-					hijos [ jerarquia.ancestrodirecto ].push(jerarquia);
-				}
-			});
-
-			deferred.resolve(cachedArbol);
 		});
-		return deferred.promise;
-	};
+		if (cfg.logincarm){
+			this.app.use('/authenticate', metaenvironment.logincarm.uncrypt, metaenvironment.login.authenticate);
+		} else {
+			this.app.use('/authenticate', metaenvironment.login.authenticate);
+		}
+		this.app.use('/', expressJwt({secret: cfg.secret}));
+		this.app.use('/', metaenvironment.login.setpermisoscalculados);
+		this.app.use('/', metaenvironment.api.log);
 
-	module.exports.arbol = function(Q, models){
-		return function(req, res){
-			var returnValue = [];
-			var filterfn;
-			var cachedkey = (typeof req.params.withemptynodes === 'undefined' || !req.params.withemptynodes) ? 'all' : 'notempty';
-			if (typeof req.params.withemptynodes === 'undefined' || !req.params.withemptynodes){
-				filterfn = function(jerarquia){
-					if (jerarquia.numprocedimientos > 0){
-						return true;
-					}
-					if (jerarquia.numcartas > 0){
-						return true;
-					}
-					if (!hijos[jerarquia.id]){
-						return false;
-					}
-					var hijosj = hijos[jerarquia.id];
-					for (var i = 0, j = hijosj.length; i < j; i++){
-						if (filterfn(hijosj[i])){
-							return true;
-						}
-					}
-					return false;
-				};
-			}
-			else {
-				filterfn = function(){ return true; };
-			}
-			if (typeof cachedArbol[cachedkey] === 'object'){
-				res.json( cachedArbol[cachedkey] );
-				return;
-			}
+		const v1 = new V1(metaenvironment),
+			v2 = new V2(metaenvironment),
+			bot = new Bot(metaenvironment);
 
-			var answer = function(){
-				idsraiz.forEach(function(idraiz){
-					var nodo = mappingXid[idraiz];
-					if (filterfn(nodo)){
-						returnValue.push({_id: nodo._id, id: nodo.id, title: nodo.nombrelargo, nodes: module.exports.getHijos(nodo.id, filterfn), numprocedimientos: nodo.numprocedimientos, numcartas: nodo.numcartas });
-					}
-				});
-				cachedArbol[cachedkey] = returnValue;
-				res.json(returnValue);
-			};
+		this.app.use('/v1', v1.app);
+		this.app.use('/v1', v2.app);
+		this.app.use('/bot', bot.app);
 
-			if (hijos.length === 0){
-				module.exports
-					.calculateArbol(Q, models)
-					.then(answer, function(err){ res.status(500).json(err); });
-			} else {
-				answer();
-			}
-		};
-	};
 
-	module.exports.raw = function(models){
-		return function(req, res){
-			var modelname = req.params.modelname;
-			var fields = req.query.fields;
-			var permitidas = ['reglasinconsistencias', 'crawled'];
-			if (typeof models[modelname] !== 'function' || permitidas.indexOf(modelname) === -1){
-				var message = modelname + ' doesn\'t exists in model';
-				log.error(message);
-				res.status(500).json({err: message}); return;
-			}
-			var Loader = models[modelname]();
-			var restricciones = {'oculto': {'$ne': true}, 'eliminado': {'$ne': true}};
-			if (modelname === 'crawled'){
-				var ids = [];
-				var procedimientos = req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura);
-				for (var i in procedimientos){
-					if (!isNaN( parseInt( procedimientos[i]) ) ){
-						ids.push( parseInt( procedimientos[i] ) );
-					}
-				}
-				restricciones.id = { '$in': ids };
-			}
+		this.metaenvironment = metaenvironment;
+	}
 
-			var query = Loader.find(restricciones);
 
-			if (typeof fields !== 'undefined'){
-				query.select(fields);
-			}
-			query.exec(function(err, data){
-				if (err) { log.error(err); res.status(500).json(err); return; }
-				res.json(data);
-			});
-		};
-	};
+	module.exports = Api;
 
-	module.exports.aggregate = function(cfg, models){
-		return function(req, res){
-			var Procedimiento = models.procedimiento();
-			var connection = Procedimiento.collection;
-			var campostr = req.params.campo;
-			var anualidad = req.params.anualidad ? parseInt(req.params.anualidad) : cfg.anyo;
-			var group = [];
-			var groupfield = {};
-
-			try {
-				groupfield._id = JSON.parse(campostr);
-			} catch (e) {
-				groupfield._id = '$' + campostr;
-			}
-
-			var match = {};
-			var jerarquia = {'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}};
-			var oculto = {'$or':
-				[
-					{'oculto': {$exists: false}},
-					{'$and':
-						[
-							{'oculto': {$exists: true}},
-							{'oculto': false}
-						]
-					}
-				]
-			};
-			var eliminado = {'$or':
-				[
-					{'eliminado': {$exists: false}},
-					{'$and':
-						[
-							{'eliminado': {$exists: true}},
-							{'eliminado': false}
-						]
-					}
-				]
-			};
-			var blancos = {};
-			blancos[campostr] = {$ne: ''};
-			var matchstr = req.params.match;
-			if (typeof matchstr === 'string'){
-				try { //probar
-					match = JSON.parse(matchstr);
-				} catch (e) {
-					var condiciones = matchstr.split('|');
-					condiciones.forEach(function(condicion){
-						var partes = condicion.split(':');
-						var campomatch = partes[0];
-						var valor = typeof partes[1] !== 'undefined' ? (partes[1]) : '';
-						if (/^(\-|\+)?([0-9]+|Infinity)$/.test(valor)){
-							valor = parseInt(valor);
-						}
-						match[campomatch] = valor;
-					});
-				}
-				match = {'$and': [ match, blancos, jerarquia, oculto, eliminado ]};
-//				match.idjerarquia = {'$in':req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)};
-			} else {
-				match = {'$and': [ blancos, jerarquia, oculto, eliminado ]};
-			}
-			group.push({ '$match': match });
-			groupfield.count = {'$sum': 1};
-			groupfield.porcumplimentar = { '$sum': {'$cond': [ { '$eq': [0, '$periodos.a' + anualidad + '.totalsolicitudes']}, 1, 0 ] } };
-
-			/*group.push({'$unwind':'$ancestros'});*/
-			group.push({'$group': groupfield});
-			group.push({'$sort': { 'count': -1 } });
-			//console.log(JSON.stringify(group));
-			connection.aggregate(group, function(err, data){
-				if (err) { log.error(err); res.status(500).json(err); return; }
-				res.json(data);
-			});
-		};
-	};
-
-})(module, console);
+})(module);

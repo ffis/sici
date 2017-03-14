@@ -1,37 +1,47 @@
-var request = require('request');
-
-exports.uncrypt = function(urlbasedecrypt){
+(function(module, logger){
 	'use strict';
-	return function(req, res, next)
-	{//espera en body un objeto json {t:sesionencriptada}
+	const request = require('request');
 
-		//console.log(req.body);
-		if (typeof req.body.notcarmuser !== 'undefined' && req.body.notcarmuser) { next(); return; }
+	module.exports.uncrypt = function(req, res, next){
+		if (typeof req.body.notcarmuser !== 'undefined' && req.body.notcarmuser){
+console.log('next');
+			next();
 
-		var buffer = req.body.t,
+			return;
+		}
+
+	const urlbasedecrypt = req.metaenvironment.cfg.urlbasedecrypt;
+		const buffer = req.body.t,
 			url = urlbasedecrypt + buffer;
 
 		request(url, function(err, response, txt) {
 			if (err){
-				res.status(401).send(err);
-			}else if (txt){
+				res.status(401).send({error: err});
+
+				next({error: err});
+			} else if (txt){
 				//aqui debería comprobarse si el lapso de tiempo es válido
-				var parsed = {};
 				try {
-					parsed = JSON.parse(txt);
+					const parsed = JSON.parse(txt);
 					req.body.token = parsed;
 					req.body.username = parsed.carmid;
 					req.body.password = 'password';
+
 					next();
-				}catch (exc){
-					console.error('Error parseando JSON token-sesión ' + txt);
-					console.error('Wrong token password');
-					res.status(401).send('Wrong token password');
+				} catch (exc){
+					logger.error('Error parseando JSON token-sesión ' + txt);
+					logger.error('Wrong token password');
+					res.status(401).send({error: 'Wrong token password'});
+
+					next({error: 'Wrong token password'});
 				}
 			} else {
-				console.error('Wrong token password');
-				res.status(401).send('Wrong token password');
+				logger.error('Wrong token password');
+				res.status(401).send({error: 'Wrong token password'});
+
+				next({error: 'Wrong token password'});
 			}
 		});
 	};
-};
+
+})(module, console);

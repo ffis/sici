@@ -44,10 +44,11 @@ usage: env TESTUSER=carmuser mocha testWs.js
 				expect(login).to.not.equal('');
 
 				persona
-					.infoByLogin(login, Q, cfg)
+					.infoByLogin(login, cfg)
 					.then(function(data){
 
-						logger.log('Answer from WS: ', data);
+						logger.dir('Answer from WS: ');
+						logger.dir(data);
 						expect(data).to.exist;
 						expect(data.return).to.exist;
 						expect(data.return.length).to.be.above(0);

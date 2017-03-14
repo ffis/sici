@@ -1,60 +1,34 @@
-(function(exports){
+(function(module){
 	'use strict';
-	exports.getNodoJerarquia = function(models) {
-		return function(req, res) {
-			if (typeof req.params.idjerarquia === 'undefined' || isNaN(parseInt(req.params.idjerarquia)))
-			{
-				console.error('Invocación inválida para la eliminación de un permiso'); res.status(500); res.end(); return;
-			} else {
-				var idjerarquia = parseInt(req.params.idjerarquia);
-				var Jerarquia = models.jerarquia();
-				Jerarquia.find({'id': idjerarquia}, function (err, data){
-					if (err) {
-						res.send(err); res.status(500); res.end(); return;
-					} else {
-						res.json(data[0]);
-					}
-				});
-			}
-		};
+
+	module.exports.getNodoJerarquia = function(req, res){
+		const jerarquiamodel = req.metaenvironment.models.jerarquia();
+		const idjerarquia = req.params.idjerarquia;
+		if (typeof idjerarquia === 'string' && idjerarquia !== '' && parseInt(idjerarquia, 10) > 0){
+			jerarquiamodel.findOne({'id': parseInt(idjerarquia, 10)}).exec().then(req.eh.okHelper(res, true), req.eh.errorHelper(res));
+		} else {
+			req.eh.notFoundHelper(res);
+		}
 	};
 
-	exports.getAncestros = function(models) {
-		return function(req, res)
-		{
-			if (typeof req.params.idjerarquia === 'undefined' || isNaN(parseInt(req.params.idjerarquia)))
-			{
-				console.error('Invocación inválida para la eliminación de un permiso'); res.status(500); res.end(); return;
-			} else {
-				var idjerarquia = parseInt(req.params.idjerarquia);
-				var Jerarquia = models.jerarquia();
-				Jerarquia.find({'descendientes': idjerarquia}, function (err, data){
-					if (err) {
-						res.send(err); res.status(500); res.end(); return;
-					} else {
-						res.json(data);
-					}
-				});
-			}
-		};
+	module.exports.getAncestros = function(req, res){
+		const jerarquiamodel = req.metaenvironment.models.jerarquia();
+		const idjerarquia = req.params.idjerarquia;
+		if (typeof idjerarquia === 'string' && idjerarquia !== '' && parseInt(idjerarquia, 10) > 0){
+			jerarquiamodel.find({'descendientes': parseInt(idjerarquia, 10)}).exec(req.eh.okHelper(res, false), req.eh.errorHelper(res));
+		} else {
+			req.eh.notFoundHelper(res);
+		}
 	};
 
-	exports.getResumenJerarquia = function(models, Q, exportador) {
-		return function(req, res) {
-			if (typeof req.params.idjerarquia === 'undefined' || isNaN(parseInt(req.params.idjerarquia)))
-			{
-				console.error('Invocación inválida para la recuperación de datos estadísticos de un nodo de e. orgánica'); res.status(500); res.end(); return;
-			} else {
-				var idjerarquia = parseInt(req.params.idjerarquia);
-				exportador.mapReducePeriodos(Q, models, idjerarquia, req.permisoscalculados).then(
-					function(data){
-						res.json(data);
-					}
-					, function(err){
-						console.error('Error calculando datos estadísticos de un nodo de e. orgánica' + err); res.status(500); res.end(); return;
-					}
-				);
-			}
-		};
+	module.exports.getResumenJerarquia = function(req, res) {
+		const idjerarquia = req.params.idjerarquia;
+		if (typeof idjerarquia === 'string' && idjerarquia !== '' && parseInt(idjerarquia, 10) > 0){
+			const exportador = req.metaenvironment.exportador;
+			exportador.mapReducePeriodos(req.metaenvironment.models, parseInt(req.params.idjerarquia, 10), req.permisoscalculados).then(req.eh.okHelper(res, false), req.eh.errorHelper(res));
+		} else {
+			req.eh.notFoundHelper(res);
+		}
 	};
-})(exports);
+
+})(module);

@@ -89,7 +89,7 @@ angular.module('sici.login.util', ['ngResource'])
 				carmlogin: false,
 				login: function (credentials) {
 					if (!!credentials.notcarmuser){
-						return $http.post('/authenticate', credentials)
+						return $http.post('/api/authenticate', credentials)
 						.success(function (data) {
 							$window.localStorage.token = data.token;
 							$log.info('Contraseña válida');
@@ -111,7 +111,7 @@ angular.module('sici.login.util', ['ngResource'])
 								}else{
 
 									/** hacemos un post a la dirección del login. Esperamos respuesta. Si statusCode=401 hay error de autenticación **/
-									$http.post('/authenticate', data)
+									$http.post('/api/authenticate', data)
 										.success(function (httpdata) {
 											$window.localStorage.token = httpdata.token;
 											$log.info('Contraseña válida');

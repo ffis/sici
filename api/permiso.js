@@ -1,10 +1,14 @@
 (function(module){
 	'use strict';
+	const Q = require('q');
 
-	function getPermisosByLoginPlaza(params, models, Q, login, codPlaza){
-		var Permiso = models.permiso(),
-			restriccion = {},
+
+	/* TODO: explicar esto, es poco intuitivo y eso aparenta ocultar errores */
+	function getPermisosByLoginPlaza(params, models, login, codPlaza){
+		const permisomodel = models.permiso(),
 			df = Q.defer();
+
+		let restriccion = {};
 
 		if (!login && params.login && params.login !== '-'){
 			login = params.login;
@@ -14,27 +18,16 @@
 			codPlaza = params.cod_plaza;
 		}
 
-		if (login && codPlaza){
-			restriccion =
-				{ '$or': [
-						{ 'login': login },
-						{ 'codplaza': codPlaza }
-				]
-			};
-		} else if (login){
+		if (login && login !== '-' && codPlaza && codPlaza !== '-'){
+			restriccion = {'$or': [{'login': login}, {'codplaza': codPlaza}]};
+		} else if (login && login !== '-'){
 			restriccion.login = login;
-		} else if (codPlaza){
+		} else if (codPlaza &&  codPlaza !== '-'){
 			restriccion.codplaza = codPlaza;
 		}
 
 		if (login !== '-' || codPlaza !== '-'){
-			Permiso.find(restriccion, function(err, permisos){
-				if (err){
-					df.reject(err);
-				} else {
-					df.resolve(permisos);
-				}
-			});
+			permisomodel.find(restriccion).exec().then(df.resolve, df.reject);
 		} else {
 			df.resolve([]);
 		}
@@ -42,95 +35,82 @@
 		return df.promise;
 	}
 
-	module.exports.delegarpermisosEntidadObjeto = function(models){
-		return function(req, res){
-			var eo = req.params.entidadobjeto;
-			if (!((req.user.permisoscalculados.grantoption || req.user.permisoscalculados.superuser)
-						&& req.user.permisoscalculados.entidadobjetolectura.concat(req.user.permisoscalculados.entidadobjetoescritura).indexOf(eo)) ){
-				res.status(403).json({'error': 'Not allowed'});
-				return;
+	module.exports.delegarpermisosEntidadObjeto = function(req, res){
+		const models = req.metaenvironment.models,
+			permisomodel = models.permiso(),
+			eopermitidos = req.user.permisoscalculados.entidadobjetolectura.concat(req.user.permisoscalculados.entidadobjetoescritura);
+
+		if (typeof req.params.entidadobjeto === 'string' && req.params.entidadobjeto !== ''){
+			const eo = req.params.entidadobjeto;
+
+			if (req.user.permisoscalculados.superuser || (req.user.permisoscalculados.grantoption && eopermitidos.indexOf(eo) >= 0)){
+
+				const entidadobjetomodel = models.entidadobjeto();
+				entidadobjetomodel.findOne({'codigo': eo}).exec().then(function(entidadobjeto){
+					const idjerarquia = entidadobjeto.idjerarquia;
+					const ep = {};
+					if (req.params.cod_plaza && req.params.cod_plaza !== '-' && req.params.cod_plaza !== ''){
+						ep.codplaza = req.params.cod_plaza;
+					}
+					if (req.params.login && req.params.login !== '-' && req.params.login !== ''){
+						ep.login = req.params.login;
+					}
+					ep.jerarquialectura = [idjerarquia];
+					ep.jerarquiaescritura = [];
+					ep.jerarquiadirectalectura = [idjerarquia];
+					ep.jerarquiadirectaescritura = [];
+					ep.procedimientosescritura = [];
+					ep.procedimientoslectura = [];
+					ep.procedimientosdirectalectura = [];
+					ep.procedimientosdirectaescritura = [];
+					ep.entidadobjetolectura = [entidadobjeto.codigo];
+					ep.entidadobjetoescritura = [entidadobjeto.codigo];
+					ep.entidadobjetodirectalectura = [entidadobjeto.codigo];
+					ep.entidadobjetodirectaescritura = [entidadobjeto.codigo];
+					ep.superuser = 0;
+					ep.cod_plaza_grantt = req.user.login;
+					ep.descripcion = 'Permisos delegados por ' + ep.cod_plaza_grantt;
+					ep.grantoption = false;
+
+					permisomodel.find({'$or': [{'entidadobjetoescritura': entidadobjeto.codigo}, {'entidadobjetodirectaescritura': entidadobjeto.codigo}]}).exec().then(function(permisos){
+						const caducidad = new Date();
+						caducidad.setFullYear(caducidad.getFullYear() + 2);
+
+						ep.caducidad = permisos.reduce(function(prev, permiso){
+							if (permiso.caducidad && permiso.caducidad.getTime() > prev.getTime())
+								return permiso.caducidad;
+							return prev;
+						}, caducidad);
+
+						permisomodel.create(ep, req.eh.cb(res));
+					}, req.eh.errorHelper(res));
+				}, req.eh.errorHelper(res));
+			} else {
+				req.eh.unauthorizedHelper(res);
 			}
-
-			var Permiso = models.permiso();
-			var EntidadObjeto = models.entidadobjeto();
-			EntidadObjeto.findOne({'codigo': eo}, function(err, entidadobjeto){
-				if (err){
-					res.status(500).json({'error': 'Imposible salvar nuevo permiso', details: err});
-					return;
-				}
-				var idjerarquia = entidadobjeto.idjerarquia;
-				var ep = {};
-				if (req.params.cod_plaza && req.params.cod_plaza !== '-' && req.params.cod_plaza !== ''){
-					ep.codplaza = req.params.cod_plaza;
-				}
-				if (req.params.login && req.params.login !== '-' && req.params.login !== ''){
-					ep.login = req.params.login;
-				}
-				ep.jerarquialectura = [idjerarquia];
-				ep.jerarquiaescritura = [];
-				ep.jerarquiadirectalectura = [idjerarquia];
-				ep.jerarquiadirectaescritura = [];
-				ep.procedimientosescritura = [];
-				ep.procedimientoslectura = [];
-				ep.procedimientosdirectalectura = [];
-				ep.procedimientosdirectaescritura = [];
-				ep.entidadobjetolectura = [entidadobjeto.codigo];
-				ep.entidadobjetoescritura = [entidadobjeto.codigo];
-				ep.entidadobjetodirectalectura = [entidadobjeto.codigo];
-				ep.entidadobjetodirectaescritura = [entidadobjeto.codigo];
-				ep.superuser = 0;
-				ep.cod_plaza_grantt = req.user.login;
-				ep.descripcion = 'Permisos delegados por ' + ep.cod_plaza_grantt;
-				ep.grantoption = false;
-
-				Permiso.find({'$or': [{'entidadobjetoescritura': entidadobjeto.codigo}, {'entidadobjetodirectaescritura': entidadobjeto.codigo}]}, function(err, procs){
-					if (err) {
-						res.status(500).json({'error': 'Imposible salvar nuevo permiso (5)', details: err});
-					}
-					var caducidad = new Date();
-					caducidad.setFullYear(caducidad.getFullYear() + 2); ////////// PARCHE POR LAS CADUCIDADES A NULL
-					for (var i = 0; i < procs.length; i++){
-						var ptemp = procs[i];
-						if (ptemp.caducidad && ptemp.caducidad.getTime() > caducidad.getTime()){
-							caducidad = ptemp.caducidad;
-						}
-					}
-					ep.caducidad = caducidad;
-
-					var op = new Permiso(ep);
-					op.save(function(erro){
-						if (err) {
-							res.status(500).json({'error': 'Imposible salvar nuevo permiso (3)', details: erro});
-							return;
-						} else {
-							res.json(op);
-						}
-					});
-				});
-			});
-		};
+		} else {
+			req.eh.missingParameterHelper(res, 'entidadobjeto');
+		}
 	};
 
-	module.exports.delegarpermisosProcedimiento = function(models){
-		return function(req, res){
-			var proc = req.params.procedimiento;
-			if (!((req.user.permisoscalculados.grantoption || req.user.permisoscalculados.superuser)
-						&& req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura).indexOf(proc)) ){
-				res.status(403).json({'error': 'Not allowed'});
-				return;
-			}
+	module.exports.delegarpermisosProcedimiento = function(req, res){
+		const models = req.metaenvironment.models;
+		const proc = req.params.procedimiento;
+		const procedimientospermitidos = req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura);
 
-			var Permiso = models.permiso();
-			var Procedimiento = models.procedimiento();
-			Procedimiento.findOne({'codigo': proc}, function(err, procedimiento){
-				if (err){
-					res.status(500).json({'error':'Imposible salvar nuevo permiso (1)', details: err});
+		if (req.user.permisoscalculados.superuser || (req.user.permisoscalculados.grantoption && procedimientospermitidos.indexOf(proc) >= 0)){
+
+			const permisomodel = models.permiso();
+			const procedimientomodel = models.procedimiento();
+			procedimientomodel.findOne({'codigo': proc}).exec().then(function(procedimiento){
+				if (!procedimiento){
+					req.eh.notFoundHelper(res);
+
 					return;
-				}else if (!procedimiento){
-					res.status(404).json({'error':'Imposible salvar nuevo permiso (2)', details: 'Not found'});
 				}
-				var idjerarquia = procedimiento.idjerarquia;
-				var ep = {};
+
+				const idjerarquia = procedimiento.idjerarquia;
+				const ep = {};
 				if (req.params.cod_plaza && req.params.cod_plaza !== '-' && req.params.cod_plaza !== ''){
 					ep.codplaza = req.params.cod_plaza;
 				}
@@ -154,351 +134,233 @@
 				ep.descripcion = 'Permisos delegados por ' + ep.cod_plaza_grantt;
 				ep.grantoption = false;
 
-				Permiso.find({'$or': [{'procedimientosescritura': procedimiento.codigo}, {'procedimientosdirectaescritura': procedimiento.codigo}]}, function(err, procs){
-					if (err){
-						res.status(500).json({'error':'Imposible salvar nuevo permiso (5)', details: err});
-						return;
-					}
-					var caducidad = new Date();
-					caducidad.setFullYear(caducidad.getFullYear() + 2); ////////// PARCHE POR LAS CADUCIDADES A NULL
-					for (var i = 0; i < procs.length; i++){
-						var ptemp = procs[i];
-						if (ptemp.caducidad && ptemp.caducidad.getTime() > caducidad.getTime()){
-							caducidad = ptemp.caducidad;
-						}
-					}
-					ep.caducidad = caducidad;
 
-					var op = new Permiso(ep);
-					//console.log(op);
-					op.save(function(erro){
-						if (err){
-							res.status(500).json({'error':'Imposible salvar nuevo permiso (3)', details: erro});
-						} else {
-							res.json(op);
-						}
-					});
-				});
-			});
-		};
+				/* cálculo de la caducidad, de existir se pone la mayor posible sino hasta dentro de 2 años */
+				const restriccion = {'$or': [{'procedimientosescritura': procedimiento.codigo}, {'procedimientosdirectaescritura': procedimiento.codigo}]};
+				permisomodel.find(restriccion).exec().then(function(permisos){
+					
+					const caducidad = new Date();
+					caducidad.setFullYear(caducidad.getFullYear() + 2);
+
+					ep.caducidad = permisos.reduce(function(prev, permiso){
+						if (permiso.caducidad && permiso.caducidad.getTime() > prev.getTime())
+							return permiso.caducidad;
+						return prev;
+					}, caducidad);
+
+					permisomodel.create(ep, req.eh.cb(res));
+
+				}, req.eh.errorHelper(res));
+			}, req.eh.errorHelper(res));
+		} else {
+			req.eh.unauthorizedHelper(res);
+		}
 	};
 
-	module.exports.delegarpermisos = function(models, Q, recalculate)
-	{
-		return function(req, res) {
-			var Permiso = models.permiso();
-			if (!(req.user.permisoscalculados.grantoption ||
-				req.user.permisoscalculados.superuser))
-			{
-				res.status(403).json({'error': 'Not allowed'});
-				return;
+	function permisosPostSave(op, defer, models, recalculate){
+		return function(err, p){
+			if (err) {
+				defer.reject(err);
+			} else {
+				recalculate.softCalculatePermiso(models, p).then(defer.resolve, defer.reject);
 			}
-			var promesaPermisos = getPermisosByLoginPlaza(req.params, models, Q, req.user.login, req.user.codplaza);
-
-			var fsave = function(op, defer) {
-				return function(err, p)
-				{
-					if (err) {
-						defer.reject(err);
-					} else {
-						recalculate.softCalculatePermiso(Q, models, p).then(function(pe){
-							defer.resolve(pe);
-						}, function(erro){
-							defer.reject(erro);
-						});
-					}
-				};
-			};
-
-			promesaPermisos.then(
-				function(permisos){
-					var paux = [];
-					var promesasPermisos = [];
-					var rejectDefer = function(defer){
-						return function(err) {
-							defer.reject(err);
-						};
-					};
-					var resolveDeferIfNoErr = function(defer){
-						return function(error, pe){
-							if (error) {
-								defer.reject(pe);
-							} else {
-								defer.resolve(pe);
-							}
-						};
-					};
-					var saveP = function(defer){
-						return function(p){
-							p.save( resolveDeferIfNoErr(defer) );
-						};
-					};
-					for (var i = 0; i < permisos.length; i++)
-					{
-						var p = JSON.parse(JSON.stringify(permisos[i]));
-
-						if (paux.indexOf(p._id) !== -1){ continue; }
-						else { paux.push(p._id); }
-
-						var defer = Q.defer();
-
-						promesasPermisos.push(defer.promise);
-
-						delete p._id;
-
-						if (req.params.login && req.params.login !== '-'){
-							p.login = req.params.login;
-						}
-						if (req.params.cod_plaza && req.params.cod_plaza !== '-'){
-							p.codplaza = req.params.cod_plaza;
-						}
-						p.cod_plaza_grantt = (permisos[i].codplaza ? permisos[i].codplaza : permisos[i].login);
-						p.grantoption = false;
-						var minidefer = Q.defer();
-
-						var op = new Permiso(p);
-						op.save(fsave(op, minidefer));
-						minidefer.promise.then(saveP(defer), rejectDefer(defer));
-					}
-
-					Q.all(promesasPermisos).then(function(pms){
-						res.json(pms);
-					}, function(err){
-						res.status(500).json({'error': 'Problemas modificando permisos...', details: err});
-					});
-				},
-				function(err){
-					res.status(500).json({'error': 'Error during delegarpermisos', details: err});
-				}
-			);
 		};
+	}
+
+
+	module.exports.delegarpermisos = function(req, res){
+		if (!(req.user.permisoscalculados.grantoption || req.user.permisoscalculados.superuser)){
+			req.eh.unauthorizedHelper(res);
+
+			return;
+		}
+
+		const models = req.metaenvironment.models,
+			recalculate = req.metaenvironment.recalculate,
+			Permiso = models.permiso();
+
+
+		 getPermisosByLoginPlaza(req.params, models, req.user.login, req.user.codplaza).then(function(permisos){
+			const paux = [];
+			const promesasPermisos = [];
+
+			for (let i = 0; i < permisos.length; i += 1){
+				const p = JSON.parse(JSON.stringify(permisos[i]));
+
+				if (paux.indexOf(p._id) !== -1){
+					continue;
+				}else {
+					paux.push(p._id);
+				}
+
+				delete p._id;
+
+				if (req.params.login && req.params.login !== '-'){
+					p.login = req.params.login;
+				}
+				if (req.params.cod_plaza && req.params.cod_plaza !== '-'){
+					p.codplaza = req.params.cod_plaza;
+				}
+				p.cod_plaza_grantt = (permisos[i].codplaza ? permisos[i].codplaza : permisos[i].login);
+				p.grantoption = false;
+
+				const defer = Q.defer();
+				promesasPermisos.push(defer.promise);
+
+				var op = new Permiso(p);
+				op.save(permisosPostSave(op, defer, models, recalculate));
+			}
+
+			Q.all(promesasPermisos).then(req.eh.okHelper(res), req.eh.errorHelper(res));
+		}, req.eh.errorHelper(res));
 	};
 
-	module.exports.permisosByLoginPlaza = function(models, Q) {
-		return function(req, res) {
-			var promesaPermisos = getPermisosByLoginPlaza(req.params, models, Q);
-			promesaPermisos.then(
-				function(permisos){
-					res.json(permisos);
-				},
-				function(error){
-					res.status(500).json({'error': 'Error during permisosByLoginPlaza', details: error});
-				}
-			);
-		};
+	module.exports.permisosByLoginPlaza = function(req, res) {
+		const models = req.metaenvironment.models;
+		getPermisosByLoginPlaza(req.params, models).then(req.eh.okHelper(res), req.eh.errorHelper(res));
 	};
 
-	module.exports.removePermisoCarta = function(models, Q, recalculate){
-		return function(req, res) {
-			if (typeof req.params.identidadobjeto !== 'undefined' && !isNaN(parseInt(req.params.identidadobjeto)) &&
-				typeof req.params.idpermiso !== 'undefined' )
-			{
-				var Permiso = models.permiso();
-				var idpermiso = req.params.idpermiso;
-				var identidadobjeto = req.params.identidadobjeto;
+	module.exports.removePermisoCarta = function(req, res) {
 
-				if (req.user.permisoscalculados.superuser ||
-					(req.user.permisoscalculados.grantoption && req.user.permisoscalculados.entidadobjetolectura.concat(req.user.permisoscalculados.entidadobjetoescritura).indexOf(identidadobjeto) !== -1)
-					)
-				{
+		if (typeof req.params.identidadobjeto === 'string' && req.params.identidadobjeto !== ''){
+			if (typeof req.params.idpermiso !== 'string' && req.params.idpermiso !== ''){
+				const models = req.metaenvironment.models,
+					recalculate = req.metaenvironment.recalculate,
+					permisomodel = models.permiso(),
+					idpermiso = req.params.idpermiso,
+					identidadobjeto = req.params.identidadobjeto,
+					eopermitidos = req.user.permisoscalculados.entidadobjetolectura.concat(req.user.permisoscalculados.entidadobjetoescritura);
 
-					Permiso.findById(idpermiso, function(err, permiso){
-						//console.log(permiso);
-						if (err) {
-							res.status(500).json({'error': 'Error during removePermisoCarta', details: err});
-							return;
-						}
+				if (req.user.permisoscalculados.superuser || (req.user.permisoscalculados.grantoption && eopermitidos.indexOf(identidadobjeto) >= 0)){
+					permisomodel.findOne({'_id': models.objectId(idpermiso)}).exec().then(function(permiso){
 						if (permiso === null){
-							res.status(500).json({'error': 'Error during removePermisoCarta. ', details: 'No se encuentra el permiso'});
+							req.eh.notFoundHelper(res);
+
 							return;
 						}
 
-						var index_r = permiso.entidadobjetolectura.indexOf(identidadobjeto);
-						var index_w = permiso.entidadobjetodirectaescritura.indexOf(identidadobjeto);
+						const indexR = permiso.entidadobjetolectura.indexOf(identidadobjeto);
+						const indexW = permiso.entidadobjetodirectaescritura.indexOf(identidadobjeto);
 
-						if (index_r !== -1){
-							permiso.entidadobjetolectura.splice(index_r, 1);
+						if (indexR !== -1){
+							permiso.entidadobjetolectura.splice(indexR, 1);
 						}
-						if (index_w !== -1){
-							permiso.entidadobjetodirectaescritura.splice(index_w, 1);
+						if (indexW !== -1){
+							permiso.entidadobjetodirectaescritura.splice(indexW, 1);
 						}
 
-						recalculate.softCalculatePermiso(Q, models, permiso).then(function(permiso){
-							if (permiso.entidadobjetodirectalectura.length === 0 &&
-									(typeof permiso.jerarquiadirectalectura === 'undefined'
-									||
-									permiso.jerarquiadirectalectura.length === 0
-							))
-							{
-								Permiso.remove({'_id': idpermiso}, function(erro){
-									if (erro) {
-										res.status(500).json({'error': 'Error during removePermisoCarta', details: erro});
-									} else {
-										res.json({});
-									}
-								});
+						recalculate.softCalculatePermiso(models, permiso).then(function(permi){
+							if (permi.entidadobjetodirectalectura.length === 0 && (typeof permi.jerarquiadirectalectura === 'undefined' || permi.jerarquiadirectalectura.length === 0)){
+								permisomodel.remove({'_id': models.objectId(idpermiso)}, req.eh.cbWithDefaultValue(res, {}));
 							} else {
-								Permiso.update({'_id': idpermiso}, permiso, {upsert: false}, function(erro) {
-									if (erro) {
-										res.status(500).json({'error': 'Error during removePermisoCarta', details: erro});
-									} else {
-										res.json(permiso);
-									}
-								});
+								permisomodel.update({'_id': models.objectId(idpermiso)}, permi, {upsert: false}, req.eh.cbWithDefaultValue(res, permi));
 							}
-						}, function(erro){
-							res.status(500).json({'error': 'Error during removePermisoCarta', details: erro});
-						});
-					});
+						}, req.eh.errorHelper(res));
+					}, req.eh.errorHelper(res));
 				} else {
-					res.status(403).json({'error': 'Not allowed'});
-					return;
+					req.eh.unauthorizedHelper(res);
 				}
 			} else {
-				res.status(400).json({'error': 'Invocación inválida para la eliminación de un permiso'});
+				req.eh.missingParameterHelper(res, 'idpermiso');
 			}
-		};
+		} else {
+			req.eh.missingParameterHelper(res, 'identidadobjeto');
+		}
 	};
 
-	module.exports.removePermisoProcedimiento = function(models, Q, recalculate) {
-		return function(req, res) {
-			if (typeof req.params.idprocedimiento !== 'undefined' && !isNaN(parseInt(req.params.idprocedimiento)) &&
-				typeof req.params.idpermiso !== 'undefined' )
-			{
-				var Permiso = models.permiso();
-				var idpermiso = req.params.idpermiso;
-				var idprocedimiento = req.params.idprocedimiento;
+	module.exports.removePermisoProcedimiento = function(req, res) {
 
-				if (req.user.permisoscalculados.superuser ||
-					(req.user.permisoscalculados.grantoption && req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura).indexOf(idprocedimiento) !== -1)
-					)
-				{
-					Permiso.findById(idpermiso, function(err, permiso){
-						if (err){
-							res.status(500).json({'error': 'Eliminando permiso sobre procedimiento', details: err});
-						} else if (permiso === null){
-							res.status(500).json({'error': 'Error eliminando permiso sobre procedimiento. ', details: 'No se encuentra el permiso'});
-						} else {
+		if (typeof req.params.idprocedimiento !== 'undefined' && req.params.idprocedimiento !== ''){
+			if (typeof req.params.idpermiso !== 'undefined' && req.params.idpermiso !== ''){
 
-							var index_r = permiso.procedimientoslectura.indexOf(idprocedimiento);
-							var index_w = permiso.procedimientosdirectaescritura.indexOf(idprocedimiento);
+				const models = req.metaenvironment.models,
+					recalculate = req.metaenvironment.recalculate,
+					permisomodel = models.permiso(),
+					idpermiso = req.params.idpermiso,
+					idprocedimiento = req.params.idprocedimiento,
+					procedimientospermitidos = req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura);
 
-							if (index_r !== -1){
-								permiso.procedimientosdirectalectura.splice(index_r, 1);
+				if (req.user.permisoscalculados.superuser || (req.user.permisoscalculados.grantoption && procedimientospermitidos.indexOf(idprocedimiento) >= 0)){
+					permisomodel.find({'_id': models.objectId(idpermiso)}).exec().then(function(permiso){
+						if (permiso){
+
+							const indexR = permiso.procedimientoslectura.indexOf(idprocedimiento);
+							const indexW = permiso.procedimientosdirectaescritura.indexOf(idprocedimiento);
+
+							if (indexR !== -1){
+								permiso.procedimientosdirectalectura.splice(indexR, 1);
 							}
-							if (index_w !== -1){
-								permiso.procedimientosdirectaescritura.splice(index_w, 1);
+							if (indexW !== -1){
+								permiso.procedimientosdirectaescritura.splice(indexW, 1);
 							}
 
-							recalculate.softCalculatePermiso(Q, models, permiso).then(function(permiso){
-								if (permiso.procedimientosdirectalectura.length === 0 &&
-										(typeof permiso.jerarquiadirectalectura === 'undefined'
-										||
-										permiso.jerarquiadirectalectura.length === 0
-								))
-								{
-									Permiso.remove({'_id': idpermiso}, function(err){
-										if (err) {
-											res.status(500).json({'error': 'Error eliminando permiso sobre procedimiento', details: err});
-										} else {
-											res.json({});
-										}
-									});
+							recalculate.softCalculatePermiso(models, permiso).then(function(permi){
+								if (permi.procedimientosdirectalectura.length === 0 && (typeof permi.jerarquiadirectalectura === 'undefined' || permi.jerarquiadirectalectura.length === 0)){
+									permisomodel.remove({'_id': models.objectId(idpermiso)}, req.eh.cbWithDefaultValue(res, {}));
 								} else {
-									Permiso.update({'_id': idpermiso}, permiso, {upsert: false}, function(err) {
-										if (err) {
-											res.status(500).json({'error': 'Error eliminando permiso sobre procedimiento', details: err});
-										} else {
-											res.json(permiso);
-										}
-									});
+									permisomodel.update({'_id': models.objectId(idpermiso)}, permi, {upsert: false}, req.eh.cbWithDefaultValue(permi));
 								}
-							}, function(err){
-								res.status(500).json({'error': 'Error eliminando permiso sobre procedimiento', details: err});
-							});
+							}, req.eh.errorHelper(res));
+						} else {
+							req.eh.notFoundHelper(res);
 						}
-					});
+					}, req.eh.errorHelper(res));
 				} else {
-					res.status(403).json({'error': 'No tiene permiso para realizar esta operación'});
-					return;
+					req.eh.unauthorizedHelper(res);
 				}
 			} else {
-				res.status(400).json({'error': 'Invocación inválida para la eliminación de un permiso'});
+				req.eh.missingParameterHelper(res, 'idpermiso');
 			}
-		};
+		} else {
+			req.eh.missingParameterHelper(res, 'idprocedimiento');
+		}
 	};
 
-	module.exports.removePermisoJerarquia = function(models, Q, recalculate) {
-		return function(req, res) {
-			if (typeof req.params.idjerarquia !== 'undefined' &&
-				!isNaN(parseInt(req.params.idjerarquia)) &&
-				typeof req.params.idpermiso !== 'undefined' )
-			{
-				var Permiso = models.permiso();
-				var idpermiso = req.params.idpermiso;
-				var idjerarquia = parseInt(req.params.idjerarquia);
+	module.exports.removePermisoJerarquia = function(req, res) {
 
-				if (!(req.user.permisoscalculados.grantoption || req.user.permisoscalculados.superuser)
-					&& req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura).indexOf(idjerarquia) !== -1
-					)
-				{
-					res.status(403).json({'error': 'El usuario ha intentado realizar una operación sobre permisos que no le está permitida'});
-					return;
-				}
+		if (typeof req.params.idjerarquia === 'string' && parseInt(req.params.idjerarquia, 10) > 0){
+			const idjerarquia = parseInt(req.params.idjerarquia, 10);
+			if (typeof req.params.idpermiso === 'string' && req.params.idpermiso !== ''){
+				const models = req.metaenvironment.models,
+					recalculate = req.metaenvironment.recalculate,
+					permisomodel = models.permiso();
 
-				Permiso.findById(idpermiso, function(err, permiso){
-					if (err) {
-						res.status(500).json({'error': 'Error eliminando permiso sobre jerarquia', details: err});
-						return;
-					}
-					if (permiso === null) {
-						res.status(404).json({'error': 'Eliminando permiso sobre jerarquia. No se encuentra el permiso ' + idpermiso});
-						return;
-					}
+				const idpermiso = req.params.idpermiso;
+				const jerarquiaspermitidas = req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura);
 
-					var index_r = permiso.jerarquiadirectalectura.indexOf(idjerarquia);
-					var index_w = permiso.jerarquiadirectaescritura.indexOf(idjerarquia);
+				if (req.user.permisoscalculados.superuser || (req.user.permisoscalculados.grantoption && jerarquiaspermitidas.indexOf(idjerarquia) >= 0)){
+					permisomodel.find({'_id': models.objectId(idpermiso)}).exec().then(function(permiso){
+						if (permiso){
+							const indexR = permiso.jerarquiadirectalectura.indexOf(idjerarquia);
+							const indexW = permiso.jerarquiadirectaescritura.indexOf(idjerarquia);
 
-					if (index_r !== -1){
-						permiso.jerarquiadirectalectura.splice(index_r, 1);
-					}
-					if (index_w !== -1){
-						permiso.jerarquiadirectaescritura.splice(index_w, 1);
-					}
+							if (indexR !== -1){
+								permiso.jerarquiadirectalectura.splice(indexR, 1);
+							}
+							if (indexW !== -1){
+								permiso.jerarquiadirectaescritura.splice(indexW, 1);
+							}
 
-					recalculate.softCalculatePermiso(Q, models, permiso).then(function(permiso){
-						if (permiso.jerarquiadirectalectura.length === 0 &&
-							(typeof permiso.procedimientosdirectalectura === 'undefined'
-							||
-							permiso.procedimientosdirectalectura.length === 0
-						))
-						{
-							Permiso.remove({'_id': idpermiso}, function(err){
-								if (err) {
-									res.status(500).json({'error': 'Error permiso sobre jerarquia (5)', details: err});
+							recalculate.softCalculatePermiso(models, permiso).then(function(permi){
+								if (permi.jerarquiadirectalectura.length === 0 && (typeof permi.procedimientosdirectalectura === 'undefined' || permi.procedimientosdirectalectura.length === 0)){
+									permisomodel.remove({'_id': models.objectId(idpermiso)}, req.eh.cbWithDefaultValue(res, {}));
 								} else {
-									res.json({});
+									permi.save(req.eh.cbWithDefaultValue(res, permi));
 								}
-							});
+							}, req.eh.errorHelper(res));
 						} else {
-							permiso.save(function(e) {
-								if (e){
-									res.status(500).json({'error': 'Error permiso sobre jerarquia (4)', details: e});
-								} else {
-									res.json(permiso);
-								}
-							});
+							req.eh.notFoundHelper(res);
 						}
-					}, function(err){
-						res.status(500).json({'error': 'Error permiso sobre jerarquia (3)', details: err});
-						return;
-					});
-				});
+					}, req.eh.errorHelper(res));
+				} else {
+					req.eh.unauthorizedHelper(res);
+				}
 			} else {
-				res.status(404).json({'error': 'Invocación inválida para la eliminación de un permiso'});
-				return;
+				req.eh.missingParameterHelper(res, 'idpermiso');
 			}
-		};
+		} else {
+			req.eh.missingParameterHelper(res, 'idjerarquia');
+		}
 	};
 
 
@@ -507,411 +369,283 @@
 	* indicado o sobre alguno de sus descendientes (si el parámetro de petición "recursivo" es 1),
 	* así como los permisos directos sobre los procedimientos que cuelgan de tales jerarquías
 	*/
-	module.exports.permisosList = function(models, Q){
-		return function(req, res){
-			var Permiso = models.permiso();
-			var dpermisos = Q.defer();
-			var promise_permisos = dpermisos.promise;
-			var recursivo = (typeof req.params.recursivo !== 'undefined' && parseInt(req.params.recursivo) === 1 ? true : false);
-			var heredado = (typeof req.params.recursivo !== 'undefined' && parseInt(req.params.recursivo) === 2 ? true : false);
+	module.exports.permisosList = function(req, res){
+		const models = req.metaenvironment.models;
+		const permisomodel = models.permiso();
+		const jerarquiamodel = models.jerarquia();
+		const procedimientomodel = models.procedimiento();
+		const dpermisos = Q.defer();
+		const recursivo = (typeof req.params.recursivo === 'string' && parseInt(req.params.recursivo, 10) === 1);
+		const heredado = (typeof req.params.recursivo === 'string' && parseInt(req.params.recursivo, 10) === 2);
+		const jerarquiaspermitidas = req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura);
 
-			if (typeof req.params.idjerarquia !== 'undefined') {
-				if (isNaN(parseInt(req.params.idjerarquia)) ||
-					(req.user.permisoscalculados.jerarquialectura.indexOf(parseInt(req.params.idjerarquia)) === -1 &&
-					req.user.permisoscalculados.jerarquiaescritura.indexOf(parseInt(req.params.idjerarquia)) === -1)
-					){
-					dpermisos.reject('Error. Id jerarquía no válido');
-				} else if (!heredado) {
-					// obtenemos todos los permisos otorgados sobre esta jerarquía y sus descendientes.
-					var idj = parseInt(req.params.idjerarquia);
-					var Jerarquia = models.jerarquia();
-					var d = Q.defer();
-					// buscamos la jerarquia indicada
-					Jerarquia.findOne({ 'id': idj }, function(err, data){
-						if (err){
-							d.reject(err);
-						} else {
-							d.resolve(data);
-						}
-					});
+		if (typeof req.params.idjerarquia === 'string') {
+			const idj = parseInt(req.params.idjerarquia, 10);
 
-					d.promise.then(function(jerarquia){
-						// configuramos una búsqueda de la jerarquía actual más los descendientes
+			if (isNaN(idj)){
+				dpermisos.reject({error: 'Error. Id jerarquía no válido'});
 
-						var jerarquias_buscadas = recursivo ? jerarquia.descendientes : [];
+			} else if (jerarquiaspermitidas.indexOf(idj) < 0){
+				dpermisos.reject({error: 'Error. Id jerarquía no permitido'});
 
-						if (!Array.isArray(jerarquias_buscadas)){
-							jerarquias_buscadas = [];
-						}
-						jerarquias_buscadas.push(idj);
-
-						var Procedimiento = models.procedimiento();
-						var dprocedimiento = Q.defer();
-						var promise_procedimiento = dprocedimiento.promise;
-						var query = Procedimiento.find({'idjerarquia':{'$in': jerarquias_buscadas}});
-						query.select({cod_plaza: 1, codigo: 1, responsables: 1, idjerarquia: 1, denominacion: 1});
-						query.exec(function(err, procedimientos){
-							if (err) {
-								dprocedimiento.reject(err);
-							} else {
-								dprocedimiento.resolve(procedimientos);
-							}
-						});
-
-						promise_procedimiento.then(function(procedimientos){
-							var idsprocedimientos = [];
-							procedimientos.forEach(function(value){
-								idsprocedimientos.push(value.codigo);
-							});
-							//console.log(idsprocedimientos.length);
-
-							var restriccion = {
-								'$or': [
-									{'jerarquiadirectalectura':{'$in': jerarquias_buscadas}},
-									{'procedimientosdirectalectura':{'$in': idsprocedimientos}}
-								]
-							};
-
-							var respuesta = {
-								'procedimientos': procedimientos
-							};
-
-							//console.log(JSON.stringify(restriccion));
-							Permiso.find(restriccion).sort({'codplaza': 1, 'login': 1}).exec(function(err, permisos){
-								if (err) { dpermisos.reject(err); }
-								else {
-									//for(var i=0;i<permisos.length;i++) console.log(permisos[i].login+" "+permisos[i].codplaza);
-									respuesta.permisos = permisos;
-									respuesta.totallength = procedimientos.length + permisos.length;
-									dpermisos.resolve(respuesta);
-								}
-							});
-						}, function(err){
-							dpermisos.reject(err);
-						});
-
-					}, function(error){
-						dpermisos.reject(error);
-					});
-				} else if (heredado) {
-					var restriccion = {'jerarquialectura': parseInt(req.params.idjerarquia) };
-
-					Permiso.find(restriccion, function(err, permisos){
-						if (err){
-							dpermisos.reject(err);
-						} else {
-							dpermisos.resolve({ procedimientos: [], permisos: permisos, totallength: permisos.length });
-						}
-					});
-				}
-			} else {
-				Permiso.find({}, function(err, permisos){
-					dpermisos.resolve(permisos);
+			} else if (heredado){
+				permisomodel.find({'jerarquialectura': parseInt(req.params.idjerarquia, 10)}, function(err, permisos){
+					if (err){
+						dpermisos.reject(err);
+					} else {
+						dpermisos.resolve({procedimientos: [], permisos: permisos, totallength: permisos.length});
+					}
 				});
+
+			} else {
+				// obtenemos todos los permisos otorgados sobre esta jerarquía y sus descendientes.
+				jerarquiamodel.findOne({'id': idj}).exec().then(function(jerarquia){
+					// configuramos una búsqueda de la jerarquía actual más los descendientes
+
+					let jerarquiasBuscadas = recursivo ? jerarquia.descendientes : [];
+
+					if (!Array.isArray(jerarquiasBuscadas)){
+						jerarquiasBuscadas = [];
+					}
+					jerarquiasBuscadas.push(idj);
+
+
+					const fields = {cod_plaza: 1, codigo: 1, responsables: 1, idjerarquia: 1, denominacion: 1};
+					procedimientomodel.find({'idjerarquia': {'$in': jerarquiasBuscadas}}, fields).exec().then(function(procedimientos){
+						const idsprocedimientos = procedimientos.map(function(p){ return p.codigo; });
+						
+						const restriccion = {
+							'$or': [
+								{'jerarquiadirectalectura': {'$in': jerarquiasBuscadas}},
+								{'procedimientosdirectalectura': {'$in': idsprocedimientos}}
+							]
+						};
+
+						const respuesta = {'procedimientos': procedimientos};
+
+						//console.log(JSON.stringify(restriccion));
+						permisomodel.find(restriccion).sort({'codplaza': 1, 'login': 1}).exec().then(function(permisos){
+							respuesta.permisos = permisos;
+							respuesta.totallength = procedimientos.length + permisos.length;
+							dpermisos.resolve(respuesta);
+						}, dpermisos.reject);
+					}, dpermisos.reject);
+				}, dpermisos.reject);
+
 			}
-			promise_permisos.then(function(permisos){ // permisos ok
-				res.json(permisos);
-			}, function(err){ // error recuperando permisos
-				res.status(500).json({'error': 'Error recuperando permisos', details: err, restriccion: restriccion});
-			});
-		};
+
+			dpermisos.promise.then(res.json, req.eh.errorHelper(res));
+
+		} else {
+			permisomodel.find({}, req.eh.cb(res));
+		}
 	};
 
 	//// Devuelve las instancias de permiso que tienen concedido permiso directo sobre el id de jerarquía indicado
 	/* TODO revisar el porqué no se usa */
-	module.exports.permisosDirectosList = function(models){
-		return function(req, res){
-			var Permiso = models.permiso();
-			if (typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))) {
-				var idj = parseInt(req.params.idjerarquia);
+	module.exports.permisosDirectosList = function(req, res){
+		if (typeof req.params.idjerarquia === 'string' && !isNaN(parseInt(req.params.idjerarquia, 10))) {
+			const permisomodel =  req.metaenvironment.models.permiso();
+			const idj = parseInt(req.params.idjerarquia, 10);
+			const jerarquiaspermitidas = req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura);
 
-				if (!(req.user.permisoscalculados.grantoption || req.user.permisoscalculados.superuser)
-					&&
-					req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura).indexOf(idj) !== -1
-					)
-				{
-					res.status(403).json({'error': 'El usuario ha intentado realizar una operación sobre permisos que no le está permitida'});
-					return;
-				}
-
-				var restriccion = {'jerarquiadirectalectura': idj};
-				Permiso.find(restriccion, function(err, permisos){
-					if (err) {
-						res.status(500).json({'error': 'Error during permisosDirectosList', details: err, restriccion: restriccion});
-					} else {
-						res.json(permisos);
-					}
-				});
+			if (req.user.permisoscalculados.superuser || (req.user.permisoscalculados.grantoption && jerarquiaspermitidas.indexOf(idj) >= 0)){
+				permisomodel.find({'jerarquiadirectalectura': idj}, req.eh.cb(res));
 			} else {
-				res.status(500).json({'error':  'Error. Id de jerarquía no presente o inválido'});
+				req.eh.unauthorizedHelper(res);
 			}
-		};
+		} else {
+			req.eh.missingParameterHelper(res, 'idjerarquia');
+		}
 	};
 
 	/** Devuelve las instancias de permiso que tienen concedido permiso directo sobre la entidadobjeto indicada */
-	module.exports.permisosDirectosEntidadObjetoList = function(models){
-		return function(req, res){
-			if (typeof req.params.codigoentidadobjeto !== 'undefined') {
-				var idp = req.params.codigoentidadobjeto;
-				if (!(req.user.permisoscalculados.grantoption || req.user.permisoscalculados.superuser) &&
-					req.user.permisoscalculados.entidadobjetolectura.concat(req.user.permisoscalculados.entidadobjetoescritura).indexOf(idp) !== -1
-					)
-				{
-					res.status(403).json({'error': 'El usuario ha intentado realizar una operación sobre permisos que no le está permitida'});
-					return;
-				}
-				var Permiso = models.permiso();
-				Permiso.find({'entidadobjetodirectalectura': idp}, function(err, permisos){
-					if (err){
-						res.status(500).json({'error': 'Error recuperando permisos directos EntidadObjeto', details: err});
-					} else {
-						res.json(permisos);
-					}
-				});
+	module.exports.permisosDirectosEntidadObjetoList = function(req, res){
+		if (typeof req.params.codigoentidadobjeto === 'string' && req.params.codigoentidadobjeto !== '') {
+			const permisomodel =  req.metaenvironment.models.permiso();
+			const idp = req.params.codigoentidadobjeto;
+			const eopermitidos = req.user.permisoscalculados.entidadobjetolectura.concat(req.user.permisoscalculados.entidadobjetoescritura);
+			if (req.user.permisoscalculados.superuser || (req.user.permisoscalculados.grantoption && eopermitidos.indexOf(idp) >= 0)){
+				permisomodel.find({'entidadobjetodirectalectura': idp}, req.eh.cb(res));
 			} else {
-				res.status(404).json({'error': 'Error. Código de entidadobjeto no presente o inválido'});
+				req.eh.unauthorizedHelper(res);
 			}
-		};
+		} else {
+			req.eh.missingParameterHelper(res, 'codigoentidadobjeto');
+		}
 	};
 
 	/** Devuelve las instancias de permiso que tienen concedido permiso directo sobre el procedimiento indicado */
-	module.exports.permisosDirectosProcedimientoList = function(models){
-		return function(req, res){
-			var Permiso = models.permiso();
-
-			if (typeof req.params.codigoprocedimiento !== 'undefined') {
-				var idp = req.params.codigoprocedimiento;
-
-				if (!(req.user.permisoscalculados.grantoption || req.user.permisoscalculados.superuser) &&
-					req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura).indexOf(idp) !== -1
-					)
-				{
-					res.status(403).json({'error': 'El usuario ha intentado realizar una operación sobre permisos que no le está permitida'});
-				} else {
-					Permiso.find({'procedimientosdirectalectura': idp}, function(err, permisos){
-						if (err){
-							res.status(500).json({'error': 'Error recuperando permisos directos lectura procedimientosdirectalectura', details: err});
-						} else {
-							res.json(permisos);
-						}
-					});
-				}
+	module.exports.permisosDirectosProcedimientoList = function(req, res){
+		if (typeof req.params.codigoprocedimiento === 'string' && req.params.codigoprocedimiento !== '') {
+			const permisomodel =  req.metaenvironment.models.permiso();
+			const idp = req.params.codigoprocedimiento;
+			const procedimientospermitidos = req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura);
+			if (req.user.permisoscalculados.superuser || (req.user.permisoscalculados.grantoption && procedimientospermitidos.indexOf(idp) >= 0)){
+				permisomodel.find({'procedimientosdirectalectura': idp}, req.eh.cb(res));
 			} else {
-				res.status(404).json({'error': 'Error. Código de procedimiento no presente o inválido'});
+				req.eh.unauthorizedHelper(res);
 			}
-		};
+		} else {
+			req.eh.missingParameterHelper(res, 'codigoprocedimiento');
+		}
 	};
 
 
 	/** Devuelve las instancias de permiso que tienen concedido permiso sobre la entidadobjeto indicada */
-	module.exports.permisosEntidadObjetoList = function(models){
-		return function(req, res){
-			var Permiso = models.permiso();
-			if (typeof req.params.codigoentidadobjeto !== 'undefined') {
-				var idp = req.params.codigoentidadobjeto;
-				if (!(req.user.permisoscalculados.grantoption ||
-					req.user.permisoscalculados.superuser)
-					&&
-					req.user.permisoscalculados.entidadobjetolectura.concat(req.user.permisoscalculados.entidadobjetoescritura).indexOf(idp) !== -1
-					)
-				{
-					res.status(403).json({'error': 'El usuario ha intentado realizar una operación sobre permisos que no le está permitida'});
-				} else {
-					var restriccion = {'entidadobjetolectura': idp};
-					Permiso.find(restriccion, function(err, permisos){
-						if (err) {
-							res.status(500).json({'error': 'Error recuperando permisos de lectura permisosEntidadObjetoList', details: err});
-						} else {
-							res.json(permisos);
-						}
-					});
-				}
+	module.exports.permisosEntidadObjetoList = function(req, res){
+
+		const permisomodel = req.metaenvironment.models.permiso();
+		if (typeof req.params.codigoentidadobjeto === 'string' && req.params.codigoentidadobjeto !== '') {
+			const idp = req.params.codigoentidadobjeto;
+			const eopermitidos = req.user.permisoscalculados.entidadobjetolectura.concat(req.user.permisoscalculados.entidadobjetoescritura);
+
+			if (req.user.permisoscalculados.superuser || (req.user.permisoscalculados.grantoption && eopermitidos.indexOf(idp) >= 0)){
+				permisomodel.find({'entidadobjetolectura': idp}, req.eh.cb(res));
 			} else {
-				res.status(404).json({'error': 'Error. Código de entidadobjeto no presente o inválido'});
+				req.eh.unauthorizedHelper(res);
 			}
-		};
+		} else {
+			req.eh.missingParameterHelper(res, 'codigoentidadobjeto');
+		}
 	};
+
 	//// Devuelve las instancias de permiso que tienen concedido permiso sobre el procedimiento indicado
-	module.exports.permisosProcedimientoList = function(models){
-		return function(req, res){
-			var Permiso = models.permiso();
+	module.exports.permisosProcedimientoList = function(req, res){
+		const models = req.metaenvironment.models;
+		const permisomodel = models.permiso();
 
-			if (typeof req.params.codigoprocedimiento !== 'undefined') {
-				var idp = req.params.codigoprocedimiento;
-				if (!(req.user.permisoscalculados.grantoption ||
-					req.user.permisoscalculados.superuser)
-					&&
-					req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura).indexOf(idp) !== -1
-					)
-				{
-					res.status(403).json({'error': 'El usuario ha intentado realizar una operación sobre permisos que no le está permitida'});
-				} else {
-					Permiso.find({'procedimientoslectura': idp}, function(err, permisos){
-						if (err) {
-							res.status(500).json({'error': 'Error recuperando permisos de lectura procedimientoslectura', details: err});
-						} else {
-							res.json(permisos);
-						}
-					});
-				}
+		if (typeof req.params.codigoprocedimiento === 'string' && req.params.codigoprocedimiento !== '') {
+			const idp = req.params.codigoprocedimiento;
+			const procedimientospermitidos = req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura);
+			if (req.user.permisoscalculados.superuser || (req.user.permisoscalculados.grantoption && procedimientospermitidos.indexOf(idp) >= 0)){
+				permisomodel.find({'procedimientoslectura': idp}, req.eh.cb(res));
 			} else {
-				res.status(404).json({'error': 'Error. Código de procedimiento no presente o inválido'});
+				req.eh.unauthorizedHelper(res);
 			}
-		};
+		} else {
+			req.eh.missingParameterHelper(res, 'permisosProcedimientoList');
+		}
 	};
 
+	module.exports.update = function(req, res) {
+		if (typeof req.params.id === 'string' && req.params.id !== ''){
+			const models = req.metaenvironment.models,
+				recalculate = req.metaenvironment.recalculate,
+				permisomodel = models.permiso(),
+				newpermiso = req.body;
 
-	module.exports.update = function(models, recalculate, Q) {
-		return function(req, res) {
-			var Permiso = models.permiso();
-			var idp = req.params.id;
-			if (typeof req.params.id !== 'undefined')
-			{
-				var newpermiso = req.body;
-				Permiso.findById(idp, function(err, permiso){
-					if (err) {
-						res.status(404).json({'error': 'Error actualizando permisos', details: err});
-						return;
-					}else if (!permiso){
-						res.status(404).json({'error': 'Error. Código de permiso no presente o inválido'});
-					} else {
-						permiso.codplaza = newpermiso.codplaza;
-						permiso.descripcion = newpermiso.descripcion;
-						permiso.jerarquiaescritura = newpermiso.jerarquiaescritura;
-						permiso.jerarquialectura = newpermiso.jerarquialectura;
-						permiso.jerarquiadirectaescritura = newpermiso.jerarquiadirectaescritura;
-						permiso.jerarquiadirectalectura = newpermiso.jerarquiadirectalectura;
-						permiso.procedimientoslectura = newpermiso.procedimientoslectura;
-						permiso.procedimientosescritura = newpermiso.procedimientosescritura;
-						permiso.procedimientosdirectalectura = newpermiso.procedimientosdirectalectura;
-						permiso.procedimientosdirectaescritura = newpermiso.procedimientosdirectaescritura;
-						permiso.login = newpermiso.login;
-						permiso.caducidad = newpermiso.caducidad;
-						permiso.grantoption = newpermiso.grantoption;
+			permisomodel.findOne({'_id': models.objectId(req.params.id)}, function(err, permiso){
+				if (err){
+					req.eh.callbackErrorHelper(res, err);
+				} else if (permiso){
+					permiso.codplaza = newpermiso.codplaza;
+					permiso.descripcion = newpermiso.descripcion;
+					permiso.jerarquiaescritura = newpermiso.jerarquiaescritura;
+					permiso.jerarquialectura = newpermiso.jerarquialectura;
+					permiso.jerarquiadirectaescritura = newpermiso.jerarquiadirectaescritura;
+					permiso.jerarquiadirectalectura = newpermiso.jerarquiadirectalectura;
+					permiso.procedimientoslectura = newpermiso.procedimientoslectura;
+					permiso.procedimientosescritura = newpermiso.procedimientosescritura;
+					permiso.procedimientosdirectalectura = newpermiso.procedimientosdirectalectura;
+					permiso.procedimientosdirectaescritura = newpermiso.procedimientosdirectaescritura;
+					permiso.login = newpermiso.login;
+					permiso.caducidad = newpermiso.caducidad;
+					permiso.grantoption = newpermiso.grantoption;
+					if (req.user.permisos.superuser){
 						permiso.superuser = newpermiso.superuser;
-
-						recalculate.softCalculatePermiso(Q, models, permiso).then(function (p) {
-							p.save(function(erro, actualizado){
-								if (erro) {
-									res.status(500).json({'error': 'Error actualizando permisos', details: erro});
-								} else {
-									res.json(actualizado);
-								}
-							});
-						}, function(err){
-							res.status(500).json({'error': 'Error actualizando/recalculando permisos', details: err});
-						});
 					}
-				});
-			} else {
-				res.status(404).json({'error': 'Error. Código de permiso no presente o inválido'});
-			}
-		};
+
+					recalculate.softCalculatePermiso(models, permiso).then(function(p){
+						p.save(req.eh.cb(res));
+					}, req.eh.errorHelper(res));
+
+				} else {
+					req.eh.notFoundHelper(res);
+				}
+			});
+		} else {
+			req.eh.missingParameterHelper(res, 'id');
+		}
 	};
 
-	module.exports.create = function(models, Q, recalculate){
-		return function(req, res){
-			var Permiso = models.permiso();
-			var Persona = models.persona();
-			var argPermiso = req.body;
-			var permiso = {
-				login: argPermiso.login,
-				codplaza: argPermiso.codplaza,
-				jerarquialectura: (typeof argPermiso.jerarquialectura !== 'undefined' ? argPermiso.jerarquialectura : []),
-				jerarquiaescritura: (typeof argPermiso.jerarquiaescritura !== 'undefined' ? argPermiso.jerarquiaescritura : []),
-				jerarquiadirectalectura: (typeof argPermiso.jerarquiadirectalectura !== 'undefined' ? argPermiso.jerarquiadirectalectura : []),
-				jerarquiadirectaescritura: (typeof argPermiso.jerarquiadirectaescritura !== 'undefined' ? argPermiso.jerarquiadirectaescritura : []),
-				procedimientoslectura: (typeof argPermiso.procedimientoslectura !== 'undefined' ? argPermiso.procedimientoslectura : []),
-				procedimientosescritura: (typeof argPermiso.procedimientosescritura !== 'undefined' ? argPermiso.procedimientosescritura : []),
-				procedimientosdirectalectura: (typeof argPermiso.procedimientosdirectalectura !== 'undefined' ? argPermiso.procedimientosdirectalectura : []),
-				procedimientosdirectaescritura: (typeof argPermiso.procedimientosdirectaescritura !== 'undefined' ? argPermiso.procedimientosdirectaescritura : []),
-				entidadobjetolectura: (typeof argPermiso.entidadobjetolectura !== 'undefined' ? argPermiso.entidadobjetolectura : []),
-				entidadobjetoescritura: (typeof argPermiso.entidadobjetoescritura !== 'undefined' ? argPermiso.entidadobjetoescritura : []),
-				entidadobjetodirectalectura: (typeof argPermiso.entidadobjetodirectalectura !== 'undefined' ? argPermiso.entidadobjetodirectalectura : []),
-				entidadobjetodirectaescritura: (typeof argPermiso.entidadobjetodirectaescritura !== 'undefined' ? argPermiso.entidadobjetodirectaescritura : []),
-				caducidad: req.user.permisoscalculados.caducidad,
-				descripcion: 'Permisos concedidos por ' + req.user.login,
-				grantoption: !!argPermiso.grantoption,
-				superuser: argPermiso.superuser ? 1 : 0,
-				cod_plaza_grantt: req.user.login
+	module.exports.create = function(req, res){
+		const models = req.metaenvironment.models,
+				recalculate = req.metaenvironment.recalculate;
+		const Permiso = models.permiso();
+		const personamodel = models.persona();
+		const argPermiso = req.body;
+		const permiso = {
+			login: argPermiso.login,
+			codplaza: argPermiso.codplaza,
+			jerarquialectura: (typeof argPermiso.jerarquialectura === 'undefined' ? [] : argPermiso.jerarquialectura),
+			jerarquiaescritura: (typeof argPermiso.jerarquiaescritura !== 'undefined' ? [] : argPermiso.jerarquiaescritura),
+			jerarquiadirectalectura: (typeof argPermiso.jerarquiadirectalectura === 'undefined' ? [] : argPermiso.jerarquiadirectalectura),
+			jerarquiadirectaescritura: (typeof argPermiso.jerarquiadirectaescritura === 'undefined' ? [] : argPermiso.jerarquiadirectaescritura),
+			procedimientoslectura: (typeof argPermiso.procedimientoslectura === 'undefined' ? [] : argPermiso.procedimientoslectura),
+			procedimientosescritura: (typeof argPermiso.procedimientosescritura === 'undefined' ? [] : argPermiso.procedimientosescritura),
+			procedimientosdirectalectura: (typeof argPermiso.procedimientosdirectalectura === 'undefined' ? [] : argPermiso.procedimientosdirectalectura),
+			procedimientosdirectaescritura: (typeof argPermiso.procedimientosdirectaescritura === 'undefined' ? [] : argPermiso.procedimientosdirectaescritura),
+			entidadobjetolectura: (typeof argPermiso.entidadobjetolectura === 'undefined' ? [] : argPermiso.entidadobjetolectura),
+			entidadobjetoescritura: (typeof argPermiso.entidadobjetoescritura === 'undefined' ? [] : argPermiso.entidadobjetoescritura),
+			entidadobjetodirectalectura: (typeof argPermiso.entidadobjetodirectalectura === 'undefined' ? [] : argPermiso.entidadobjetodirectalectura),
+			entidadobjetodirectaescritura: (typeof argPermiso.entidadobjetodirectaescritura === 'undefined' ? [] : argPermiso.entidadobjetodirectaescritura),
+			caducidad: req.user.permisoscalculados.caducidad,
+			descripcion: 'Permisos concedidos por ' + req.user.login,
+			grantoption: Boolean(argPermiso.grantoption),
+			superuser: argPermiso.superuser ? 1 : 0,
+			cod_plaza_grantt: req.user.login
+		};
+
+		var restriccion = {};
+		if (permiso.codplaza) {
+			restriccion.codplaza = permiso.codplaza;
+		} else {
+			restriccion.login = permiso.login;
+		}
+
+		personamodel.findOne(restriccion).then(function(persona){
+			if (!persona){
+				req.eh.notFoundHelper(res);
+
+				return;
+			}
+			var fn = function(){
+				recalculate.softCalculatePermiso(models, permiso).then(function(permis){
+					const opermiso = new Permiso(permis);
+					opermiso.save(req.eh.cbWithDefaultValue(permis));
+				}, req.eh.errorHelper(res));
 			};
-
-			var restriccion = {};
-			if (permiso.codplaza) {
-				restriccion.codplaza = permiso.codplaza;
-			} else {
-				restriccion.login = permiso.login;
-			}
-
-			Persona.findOne(restriccion).then(function(persona){
-				if (!persona){
-					res.status(404).json({'error': 'Error persona no existente.'});
-					return;
-				}
-				var fn = function(){
-					recalculate.softCalculatePermiso(Q, models, permiso).then(
-						function(permiso){
-							var opermiso = new Permiso(permiso);
-							opermiso.save(function(err){
-								if (err) {
-									res.status(500).json({'error': 'Error create permiso', details: err});
-								} else {
-									res.json(permiso);
-								}
-							});
-						},
-						function(err){
-							res.status(500).json({'error': 'Error create permiso', details: err});
-						}
-					);
-				};
-				if (!persona.habilitado){
-					persona.habilitado = true;
-					Persona.update({_id: persona._id}, persona, {'upsert': false, 'multi': false}, function(err){
-						if (err){
-							res.status(500).json({'error': 'Error habilitando persona', details: err});
-						} else {
-							fn();
-						}
-					});
-				} else {
+			if (!persona.habilitado){
+				persona.habilitado = true;
+				personamodel.update({_id: models.objectId(persona._id)}, {$set: {habilitado: true}}, {'upsert': false, 'multi': false}).exec().then(function(){
 					fn();
-				}
-			}, function(err){
-				res.status(500).json({'error': 'Error create permiso', details: err});
-			});
-		};
+				}, req.eh.errorHelper(res));
+			} else {
+				fn();
+			}
+		}, req.eh.errorHelper(res));
 	};
 
-	module.exports.get = function(models){
-		return function(req, res) {
-			var id = req.params.id;
-			var Permiso = models.permiso();
-			Permiso.findById(id, function(err, permiso){
-				if (err) {
-					res.status(500).json({'error': 'Error eliminando permiso sobre procedimiento', details: err});
-				} else {
-					if (Array.isArray(permiso)){
-						res.json(permiso[0]);
-					} else {
-						res.json(permiso);
-					}
-				}
-			});
-		};
+	/* TODO: check for permissions, this is too naive */
+	module.exports.get = function(req, res) {
+		const models = req.metaenvironment.models;
+		if (typeof req.params.id !== 'undefined' && req.params.id !== ''){
+			const permisomodel = models.permiso();
+			permisomodel.findOne({'_id': req.metaenvironment.models.objectId(req.params.id)}, req.eh.cb(res));
+		} else {
+			req.eh.missingParameterHelper(res, 'id');
+		}
 	};
 
-	module.exports.removePermiso = function(models, Q, recalculate, ObjectId) {
-		return function(req, res) {
-			var Permiso = models.permiso();
-			var id = new ObjectId(req.params.id);
-			Permiso.remove({'_id': id}, function(err){
-				if (err) {
-					res.status(500).json({'error': 'Error eliminando permiso', details: err});
-				} else {
-					res.end();
-				}
-			});
-		};
+	/* TODO: check for permissions, this is too naive */
+	module.exports.removePermiso = function(req, res) {
+		if (typeof req.params.id === 'string' && req.params.id !== ''){
+			const permisomodel = req.metaenvironment.models.permiso();
+			permisomodel.remove({'_id':  req.metaenvironment.models.objectId(req.params.id)}, req.eh.cb(res));
+		} else {
+			req.eh.missingParameterHelper(res, 'id');
+		}
 	};
+
 })(module);

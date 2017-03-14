@@ -257,7 +257,7 @@
 					$http.get('/api/v2/public/informeCarta/' + $scope.cartaservicio._id + '/' + $scope.anualidad)
 						.then(function (res) {
 							$scope.descargando = false;
-							var url = '/download/' + res.data.time + '/' + res.data.hash + '?extension=' + res.data.extension;
+							var url = '/api/v1/download/' + res.data.time + '/' + res.data.hash + '?extension=' + res.data.extension;
 							$window.location = url;
 						}, function() {
 							$scope.descargando = false;

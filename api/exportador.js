@@ -1,30 +1,160 @@
-(function(exports, logger){
+(function(module, logger){
 	'use strict';
 
-	var XLSX = require('xlsx');
+	const Q = require('q'),
+		fs = require('fs'),
+		md5 = require('md5'),
+		path = require('path'),
+		XLSX = require('xlsx');
+
+	const MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+	const INDICADORES = ['Solicitados', 'Iniciados', 'Quejas presentadas en el mes', 'Recursos presentados en el mes', 'Resueltos < 1', 'Resueltos 1 < 5',
+		'Resueltos 5 < 10', 'Resueltos 10 < 15', 'Resueltos 15 < 30', 'Resueltos 30 < 45', 'Resueltos > 45',
+		'Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)', 'Resueltos por Prescripción/Caducidad (Resp. Admón.)',
+		'En plazo',
+		'Resueltos totales', 'Fuera de plazo', 'Pendientes'];
+	const INDICADORESDATABASE = ['solicitados', 'iniciados', 'quejas', 'recursos', 'resueltos_1', 'resueltos_5', 'resueltos_10', 'resueltos_15', 'resueltos_30',
+		'resueltos_45', 'resueltos_mas_45', 'resueltos_desistimiento_renuncia_caducidad', 'resueltos_prescripcion', 'en_plazo',
+		'total_resueltos', 'fuera_plazo', 'pendientes'];
 
 	function Workbook() {
 		if (!(this instanceof Workbook)){
 			var r = new Workbook();
 			r.SheetNames = [];
 			r.Sheets = [];
+
 			return r;
 		}
 		this.SheetNames = [];
 		this.Sheets = {};
 	}
 
-	exports.mapReducePeriodos = function (Q, models, idjerarquia, permisoscalculados ) {
-		var Procedimiento = models.procedimiento();
-		var deferMR = Q.defer();
-		var restriccion = {};
-		if (typeof idjerarquia !== 'undefined' && idjerarquia !== null){
+	function fnMap(){
+		var mes = 0,
+			i2 = 0,
+			j2 = 0;
+
+		for (var a in this.periodos){
+			var anualidad = parseInt(a.replace('a', ''), 10);
+			if (anualidad > 0){
+				var val = this.periodos[a];
+				
+				val.procedimientos = [this.codigo];
+				val.numProcedimientos = val.procedimientos.length;
+				val.numProcedimientosConSolicitudes = 0;
+
+				var t_medio_naturales_new = [];
+				var t_medio_habiles_new = [];
+				for (mes = 0; mes < 12; mes += 1){
+					var tmn = {
+						count: typeof val.t_medio_naturales === 'object' && typeof val.t_medio_naturales[mes] === 'number' && parseInt(val.t_medio_naturales[mes], 10) > 0 ? 1 : 0,
+						value: typeof val.t_medio_naturales === 'object' && typeof val.t_medio_naturales[mes] === 'number' && parseInt(val.t_medio_naturales[mes], 10) > 0 ? parseInt(val.t_medio_naturales[mes], 10) : 0
+					};
+					var tmh = {
+						count: (typeof val.t_medio_habiles === 'object' && typeof val.t_medio_habiles[mes] === 'number' && parseInt(val.t_medio_habiles[mes], 10) > 0) ? 1 : 0,
+						value: (typeof val.t_medio_habiles === 'object' && typeof val.t_medio_habiles[mes] === 'number' && parseInt(val.t_medio_habiles[mes], 10) > 0) ? parseInt(val.t_medio_habiles[mes], 10) : 0
+					};
+					t_medio_naturales_new.push(tmn);
+					t_medio_habiles_new.push(tmh);
+				}
+
+				val.t_medio_naturales = t_medio_naturales_new;
+				val.t_medio_habiles = t_medio_habiles_new;
+
+				if (val.totalsolicitudes > 0) {
+					val.numProcedimientosConSolicitudes += 1;
+				}
+				
+				for (i2 = 0, j2 = this.ancestros.length; i2 < j2; i2 += 1){
+					emit({anualidad: anualidad, idjerarquia: this.ancestros[i2].id}, val);
+				}
+			}
+		}
+	}
+
+	function fnReduce(key, values){
+		var i = 0,
+			j = 0,
+			k = 0,
+			l = 0;
+		var mes = 0;
+		var sumas = {};
+		var attrs = [
+			'total_resueltos', 'solicitados',
+			'iniciados',
+			'resueltos_1', 'resueltos_5', 'resueltos_10', 'resueltos_15',
+			'resueltos_30', 'resueltos_45', 'resueltos_mas_45',
+			'resueltos_desistimiento_renuncia_caducidad',
+			'resueltos_prescripcion',
+			'en_plazo', 'quejas', 'recursos',
+			'fuera_plazo', 'pendientes'
+		];
+
+		attrs.forEach(function (attr) {
+			sumas[attr] = [];
+			for (var m = 0; m < 12; m += 1) {
+				sumas[attr][m] = 0;
+				for (var it = 0; it < values.length; it += 1) {
+					if (values[it][attr]) {
+						sumas[attr][m] += parseInt(values[it][attr][m], 10);
+					}
+				}
+			}
+		});
+		sumas.procedimientos = [];
+		sumas.t_medio_naturales = [];
+		sumas.t_medio_habiles = [];
+		for (mes = 0; mes < 12; mes += 1){
+			sumas.t_medio_naturales.push({count: 0, value: 0});
+			sumas.t_medio_habiles.push({count: 0, value: 0});
+		}
+
+		for (i = 0, j = values.length; i < j; i += 1){
+			for (k = 0, l = values[i].procedimientos.length; k < l; k += 1){
+				sumas.procedimientos.push(values[i].procedimientos[k]);
+			}
+			for (mes = 0; mes < 12; mes += 1){
+				sumas.t_medio_naturales[mes].count += values[i].t_medio_naturales[mes].count;
+				sumas.t_medio_naturales[mes].value += values[i].t_medio_naturales[mes].value;
+				sumas.t_medio_habiles[mes].count += values[i].t_medio_habiles[mes].count;
+				sumas.t_medio_habiles[mes].value += values[i].t_medio_habiles[mes].value;
+			}
+		}
+		sumas.numProcedimientos = sumas.procedimientos.length;
+		sumas.numProcedimientosConSolicitudes = values.reduce(function(prev, elem){ return prev + elem.numProcedimientosConSolicitudes; }, 0);
+
+		return sumas;
+	}
+
+	function fnFinalize(key, val){
+		val.t_medio_naturales_anual = {count: 0, value: 0, avg: 0};
+		val.t_medio_habiles_anual = {count: 0, value: 0, avg: 0};
+		val.debug = JSON.parse(JSON.stringify(val.t_medio_naturales));
+		for (var mes = 0; mes < 12; mes += 1){
+			val.t_medio_naturales_anual.count += val.t_medio_naturales[mes].count;
+			val.t_medio_naturales_anual.value += val.t_medio_naturales[mes].value;
+			val.t_medio_habiles_anual.count += val.t_medio_habiles[mes].count;
+			val.t_medio_habiles_anual.value += val.t_medio_habiles[mes].value;
+
+
+			val.t_medio_naturales[mes] = (val.t_medio_naturales[mes].count === 0 ) ? 0 : parseFloat((val.t_medio_naturales[mes].value / val.t_medio_naturales[mes].count).toFixed(2));
+			val.t_medio_habiles[mes] = (val.t_medio_habiles[mes].count === 0 ) ? 0 : parseFloat((val.t_medio_habiles[mes].value / val.t_medio_habiles[mes].count).toFixed(2));
+		}
+		val.t_medio_naturales_anual.avg = (val.t_medio_naturales_anual.count === 0 ) ? 0 : parseFloat((val.t_medio_naturales_anual.value / val.t_medio_naturales_anual.count).toFixed(2));
+		val.t_medio_habiles_anual.avg = (val.t_medio_habiles_anual.count === 0 ) ? 0 : parseFloat((val.t_medio_habiles_anual.value / val.t_medio_habiles_anual.count).toFixed(2));
+
+		return val;
+	}
+
+	function mapReducePeriodos(models, idjerarquia, permisoscalculados){
+		const procedimientomodel = models.procedimiento();
+		const restriccion = {oculto: {'$ne': true}, eliminado: {'$ne': true}};
+		if (idjerarquia){
 			restriccion['ancestros.id'] = idjerarquia;
 		}
-		restriccion.oculto = {'$ne': true};
-		restriccion.eliminado = {'$ne': true};
 
-		if (typeof permisoscalculados !== 'undefined' && permisoscalculados && !permisoscalculados.superuser){
+		if (permisoscalculados && typeof permisoscalculados === 'object' && !permisoscalculados.superuser){
 			if (typeof permisoscalculados.procedimientoslectura === 'undefined'){
 				permisoscalculados.procedimientoslectura = [];
 			}
@@ -37,888 +167,631 @@
 			if (typeof permisoscalculados.procedimientosescritura === 'undefined'){
 				permisoscalculados.procedimientosescritura = [];
 			}
-			restriccion.codigo = {
-				'$in': permisoscalculados.procedimientosdirectalectura
-					.concat(permisoscalculados.procedimientoslectura)
-					.concat(permisoscalculados.procedimientosdirectaescritura)
-					.concat(permisoscalculados.procedimientosescritura)
-			};
+			restriccion.codigo = {'$in': permisoscalculados.procedimientosdirectalectura.concat(permisoscalculados.procedimientoslectura, permisoscalculados.procedimientosdirectaescritura, permisoscalculados.procedimientosescritura)};
 		}
 
-		var fnMap = function(){
-			for (var a in this.periodos){
-				var anualidad = parseInt(a.replace('a', ''));
-				if (anualidad > 0){
-					
-					var val = this.periodos[a];
-					var tmn, tmh;
-					
-					val.procedimientos = [ this.codigo ];
-					val.numProcedimientos = val.procedimientos.length;
-					val.numProcedimientosConSolicitudes = 0;
+		return procedimientomodel.mapReduce({query: restriccion, map: fnMap, reduce: fnReduce, finalize: fnFinalize});
+	}
 
-					var t_medio_naturales_new = [];
-					var t_medio_habiles_new = [];
-					for (mes = 0; mes < 12; mes++){
-						tmn = {
-							count: typeof val.t_medio_naturales === 'object' && typeof val.t_medio_naturales[mes] === 'number' && parseInt(val.t_medio_naturales[mes]) > 0 ? 1 : 0,
-							value: typeof val.t_medio_naturales === 'object' && typeof val.t_medio_naturales[mes] === 'number' && parseInt(val.t_medio_naturales[mes]) > 0 ? parseInt(val.t_medio_naturales[mes]) : 0
-						};
-						tmh = {
-							count: (typeof val.t_medio_habiles === 'object' && typeof val.t_medio_habiles[mes] === 'number' && parseInt(val.t_medio_habiles[mes]) > 0) ? 1 : 0,
-							value: (typeof val.t_medio_habiles === 'object' && typeof val.t_medio_habiles[mes] === 'number' && parseInt(val.t_medio_habiles[mes]) > 0) ? parseInt(val.t_medio_habiles[mes]) : 0
-						};
-						t_medio_naturales_new.push(tmn);
-						t_medio_habiles_new.push(tmh);
-					}
-
-					val.t_medio_naturales = t_medio_naturales_new;
-					val.t_medio_habiles = t_medio_habiles_new;
-
-					if (val.totalsolicitudes > 0) {
-						val.numProcedimientosConSolicitudes++;
-					}
-					
-					for (var i2 = 0, j2 = this.ancestros.length; i2 < j2; i2++){
-						var key = { anualidad: anualidad, idjerarquia: this.ancestros[i2].id };
-						emit(key, val);
-					}
-				}
-			}
-		};
-
-		var fnReduce = function(key, values){
-			var i, j, k, l;
-			var mes = 0;
-			var sumas = {};
-			var attrs = [
-				'total_resueltos', 'solicitados',
-				'iniciados',
-				'resueltos_1', 'resueltos_5', 'resueltos_10', 'resueltos_15',
-				'resueltos_30', 'resueltos_45', 'resueltos_mas_45',
-				'resueltos_desistimiento_renuncia_caducidad',
-				'resueltos_prescripcion',
-				'en_plazo', 'quejas', 'recursos',
-				'fuera_plazo', 'pendientes'
-			];
-
-			attrs.forEach(function (attr) {
-				sumas[attr] = [];
-				for (var mes = 0; mes < 12; mes++) {
-					sumas[attr][mes] = 0;
-					for (var i = 0, j = values.length; i < j; i++) {
-						if (values[i][attr]) {
-							sumas[attr][mes] += parseInt(values[i][attr][mes]);
-						}
-					}
-				}
-			});
-			sumas.procedimientos = [];
-			sumas.t_medio_naturales = [];
-			sumas.t_medio_habiles = [];
-			for (mes = 0; mes < 12; mes++){
-				sumas.t_medio_naturales.push( { count: 0, value: 0} );
-				sumas.t_medio_habiles.push( { count: 0, value: 0} );
-			}
-
-			for (i = 0, j = values.length; i < j; i++){
-				for (k = 0, l = values[i].procedimientos.length; k < l; k++){
-					sumas.procedimientos.push(values[i].procedimientos[k]);
-				}
-				for (mes = 0; mes < 12; mes++){
-					sumas.t_medio_naturales[mes].count += values[i].t_medio_naturales[mes].count;
-					sumas.t_medio_naturales[mes].value += values[i].t_medio_naturales[mes].value;
-					sumas.t_medio_habiles[mes].count += values[i].t_medio_habiles[mes].count;
-					sumas.t_medio_habiles[mes].value += values[i].t_medio_habiles[mes].value;
-				}
-			}
-			sumas.numProcedimientos = sumas.procedimientos.length;
-			sumas.numProcedimientosConSolicitudes = values.reduce(function(prev, elem){ return prev + elem.numProcedimientosConSolicitudes; }, 0);
-
-			return sumas;
-		};
-
-		var fnFinalize = function(key, val){
-			val.t_medio_naturales_anual = { count: 0, value: 0, avg: 0 };
-			val.t_medio_habiles_anual = { count: 0, value: 0, avg: 0 };
-			val.debug = JSON.parse(JSON.stringify(val.t_medio_naturales));
-			for (var mes = 0; mes < 12; mes++){
-				val.t_medio_naturales_anual.count += val.t_medio_naturales[mes].count;
-				val.t_medio_naturales_anual.value += val.t_medio_naturales[mes].value;
-				val.t_medio_habiles_anual.count += val.t_medio_habiles[mes].count;
-				val.t_medio_habiles_anual.value += val.t_medio_habiles[mes].value;
-
-
-				val.t_medio_naturales[mes] = (val.t_medio_naturales[mes].count === 0 ) ? 0 : parseFloat( (val.t_medio_naturales[mes].value / val.t_medio_naturales[mes].count).toFixed(2) );
-				val.t_medio_habiles[mes] = (val.t_medio_habiles[mes].count === 0 ) ? 0 : parseFloat( (val.t_medio_habiles[mes].value / val.t_medio_habiles[mes].count).toFixed(2) );
-			}
-			val.t_medio_naturales_anual.avg = (val.t_medio_naturales_anual.count === 0 ) ? 0 : parseFloat( (val.t_medio_naturales_anual.value / val.t_medio_naturales_anual.count).toFixed(2) );
-			val.t_medio_habiles_anual.avg = (val.t_medio_habiles_anual.count === 0 ) ? 0 : parseFloat( (val.t_medio_habiles_anual.value / val.t_medio_habiles_anual.count).toFixed(2) );
-
-			return val;
-		};
-
-		var mr = {
-			query: restriccion,
-			map: fnMap,
-			reduce: fnReduce,
-			finalize: fnFinalize
-		};
-
-		Procedimiento.mapReduce(mr, function(err, res){
-			if (err){
-				err.extracode = 155;
-				deferMR.reject(err);
-			} else {
-				deferMR.resolve(res);
-			}
-		});
-
-		return deferMR.promise;
-	};
-
-
-	exports.completarTabla = function (periodo, ws) {
-		var mes = 0;
-		var meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-		var indicadores = ['Solicitados', 'Iniciados', 'Quejas presentadas en el mes', 'Recursos presentados en el mes', 'Resueltos < 1', 'Resueltos 1 < 5',
-			'Resueltos 5 < 10', 'Resueltos 10 < 15', 'Resueltos 15 < 30', 'Resueltos 30 < 45', 'Resueltos > 45',
-			'Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)', 'Resueltos por Prescripción/Caducidad (Resp. Admón.)',
-			'En plazo', 'Tiempo medio en días hábiles descontando Tiempo de suspensiones', 'Tiempo medio en días naturales',
-			'Resueltos totales', 'Fuera de plazo', 'Pendientes'];
-		var indicadoresDatabase = ['solicitados', 'iniciados', 'quejas', 'recursos', 'resueltos_1', 'resueltos_5', 'resueltos_10', 'resueltos_15', 'resueltos_30',
-			'resueltos_45', 'resueltos_mas_45', 'resueltos_desistimiento_renuncia_caducidad', 'resueltos_prescripcion', 'en_plazo', 't_medio_habiles', 't_medio_naturales',
-			'total_resueltos', 'fuera_plazo', 'pendientes'];
-		for (mes = 0; mes < 12; mes++) {
-			var cellValue = {v: meses[mes], t: 's'};
-			var cellValueRef = XLSX.utils.encode_cell({c: 4 + mes, r: 16});
-			ws[cellValueRef] = cellValue;
+	function completarTabla(periodo, ws){
+		for (let mes = 0; mes < 12; mes += 1) {
+			ws[XLSX.utils.encode_cell({c: 4 + mes, r: 16})] = {v: MESES[mes], t: 's'};
 		}
-		for (var i = 0; i < indicadoresDatabase.length; i++) {
-			ws[ XLSX.utils.encode_cell({c: 3, r: 17 + i}) ] = {v: indicadores[i], t: 's'};
-			for (mes = 0; mes < 12; mes++) {
-				ws[ XLSX.utils.encode_cell({c: 4 + mes, r: 17 + i}) ] = {v: periodo[indicadoresDatabase[i]] ? periodo[indicadoresDatabase[i]][mes] : 0, t: 'n'};
+		for (let i = 0; i < INDICADORESDATABASE.length; i += 1) {
+			ws[XLSX.utils.encode_cell({c: 3, r: 17 + i})] = {v: INDICADORES[i], t: 's'};
+			for (let mes = 0; mes < 12; mes += 1) {
+				ws[XLSX.utils.encode_cell({c: 4 + mes, r: 17 + i})] = {v: periodo[INDICADORESDATABASE[i]] ? periodo[INDICADORESDATABASE[i]][mes] : 0, t: 'n'};
 			}
 		}
+
 		return ws;
-	};
+	}
 
+	function tablaResultadosJerarquiaDesglosado(models, jerarquia, permisoscalculados) {
+		
+		const jerarquiamodel = models.jerarquia(),
+			defer = Q.defer(),
+			loadDescendientes = jerarquiamodel.find({ancestrodirecto: jerarquia.id}, {id: true, _id: false, nombre: true, numProcedimientos: true, nombrelargo: true}).exec();
 
-	exports.tablaResultadosJerarquiaDesglosado = function(Q, models, jerarquia, permisoscalculados) {
-		var defer = Q.defer();
-		var deferDescendientes = Q.defer();
-		var Jerarquia = models.jerarquia();
-		var indicadores = ['Solicitados', 'Iniciados', 'Quejas presentadas en el mes', 'Recursos presentados en el mes', 'Resueltos < 1', 'Resueltos 1 < 5',
-			'Resueltos 5 < 10', 'Resueltos 10 < 15', 'Resueltos 15 < 30', 'Resueltos 30 < 45', 'Resueltos > 45',
-			'Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)', 'Resueltos por Prescripción/Caducidad (Resp. Admón.)',
-			'En plazo',
-			'Resueltos totales', 'Fuera de plazo', 'Pendientes'];
-		var indicadoresDatabase = ['solicitados', 'iniciados', 'quejas', 'recursos', 'resueltos_1', 'resueltos_5', 'resueltos_10', 'resueltos_15', 'resueltos_30',
-			'resueltos_45', 'resueltos_mas_45', 'resueltos_desistimiento_renuncia_caducidad', 'resueltos_prescripcion', 'en_plazo',
-			'total_resueltos', 'fuera_plazo', 'pendientes'];
-
-
-		Jerarquia.find(
-			{ ancestrodirecto: jerarquia.id },
-			{ id: true, _id: false, nombre: true, numProcedimientos: true, nombrelargo: true },
-			function(err, hijos){
-				if (err){
-					deferDescendientes.reject(err);
-				}
-				else {
-					deferDescendientes.resolve(hijos);
-				}
-			}
-		);
-
-		Q.all([deferDescendientes.promise, exports.mapReducePeriodos(Q, models, null, permisoscalculados)]).then(
+		Q.all([loadDescendientes, module.exports.mapReducePeriodos(models, null, permisoscalculados)]).then(
 			function(allData) {
-				var hijos = allData[0], results = allData[1];
-				hijos = ([ {nombrelargo: jerarquia.nombrelargo, nombre: jerarquia.nombre, id: jerarquia.id} ]).concat(hijos);
-				var ihijos = [];
+				const hijos = allData[0],
+					results = allData[1];
+				hijos.unshift({nombrelargo: jerarquia.nombrelargo, nombre: jerarquia.nombre, id: jerarquia.id});
 
-				hijos.forEach(function(hijo){ ihijos.push(hijo.id); });
-
-				var periodos = {};
-				results.forEach(function(result) {
-					if (ihijos.indexOf(result._id.idjerarquia) !== -1) {
+				const idshijos = hijos.map(function(hijo){ return hijo.id; });
+				const periodos = {};
+				results.forEach(function(result){
+					if (idshijos.indexOf(result._id.idjerarquia) >= 0) {
 						var idjerarquia = result._id.idjerarquia;
 						if (typeof periodos[idjerarquia] === 'undefined'){
 							periodos[idjerarquia] = {};
 						}
-						periodos[idjerarquia][parseInt(result._id.anualidad)] = result.value;
+						periodos[idjerarquia][parseInt(result._id.anualidad, 10)] = result.value;
 					}
 				});
-				var rowhead = 4;
-				var ir = rowhead + 1;
+
+				const rowhead = 4;
+				let ir = rowhead + 1;
 				var columnhead = 4;
-				var ws = {};
-				var ic = columnhead + 1;
-				var max_r = ir;
-				var max_c = ic;
-				// linea de cabecera
-				var cellValue;
-				var cellValueRef;
-
-				for (var i = 0, j = hijos.length, k = 0; i < j; i++)
-				{
-					var h = hijos[i];
-
-					if (typeof periodos[ihijos[i]] === 'undefined'){ continue; }
-
-					cellValue = {v: h.nombrelargo, t: 's'};
-					cellValueRef = XLSX.utils.encode_cell({c: ic + k, r: rowhead});
-					ws[cellValueRef] = cellValue;
-					k++;
+				const ws = {};
+				let ic = columnhead + 1;
+				let maxRow = ir;
+				let maxColumn = ic;
+				let k = 0;
+				for (let i = 0, j = hijos.length; i < j; i += 1){
+					const h = hijos[i];
+					if (typeof periodos[idshijos[i]] === 'object'){
+						ws[XLSX.utils.encode_cell({c: ic + k, r: rowhead})] = {v: h.nombrelargo, t: 's'};
+						k += 1;
+					}
 				}
-				max_c = ic + k;
+
+				maxColumn = ic + k;
 				ic = columnhead;
 				if (typeof periodos[jerarquia.id] === 'undefined'){
 					periodos[jerarquia.id] = {};
 				}
 
-				for (var anualidad = 2014; typeof periodos[jerarquia.id][anualidad] !== 'undefined'; anualidad++)
-				{
-					ws[ XLSX.utils.encode_cell({c: ic, r: ir}) ] = {v: anualidad, t: 'n'};
-					ir++;
-					for (var ind = 0, l2 = indicadoresDatabase.length; ind < l2; ind++){
-						ws[ XLSX.utils.encode_cell({c: ic, r: ir}) ] = {v: indicadores[ind], t: 's'};
-						ir++;
+				for (let anualidad = 2014; typeof periodos[jerarquia.id][anualidad] !== 'undefined'; anualidad += 1){
+					ws[XLSX.utils.encode_cell({c: ic, r: ir})] = {v: anualidad, t: 'n'};
+					ir += 1;
+					for (let ind = 0, l2 = INDICADORES.length; ind < l2; ind += 1){
+						ws[XLSX.utils.encode_cell({c: ic, r: ir})] = {v: INDICADORES[ind], t: 's'};
+						ir += 1;
 					}
 				}
-				max_r = ir;
+				maxRow = ir;
 
 				// RESTO DE LINEAS
 				ic = columnhead + 1;
 				ir = rowhead + 1;
 
 				// PARA CADA HIJO UNA COLUMNA
-				for (var i = 0, l = hijos.length; i < l; i++)
-				{
-					var ir = rowhead + 1;
-					if (typeof periodos[ihijos[i]] === 'undefined')
-					{
-						continue;
-					}
-					for (var anualidad = 2014; typeof periodos[ihijos[i]][anualidad] !== 'undefined'; anualidad++)
-					{
-						/*cellValue = {v: anualidad, t:'n'};
-						cellValueRef = XLSX.utils.encode_cell({c: ic, r: ir});
-						ws[cellValueRef] = cellValue;		*/
-						ir++;
-						for (var ind = 0, l2 = indicadoresDatabase.length; ind < l2; ind++)
-						{
-							var valor = periodos[ihijos[i]][anualidad][indicadoresDatabase[ind]];
-							var ivalor = valor[0] + valor[1] + valor[2] + valor[3] + valor[4] + valor[5] + valor[6] + valor[7] + valor[8] + valor[9] + valor[10] + valor[11];
+				for (let i = 0, l = idshijos.length; i < l; i += 1){
+					ir = rowhead + 1;
+					if (periodos[idshijos[i]] === 'object'){
+						for (let anualidad = 2014; typeof periodos[idshijos[i]][anualidad] !== 'undefined'; anualidad += 1){
+							ir += 1;
+							for (let ind = 0, l2 = INDICADORESDATABASE.length; ind < l2; ind += 1){
+								const valor = periodos[idshijos[i]][anualidad][INDICADORESDATABASE[ind]];
+								const ivalor = valor[0] + valor[1] + valor[2] + valor[3] + valor[4] + valor[5] + valor[6] + valor[7] + valor[8] + valor[9] + valor[10] + valor[11];
 
-							cellValue = {v: ivalor, t: 'n'};
-							cellValueRef = XLSX.utils.encode_cell({c: ic, r: ir});
-							ws[cellValueRef] = cellValue;
-							ir++;
+								ws[XLSX.utils.encode_cell({c: ic, r: ir})] = {v: ivalor, t: 'n'};
+								ir += 1;
+							}
 						}
+						ic += 1;
 					}
-					ic++;
 				}
 
-				ws['!ref'] = XLSX.utils.encode_range({s: {c: 0, r: 0}, e: {c: max_c, r: max_r}});
+				ws['!ref'] = XLSX.utils.encode_range({s: {c: 0, r: 0}, e: {c: maxColumn, r: maxRow}});
 				defer.resolve(ws);
-			},
-			function(err) {
-				defer.reject(err);
-			}
-		);
+			}, defer.reject);
+
 		return defer.promise;
-	};
+	}
 
-	exports.tablaResultadosJerarquia = function (models, app, md5, Q, cfg) {
-		return function (req, res) {
-			if ((typeof req.params.jerarquia === 'undefined') || (req.params.jerarquia === null)) {
-				logger.error('No se ha definido el parámetro "jerarquia"');
-				res.status(500).end();
-				return;
-			}
-			var Jerarquia = models.jerarquia();
-			var deferNombre = Q.defer();
-			var deferSheets = [Q.defer(), Q.defer()];
-			var jerarquia;
-			Jerarquia.findOne({'id': parseInt(req.params.jerarquia)}, function (err, data) {
-				if (err) {
-					logger.error('No se ha definido el parámetro "jerarquia"');
-					deferNombre.reject(err);
-				} else {
-					jerarquia = data;
-					deferNombre.resolve(data.nombrelargo);
-				}
-			});
-			deferNombre.promise.then(function (denominacion) {
-				var d = new Date();
-				var wb = new Workbook();
-				exports.mapReducePeriodos(Q, models, parseInt(req.params.jerarquia), req.user.permisoscalculados).then(function (periodos) {
-					for (var anualidad = 2013; anualidad <= d.getFullYear(); anualidad++) {
-						var ws = {};
+	module.exports.tablaResultadosJerarquia = function (req, res){
+		const models = req.metaenvironment.models,
+			cfg = req.metaenvironment.cfg;
 
-						ws[ XLSX.utils.encode_cell({c: 4, r: 5}) ] = {v: denominacion, t: 's'};
-						ws['!ref'] = XLSX.utils.encode_range({s: {c: 0, r: 0}, e: {c: 20, r: 40}});
-						/* TODO: revisar ese rango */
-						exports.completarTabla(periodos[anualidad], ws);
+		if ((typeof req.params.jerarquia === 'undefined') || (req.params.jerarquia === null)){
+			req.eh.missingParameterHelper(res, 'jerarquia');
 
-						var wsName = '' + anualidad;
-						wb.SheetNames.push(wsName);
-						wb.Sheets[wsName] = ws;
-					}
-					deferSheets[0].resolve();
-				}, function (err) {
-					logger.error('Error al hacer el map reduce ' + err);
-					deferSheets[0].reject(err);
-				});
+			return;
+		}
+		const jerarquiamodel = models.jerarquia();
 
-				exports.tablaResultadosJerarquiaDesglosado(Q, models, jerarquia, req.user.permisoscalculados).then(
-					function(ws2){
-						var wsName = 'resumen descendientes';
-						wb.SheetNames.push(wsName);
-						wb.Sheets[wsName] = ws2;
-						deferSheets[1].resolve();
-					},
-					function(err){
-						logger.error('Error al hacer el map reduce ' + err);
-						deferSheets[1].reject(err);
-					}
-				);
-
-				Q.all([deferSheets[0].promise, deferSheets[1].promise]).then(function(){
-					var time = new Date().getTime();
-					var path = app.get('prefixtmp');
-					XLSX.writeFile(wb, path + time + '.xlsx');
-					logger.log({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});
-					res.json({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});
-				}, function(err){
-					logger.error(err);
-					res.status(500).end();
-					return;
-				});
-			}, function (err) {
-				logger.error(err);
-				res.status(500).end();
-				return;
-			});
-		};
-	};
-
-	exports.tablaResultadosProcedimiento = function (models, app, md5, Q, cfg) {
-		return function (req, res) {
-			if ((typeof req.params.codigo === 'undefined') || (req.params.codigo === null)) {
-				logger.error('No se ha definido el parámetro "codigo"');
-				res.status(500).end();
-				return;
-			}
-			if ((typeof req.params.year === 'undefined') || (req.params.year === null)) {
-				logger.error('No se ha definido el parámetro "year"');
-				res.status(500).end();
-				return;
-			}
-			var Procedimiento = models.procedimiento();
-			var datosBasicosNombre = ['Código', 'Denominación', 'Tipo', 'Código de plaza'];
-			var datosBasicos = ['codigo', 'denominacion', 'tipo', 'cod_plaza'];
-			var datosFechasNombre = ['Fecha de creación', 'Fecha de versión'];
-			var datosFechas = ['fecha_creacion', 'fecha_version'];
-			var datosBasicosAnualidadNombre = ['Pendientes iniciales (a 31-12)', 'Plazo CS/ANS (días hábiles)', 'Plazo CS/ANS (días naturales)', 'Plazo máximo legal para resolver (días naturales)',
-				'Plazo máximo legal para resolver (días hábiles)'];
-			var datosBasicosAnualidad = ['pendientes_iniciales', 'plazo_CS_ANS_habiles', 'plazo_CS_ANS_naturales', 'plazo_maximo_resolver', 'plazo_maximo_responder'];
-
-			Procedimiento.findOne({codigo: req.params.codigo}, {}, function (err, proc) {
-				if (err) {
-					logger.error(err);
-					res.status(500);
-					res.end();
-				} else {
-					var wb = new Workbook();
+		jerarquiamodel.findOne({'id': parseInt(req.params.jerarquia, 10)}).then(function(jerarquia){
+			const deferSheets = [Q.defer(), Q.defer()];
+			const wb = new Workbook();
+			mapReducePeriodos(models, parseInt(req.params.jerarquia, 10), req.user.permisoscalculados).then(function(periodos){
+				const d = new Date();
+				for (var anualidad = 2013; anualidad <= d.getFullYear(); anualidad += 1) {
 					var ws = {};
-					var pos = 1;
-					for (var i = 0; i < datosBasicos.length; i++) {
-						var value = proc[datosBasicos[i]];
 
-						ws[ XLSX.utils.encode_cell({c: 4, r: pos}) ] = {v: (value === null || typeof value === 'undefined') ? '' : value, t: 's'};
-						ws[ XLSX.utils.encode_cell({c: 3, r: pos}) ] = {v: datosBasicosNombre[i], t: 's'};
-						pos++;
-					}
-					for (var i = 0; i < datosFechas.length; i++) {
-						var value = proc[datosFechas[i]];
+					ws[XLSX.utils.encode_cell({c: 4, r: 5})] = {v: jerarquia.nombrelargo, t: 's'};
+					ws['!ref'] = XLSX.utils.encode_range({s: {c: 0, r: 0}, e: {c: 20, r: 40}});
+					/* TODO: revisar ese rango */
+					completarTabla(periodos[anualidad], ws);
 
-						ws[ XLSX.utils.encode_cell({c: 4, r: pos}) ] = {v: (value === null || typeof value === 'undefined') ? '' : value, t: 'd'};
-						ws[ XLSX.utils.encode_cell({c: 3, r: pos}) ] = {v: datosFechasNombre[i], t: 's'};
-						pos++;
-					}
-					for (var i = 0; i < datosBasicosAnualidad.length; i++) {
-						var value = proc.periodos[req.params.year][datosBasicosAnualidad[i]];
-
-						ws[ XLSX.utils.encode_cell({c: 4, r: pos}) ] = {v: (value === null || typeof value === 'undefined') ? '' : value, t: 'n'};
-						ws[ XLSX.utils.encode_cell({c: 3, r: pos}) ] = {v: datosBasicosAnualidadNombre[i], t: 's'};
-						pos++;
-					}
-					var padreDefer = Q.defer();
-					if (typeof proc.padre !== 'undefined' && proc.padre !== null) {
-						Procedimiento.findOne({codigo: proc.padre}, {codigo: true, denominacion: true}, function (erro, padre) {
-							if (erro) {
-								padreDefer.reject(erro);
-							} else {
-								ws[ XLSX.utils.encode_cell({c: 4, r: pos}) ] = {v: '[' + padre.codigo + '] ' + padre.denominacion, t: 's'};
-								ws[ XLSX.utils.encode_cell({c: 3, r: pos}) ] = {v: 'Padre', t: 's'};
-								padreDefer.resolve();
-							}
-						});
-					} else {
-						padreDefer.resolve();
-					}
-					exports.completarTabla(proc.periodos[req.params.year], ws);
-					padreDefer.promise.then(function () {
-
-						ws['!ref'] = XLSX.utils.encode_range( {s: {c: 0, r: 0}, e: {c: 20, r: 40}} );
-						wb.SheetNames.push('Procedimiento');
-						wb.Sheets.Procedimiento = ws;
-						var time = new Date().getTime();
-						var path = app.get('prefixtmp');
-						XLSX.writeFile(wb, path + time + '.xlsx');
-						res.json({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});
-					}, function (erro) {
-						logger.error(erro);
-						res.status(500).end();
-					});
+					var wsName = '' + anualidad;
+					wb.SheetNames.push(wsName);
+					wb.Sheets[wsName] = ws;
 				}
-			});
-		};
+				deferSheets[0].resolve();
+			}, deferSheets[0].reject);
+
+			tablaResultadosJerarquiaDesglosado(models, jerarquia, req.user.permisoscalculados).then(
+				function(ws2){
+					const wsName = 'resumen descendientes';
+					wb.SheetNames.push(wsName);
+					wb.Sheets[wsName] = ws2;
+					deferSheets[1].resolve();
+				}, deferSheets[1].reject);
+
+			Q.all([deferSheets[0].promise, deferSheets[1].promise]).then(function(){
+				const time = new Date().getTime();
+				XLSX.writeFile(wb, cfg.prefixtmp + time + '.xlsx');
+				logger.log({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});
+				res.json({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});
+			}, req.eh.errorHelper(res));
+		}, req.eh.errorHelper(res));
 	};
 
-	exports.exportarInforme = function (models, app, md5, Q, cfg) {
-		return function (req, res) {
-			if ((typeof req.params.year === 'undefined') || (req.params.year === null)) {
-				logger.error('No se ha definido el parámetro "year"');
-				res.status(500).end();
-				return;
-			}
-			var regAnyo = new RegExp(/a2\d{3}$/);
-			if (!regAnyo.test(req.params.year)) {
-				logger.error('Parámetro mal formado');
-				res.status(500).end();
-				return;
-			}
-
-			var hojaUsuarios = function (Q, personas){
-				var defer = Q.defer(),
-					ws = {};
-				ws[XLSX.utils.encode_cell({c: 0, r: 0})] = {v: 'Nombre', t: 's'};
-				ws[XLSX.utils.encode_cell({c: 1, r: 0})] = {v: 'Apellidos', t: 's'};
-				ws[XLSX.utils.encode_cell({c: 2, r: 0})] = {v: 'Login', t: 's'};
-				ws[XLSX.utils.encode_cell({c: 3, r: 0})] = {v: 'Código plaza', t: 's'};
-				ws[XLSX.utils.encode_cell({c: 4, r: 0})] = {v: 'Habilitado', t: 's'};
-				for (var i = 1, j = personas.length; i <= j; i++) {
-					var persona = personas[i - 1];
-					ws[ XLSX.utils.encode_cell({c: 0, r: i}) ] = {v: persona.nombre, t: 's'};
-					ws[ XLSX.utils.encode_cell({c: 1, r: i}) ] = {v: persona.apellidos, t: 's'};
-					ws[ XLSX.utils.encode_cell({c: 2, r: i}) ] = {v: persona.login, t: 's'};
-					ws[ XLSX.utils.encode_cell({c: 3, r: i}) ] = {v: persona.codplaza, t: 's'};
-					ws[ XLSX.utils.encode_cell({c: 4, r: i}) ] = {v: persona.habilitado ? 1 : 0, t: 'n'};
-				}
-
-				ws['!ref'] = XLSX.utils.encode_range( {s: {c: 0, r: 0}, e: {c: 5, r: personas.length + 1}} );
-				defer.resolve({'wsName': 'Usuarios', 'sheet': ws});
-
-				return defer.promise;
-			};
-			// Genera hoja de permisos
-			var hojaPermisos = function(Q, Permiso, jerarquiasById, personasByCodPlaza, personasByLogin)
-			{
-				var deferPermiso = Q.defer();
-				var restriccionPermisos = {};
-
-				if (!req.user.permisoscalculados.superuser){
-					restriccionPermisos['$and'] = [];
-					restriccionPermisos['$and'].push({ 'jerarquialectura': { '$in': req.user.permisoscalculados.jerarquialectura }});
-					var aux = {};
-					aux['jerarquialectura.' + req.user.permisoscalculados.jerarquialectura.length ] = {'$exists': false};
-					restriccionPermisos['$and'].push(aux);
-				}
-
-				Permiso.find(restriccionPermisos, function (err, data) {
-					if (err) {
-						deferPermiso.reject(err);
-					} else {
-						var ws = {};
-						var i = 0, pos = 1;
-
-						ws[ XLSX.utils.encode_cell({c: 0, r: 0}) ] = {v: 'Login', t: 's'};
-						ws[ XLSX.utils.encode_cell({c: 1, r: 0}) ] = {v: 'Código plaza', t: 's'};
-						ws[ XLSX.utils.encode_cell({c: 2, r: 0}) ] = {v: 'Id Jerarquía', t: 's'};
-						ws[ XLSX.utils.encode_cell({c: 3, r: 0}) ] = {v: 'Jerarquía', t: 's'};
-						ws[ XLSX.utils.encode_cell({c: 4, r: 0}) ] = {v: 'Nivel de jerarquía', t: 's'};
-						ws[ XLSX.utils.encode_cell({c: 5, r: 0}) ] = {v: 'Escritura', t: 's'};
-						ws[ XLSX.utils.encode_cell({c: 6, r: 0}) ] = {v: 'Lectura', t: 's'};
-						ws[ XLSX.utils.encode_cell({c: 7, r: 0}) ] = {v: 'Administrador', t: 's'};
-						ws[ XLSX.utils.encode_cell({c: 8, r: 0}) ] = {v: 'Puede dar permisos', t: 's'};
-						ws[ XLSX.utils.encode_cell({c: 9, r: 0}) ] = {v: 'Descripción', t: 's'};
-						ws[ XLSX.utils.encode_cell({c: 10, r: 0}) ] = {v: 'Recibió permisos de', t: 's'};
-						ws[ XLSX.utils.encode_cell({c: 11, r: 0}) ] = {v: 'Habilitado', t: 's'};
-						ws[ XLSX.utils.encode_cell({c: 12, r: 0}) ] = {v: 'Correo', t: 's'};
-
-
-						while (i < data.length) {
-							var permiso = data[i];
-							var cellLogin = {v: typeof permiso.login === 'undefined' || permiso.login === null ? '-' : permiso.login, t: 's'};
-							var cellPlaza = {v: typeof permiso.codplaza === 'undefined' || permiso.codplaza === null ? '-' : permiso.codplaza, t: 's'};
-
-							var cellAdministrador = {v: typeof permiso.superuser === 'undefined' || permiso.superuser < 1 ? 'NO' : 'SÍ', t: 's'};
-							var cellGrantoption = {v: typeof permiso.grantoption === 'undefined' || !permiso.grantoption ? 'NO' : 'SÍ', t: 's'};
-							var cellDescripcion = {v: typeof permiso.descripcion === 'undefined' || permiso.descripcion === null ? '' : permiso.descripcion, t: 's'};
-							var cellcodPlazaGrantt = {v: typeof permiso.cod_plaza_grantt === 'undefined' || permiso.cod_plaza_grantt === null ? '-' : permiso.cod_plaza_grantt, t: 's'};
-
-							for (var j = 0; j < permiso.jerarquiadirectaescritura.length; j++) {
-								var jerarquia = permiso.jerarquiadirectaescritura[j];
-
-								ws[ XLSX.utils.encode_cell({c: 0, r: pos}) ] = cellLogin;
-								ws[ XLSX.utils.encode_cell({c: 1, r: pos}) ] = cellPlaza;
-								ws[ XLSX.utils.encode_cell({c: 2, r: pos}) ] = {v: jerarquia, t: 'n'};
-								ws[ XLSX.utils.encode_cell({c: 3, r: pos}) ] = {v: jerarquiasById[ jerarquia ] ? jerarquiasById[ jerarquia ].nombrelargo : '', t: 's'};
-								ws[ XLSX.utils.encode_cell({c: 4, r: pos}) ] = {v: jerarquiasById[ jerarquia ] ? jerarquiasById[ jerarquia ].ancestros.length : '', t: 'n'};
-								ws[ XLSX.utils.encode_cell({c: 5, r: pos}) ] = {v: 'SÍ', t: 's'};
-								ws[ XLSX.utils.encode_cell({c: 6, r: pos}) ] = {v: 'SÍ', t: 's'};
-								ws[ XLSX.utils.encode_cell({c: 7, r: pos}) ] = cellAdministrador;
-								ws[ XLSX.utils.encode_cell({c: 8, r: pos}) ] = cellGrantoption;
-								ws[ XLSX.utils.encode_cell({c: 9, r: pos}) ] = cellDescripcion;
-								ws[ XLSX.utils.encode_cell({c: 10, r: pos}) ] = cellcodPlazaGrantt;
-								if (permiso.codplaza){
-									ws[ XLSX.utils.encode_cell({c: 11, r: pos}) ] = {v: personasByCodPlaza[ permiso.codplaza ] && personasByCodPlaza[ permiso.codplaza ].habilitado ? 1 : 0, t: 'n'};
-									ws[ XLSX.utils.encode_cell({c: 12, r: pos}) ] = {v: personasByCodPlaza[ permiso.codplaza ] ? personasByCodPlaza[ permiso.codplaza ].login + '@carm.es' : (!personasByLogin[ permiso.login ] ? '-' : (permiso.login + '@carm.es')), t: 's'};
-								}else if (permiso.login){
-									ws[ XLSX.utils.encode_cell({c: 11, r: pos}) ] = {v: personasByLogin[ permiso.login ] && personasByLogin[ permiso.login ].habilitado ? 1 : 0, t: 'n'};
-									ws[ XLSX.utils.encode_cell({c: 12, r: pos}) ] = {v: personasByLogin[ permiso.login ] ? permiso.login + '@carm.es' : '', t: 's'};
-								}
-
-								pos++;
-							}
-
-							for (var j = 0; j < permiso.jerarquiadirectalectura.length; j++) {
-								var jerarquiaLectura = permiso.jerarquiadirectalectura[j];
-								if (permiso.jerarquiadirectaescritura.indexOf(jerarquiaLectura) === -1) {
-
-									ws[ XLSX.utils.encode_cell({c: 0, r: pos}) ] = cellLogin;
-									ws[ XLSX.utils.encode_cell({c: 1, r: pos}) ] = cellPlaza;
-									ws[ XLSX.utils.encode_cell({c: 2, r: pos}) ] = {v: jerarquiaLectura, t: 'n'};
-									ws[ XLSX.utils.encode_cell({c: 3, r: pos}) ] = {v: jerarquiasById[ jerarquiaLectura ] ? jerarquiasById[ jerarquiaLectura ].nombrelargo : '', t: 's'};
-									ws[ XLSX.utils.encode_cell({c: 4, r: pos}) ] = {v: jerarquiasById[ jerarquiaLectura ] ? jerarquiasById[ jerarquiaLectura ].ancestros.length : '', t: 'n'};
-									ws[ XLSX.utils.encode_cell({c: 5, r: pos}) ] = {v: 'NO', t: 's'};
-									ws[ XLSX.utils.encode_cell({c: 6, r: pos}) ] = {v: 'SÍ', t: 's'};
-									ws[ XLSX.utils.encode_cell({c: 7, r: pos}) ] = cellAdministrador;
-									ws[ XLSX.utils.encode_cell({c: 8, r: pos}) ] = cellGrantoption;
-									ws[ XLSX.utils.encode_cell({c: 9, r: pos}) ] = cellDescripcion;
-									ws[ XLSX.utils.encode_cell({c: 10, r: pos}) ] = cellcodPlazaGrantt;
-									if (permiso.codplaza){
-										ws[ XLSX.utils.encode_cell({c: 11, r: pos}) ] = {v: personasByCodPlaza[ permiso.codplaza ] && personasByCodPlaza[ permiso.codplaza ].habilitado ? 1 : 0, t: 'n'};
-										ws[ XLSX.utils.encode_cell({c: 12, r: pos}) ] = {v: personasByCodPlaza[ permiso.codplaza ] ? personasByCodPlaza[ permiso.codplaza ].login + '@carm.es' : (!permiso.login ? '-' : (permiso.login + '@carm.es')), t: 's'};
-									}else if (permiso.login){
-										ws[ XLSX.utils.encode_cell({c: 11, r: pos}) ] = {v: personasByLogin[ permiso.login ] && personasByLogin[ permiso.login ].habilitado ? 1 : 0, t: 'n'};
-										ws[ XLSX.utils.encode_cell({c: 12, r: pos}) ] = {v: personasByLogin[ permiso.login ] ? permiso.login + '@carm.es' : '', t: 's'};
-									}
-
-									pos++;
-								}
-							}
-							i++;
-						}
-
-						ws['!ref'] = XLSX.utils.encode_range({s: {c: 0, r: 0}, e: {c: 13, r: pos}});
-
-						deferPermiso.resolve({'wsName': 'Permisos', 'sheet': ws});
-					}
-				});
-				return deferPermiso.promise;
-			};
-
-			var year = req.params.year;
-			var Persona = models.persona();
-			var Procedimiento = models.procedimiento();
-			var Jerarquia = models.jerarquia();
-			var Permiso = models.permiso();
-
-			var jerarquiasById = {};
-			var personasByCodPlaza = {}, personasByLogin = {};
-
-
-			var promesaCacheJerarquia = Q.defer();
-			var promesaCachePersonas = Q.defer();
-
-
-			Jerarquia.find({}, {'id': true, 'nombrelargo': true, 'ancestros': true}, function(err, jerarquias){
-				if (err){
-					promesaCacheJerarquia.reject(err);
-				} else {
-					jerarquias.forEach(function(jer){
-						jerarquiasById[ jer.id ] = jer;
-					});
-					promesaCacheJerarquia.resolve();
-				}
-			});
-
-			var personas = [];
-			/*** los datos sobre solo están disponibles para superuser **/
-			if (req.user.permisoscalculados.superuser){
-				Persona.find({}, {codplaza: true, login: true, nombre: true, apellidos: true, habilitado: true}, function (err, p) {
-					if (err) {
-						promesaCachePersonas.reject(err);
-					} else {
-						personas = p;
-						personas.forEach(function(persona){
-							if (persona.codplaza && persona.codplaza.trim() !== ''){
-								personasByCodPlaza[ persona.codplaza ] = persona;
-							}
-							if (persona.login && persona.login.trim() !== ''){
-								personasByLogin[ persona.login ] = persona;
-							}
-
-						});
-						promesaCachePersonas.resolve();
-					}
-				});
-			} else {
-				promesaCachePersonas.resolve();
-			}
-
-			Q.all([ promesaCacheJerarquia.promise, promesaCachePersonas.promise ]). then( function()
-			{
-				var promesasExcel = [];
-
-
-				var deferBD = Q.defer();
-				var deferBDOcultos = Q.defer();
-				promesasExcel.push(deferBD.promise);
-				promesasExcel.push(deferBDOcultos.promise);
-				// Genera hoja de usuarios (SOLO PARA SUPERUSER)
-				if (req.user.permisoscalculados.superuser){
-					promesasExcel.push( hojaUsuarios(Q, personas) );
-				}
-				// Genera la hoja de permisos (SOLO PARA SUPERUSER Y GRANT)
-				if (req.user.permisoscalculados.grantoption || req.user.permisoscalculados.superuser){
-					promesasExcel.push( hojaPermisos(Q, Permiso, jerarquiasById, personasByCodPlaza, personasByLogin, req.user.permisoscalculados) );
-				}
-				var restriccionProcedimientos = {'$or': [{'oculto': {$exists: false}}, {'$and': [{'oculto': {$exists: true}}, {'oculto': false}]}]};
-				if (!req.user.permisoscalculados.superuser) {
-					var pids = []
-							.concat(Array.isArray(req.user.permisoscalculados.procedimientosdirectalectura) ? req.user.permisoscalculados.procedimientosdirectalectura : [])
-							.concat(Array.isArray(req.user.permisoscalculados.procedimientoslectura) ? req.user.permisoscalculados.procedimientoslectura : [])
-							.concat(Array.isArray(req.user.permisoscalculados.procedimientosdirectaescritura) ? req.user.permisoscalculados.procedimientosdirectaescritura : [])
-							.concat(Array.isArray(req.user.permisoscalculados.procedimientosescritura) ? req.user.permisoscalculados.procedimientosescritura : []);
-					var r = { '$and' :
-						[
-							restriccionProcedimientos,
-							{'codigo': {'$in': pids}}
-						]
-					};
-					restriccionProcedimientos = r;
-				}
-				// Genera hoja General (PARA TODOS)
-				Procedimiento.find(restriccionProcedimientos, {codigo: true, denominacion: true, idjerarquia: true, responsables: true, 'cod_plaza': true, periodos: true, ancestros: true}, function (err, procedimientos) {
-					if (err) {
-						logger.error(err);
-						deferBD.reject(err);
-					} else {
-						exports.rellenarProcedimientos(procedimientos, year, Q, models, personasByCodPlaza).then(function (ws) {
-							deferBD.resolve({'wsName': 'BD', 'sheet': ws});
-						}, function (erro) {
-							logger.error(erro);
-							deferBD.reject(erro);
-						});
-					}
-				});
-				// Genera hoja General Ocultos (SOLO SUPERUSER)
-				if (req.user.permisoscalculados.superuser){
-					Procedimiento.find({'$and': [{'oculto': {$exists: true}}, {'oculto': true}]}, {codigo: true, denominacion: true, idjerarquia: true, responsables: true, 'cod_plaza': true, periodos: true, ancestros: true}, function (err, procedimientos) {
-						if (err) {
-							logger.error(err);
-							deferBDOcultos.reject(err);
-						} else {
-							exports.rellenarProcedimientos(procedimientos, year, Q, models, personasByCodPlaza).then(function (ws) {
-								deferBDOcultos.resolve({'wsName': 'BD Ocultos', 'sheet': ws});
-							}, function (erro) {
-								logger.error(erro);
-								deferBDOcultos.reject(err);
-							});
-						}
-					});
-				} else {
-					deferBDOcultos.resolve();
-				}
-				Q.all(promesasExcel).then(function (wss) {
-
-					var wb = new Workbook();
-					wss.forEach(function (ws) {
-						if (typeof ws !== undefined && ws !== null) {
-							wb.SheetNames.push(ws.wsName);
-							wb.Sheets[ws.wsName] = ws.sheet;
-						}
-					});
-					var time = new Date().getTime();
-					var path = app.get('prefixtmp');
-					XLSX.writeFile(wb, path + time + '.xlsx');
-					res.json({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});
-				}, function (err) {
-					logger.error(err);
-					res.status(500).end();
-				});
-			});
-		};
-	};
-
-
-	exports.rellenarProcedimientos = function (procedimientos, year, Q, models, personasByCodPlaza) {
-		var i = 0, j = 0;
-		var deferProc = Q.defer();
-		var indicadoresDatabase = ['solicitados', 'iniciados', 'resueltos_1', 'resueltos_5', 'resueltos_10', 'resueltos_15', 'resueltos_30',
+	function rellenarProcedimientos(procedimientos, year, models, personasByCodPlaza) {
+		const deferProc = Q.defer();
+		const indicadoresDatabase = ['solicitados', 'iniciados', 'resueltos_1', 'resueltos_5', 'resueltos_10', 'resueltos_15', 'resueltos_30',
 			'resueltos_45', 'resueltos_mas_45', 'resueltos_desistimiento_renuncia_caducidad', 'resueltos_prescripcion', 't_medio_naturales', 't_medio_habiles',
 			'en_plazo', 'quejas', 'recursos'];
-		var indicadores = ['Solicitados', 'Iniciados', 'Resueltos < 1', 'Resueltos 1 < 5', 'Resueltos 5 < 10', 'Resueltos 10 < 15', 'Resueltos 15 < 30',
+		const indicadores = ['Solicitados', 'Iniciados', 'Resueltos < 1', 'Resueltos 1 < 5', 'Resueltos 5 < 10', 'Resueltos 10 < 15', 'Resueltos 15 < 30',
 			'Resueltos 30 < 45', 'Resueltos > 45', 'Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)', 'Resueltos por Prescripción/Caducidad (Resp. Admón.)',
 			'Tiempo medio en días naturales', 'Tiempo medio en días hábiles descontando Tiempo de suspensiones', 'En plazo', 'Quejas presentadas en el mes',
 			'Recursos presentados en el mes'];
-		var meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-		var precabeceras = ['Código', 'Denominación del procedimiento', 'Código Nivel 1', 'Denominación Nivel 1', 'Código Nivel 2', 'Denominación Nivel 2', 'Código Nivel 3', 'Denominación Nivel 3',
+		const precabeceras = ['Código', 'Denominación del procedimiento', 'Código Nivel 1', 'Denominación Nivel 1', 'Código Nivel 2', 'Denominación Nivel 2', 'Código Nivel 3', 'Denominación Nivel 3',
 			'Código plaza responsable', 'Login responsable', 'Nombre responsable', 'Correo-e responsable', 'Teléfono responsable',
 			'Plazo máximo legal para resolver (dias naturales)', 'Plazo máximo legal para resolver (dias hábiles)', 'Plazo CS /ANS (días naturales)',
 			'Plazo CS /ANS (días hábiles)', 'Pendientes iniciales (a 31-12)'];
 
-		var lastyear = parseInt(year.substring(1, 5)) - 1,
+		const lastyear = parseInt(year.substring(1, 5), 10) - 1,
 			lastyearstr = 'a' + lastyear,
-			ws = {}, pos = 1;
+			ws = {};
+		let columna = 1;
 			//coordenadasmerges = [];
 
-		for (i = 0; i < precabeceras.length; i++) {
-			ws[ XLSX.utils.encode_cell({c: pos++, r: 1}) ] = { v: precabeceras[i], t: 's'};
+		for (let i = 0; i < precabeceras.length; i += 1){
+			ws[XLSX.utils.encode_cell({c: columna++, r: 1})] = {v: precabeceras[i], t: 's'};
 		}
 
-		ws[ XLSX.utils.encode_cell({c: pos + 6, r: 0}) ] = {v: 'RESUELTOS EN LOS MESES DE ' + lastyear, t: 's'};
+		ws[XLSX.utils.encode_cell({c: columna + 6, r: 0})] = {v: 'RESUELTOS EN LOS MESES DE ' + lastyear, t: 's'};
 
-		for (i = 0; i < meses.length; i++) {
-			ws[ XLSX.utils.encode_cell({c: pos++, r: 1}) ] = {v: meses[i], t: 's'};
+		for (let i = 0; i < MESES.length; i += 1) {
+			ws[XLSX.utils.encode_cell({c: columna++, r: 1})] = {v: MESES[i], t: 's'};
 		}
 
-		for (i = 0; i < meses.length; i++) {
-//			coordenadasmerges.push( XLSX.utils.encode_range( {s: {c: pos + 6, r: 0}, e: {c: pos + 6 + indicadores.length-1, r: 0} } ) );
-			ws[ XLSX.utils.encode_cell({c: pos + 6, r: 0}) ] = {v: meses[i], t: 's'};
-			for (var j = 0; j < indicadores.length; j++) {
-				ws[ XLSX.utils.encode_cell({c: pos++, r: 1}) ] = {v: indicadores[j], t: 's'};
+		for (let i = 0; i < MESES.length; i += 1) {
+			ws[XLSX.utils.encode_cell({c: columna + 6, r: 0})] = {v: MESES[i], t: 's'};
+			for (let j = 0; j < indicadores.length; j += 1) {
+				ws[XLSX.utils.encode_cell({c: columna++, r: 1})] = {v: indicadores[j], t: 's'};
 			}
 		}
 
-//		ws['!merges'] = coordenadasmerges;
+		const dim = columna;
+		for (let i = 0; i < procedimientos.length; i += 1){
+			columna = 1;
+			const procedimiento = procedimientos[i];
 
-		var dim = pos;
-		for (i = 0; i < procedimientos.length; i++) {
-			pos = 1;
-			var procedimiento = procedimientos[i];
-
-			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: procedimiento.codigo, t: 's'};
-			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: procedimiento.denominacion, t: 's'};
+			ws[XLSX.utils.encode_cell({c: columna++, r: i + 2})] = {v: procedimiento.codigo, t: 's'};
+			ws[XLSX.utils.encode_cell({c: columna++, r: i + 2})] = {v: procedimiento.denominacion, t: 's'};
 
 			if ((typeof procedimiento.ancestros !== 'undefined') && (procedimiento.ancestros.length > 1)) {
 				if (procedimiento.ancestros.length === 4) {
-					for (j = 0; j < 3; j++) {
+					for (let j = 0; j < 3; j += 1){
+						ws[XLSX.utils.encode_cell({c: columna, r: i + 2})] = {v: procedimiento.ancestros[j].id, t: 'n'};
+						ws[XLSX.utils.encode_cell({c: columna + 1, r: i + 2})] = {v: procedimiento.ancestros[j].nombrelargo, t: 's'};
 
-						ws[ XLSX.utils.encode_cell({c: pos, r: i + 2}) ] = {v: procedimiento.ancestros[j].id, t: 'n'};
-						ws[ XLSX.utils.encode_cell({c: pos + 1, r: i + 2}) ] = {v: procedimiento.ancestros[j].nombrelargo, t: 's'};
-
-						pos += 2;
+						columna += 2;
 					}
-				} else if (procedimiento.ancestros.length === 3) {
+				} else if (procedimiento.ancestros.length === 3){
 
-					ws[ XLSX.utils.encode_cell({c: pos, r: i + 2}) ] = {v: procedimiento.ancestros[0].id, t: 'n'};
-					ws[ XLSX.utils.encode_cell({c: pos + 1, r: i + 2}) ] = {v: procedimiento.ancestros[0].nombrelargo, t: 's'};
-					ws[ XLSX.utils.encode_cell({c: pos + 4, r: i + 2}) ] = {v: procedimiento.ancestros[1].id, t: 'n'};
-					ws[ XLSX.utils.encode_cell({c: pos + 5, r: i + 2}) ] = {v: procedimiento.ancestros[1].nombrelargo, t: 's'};
+					ws[XLSX.utils.encode_cell({c: columna, r: i + 2})] = {v: procedimiento.ancestros[0].id, t: 'n'};
+					ws[XLSX.utils.encode_cell({c: columna + 1, r: i + 2})] = {v: procedimiento.ancestros[0].nombrelargo, t: 's'};
+					ws[XLSX.utils.encode_cell({c: columna + 4, r: i + 2})] = {v: procedimiento.ancestros[1].id, t: 'n'};
+					ws[XLSX.utils.encode_cell({c: columna + 5, r: i + 2})] = {v: procedimiento.ancestros[1].nombrelargo, t: 's'};
 
-					pos += 6;
-				} else if (procedimiento.ancestros.length === 2) {
+					columna += 6;
+				} else if (procedimiento.ancestros.length === 2){
 
-					ws[ XLSX.utils.encode_cell({c: pos + 4, r: i + 2}) ] = {v: procedimiento.ancestros[0].id, t: 'n'};
-					ws[ XLSX.utils.encode_cell({c: pos + 5, r: i + 2}) ] = {v: procedimiento.ancestros[0].nombrelargo, t: 's'};
-					pos += 6;
+					ws[XLSX.utils.encode_cell({c: columna + 4, r: i + 2})] = {v: procedimiento.ancestros[0].id, t: 'n'};
+					ws[XLSX.utils.encode_cell({c: columna + 5, r: i + 2})] = {v: procedimiento.ancestros[0].nombrelargo, t: 's'};
+					columna += 6;
 				}
 			} else {
-				pos += 6;
+				columna += 6;
 			}
 
-			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: procedimiento.cod_plaza, t: 's'};
+			ws[XLSX.utils.encode_cell({c: columna++, r: i + 2})] = {v: procedimiento.cod_plaza, t: 's'};
 
-			var persona = procedimiento.cod_plaza !== null && procedimiento.cod_plaza !== '' ? personasByCodPlaza[ procedimiento.cod_plaza ] : undefined;
-			if (typeof persona === 'undefined') {
-				ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: 'Persona no encontrada', t: 's'};
-				pos += 3;
+			var persona = procedimiento.cod_plaza !== null && procedimiento.cod_plaza !== '' ? personasByCodPlaza[procedimiento.cod_plaza] : false;
+			if (persona) {
+				ws[XLSX.utils.encode_cell({c: columna++, r: i + 2})] = {v: persona.login, t: 's'};
+				ws[XLSX.utils.encode_cell({c: columna++, r: i + 2})] = {v: persona.apellidos + ', ' + persona.nombre, t: 's'};
+				ws[XLSX.utils.encode_cell({c: columna++, r: i + 2})] = {v: persona.login + '@carm.es', t: 's'};
+				ws[XLSX.utils.encode_cell({c: columna++, r: i + 2})] = {v: persona.telefono, t: 's'};
 			} else {
-				ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: persona.login, t: 's'};
-				ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: persona.apellidos + ', ' + persona.nombre, t: 's'};
-				ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: persona.login + '@carm.es', t: 's'};
-				ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: persona.telefono, t: 's'};
+				ws[XLSX.utils.encode_cell({c: columna++, r: i + 2})] = {v: 'Persona no encontrada', t: 's'};
+				columna += 3;
 			}
 
-			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[year].plazo_maximo_resolver === 'undefined' || procedimiento.periodos[year].plazo_maximo_resolver === null) ? '' : procedimiento.periodos[year].plazo_maximo_resolver), t: 'n'};
-			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[year].plazo_maximo_responder === 'undefined' || procedimiento.periodos[year].plazo_maximo_responder === null) ? '' : procedimiento.periodos[year].plazo_maximo_responder), t: 'n'};
-			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[year].plazo_CS_ANS_naturales === 'undefined' || procedimiento.periodos[year].plazo_CS_ANS_naturales === null) ? '' : procedimiento.periodos[year].plazo_CS_ANS_naturales), t: 'n'};
-			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[year].plazo_CS_ANS_habiles === 'undefined' || procedimiento.periodos[year].plazo_CS_ANS_habiles === null) ? '' : procedimiento.periodos[year].plazo_CS_ANS_habiles), t: 'n'};
-			ws[ XLSX.utils.encode_cell({c: pos++, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[year].pendientes_iniciales === 'undefined' || procedimiento.periodos[year].pendientes_iniciales === null) ? '' : procedimiento.periodos[year].pendientes_iniciales), t: 'n'};
-			for (var mes = 0; mes < meses.length; mes++) {
+			ws[XLSX.utils.encode_cell({c: columna++, r: i + 2})] = {v: ((typeof procedimiento.periodos[year].plazo_maximo_resolver === 'undefined' || procedimiento.periodos[year].plazo_maximo_resolver === null) ? '' : procedimiento.periodos[year].plazo_maximo_resolver), t: 'n'};
+			ws[XLSX.utils.encode_cell({c: columna++, r: i + 2})] = {v: ((typeof procedimiento.periodos[year].plazo_maximo_responder === 'undefined' || procedimiento.periodos[year].plazo_maximo_responder === null) ? '' : procedimiento.periodos[year].plazo_maximo_responder), t: 'n'};
+			ws[XLSX.utils.encode_cell({c: columna++, r: i + 2})] = {v: ((typeof procedimiento.periodos[year].plazo_CS_ANS_naturales === 'undefined' || procedimiento.periodos[year].plazo_CS_ANS_naturales === null) ? '' : procedimiento.periodos[year].plazo_CS_ANS_naturales), t: 'n'};
+			ws[XLSX.utils.encode_cell({c: columna++, r: i + 2})] = {v: ((typeof procedimiento.periodos[year].plazo_CS_ANS_habiles === 'undefined' || procedimiento.periodos[year].plazo_CS_ANS_habiles === null) ? '' : procedimiento.periodos[year].plazo_CS_ANS_habiles), t: 'n'};
+			ws[XLSX.utils.encode_cell({c: columna++, r: i + 2})] = {v: ((typeof procedimiento.periodos[year].pendientes_iniciales === 'undefined' || procedimiento.periodos[year].pendientes_iniciales === null) ? '' : procedimiento.periodos[year].pendientes_iniciales), t: 'n'};
+			for (let mes = 0; mes < MESES.length; mes += 1) {
 				if (typeof procedimiento.periodos[lastyearstr] !== 'undefined' && typeof procedimiento.periodos[lastyearstr].total_resueltos !== 'undefined') {
-					ws[ XLSX.utils.encode_cell({c: pos, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[lastyearstr].total_resueltos[mes] === 'undefined') ? '' : procedimiento.periodos[lastyearstr].total_resueltos[mes]), t: 'n'};
+					ws[XLSX.utils.encode_cell({c: columna, r: i + 2})] = {v: ((typeof procedimiento.periodos[lastyearstr].total_resueltos[mes] === 'undefined') ? '' : procedimiento.periodos[lastyearstr].total_resueltos[mes]), t: 'n'};
 				}
-				pos++;
+				columna += 1;
 			}
-			for (var month = 0; month < meses.length; month++) {
-				for (var ind = 0; ind < indicadoresDatabase.length; ind++) {
-					if (typeof procedimiento.periodos[year][indicadoresDatabase[ind]] !== 'undefined') {
-						ws[ XLSX.utils.encode_cell({c: pos, r: i + 2}) ] = {v: ((typeof procedimiento.periodos[year][indicadoresDatabase[ind]][month] === 'undefined') ? '' : procedimiento.periodos[year][indicadoresDatabase[ind]][month]), t: 'n'};
+			for (let mes = 0; mes < MESES.length; mes += 1) {
+				for (let ind = 0; ind < indicadoresDatabase.length; ind += 1) {
+					if (typeof procedimiento.periodos[year][indicadoresDatabase[ind]] === 'number') {
+						ws[XLSX.utils.encode_cell({c: columna, r: i + 2})] = {v: ((typeof procedimiento.periodos[year][indicadoresDatabase[ind]][mes] === 'undefined') ? '' : procedimiento.periodos[year][indicadoresDatabase[ind]][mes]), t: 'n'};
 					}
-					pos++;
+					columna += 1;
 				}
 			}
 		}
 
-		var range = {s: {c: 0, r: 0}, e: {c: dim + 1, r: procedimientos.length + 1}};
-		ws['!ref'] = XLSX.utils.encode_range(range);
+		ws['!ref'] = XLSX.utils.encode_range({s: {c: 0, r: 0}, e: {c: dim + 1, r: procedimientos.length + 1}});
 		deferProc.resolve(ws);
 
 		return deferProc.promise;
+	}
+
+	module.exports.tablaResultadosProcedimiento = function (req, res) {
+		if (typeof req.params.codigo === 'undefined' || req.params.codigo === null){
+			req.eh.missingParameterHelper(res, 'codigo');
+
+			return;
+		}
+		if (typeof req.params.year === 'undefined' || req.params.year === null){
+			req.eh.missingParameterHelper(res, 'year');
+
+			return;
+		}
+
+		const models = req.metaenvironment.models,
+			cfg = req.metaenvironment.cfg,
+			procedimientomodel = models.procedimiento(),
+			datosBasicosNombre = ['Código', 'Denominación', 'Tipo', 'Código de plaza'],
+			datosBasicos = ['codigo', 'denominacion', 'tipo', 'cod_plaza'],
+			datosFechasNombre = ['Fecha de creación', 'Fecha de versión'],
+			datosFechas = ['fecha_creacion', 'fecha_version'],
+			datosBasicosAnualidadNombre = ['Pendientes iniciales (a 31-12)', 'Plazo CS/ANS (días hábiles)', 'Plazo CS/ANS (días naturales)', 'Plazo máximo legal para resolver (días naturales)', 'Plazo máximo legal para resolver (días hábiles)'],
+			datosBasicosAnualidad = ['pendientes_iniciales', 'plazo_CS_ANS_habiles', 'plazo_CS_ANS_naturales', 'plazo_maximo_resolver', 'plazo_maximo_responder'];
+
+		procedimientomodel.findOne({codigo: req.params.codigo}, function (err, proc) {
+			if (err) {
+				req.eh.callbackErrorHelper(res, err);
+				
+				return;
+			}
+			const wb = new Workbook();
+			const ws = {};
+			let fila = 1;
+			for (let i = 0; i < datosBasicos.length; i += 1) {
+				const value = proc[datosBasicos[i]];
+
+				ws[XLSX.utils.encode_cell({c: 4, r: fila})] = {v: (value === null || typeof value === 'undefined') ? '' : value, t: 's'};
+				ws[XLSX.utils.encode_cell({c: 3, r: fila})] = {v: datosBasicosNombre[i], t: 's'};
+				fila += 1;
+			}
+			for (let i = 0; i < datosFechas.length; i += 1) {
+				const value = proc[datosFechas[i]];
+
+				ws[XLSX.utils.encode_cell({c: 4, r: fila})] = {v: (value === null || typeof value === 'undefined') ? '' : value, t: 'd'};
+				ws[XLSX.utils.encode_cell({c: 3, r: fila})] = {v: datosFechasNombre[i], t: 's'};
+				fila += 1;
+			}
+			for (let i = 0; i < datosBasicosAnualidad.length; i += 1) {
+				const value = proc.periodos[req.params.year][datosBasicosAnualidad[i]];
+
+				ws[XLSX.utils.encode_cell({c: 4, r: fila})] = {v: (value === null || typeof value === 'undefined') ? '' : value, t: 'n'};
+				ws[XLSX.utils.encode_cell({c: 3, r: fila})] = {v: datosBasicosAnualidadNombre[i], t: 's'};
+				fila += 1;
+			}
+			const padreDefer = Q.defer();
+			if (typeof proc.padre !== 'undefined' && proc.padre !== null) {
+				procedimientomodel.findOne({codigo: proc.padre}, {codigo: true, denominacion: true}, padreDefer.makeNodeResolver());
+			} else {
+				padreDefer.resolve();
+			}
+			completarTabla(proc.periodos[req.params.year], ws);
+			padreDefer.promise.then(function(padre){
+				if (padre){
+					ws[XLSX.utils.encode_cell({c: 4, r: fila})] = {v: '[' + padre.codigo + '] ' + padre.denominacion, t: 's'};
+					ws[XLSX.utils.encode_cell({c: 3, r: fila})] = {v: 'Padre', t: 's'};
+					padreDefer.resolve();
+				}
+
+				ws['!ref'] = XLSX.utils.encode_range( {s: {c: 0, r: 0}, e: {c: 20, r: 40}} );
+				wb.SheetNames.push('Procedimiento');
+				wb.Sheets.Procedimiento = ws;
+				const time = new Date().getTime();
+				XLSX.writeFile(wb, cfg.prefixtmp + time + '.xlsx');
+				res.json({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});
+			}, req.eh.errorHelper(res));
+		}, req.eh.errorHelper(res));
 	};
 
-	exports.download = function(app, cfg, fs, md5, path){
-		return function (req, res) {
-			var filename = req.params.token + (req.query.extension ? req.query.extension : '.xlsx'),
-				ruta = app.get('prefixtmp'),
-				rutaefectiva = path.resolve(ruta, filename);
-			if (md5(cfg.downloadhashprefix + req.params.token) === req.params.hash) {
-				fs.exists(ruta + filename, function (exists) {
-					if (exists) {
-						if (path.dirname(rutaefectiva) + path.sep === ruta) {
-							res.download(ruta + filename, filename, function (err) {
-								if (err) {
-									logger.error(err);
-								} else {
-									logger.log('Fichero ' + ruta + filename + ' descargado');
-									fs.unlink(ruta + filename, function (erro) {
-										if (erro) {
-											logger.error('No se ha podido borrar el fichero ' + ruta + filename);
-										} else {
-											logger.log('Fichero ' + ruta + filename + ' borrado');
-										}
-									});
-								}
-							});
-						} else {
-							logger.error('Acceso denegado:' + ruta + filename);
-							res.status(404).send('Acceso denegado');
+	function hojaUsuarios(personas){
+		const defer = Q.defer(),
+			ws = {};
+
+		ws[XLSX.utils.encode_cell({c: 0, r: 0})] = {v: 'Nombre', t: 's'};
+		ws[XLSX.utils.encode_cell({c: 1, r: 0})] = {v: 'Apellidos', t: 's'};
+		ws[XLSX.utils.encode_cell({c: 2, r: 0})] = {v: 'Login', t: 's'};
+		ws[XLSX.utils.encode_cell({c: 3, r: 0})] = {v: 'Código plaza', t: 's'};
+		ws[XLSX.utils.encode_cell({c: 4, r: 0})] = {v: 'Habilitado', t: 's'};
+
+		for (let i = 1, j = personas.length; i <= j; i += 1) {
+			const persona = personas[i - 1];
+			ws[XLSX.utils.encode_cell({c: 0, r: i})] = {v: persona.nombre, t: 's'};
+			ws[XLSX.utils.encode_cell({c: 1, r: i})] = {v: persona.apellidos, t: 's'};
+			ws[XLSX.utils.encode_cell({c: 2, r: i})] = {v: persona.login, t: 's'};
+			ws[XLSX.utils.encode_cell({c: 3, r: i})] = {v: persona.codplaza, t: 's'};
+			ws[XLSX.utils.encode_cell({c: 4, r: i})] = {v: persona.habilitado ? 1 : 0, t: 'n'};
+		}
+
+		ws['!ref'] = XLSX.utils.encode_range({s: {c: 0, r: 0}, e: {c: 5, r: personas.length + 1}} );
+		defer.resolve({'wsName': 'Usuarios', 'sheet': ws});
+
+		return defer.promise;
+	}
+	// Genera hoja de permisos
+	function hojaPermisos(permisoscalculados, permisomodel, jerarquiasById, personasByCodPlaza, personasByLogin){
+		const deferPermiso = Q.defer();
+		const restriccionPermisos = {};
+
+		if (!permisoscalculados.superuser){
+			restriccionPermisos['$and'] = [];
+			restriccionPermisos['$and'].push({'jerarquialectura': {'$in': permisoscalculados.jerarquialectura}});
+			var aux = {};
+			aux['jerarquialectura.' + permisoscalculados.jerarquialectura.length] = {'$exists': false};
+			restriccionPermisos['$and'].push(aux);
+		}
+
+		permisomodel.find(restriccionPermisos, function (err, data) {
+			if (err) {
+				deferPermiso.reject(err);
+			} else {
+				const ws = {};
+				let	i = 0,
+					fila = 1;
+
+				ws[XLSX.utils.encode_cell({c: 0, r: 0})] = {v: 'Login', t: 's'};
+				ws[XLSX.utils.encode_cell({c: 1, r: 0})] = {v: 'Código plaza', t: 's'};
+				ws[XLSX.utils.encode_cell({c: 2, r: 0})] = {v: 'Id Jerarquía', t: 's'};
+				ws[XLSX.utils.encode_cell({c: 3, r: 0})] = {v: 'Jerarquía', t: 's'};
+				ws[XLSX.utils.encode_cell({c: 4, r: 0})] = {v: 'Nivel de jerarquía', t: 's'};
+				ws[XLSX.utils.encode_cell({c: 5, r: 0})] = {v: 'Escritura', t: 's'};
+				ws[XLSX.utils.encode_cell({c: 6, r: 0})] = {v: 'Lectura', t: 's'};
+				ws[XLSX.utils.encode_cell({c: 7, r: 0})] = {v: 'Administrador', t: 's'};
+				ws[XLSX.utils.encode_cell({c: 8, r: 0})] = {v: 'Puede dar permisos', t: 's'};
+				ws[XLSX.utils.encode_cell({c: 9, r: 0})] = {v: 'Descripción', t: 's'};
+				ws[XLSX.utils.encode_cell({c: 10, r: 0})] = {v: 'Recibió permisos de', t: 's'};
+				ws[XLSX.utils.encode_cell({c: 11, r: 0})] = {v: 'Habilitado', t: 's'};
+				ws[XLSX.utils.encode_cell({c: 12, r: 0})] = {v: 'Correo', t: 's'};
+
+				while (i < data.length) {
+					const permiso = data[i];
+					const cellLogin = {v: typeof permiso.login === 'undefined' || permiso.login === null ? '-' : permiso.login, t: 's'};
+					const cellPlaza = {v: typeof permiso.codplaza === 'undefined' || permiso.codplaza === null ? '-' : permiso.codplaza, t: 's'};
+
+					const cellAdministrador = {v: typeof permiso.superuser === 'undefined' || permiso.superuser < 1 ? 'NO' : 'SÍ', t: 's'};
+					const cellGrantoption = {v: typeof permiso.grantoption === 'undefined' || !permiso.grantoption ? 'NO' : 'SÍ', t: 's'};
+					const cellDescripcion = {v: typeof permiso.descripcion === 'undefined' || permiso.descripcion === null ? '' : permiso.descripcion, t: 's'};
+					const cellcodPlazaGrantt = {v: typeof permiso.cod_plaza_grantt === 'undefined' || permiso.cod_plaza_grantt === null ? '-' : permiso.cod_plaza_grantt, t: 's'};
+
+					const idsjerarquias = [].concat(permiso.jerarquiadirectaescritura, permiso.jerarquiadirectalectura);
+					require('uniq')(idsjerarquias);
+
+					for (let j = 0; j < idsjerarquias.length; j += 1) {
+						const idjerarquia = idsjerarquias[j];
+
+						ws[XLSX.utils.encode_cell({c: 0, r: fila})] = cellLogin;
+						ws[XLSX.utils.encode_cell({c: 1, r: fila})] = cellPlaza;
+						ws[XLSX.utils.encode_cell({c: 2, r: fila})] = {v: idjerarquia, t: 'n'};
+						ws[XLSX.utils.encode_cell({c: 3, r: fila})] = {v: jerarquiasById[idjerarquia] ? jerarquiasById[idjerarquia].nombrelargo : '', t: 's'};
+						ws[XLSX.utils.encode_cell({c: 4, r: fila})] = {v: jerarquiasById[idjerarquia] ? jerarquiasById[idjerarquia].ancestros.length : '', t: 'n'};
+						ws[XLSX.utils.encode_cell({c: 5, r: fila})] = {v: 'SÍ', t: 's'};
+						ws[XLSX.utils.encode_cell({c: 6, r: fila})] = {v: 'SÍ', t: 's'};
+						ws[XLSX.utils.encode_cell({c: 7, r: fila})] = cellAdministrador;
+						ws[XLSX.utils.encode_cell({c: 8, r: fila})] = cellGrantoption;
+						ws[XLSX.utils.encode_cell({c: 9, r: fila})] = cellDescripcion;
+						ws[XLSX.utils.encode_cell({c: 10, r: fila})] = cellcodPlazaGrantt;
+						if (permiso.codplaza){
+							ws[XLSX.utils.encode_cell({c: 11, r: fila})] = {v: personasByCodPlaza[permiso.codplaza] && personasByCodPlaza[permiso.codplaza].habilitado ? 1 : 0, t: 'n'};
+							ws[XLSX.utils.encode_cell({c: 12, r: fila})] = {v: personasByCodPlaza[permiso.codplaza] ? personasByCodPlaza[permiso.codplaza].login + '@carm.es' : (personasByLogin[permiso.login] ? (permiso.login + '@carm.es') : '-'), t: 's'};
+						} else if (permiso.login){
+							ws[XLSX.utils.encode_cell({c: 11, r: fila})] = {v: personasByLogin[permiso.login] && personasByLogin[permiso.login].habilitado ? 1 : 0, t: 'n'};
+							ws[XLSX.utils.encode_cell({c: 12, r: fila})] = {v: personasByLogin[permiso.login] ? permiso.login + '@carm.es' : '', t: 's'};
 						}
+
+						fila += 1;
+					}
+
+					i += 1;
+				}
+
+				ws['!ref'] = XLSX.utils.encode_range({s: {c: 0, r: 0}, e: {c: 13, r: fila}});
+				deferPermiso.resolve({'wsName': 'Permisos', 'sheet': ws});
+			}
+		});
+
+		return deferPermiso.promise;
+	}
+	module.exports.exportarInforme = function (req, res) {
+		const models = req.metaenvironment.models,
+			cfg = req.metaenvironment.cfg,
+			regAnyo = new RegExp(/a2\d{3}$/);
+		if ((typeof req.params.year === 'undefined') || (req.params.year === null) || (!regAnyo.test(req.params.year))) {
+			req.eh.missingParameterHelper(res, 'year');
+
+			return;
+		}
+
+		const year = req.params.year;
+		const personamodel = models.persona();
+		const procedimientomodel = models.procedimiento();
+		const jerarquiamodel = models.jerarquia();
+		const permisomodel = models.permiso();
+
+		const jerarquiasById = {},
+			personasByCodPlaza = {},
+			personasByLogin = {};
+
+		const promises = [];
+		const promesaCacheJerarquia = Q.defer();
+		
+		promises.push(promesaCacheJerarquia.promise);
+
+		jerarquiamodel.find({}, {'id': true, 'nombrelargo': true, 'ancestros': true}, function(err, jerarquias){
+			if (err){
+				promesaCacheJerarquia.reject(err);
+			} else {
+				jerarquias.forEach(function(jer){
+					jerarquiasById[jer.id] = jer;
+				});
+				promesaCacheJerarquia.resolve();
+			}
+		});
+
+		/*** los datos sobre personas solo están disponibles para superuser **/
+		if (req.user.permisoscalculados.superuser){
+			const promesaCachePersonas = Q.defer();
+			promises.push(promesaCachePersonas.promise);
+			personamodel.find({}, {codplaza: true, login: true, nombre: true, apellidos: true, habilitado: true}, function (err, p) {
+				if (err) {
+					promesaCachePersonas.reject(err);
+				} else {
+					p.forEach(function(persona){
+						if (persona.codplaza && persona.codplaza.trim() !== ''){
+							personasByCodPlaza[persona.codplaza] = persona;
+						}
+						if (persona.login && persona.login.trim() !== ''){
+							personasByLogin[persona.login] = persona;
+						}
+
+					});
+					promesaCachePersonas.resolve(p);
+				}
+			});
+		}
+
+		Q.all(promises).then(function(loads){
+			const promesasExcel = [];
+
+			var deferBD = Q.defer();
+			promesasExcel.push(deferBD.promise);
+
+			// Genera hoja de usuarios (SOLO PARA SUPERUSER)
+			if (loads.length > 1){
+				promesasExcel.push(hojaUsuarios(loads[1]));
+			}
+
+			// Genera la hoja de permisos (SOLO PARA SUPERUSER Y GRANT)
+			if (req.user.permisoscalculados.grantoption || req.user.permisoscalculados.superuser){
+				promesasExcel.push(hojaPermisos(req.user.permisoscalculados, permisomodel, jerarquiasById, personasByCodPlaza, personasByLogin));
+			}
+			let restriccionProcedimientos = {'$or': [{'oculto': {$exists: false}}, {'$and': [{'oculto': {$exists: true}}, {'oculto': false}]}]};
+
+			if (!req.user.permisoscalculados.superuser) {
+				const pids = [].concat(
+					Array.isArray(req.user.permisoscalculados.procedimientosdirectalectura) ? req.user.permisoscalculados.procedimientosdirectalectura : [],
+					Array.isArray(req.user.permisoscalculados.procedimientoslectura) ? req.user.permisoscalculados.procedimientoslectura : [],
+					Array.isArray(req.user.permisoscalculados.procedimientosdirectaescritura) ? req.user.permisoscalculados.procedimientosdirectaescritura : [],
+					Array.isArray(req.user.permisoscalculados.procedimientosescritura) ? req.user.permisoscalculados.procedimientosescritura : []
+				);
+				const r = {'$and': [restriccionProcedimientos, {'codigo': {'$in': pids}}]};
+				restriccionProcedimientos = r;
+			}
+			// Genera hoja General (PARA TODOS)
+			procedimientomodel.find(restriccionProcedimientos, {codigo: true, denominacion: true, idjerarquia: true, responsables: true, 'cod_plaza': true, periodos: true, ancestros: true}, function (err, procedimientos) {
+				if (err) {
+					logger.error(err);
+					deferBD.reject(err);
+				} else {
+					module.exports.rellenarProcedimientos(procedimientos, year, models, personasByCodPlaza).then(function (ws) {
+						deferBD.resolve({'wsName': 'BD', 'sheet': ws});
+					}, function (erro) {
+						logger.error(erro);
+						deferBD.reject(erro);
+					});
+				}
+			});
+			// Genera hoja General Ocultos (SOLO SUPERUSER)
+			if (req.user.permisoscalculados.superuser){
+				const deferBDOcultos = Q.defer();
+				promesasExcel.push(deferBDOcultos.promise);
+				procedimientomodel.find({'$and': [{'oculto': {$exists: true}}, {'oculto': true}]}, {codigo: true, denominacion: true, idjerarquia: true, responsables: true, 'cod_plaza': true, periodos: true, ancestros: true}, function (err, procedimientos) {
+					if (err) {
+						logger.error(err);
+						deferBDOcultos.reject(err);
 					} else {
-						logger.error('Fichero no válido' + ruta + filename);
-						res.status(404).send('Fichero no válido');
+						rellenarProcedimientos(procedimientos, year, models, personasByCodPlaza).then(function (ws) {
+							deferBDOcultos.resolve({'wsName': 'BD Ocultos', 'sheet': ws});
+						}, function (erro) {
+							logger.error(erro);
+							deferBDOcultos.reject(err);
+						});
 					}
 				});
-			} else {
-				res.status(404).send('Hash no válido');
 			}
-		};
+			Q.all(promesasExcel).then(function (wss) {
+				const wb = new Workbook();
+				wss.forEach(function(ws) {
+					if (typeof ws === 'object') {
+						wb.SheetNames.push(ws.wsName);
+						wb.Sheets[ws.wsName] = ws.sheet;
+					}
+				});
+				const time = new Date().getTime();
+
+				XLSX.writeFile(wb, cfg.prefixtmp + time + '.xlsx');
+				res.json({'time': time, 'hash': md5(cfg.downloadhashprefix + time)});
+			}, req.eh.errorHelper(res));
+		});
 	};
-})(exports, console);
+	module.exports.rellenarProcedimientos = rellenarProcedimientos;
+	
+
+	function download(req, res) {
+		const cfg = req.metaenvironment.cfg;
+		const filename = req.params.token + (req.query.extension ? req.query.extension : '.xlsx'),
+			rutaefectiva = path.resolve(cfg.prefixtmp, filename);
+		if (md5(cfg.downloadhashprefix + req.params.token) === req.params.hash) {
+			fs.exists(rutaefectiva, function(exists){
+				if (exists) {
+					if (path.dirname(rutaefectiva) + path.sep === cfg.prefixtmp) {
+						res.download(rutaefectiva, filename, function (err){
+							if (err) {
+								logger.error(err);
+							} else {
+								logger.log('Fichero ' + rutaefectiva + ' descargado');
+								fs.unlink(rutaefectiva, function (erro){
+									if (erro) {
+										logger.error('No se ha podido borrar el fichero ', rutaefectiva);
+									} else {
+										logger.log('Fichero', rutaefectiva, 'borrado');
+									}
+								});
+							}
+						});
+					} else {
+						logger.error('Acceso denegado:', rutaefectiva);
+						req.eh.unauthorizedHelper(res);
+					}
+				} else {
+					logger.error('Fichero no válido', rutaefectiva);
+					req.eh.notFoundHelper(res);
+				}
+			});
+		} else {
+			req.eh.notFoundHelper(res);
+		}
+	}
+
+	module.exports.mapReducePeriodosExpress = function(req, res){
+		const models = req.metaenvironment.models;
+		mapReducePeriodos(models, null, req.user.permisoscalculados).then(req.eh.okHelper(res), req.eh.errorHelper(res));
+	};
+
+	module.exports.mapReducePeriodos = mapReducePeriodos;
+	module.exports.completarTabla = completarTabla;
+	module.exports.download = download;
+
+})(module, console);

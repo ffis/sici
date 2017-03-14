@@ -1,465 +1,211 @@
-(function(module){
+(function(module, logger){
 	'use strict';
-
-	var os = require('os');
-	var encoding = require('encoding');
-	var XLSX = require('xlsx');
-	var Browser = false;
-	if (os.platform() === 'linux'){
+	const Q = require('q'),
+		Crawler = require('crawler'),
 		Browser = require('zombie');
-	}
 
-	function parseStr2Int(str){
-		var valor = parseInt(str);
-		if (isNaN(valor)) { valor = 0;}
-		return valor;
-	}
+	function turnObjToArray(obj) {
 
-	var turnObjToArray = function(obj) {
 		return [].map.call(obj, function(element) {
+
 			return element;
 		});
+	}
+
+	module.exports.importacionesprocedimiento = function(req, res){
+		const importacionesmodels = req.metaenvironment.models.importacionesprocedimiento();
+		//TODO: add check permisos
+		const restriccion = {'mostrable': true, 'output.proceso': {'$in': req.user.permisoscalculados.procedimientosescritura}};
+		importacionesmodels.find(restriccion, req.eh.cb(res));
 	};
 
+	module.exports.removeImportacionProcedimiento = function(req, res){
 
-	/* mapping for using XY coordinates on excel */
-	var mapping = [];
-	var index = 0;
-	for (var i = 'A'.charCodeAt(0), j = 'Z'.charCodeAt(0); i <= j; i++){
-		mapping.push(String.fromCharCode(i));
-		index++;
-	}
-
-	for (var prefixi = 'A'.charCodeAt(0), prefixj = 'Z'.charCodeAt(0); prefixi <= prefixj; prefixi++){
-		for (var i = 'A'.charCodeAt(0), j = 'Z'.charCodeAt(0); i <= j; i++){
-			mapping.push(String.fromCharCode(prefixi) + String.fromCharCode(i));
-			index++;
-		}
-	}
-
-	for (var prefix = 'A'.charCodeAt(0), prefixk = 'Z'.charCodeAt(0); prefix <= prefixk; prefix++){
-		for (var prefixi = 'A'.charCodeAt(0), prefixj = 'Z'.charCodeAt(0); prefixi <= prefixj; prefixi++){
-			for (var i = 'A'.charCodeAt(0), j = 'Z'.charCodeAt(0); i <= j; i++){
-				mapping.push( String.fromCharCode(prefix) + String.fromCharCode(prefixi) + String.fromCharCode(i) );
-				index++;
+		if (typeof req.params._id === 'string' && req.params._id !== ''){
+			const importacionesmodels = req.metaenvironment.models.importacionesprocedimiento();
+			if (req.user.permisoscalculados.procedimientosescritura.indexOf(req.params._id) >= 0){
+				const restriccion = {'_id': req.params._id, 'mostrable': true, 'output.proceso': {'$in': req.user.permisoscalculados.procedimientosescritura}};
+				importacionesmodels.update(restriccion, {'$set': {mostrable: false}}, req.eh.cb(res));
+			} else {
+				req.eh.unauthorizedHelper(res);
 			}
+		} else {
+			req.eh.missingParameterHelper(res, '_id');
 		}
-	}
+	};
 
-	function getColumn(x){
-		return mapping[x];
-	}
+	module.exports.applyImportacionProcedimiento = function(req, res){
+		if (typeof req.params.id === 'string' && req.params.id !== ''){
 
-	function transformExcel2Procedimiento(objeto){
-
-		var nuevomapping = {
-			'codigo': 'CODIGO',
-			'denominacion': 'DENOMINACION DEL PROCEDIMIENTO',
-			'cod_plaza': 'Codigo plaza responsable',
-			'idjerarquia': 'Codigo Nivel 3'
-		};
-		var mappinganyo = {
-			'plazo_CS_ANS_naturales': 'Plazo CS /ANS (dias naturales)',
-			'plazo_CS_ANS_habiles': 'Plazo CS /ANS (dias habiles)',
-			'plazo_maximo_responder': 'Plazo maximo legal para responder (dias habiles)',
-			'plazo_maximo_resolver': 'Plazo maximo legal para resolver (dias naturales)',
-			'solicitados': 'Solicitados',
-			'pendientes_iniciales': 'Pendientes iniciales (a 31-12)',
-			'iniciados': 'Iniciados',
-			'resueltos_1': 'Resueltos [1]',
-			'resueltos_5': 'Resueltos [5]',
-			'resueltos_10': 'Resueltos [10]',
-			'resueltos_15': 'Resueltos [15]',
-			'resueltos_30': 'Resueltos [30]',
-			'resueltos_45': 'Resueltos [45]',
-			'resueltos_mas_45': 'Resueltos [>45]',
-			'resueltos_desistimiento_renuncia_caducidad': 'Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)',
-			'resueltos_prescripcion': 'Resueltos por Prescripcion/Caducidad (Resp_Admon)',
-			't_medio_naturales': 'T_ medio dias naturales',
-			't_medio_habiles': 'T_ medio dias habiles descontando T_ de suspensiones',
-			'en_plazo': 'En plazo',
-			'quejas': 'Quejas presentadas en el mes',
-			'recursos': 'Recursos presentados en el mes'
-		};
-		var eliminar = [
-			'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
-			'Codigo Nivel 1', 'Denominacion Nivel 1', 'Codigo Nivel 2', 'Denominacion Nivel 2',	'Denominacion Nivel 3',
-			'Login responsable', 'Nombre responsable', 'Correo-e responsable', 'Telefono responsable'
-		];
+			const id = req.params.id;
+			const models = req.metaenvironment.models,
+				importacionesmodel = req.metaenvironment.models.importacionesprocedimiento(),
+				procedimientomodel = req.metaenvironment.models.procedimiento(),
+				recalculate = req.metaenvironment.recalculate,
+				procedimientolib = req.metaenvironment.procedimiento;
 
 
-		if (!objeto.CODIGO){
-			return false;
-		}
+			const restriccion = {'_id': models.objectId(id), 'mostrable': true, 'output.proceso': {'$in': req.user.permisoscalculados.procedimientosescritura}};
+			importacionesmodel.findOne(restriccion).exec().then(function(registro){
 
-		if (!objeto.periodos){
-			objeto.periodos = {};
-		}
+				if (!registro){
+					req.eh.notFoundHelper(res);
 
-		objeto.periodos.a2013 = {
-			plazo_maximo_resolver: (objeto['Plazo maximo legal para resolver (dias naturales)']),
-			plazo_maximo_responder: (objeto['Plazo maximo legal para responder (dias habiles)']),
-			plazo_CS_ANS_naturales: (objeto['Plazo CS /ANS (dias naturales)']),
-			pendientes_iniciales: 0,
-			total_resueltos: [
-				parseStr2Int(objeto.Enero), parseStr2Int(objeto.Febrero), parseStr2Int(objeto.Marzo),
-				parseStr2Int(objeto.Abril), parseStr2Int(objeto.Mayo), parseStr2Int(objeto.Junio),
-				parseStr2Int(objeto.Julio), parseStr2Int(objeto.Agosto), parseStr2Int(objeto.Septiembre),
-				parseStr2Int(objeto.Octubre), parseStr2Int(objeto.Noviembre), parseStr2Int(objeto.Diciembre)
-			]
-		};
-
-		for (var campo in nuevomapping){
-			objeto[campo] = objeto[ nuevomapping [ campo] ];
-			delete objeto[ nuevomapping [ campo] ];
-		}
-		if (!objeto.periodos.a2014){
-			objeto.periodos.a2014 = {};
-		}
-		for (var f in mappinganyo){
-			objeto.periodos.a2014[f] = objeto[ mappinganyo [ f ] ];
-			delete objeto[ mappinganyo [ f ] ];
-		}
-
-		eliminar.forEach(function(c){
-			delete objeto[c];
-		});
-
-		objeto.idjerarquia = parseInt(objeto.idjerarquia);
-		return objeto;
-	}
-
-
-	module.exports.importacionesprocedimiento = function(models){
-		return function(req, res){
-			var Importaciones = models.importacionesprocedimiento();
-			//add check permisos
-			var restriccion = {mostrable: true, 'output.proceso': { '$in': req.user.permisoscalculados.procedimientosescritura }};
-			Importaciones.find(restriccion, function(err, datos){
-				if (err){
-					console.error(err);
-					res.status(500).json(err);
-				} else {
-					res.json(datos);
+					return;
 				}
-			});
-		};
-	};
 
-	module.exports.removeImportacionProcedimiento = function(models){
-		return function(req, res){
-			var Importaciones = models.importacionesprocedimiento();
-			var id = req.params._id;
-			if (!id){
-				res.status(400).send('Carece de permisos');
-				return;
-			}
+				//estructura cargada, tratar atributo
+				//output: [{indicador:solicitados, proceso:1099, mes:01/6/2014, valor:0, fecha:04/09/2014, usuario:MLA25P},…]
+				const actualizaciones = [];
 
-			var restriccion = {_id: id, mostrable: true, 'output.proceso': { '$in': req.user.permisoscalculados.procedimientosescritura }};
+				registro.output.forEach(function(linea){
+					try {
+						const codigo = linea.proceso,
+							anualidad = linea.mes.split('/')[2],
+							mes = parseInt(linea.mes.split('/')[1], 10) - 1,
+							valor = linea.valor,
+							indicador = linea.indicador;
+						if (req.user.permisoscalculados.procedimientosescritura.indexOf(codigo) >= 0){
+							const def = Q.defer();
+							actualizaciones.push(def.promise);
+							const campo = 'periodos.a' + anualidad + '.' + indicador + '.' + mes;
+							const r = {'$set': {}};
+							r.$set[campo] = valor;
 
-			Importaciones.update(restriccion, {$set: {mostrable: false}}, function(err, datos){
-				if (err){
-					console.error(err);
-					res.status(500).json(err);
-				} else {
-					res.json(datos);
-				}
-			});
-		};
-	};
+							procedimientomodel.update({codigo: codigo}, r, def.makeNodeResolver());
+						}
+					} catch (exc) {
+						logger.error(exc);
+					}
+				});
 
-	module.exports.applyImportacionProcedimiento = function(models, Q, recalculate, P){
-		return function(req, res){
-			var Importaciones = models.importacionesprocedimiento();
-			var Procedimiento = models.procedimiento();
-			var id = req.params._id;
-			if (!id){
-				res.status(400).send('Carece de permisos');
-				return;
-			}
-			var restriccion = {_id: id, mostrable: true, 'output.proceso': { '$in': req.user.permisoscalculados.procedimientosescritura }};
-			Importaciones.find(restriccion, function(err, datos){
-				if (err){
-					console.error(err);
-					res.status(500).json(err);
-				} else {
-					//estructura cargada, tratar atributo
-					//output: [{indicador:solicitados, proceso:1099, mes:01/6/2014, valor:0, fecha:04/09/2014, usuario:MLA25P},…]
-					var defs = [];
-					var fn = function(codigo, restricc, def){
-						Procedimiento.update({codigo: codigo}, restricc,
-							function(erro){
-								if (err){
-									console.error(erro);
-									def.reject(erro);
-								} else {
-									def.resolve(codigo);
-								}
-						});
-					};
-					datos.forEach(function(registro){
-						registro.output.forEach(function(linea){
-							try {
-								var codigo = linea.proceso,
-									anualidad = linea.mes.split('/')[2],
-									mes = parseInt(linea.mes.split('/')[1]) - 1,
-									valor = linea.valor,
-									indicador = linea.indicador;
-								if (req.user.permisoscalculados.procedimientosescritura.indexOf(codigo) !== -1)
-								{
-									var def = Q.defer();
-									defs.push(def.promise);
-									var campo = 'periodos.a' + anualidad + '.' + indicador + '.' + mes;
-									var r = {}; r.$set = {}; r.$set[campo] = valor;
+				Q.all(actualizaciones).then(function(valores){
 
-									fn(codigo, r, def);
-								}
-							} catch (exc) {
-								console.error(exc);
-							}
-						});
-					});
-					Q.all(defs).then(function(valores){
-
-						valores = valores.filter(function(item, pos, self) {
-							return self.indexOf(item) === pos;
-						});
-
-						defs = [];
-						var fun = function(codigo, def){
-							Procedimiento.findOne({codigo: codigo}, function(erro, procedimiento){
-								if (erro){
-									def.reject(erro);
-								} else {
-									recalculate.softCalculateProcedimiento(Q, models, procedimiento).then(function(procedimiento){
-										recalculate.softCalculateProcedimientoCache(Q, models, procedimiento).then(function(procedimiento){
-											P.saveVersion(models, Q, procedimiento).then(function(){
-												procedimiento.markModified('periodos');
-												procedimiento.save(function (error) {
-													if (error){
-														def.reject(error);
-													} else {
-														def.resolve();
-													}
-												});
-											});
+					require('uniq')(valores);
+					
+					function fun(codigo, def){
+						procedimientomodel.findOne({codigo: codigo}, function(erro, procedimiento){
+							if (erro){
+								def.reject(erro);
+							} else {
+								recalculate.softCalculateProcedimiento(models, procedimiento).then(function(procedimient){
+									recalculate.softCalculateProcedimientoCache(models, procedimient).then(function(proced){
+										procedimientolib.saveVersion(models, proced).then(function(){
+											proced.markModified('periodos');
+											proced.save(def.makeNodeResolver());
 										});
 									});
-								}
-							});
-						};
-
-						valores.forEach(function(codigo){
-							var def = Q.defer();
-							defs.push(def.promise);
-							fun(codigo, def);
-						});
-						Q.all(defs).then(function(){
-							Importaciones.update(restriccion, {$set: {mostrable: false}}, function(erro, dato){
-								if (erro){
-									console.error(erro); res.status(500).json(erro);
-								} else {
-									res.json(dato[0]);
-								}
-							});
-						});
-					});
-				}
-			});
-		};
-	};
-
-
-	module.exports.parseGS = function(){
-		return function (req, res){
-				if (!Browser){
-					res.json({});
-				} else {
-					var id = parseInt(req.params.id);
-					if (id > 0){
-						var url = 'http://www.carm.es/web/pagina?IDTIPO=240&IDCONTENIDO=' + id;
-						var browser = new Browser();
-
-						browser.visit(url).then(function() {
-							var datos = {};
-							var campos = browser.querySelectorAll('.campoProcedimiento');
-							var lista = turnObjToArray(campos);
-							lista.forEach(function(detalle){
-								var campo = detalle.childNodes && detalle.childNodes.length > 0 ? detalle.childNodes.item(0).textContent : detalle.textContent;
-								var valorDiv = detalle.nextSibling;
-								var parent = valorDiv.parentNode;
-								var valor = typeof parent.innerHTML === 'string' ? parent.innerHTML : false;
-								if (valor){
-									datos[campo] = valor;
-								}
-							});
-							res.json(datos);
-						}, function(error){
-							console.error(error);
-							res.status(500).json('Error').end();
-						});
-					} else {
-						res.status(404).end();
-					}
-				}
-		};
-	};
-
-	module.exports.parseCr = function(Q, models, Crawler){
-		return function (req, res)
-		{
-
-			var id = parseInt(req.params.id);
-			var url = 'http://www.carm.es/web/pagina?IDTIPO=240&IDCONTENIDO=' + id;
-			var Crawled = models.crawled();
-			var restriccion = {id: id, jerarquia: { '$exists': true}};
-
-			Crawled.find(restriccion, function(err, data){
-				if (err){
-					console.error(err);
-				}
-
-				//if (true){
-
-				var deferred = Q.defer();
-				var cb = function(df) {
-					return function(error, result, $) {
-						if (error){
-							df.reject({});
-							return;
-						}
-						var datos = {};
-
-						$('.campoProcedimiento').each(function(indx, campoProcedimiento) {
-							var campo = $(campoProcedimiento).text();
-							campo = campo.replace('.', '_');
-							datos[campo] = $(campoProcedimiento).next().text();
-						});
-						var jerarquia = [];
-						$('#primeraFilaProc li').each(function(idx, n){
-							var t = $(n).text().trim().split("\n")[0]; if (t){
-								t = encoding.convert(t, 'utf-8', 'utf-8');
-								jerarquia.push(t);
+								});
 							}
 						});
+					}
 
-						var completo = $('.procedimiento').text();
-
-						Crawled.update({id: id}, { id: id, any: datos, jerarquia: jerarquia, completo: completo}, { upsert: true }, function(e){
-								if (e){
-									console.error(e);
-								}
-							});
-
-						df.resolve(datos);
-					};
-				};
-
-				if (!Crawler){
-					res.json({});
-				} else {
-					var c = new Crawler({'maxConnections': 10, 'callback': cb(deferred) });
-					c.queue(url);
-					deferred.promise.then(function (v){
-						res.json(v);
-					}, function(){
-						res.json({});
+					const defers = [];
+					valores.forEach(function(codigo){
+						const def = Q.defer();
+						defers.push(def.promise);
+						fun(codigo, def);
 					});
-				}
-			});
-		};
-	};
-
-
-	module.exports.parseExcel = function (path, worksheetName, maxrows)
-	{
-		var workbook = XLSX.readFile(path);
-		var worksheet = workbook.Sheets[worksheetName];
-		var fields = { lista: [], tipos: {}};
-		var objetos = [];
-
-		for (var fila = 2; fila < maxrows; fila++){
-			if (fila === 2){
-				//cabecera
-				for (var columna = 1; columna < 1000; columna++){
-					var n = getColumn(columna);
-					if (n === 'HP'){ break; }
-					var idx = getColumn(columna) + fila;
-					var campo = typeof worksheet[idx] === 'undefined' ? '' : worksheet[idx].v.trim()
-						.replace('.', '_').replace('.', '_').replace('.', '_')
-						.replace('Ó', 'O').replace('ó', 'o')
-						.replace('í', 'i').replace('Í', 'I')
-						.replace('á', 'a').replace('á', 'a')
-						.replace('á', 'a').replace('é', 'e');
-
-					if (campo === ''){ break; }
-					fields.lista.push(campo);
-					fields.tipos[campo] = (typeof fields.tipos[campo] !== 'undefined') ? 'array' : 'object';
-				}
-			} else {
-
-				var objeto = {};
-
-				for (var columna = 1, maxcolumna = fields.lista.length; columna < maxcolumna; columna++) {
-					var n = getColumn(columna);
-					if (n === 'HP'){ break; }
-					var idx = getColumn(columna) + fila;
-					var valor = typeof worksheet[idx] === 'undefined' ? {t: '', v: ''} : worksheet[idx];
-
-					if (valor.t === 's'){
-						valor.v = valor.v.replace("\\r\\n", '');
-					}
-
-					var campo = fields.lista[columna - 1];
-					var tipo = fields.tipos[campo];
-
-					if (tipo === 'array'){
-						valor.v = parseStr2Int(valor.v);
-					}
-
-					if (typeof objeto[campo] === 'undefined'){
-						if (tipo === 'array' || tipo === 'object'){
-							objeto[campo] = (tipo === 'array' ? [valor.v] : valor.v);
-						}
-					} else {
-						if (!Array.isArray(objeto[campo])) {
-							console.error(campo + ' deberia ser un array');
-							continue;
-						}
-						objeto[campo].push(valor.v);
-					}
-				}
-				objeto = transformExcel2Procedimiento(objeto);
-				if (!objeto){ break; }
-				objetos.push(objeto);
-			}
-		}
-		return objetos;
-	};
-
-	module.exports.postParseExcel = function(Q, models, procedimientos, recalculate){
-		var response = Q.defer();
-		var defs = [];
-		var procs = [];
-		procedimientos.forEach(function(procedimiento){
-			var q = Q.defer();
-			recalculate.softCalculateProcedimiento(Q, models, procedimiento).then(function(procedimiento){
-				recalculate.softCalculateProcedimientoCache(Q, models, procedimiento).then(function(procedimiento){
-					procs.push(procedimiento);
-					q.resolve(procedimiento);
-				}, function(err){
-					q.fail(err);
+					Q.all(defers).then(function(){
+						importacionesmodel.update(restriccion, {$set: {mostrable: false}}, req.eh.cb(res));
+					});
 				});
-			});
-			defs.push(q.promise);
-		});
-
-		Q.all(defs).then(function(){
-			response.resolve(procs);
-		}, function(err){
-			response.fail(err);
-		});
-		return response.promise;
+			}, req.eh.errorHelper(res));
+		} else {
+			req.eh.missingParameterHelper(res, 'id');
+		}
 	};
 
-})(module);
+	module.exports.parseGS = function (req, res){
+		if (typeof req.params.id === 'string' && parseInt(req.params.id, 10) > 0){
+			const settings = req.metaenvironment.settings;
+			const id = parseInt(req.params.id, 10);
+			if (id > 0){
+				const url = settings.urls.procedimiento + id;
+				const browser = new Browser();
+
+				browser.visit(url).then(function(){
+					const datos = {};
+					const campos = browser.querySelectorAll('.campoProcedimiento');
+					const lista = turnObjToArray(campos);
+					lista.forEach(function(detalle){
+						const campo = detalle.childNodes && detalle.childNodes.length > 0 ? detalle.childNodes.item(0).textContent : detalle.textContent;
+						const valorDiv = detalle.nextSibling;
+						const parent = valorDiv.parentNode;
+						const valor = typeof parent.innerHTML === 'string' ? parent.innerHTML : false;
+						if (valor){
+							datos[campo] = valor;
+						}
+					});
+					res.json(datos);
+
+				}, req.eh.errorHelper(res));
+			} else {
+				req.eh.notFoundHelper(res);
+			}
+		} else {
+			req.eh.missingParameterHelper(res, 'id');
+		}
+	};
+
+	function cbParseCr(defer, id) {
+		return function(error, result, $) {
+			if (error){
+				defer.reject({});
+
+				return;
+			}
+			const datos = {};
+
+			$('.campoProcedimiento').each(function(indx, campoProcedimiento) {
+				let campo = $(campoProcedimiento).text();
+				campo = campo.replace('.', '_');
+				datos[campo] = $(campoProcedimiento).next().text();
+			});
+			const jerarquia = [];
+			$('#primeraFilaProc li').each(function(idx, n){
+				const t = $(n).text().trim().split("\n")[0];
+				if (t){
+					//t = encoding.convert(t, 'utf-8', 'utf-8');
+					jerarquia.push(t);
+				}
+			});
+
+			const completo = $('.procedimiento').text();
+			defer.resolve({id: id, any: datos, jerarquia: jerarquia, completo: completo});
+		};
+	}
+
+	module.exports.parseCr = function (req, res){
+
+		if (typeof req.params.id === 'string' && parseInt(req.params.id, 10) > 0){
+
+			const settings = req.metaenvironment.settings;
+			const id = parseInt(req.params.id, 10);
+			const url = settings.urls.procedimiento + id;
+			const crawledmodel = req.metaenvironment.models.crawled();
+			const restriccion = {id: id, jerarquia: {'$exists': true}, expires: {'$gt': new Date()}};
+
+			crawledmodel.find(restriccion).exec().then(function(data){
+				if (data){
+					res.json(data);
+				} else {
+					const deferred = Q.defer(),
+						c = new Crawler({'maxConnections': 10, 'callback': cbParseCr(deferred, id)});
+					c.queue(url);
+
+					deferred.promise.then(function (v){
+						const expiresDate = new Date();
+						expiresDate.setDate(expiresDate.getDate() + 1);
+						v.expires = expiresDate;
+						crawledmodel.update({id: id}, v, {upsert: true});
+						res.json(v.any);
+					}, req.eh.errorHelper(res));
+				}
+			});
+		} else {
+			req.eh.missingParameterHelper(res, 'id');
+		}
+	};
+
+})(module, console);

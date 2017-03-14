@@ -1,40 +1,13 @@
 (function(module){
 	'use strict';
-	module.exports.registroActividad = function (models) {
-		return function (req, res) {
-			var registroActividad = models.registroactividad();
-			var limit = req.query.limit ? parseInt(req.query.limit) : 40;
-			var start = req.query.start ? parseInt(req.query.start) : 0;
-			var restricciones = JSON.parse(JSON.stringify(req.query));
-			delete restricciones.limit;
-			delete restricciones.start;
-			/* if (typeof procedimiento !== 'undefined' && typeof id !== 'undefined') { */
-			registroActividad
-				.find(restricciones)
-				.sort({_id: -1})
-				.skip(start)
-				.limit(limit)
-				.exec()
-				.then(
-					function (data) {
-						if (!data) {
-							res.status(400).json({'error': 'No existe el registro con esas restricciones'});
-						} else {
-							res.json(data);
-						}
-					},
-					function(err){
-						res.status(500).json({error: 'Error acceso a base de datos', details: err});
-					}
-				);
-			/*
-			} else {
-				res.status(400).end('Invocación inválida');
-				return;
-			}
-			*/
-		};
+	module.exports.registroActividad = function (req, res) {
+		const models = req.metaenvironment.models;
+		const registroActividad = models.registroactividad();
+		const limit = req.query.limit ? parseInt(req.query.limit, 10) : 40;
+		const start = req.query.start ? parseInt(req.query.start, 10) : 0;
+		const restricciones = JSON.parse(JSON.stringify(req.query));
+		Reflect.deleteProperty(restricciones, 'limit');
+		Reflect.deleteProperty(restricciones, 'start');
+		registroActividad.find(restricciones).sort({'_id': -1}).skip(start).limit(limit).exec().then(req.eh.okHelper(res, true), req.eh.errorHelper(res));
 	};
-
-
 })(module);

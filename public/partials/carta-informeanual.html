@@ -1,10 +1,10 @@
-
 <div class="row">
 	<div class="col-md-10 col-md-offset-1 col-lg-10 col-lg-offset-1 col-xs-12">
 		<div class="text-right col-md-12">
 			<a class="btn btn-default" href="#" ng-click="downloadDocx()" title="Descargar versi&oacute;n docx" ng-class="{'disabled': descargando, 'text-danger': descargando}">
 				<span class="glyphicon glyphicon-floppy-save"></span> Descargar informe en docx
-			</a><br />
+			</a>
+			<br />
 		</div>
 		<h3>{{cartaservicio.denominacion}} - {{anualidad}}</h3>
 		<div class="row">
@@ -33,22 +33,18 @@
 				<a href="{{cartaservicio.url}}" target="_blank">{{cartaservicio.url}}</a>
 			</div>
 		</div>
-
 		<div class="form-group" style="margin-top:2em">
 			<label class="modelo" for="modelo">Informe anual de evaluación de la Carta de Servicios: Basado en los datos de evaluación de la Carta de Servicios</label>
 			<textarea class="form-control" style="width:100%; height:5em" ng-model="planmejora.modelo" id="modelo" ng-blur="actualizarPlan()"></textarea>
 		</div>
-
 		<div class="form-group">
 			<label class="enunciado" for="descripcionplanmejora">Descripción del Plan de Mejora</label>
 			<textarea class="form-control" style="width:100%; height:5em" ng-model="planmejora.descripcionplanmejora" id="descripcionplanmejora" ng-blur="actualizarPlan()"></textarea>
 		</div>
-
 		<div class="row" style="margin-top:1em">
 			<div class="col-xs-12">
 				<h4>ACCIONES PROGRAMADAS: (EN UN PLAN DE MEJORA DE LAS CARTAS DE SERVICIO)
 					CORRESPONDE AL PLAN DE MEJORA {{anualidad}} DE LA CARTA CÓDIGO {{cartaservicio.expediente}}</h4>
-
 				<table class="table table-condensed table-striped table-bordered table-hover" ng-if="acciones.length > 0">
 					<thead>
 						<tr>
@@ -72,297 +68,290 @@
 						</tr>
 					</tbody>
 				</table>
-
-
 				<div class="text-center" ng-hide="accion" style="margin-bottom:1em">
 					<button class="btn btn-danger" ng-click="newAccion()">Añadir nueva acción de mejora</button>
 				</div>
 				<form>
-
-				<div class="panel panel-danger" ng-show="accion">
-					<div class="panel-heading">
-						Acción número: {{accion.numero}}
-					</div>
-					<div class="panel-body">
-
-						<div class="mejora">
-							<div class="form-group">
-								<label class="enunciado" for="numero">Número</label>
-								<input class="form-control" type="text" ng-model="accion.numero" id="numero" />
-							</div>
-							<div class="form-group">
-								<label class="enunciado" for="descripcion">Descripción de la acción</label>
-								<textarea class="form-control" style="width:100%; height:5em" ng-model="accion.descripcion" id="modelo"></textarea>
-							</div>
-
-							<div class="col-lg-6 col-md-12">
-								<div class="panel panel-default">
-									<div class="panel-heading">
-										<h3 class="panel-title">Personal relacionado</h3>
-									</div>
-									<div class="panel-body">
-										<div class="form-group">
-											<label class="enunciado" for="promotor">Promotor</label>
-											<p class="help-block">La más alta autoridad responsable del tema que tiene interés y apoya la acción; puede ser considerada como el usuario final.</p>
-											<div class="col-md-12" ng-hide="accion.promotor">
-												<div class="col-md-11 col-lg-11">
-													<input class="form-control" ng-model="promotorseleccionado" placeholder="Buscar por plaza, login carm o nombre" type="text"
-													typeahead-min-length="3" uib-typeahead="eresp as showPersona(eresp) for eresp in getPersonas($viewValue)"  />
-													<br style="clear:both" />
-												</div>
-												<div class="col-md-1 col-lg-1">
-													<span class="btn btn-default" ng-click="setPromotor(promotorseleccionado)" ng-class="{disabled: !promotorseleccionado._id }">
+					<div class="panel panel-danger" ng-show="accion">
+						<div class="panel-heading">
+							Acción número: {{accion.numero}}
+						</div>
+						<div class="panel-body">
+							<div class="mejora">
+								<div class="form-group">
+									<label class="enunciado" for="numero">Número</label>
+									<input class="form-control" type="text" ng-model="accion.numero" id="numero" />
+								</div>
+								<div class="form-group">
+									<label class="enunciado" for="descripcion">Descripción de la acción</label>
+									<textarea class="form-control" style="width:100%; height:5em" ng-model="accion.descripcion" id="modelo"></textarea>
+								</div>
+								<div class="col-lg-6 col-md-12">
+									<div class="panel panel-default">
+										<div class="panel-heading">
+											<h3 class="panel-title">Personal relacionado</h3>
+										</div>
+										<div class="panel-body">
+											<div class="form-group">
+												<label class="enunciado" for="promotor">Promotor</label>
+												<p class="help-block">La más alta autoridad responsable del tema que tiene interés y apoya la acción; puede ser considerada como el usuario final.</p>
+												<div class="col-md-12" ng-hide="accion.promotor">
+													<div class="col-md-11 col-lg-11">
+														<input class="form-control" ng-model="promotorseleccionado" placeholder="Buscar por plaza, login carm o nombre" type="text" typeahead-min-length="3" uib-typeahead="eresp as showPersona(eresp) for eresp in getPersonas($viewValue)" />
+														<br style="clear:both" />
+													</div>
+													<div class="col-md-1 col-lg-1">
+														<span class="btn btn-default" ng-click="setPromotor(promotorseleccionado)" ng-class="{disabled: !promotorseleccionado._id }">
 														<span class="fa fa-plus" title="establecer promotor"></span>
-													</span>
+														</span>
+													</div>
 												</div>
-											</div>
-											<div class="col-md-12" ng-show="accion.promotor">
-												<div class="col-sm-2">
-													<span style="font-style: italic;">[{{personasBy_Id[accion.promotor].login}}]</span>
-												</div>
-												<div class="col-sm-4">
-													{{personasBy_Id[accion.promotor].apellidos}}, {{personasBy_Id[accion.promotor].nombre}}
-												</div>
-												<div class="col-sm-3">
-													<span ng-show="personasBy_Id[accion.promotor].codplaza">
+												<div class="col-md-12" ng-show="accion.promotor">
+													<div class="col-sm-2">
+														<span style="font-style: italic;">[{{personasBy_Id[accion.promotor].login}}]</span>
+													</div>
+													<div class="col-sm-4">
+														{{personasBy_Id[accion.promotor].apellidos}}, {{personasBy_Id[accion.promotor].nombre}}
+													</div>
+													<div class="col-sm-3">
+														<span ng-show="personasBy_Id[accion.promotor].codplaza">
 														<i class="fa fa-sitemap"></i>
 														({{personasBy_Id[accion.promotor].codplaza}})
 													</span>
-												</div>
-												<div class="col-sm-2">
-													<span ng-show="personasBy_Id[accion.promotor].telefono">
-														<span class="fa fa-phone"></span>
-														{{personasBy_Id[accion.promotor].telefono}}
-													</span>
-												</div>
-												<div class="col-sm-1 text-center">
-													<span class="fa fa-trash" ng-click="removePromotor()"></span>
-												</div>
-												<div style="clear:both"></div>
-											</div>
-										</div>
-										<div class="form-group" style="margin-top: 1em;margin-bottom: 1em">
-											<label class="enunciado" for="responsable">Responsable de la acción</label>
-											<p class="help-block">La persona o unidad encargada de la acción.</p>
-											<div class="col-md-12" ng-hide="accion.responsable">
-												<div class="col-md-11 col-lg-11">
-													<input class="form-control" ng-model="responsableseleccionado" placeholder="Buscar por plaza, login carm o nombre" type="text"
-													typeahead-min-length="3" uib-typeahead="eresp as showPersona(eresp) for eresp in getPersonas($viewValue)"  />
-													<br style="clear:both" />
-												</div>
-												<div class="col-md-1 col-lg-1">
-													<span class="btn btn-default" ng-class="{disabled: !responsableseleccionado._id }" ng-click="setResponsable(responsableseleccionado)">
-														<span class="fa fa-plus" title="establecer responsable"></span>
-													</span>
-												</div>
-											</div>
-											<div class="col-md-12" ng-show="accion.responsable">
-												<div class="col-sm-2">
-													<span style="font-style: italic;">[{{personasBy_Id[accion.responsable].login}}]</span>
-												</div>
-												<div class="col-sm-4">
-													{{personasBy_Id[accion.responsable].apellidos}}, {{personasBy_Id[accion.responsable].nombre}}
-												</div>
-												<div class="col-sm-3">
-													<span ng-show="personasBy_Id[accion.responsable].codplaza">
-														<i class="fa fa-sitemap"></i>
-														({{personasBy_Id[accion.responsable].codplaza}})
-													</span>
-												</div>
-												<div class="col-sm-2">
-													<span ng-show="personasBy_Id[accion.responsable].telefono">
-														<span class="fa fa-phone"></span>
-														{{personasBy_Id[accion.responsable].telefono}}
-													</span>
-												</div>
-												<div class="col-sm-1 text-center">
-													<span class="fa fa-trash" ng-click="removeResponsable()"></span>
-												</div>
-												<div style="clear:both"></div>
-											</div>
-										</div>
-										<div class="form-group" style="margin-top: 1em;margin-bottom: 1em">
-											<label class="enunciado" for="equipo">Equipo de la acción.</label>
-											<p class="help-block">Personas designadas para trabajar en la implantación de la acción; pueden pertenecer o no a la organización</p>
-										</div>
-										<div class="col-md-12">
-											<ul class="list-group">
-												<li ng-repeat="persona in accion.equipo track by $index" class="list-group-item">
-													<div class="col-sm-2">
-														<span style="font-style: italic;">[{{personasBy_Id[persona].login}}]</span>
-													</div>
-													<div class="col-sm-4">
-														{{personasBy_Id[persona].apellidos}}, {{personasBy_Id[persona].nombre}}
-													</div>
-													<div class="col-sm-3">
-														<span ng-show="personasBy_Id[persona].codplaza">
-															<i class="fa fa-sitemap"></i>
-															({{personasBy_Id[persona].codplaza}})
-														</span>
 													</div>
 													<div class="col-sm-2">
-														<span ng-show="personasBy_Id[persona].telefono">
-															<span class="fa fa-phone"></span>
-															{{personasBy_Id[persona].telefono}}
+														<span ng-show="personasBy_Id[accion.promotor].telefono">
+														<span class="fa fa-phone"></span> {{personasBy_Id[accion.promotor].telefono}}
 														</span>
 													</div>
 													<div class="col-sm-1 text-center">
-															<span class="fa fa-trash" ng-click="removePersonaEquipo(persona)"></span>
+														<span class="fa fa-trash" ng-click="removePromotor()"></span>
 													</div>
 													<div style="clear:both"></div>
-												</li>
-											</ul>
-										</div>
-										<div class="col-md-12">
-											<div class="panel panel-default">
-												<div class="panel-heading">
-													Nueva persona del equipo
 												</div>
-												<div class="panel-body">
-													<p class="help-block">Utilice el siguiente formulario para introducir una nueva persona. No olvide pulsar el botón de añadir al final del mismo.</p>
+											</div>
+											<div class="form-group" style="margin-top: 1em;margin-bottom: 1em">
+												<label class="enunciado" for="responsable">Responsable de la acción</label>
+												<p class="help-block">La persona o unidad encargada de la acción.</p>
+												<div class="col-md-12" ng-hide="accion.responsable">
 													<div class="col-md-11 col-lg-11">
-														<input class="form-control" ng-model="usuarioseleccionado" placeholder="Buscar por plaza, login carm o nombre" type="text"
-														typeahead-min-length="3" typeahead="eresp as showPersona(eresp) for eresp in getPersonas($viewValue)"  />
+														<input class="form-control" ng-model="responsableseleccionado" placeholder="Buscar por plaza, login carm o nombre" type="text" typeahead-min-length="3" uib-typeahead="eresp as showPersona(eresp) for eresp in getPersonas($viewValue)" />
+														<br style="clear:both" />
 													</div>
 													<div class="col-md-1 col-lg-1">
-														<span class="btn btn-default" ng-class="{disabled: !usuarioseleccionado._id }" ng-click="addPersonaEquipo(usuarioseleccionado)">
-															<span class="fa fa-plus" title="añadir nueva persona"></span>
+														<span class="btn btn-default" ng-class="{disabled: !responsableseleccionado._id }" ng-click="setResponsable(responsableseleccionado)">
+														<span class="fa fa-plus" title="establecer responsable"></span>
 														</span>
 													</div>
 												</div>
+												<div class="col-md-12" ng-show="accion.responsable">
+													<div class="col-sm-2">
+														<span style="font-style: italic;">[{{personasBy_Id[accion.responsable].login}}]</span>
+													</div>
+													<div class="col-sm-4">
+														{{personasBy_Id[accion.responsable].apellidos}}, {{personasBy_Id[accion.responsable].nombre}}
+													</div>
+													<div class="col-sm-3">
+														<span ng-show="personasBy_Id[accion.responsable].codplaza">
+														<i class="fa fa-sitemap"></i>
+														({{personasBy_Id[accion.responsable].codplaza}})
+													</span>
+													</div>
+													<div class="col-sm-2">
+														<span ng-show="personasBy_Id[accion.responsable].telefono">
+														<span class="fa fa-phone"></span> {{personasBy_Id[accion.responsable].telefono}}
+														</span>
+													</div>
+													<div class="col-sm-1 text-center">
+														<span class="fa fa-trash" ng-click="removeResponsable()"></span>
+													</div>
+													<div style="clear:both"></div>
+												</div>
+											</div>
+											<div class="form-group" style="margin-top: 1em;margin-bottom: 1em">
+												<label class="enunciado" for="equipo">Equipo de la acción.</label>
+												<p class="help-block">Personas designadas para trabajar en la implantación de la acción; pueden pertenecer o no a la organización</p>
+											</div>
+											<div class="col-md-12">
+												<ul class="list-group">
+													<li ng-repeat="persona in accion.equipo track by $index" class="list-group-item">
+														<div class="col-sm-2">
+															<span style="font-style: italic;">[{{personasBy_Id[persona].login}}]</span>
+														</div>
+														<div class="col-sm-4">
+															{{personasBy_Id[persona].apellidos}}, {{personasBy_Id[persona].nombre}}
+														</div>
+														<div class="col-sm-3">
+															<span ng-show="personasBy_Id[persona].codplaza">
+															<i class="fa fa-sitemap"></i>
+															({{personasBy_Id[persona].codplaza}})
+														</span>
+														</div>
+														<div class="col-sm-2">
+															<span ng-show="personasBy_Id[persona].telefono">
+															<span class="fa fa-phone"></span> {{personasBy_Id[persona].telefono}}
+															</span>
+														</div>
+														<div class="col-sm-1 text-center">
+															<span class="fa fa-trash" ng-click="removePersonaEquipo(persona)"></span>
+														</div>
+														<div style="clear:both"></div>
+													</li>
+												</ul>
+											</div>
+											<div class="col-md-12">
+												<div class="panel panel-default">
+													<div class="panel-heading">
+														Nueva persona del equipo
+													</div>
+													<div class="panel-body">
+														<p class="help-block">Utilice el siguiente formulario para introducir una nueva persona. No olvide pulsar el botón de añadir al final del mismo.</p>
+														<div class="col-md-11 col-lg-11">
+															<input class="form-control" ng-model="usuarioseleccionado" placeholder="Buscar por plaza, login carm o nombre" type="text" typeahead-min-length="3" typeahead="eresp as showPersona(eresp) for eresp in getPersonas($viewValue)" />
+														</div>
+														<div class="col-md-1 col-lg-1">
+															<span class="btn btn-default" ng-class="{disabled: !usuarioseleccionado._id }" ng-click="addPersonaEquipo(usuarioseleccionado)">
+															<span class="fa fa-plus" title="añadir nueva persona"></span>
+															</span>
+														</div>
+													</div>
+												</div>
 											</div>
 										</div>
 									</div>
 								</div>
-							</div>
-							<div class="col-lg-6 col-md-12">
-								<div class="panel panel-default">
-									<div class="panel-heading">
-										<h3 class="panel-title">Afecta a</h3>
-									</div>
-									<div class="panel-body">
-										<p class="enunciado">Afecta a
-											<div class="checkbox" ng-repeat="(i, r) in afectables">
-												<label><input type="checkbox" ng-model="accion.afectables[r]"> {{r}}</label>
-											</div>
-										</p>
-										<p><span class="enunciado">Alcance</span>
-											<p class="help-block">¿Afecta a toda la organización?</p>
-											<ul style="list-style: none">
-												<li><label>
-													<input type="radio" name="afecta" ng-model="accion.afecta" ng-value="true" ng-click="setOrganicaCompleta()" /> Sí
-												</label></li>
-												<li><label>
-													<input type="radio" name="afecta" ng-model="accion.afecta" ng-value="false" /> No
-												</label></li>
-											</ul>
-										</p>
-										<div class="form-group" ng-show="accion.organica != 1 || accion.afecta === false ">
-											<label class="enunciado" for="jerarquia">Estructura orgánica a la que afecta</label>
-											<div class="col-sm-11">
-												<input class="form-control" type="text" disabled ng-model="seleccionado.nombrelargo" />
-											</div>
-											<div class="col-sm-1">
-												<span class="btn btn-default" ng-click="mostrarOrganica()"><span class="fa fa-pencil"></span></span>
-											</div>
+								<div class="col-lg-6 col-md-12">
+									<div class="panel panel-default">
+										<div class="panel-heading">
+											<h3 class="panel-title">Afecta a</h3>
 										</div>
-										<div class="form-group" style="margin-top:3em">
-											<label class="enunciado" for="procedimientos">Procedimientos</label>
-											<p class="help-block">Si afecta a uno o varios procedimientos poner código, separados por comas</p>
-											<input class="form-control" type="text" ng-model="accion.procedimientos" id="procedimientos" />
+										<div class="panel-body">
+											<p class="enunciado">Afecta a
+												<div class="checkbox" ng-repeat="(i, r) in afectables">
+													<label>
+														<input type="checkbox" ng-model="accion.afectables[r]"> {{r}}</label>
+												</div>
+											</p>
+											<p><span class="enunciado">Alcance</span>
+												<p class="help-block">¿Afecta a toda la organización?</p>
+												<ul style="list-style: none">
+													<li>
+														<label>
+															<input type="radio" name="afecta" ng-model="accion.afecta" ng-value="true" ng-click="setOrganicaCompleta()" /> Sí
+														</label>
+													</li>
+													<li>
+														<label>
+															<input type="radio" name="afecta" ng-model="accion.afecta" ng-value="false" /> No
+														</label>
+													</li>
+												</ul>
+											</p>
+											<div class="form-group" ng-show="accion.organica != 1 || accion.afecta === false ">
+												<label class="enunciado" for="jerarquia">Estructura orgánica a la que afecta</label>
+												<div class="col-sm-11">
+													<input class="form-control" type="text" disabled ng-model="seleccionado.nombrelargo" />
+												</div>
+												<div class="col-sm-1">
+													<span class="btn btn-default" ng-click="mostrarOrganica()"><span class="fa fa-pencil"></span></span>
+												</div>
+											</div>
+											<div class="form-group" style="margin-top:3em">
+												<label class="enunciado" for="procedimientos">Procedimientos</label>
+												<p class="help-block">Si afecta a uno o varios procedimientos poner código, separados por comas</p>
+												<input class="form-control" type="text" ng-model="accion.procedimientos" id="procedimientos" />
+											</div>
 										</div>
 									</div>
 								</div>
-							</div>
-							<div class="col-md-12" ng-show="organicamostrada">
+								<div class="col-md-12" ng-show="organicamostrada">
 									<organismos otitle="'Seleccione la estructura orgánica a la que afecta'" arbol="arbol" tipoelementos="'carta de compromisos'" attr="'numcartas'" setseleccionado="setseleccionado" seleccionado="seleccionado" filtro="filtro"></organismos>
-							</div>
-							<div class="col-lg-12 col-md-12">
-								<div class="form-group">
-									<label class="enunciado" for="gruposinteres">Grupos de interés</label>
-									<input class="form-control" type="text" ng-model="accion.gruposinteres" id="gruposinteres" />
 								</div>
-								<div class="form-group">
-									<label class="enunciado" for="fortalezas">Fortalezas, definidas en la evaluación</label>
-									<input class="form-control" type="text" ng-model="accion.fortalezas" id="fortalezas" />
-								</div>
-								<div class="form-group">
-									<label class="enunciado" for="areasmejora">Áreas de mejora definidas en la evaluación</label>
-									<input class="form-control" type="text" ng-model="accion.areasmejora" id="areasmejora" />
-								</div>
-								<div class="form-group">
-									<label class="enunciado" for="contexto">Contexto y áreas de mejora</label>
-									<input class="form-control" type="text" ng-model="accion.contexto" id="contexto" />
-								</div>
-								<div class="form-group">
-									<label class="enunciado" for="alternativas">Alternativas a explorar</label>
-									<input class="form-control" type="text" ng-model="accion.alternativas" id="alternativas" />
-								</div>
-								<div class="form-group">
-									<label class="enunciado" for="resultadoesperado">Resultado esperado final (entregado)</label>
-									<input class="form-control" type="text" ng-model="accion.resultadoesperado" id="resultadoesperado" />
-								</div>
-							</div>
-							<div class="col-lg-6 col-md-12">
-								<div class="panel panel-default">
-									<div class="panel-heading">
-										<h3 class="panel-title">Requisitos</h3>
+								<div class="col-lg-12 col-md-12">
+									<div class="form-group">
+										<label class="enunciado" for="gruposinteres">Grupos de interés</label>
+										<input class="form-control" type="text" ng-model="accion.gruposinteres" id="gruposinteres" />
 									</div>
-									<div class="panel-body">
-										<p class="enunciado">Restricciones
-											<ul style="list-style: none">
-												<li ng-repeat="(i, r) in restricciones">
-													<label><input type="checkbox" ng-model="accion.restricciones[r]"> {{r}}</label>
-												</li>
-											</ul>
-										</p>
-										<div class="form-group">
-											<label class="enunciado" for="rrhhdia">Recursos humanos necesarios (en persona/ día)</label>
-											<input class="form-control" type="text" ng-model="accion.rrhhdia" id="rrhhdia" />
-										</div>
-										<div class="form-group">
-											<label class="enunciado" for="presupuesto">Presupuesto</label>
-											<input class="form-control" type="text" ng-model="accion.presupuesto" id="presupuesto" />
-										</div>
+									<div class="form-group">
+										<label class="enunciado" for="fortalezas">Fortalezas, definidas en la evaluación</label>
+										<input class="form-control" type="text" ng-model="accion.fortalezas" id="fortalezas" />
+									</div>
+									<div class="form-group">
+										<label class="enunciado" for="areasmejora">Áreas de mejora definidas en la evaluación</label>
+										<input class="form-control" type="text" ng-model="accion.areasmejora" id="areasmejora" />
+									</div>
+									<div class="form-group">
+										<label class="enunciado" for="contexto">Contexto y áreas de mejora</label>
+										<input class="form-control" type="text" ng-model="accion.contexto" id="contexto" />
+									</div>
+									<div class="form-group">
+										<label class="enunciado" for="alternativas">Alternativas a explorar</label>
+										<input class="form-control" type="text" ng-model="accion.alternativas" id="alternativas" />
+									</div>
+									<div class="form-group">
+										<label class="enunciado" for="resultadoesperado">Resultado esperado final (entregado)</label>
+										<input class="form-control" type="text" ng-model="accion.resultadoesperado" id="resultadoesperado" />
 									</div>
 								</div>
-							</div>
-							<div class="col-lg-6 col-md-12">
-								<div class="panel panel-default">
-									<div class="panel-heading">
-										<h3 class="panel-title">Calendario</h3>
-									</div>
-									<div class="panel-body">
-										<div class="form-group">
-											<label class="enunciado" for="fechainicio">Fecha de inicio</label>
-											<input class="form-control" type="text" ng-model="accion.fechainicio" id="fechainicio" />
+								<div class="col-lg-6 col-md-12">
+									<div class="panel panel-default">
+										<div class="panel-heading">
+											<h3 class="panel-title">Requisitos</h3>
 										</div>
-										<p class="enunciado">Plazo estimado
-											<div class="radio" ng-repeat="(i, r) in plazos">
-												<label><input type="radio" name="plazo" ng-model="accion.plazo" ng-value="r"> {{r}}</label>
+										<div class="panel-body">
+											<p class="enunciado">Restricciones
+												<ul style="list-style: none">
+													<li ng-repeat="(i, r) in restricciones">
+														<label>
+															<input type="checkbox" ng-model="accion.restricciones[r]"> {{r}}</label>
+													</li>
+												</ul>
+											</p>
+											<div class="form-group">
+												<label class="enunciado" for="rrhhdia">Recursos humanos necesarios (en persona/ día)</label>
+												<input class="form-control" type="text" ng-model="accion.rrhhdia" id="rrhhdia" />
 											</div>
-										</p>
+											<div class="form-group">
+												<label class="enunciado" for="presupuesto">Presupuesto</label>
+												<input class="form-control" type="text" ng-model="accion.presupuesto" id="presupuesto" />
+											</div>
+										</div>
 									</div>
 								</div>
-							</div>
-							<div class="col-md-12">
-								<div class="text-center" style="margin-bottom:1em">
-									<button class="btn btn-default" ng-click="guardar()">Actualizar acción</button>
-									<button class="btn btn-danger" ng-click="cancelar()">Cancelar edición</button>
+								<div class="col-lg-6 col-md-12">
+									<div class="panel panel-default">
+										<div class="panel-heading">
+											<h3 class="panel-title">Calendario</h3>
+										</div>
+										<div class="panel-body">
+											<div class="form-group">
+												<label class="enunciado" for="fechainicio">Fecha de inicio</label>
+												<input class="form-control" type="text" ng-model="accion.fechainicio" id="fechainicio" />
+											</div>
+											<p class="enunciado">Plazo estimado
+												<div class="radio" ng-repeat="(i, r) in plazos">
+													<label>
+														<input type="radio" name="plazo" ng-model="accion.plazo" ng-value="r"> {{r}}</label>
+												</div>
+											</p>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="text-center" style="margin-bottom:1em">
+										<button class="btn btn-default" ng-click="guardar()">Actualizar acción</button>
+										<button class="btn btn-danger" ng-click="cancelar()">Cancelar edición</button>
+									</div>
 								</div>
 							</div>
 						</div>
-					</div>
 				</form>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
-<style>
-.enunciado { font-weight: bold }
-</style>
-
-<!--
-
-					
-					-->
+	<style>
+	.enunciado {
+		font-weight: bold
+	}
+	</style>

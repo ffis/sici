@@ -1,20 +1,64 @@
 (function(module, logger){
 	'use strict';
 
-	function parseStr2Int(str) {
-		var valor = parseInt(str);
+	const Q = require('q');
+	const attrsOrigenjerarquia = ['jerarquialectura', 'jerarquiaescritura'];
+
+	function parseStr2Int(str){
+		var valor = parseInt(str, 10);
 		if (isNaN(valor)){
-			valor = 0;
+
+			return 0;
 		}
+
 		return valor;
 	}
 
+	function reportError(e){
+		if (e) {
+			logger.error(e);
+		}
+	}
 
-	module.exports.softCalculatePermiso = function (Q, models, permiso) {
-		var Jerarquia = models.jerarquia();
-		var Procedimiento = models.procedimiento();
-		var EntidadObjeto = models.entidadobjeto();
-		var Persona = models.persona();
+	function habilitaPersonasConPermisos(personamodel, permiso){
+		const restriccionPersona = {};
+		if (permiso.login){
+			restriccionPersona.login = permiso.login;
+		}
+		if (permiso.codplaza){
+			restriccionPersona.codplaza = permiso.codplaza;
+		}
+
+		if (permiso.login && permiso.codplaza){
+			personamodel.update(restriccionPersona, {'$set': {'habilitado': true}}, {'multi': 1}, function (err) {
+				if (err) {
+					console.log(err);
+				}
+			});
+		}
+	}
+
+	function updatePermisoAttr(defer, attr, idprop, permiso) {
+		return function (err, objetos) {
+			if (err) {
+				defer.reject(err);
+			} else {
+
+				objetos.forEach(function(objeto) {
+					if (permiso[attr].indexOf(String(objeto[idprop])) < 0){
+						permiso[attr].push(String(objeto[idprop]));
+					}
+				});
+				defer.resolve();
+			}
+		};
+	}
+
+	function softCalculatePermiso(models, permiso) {
+		const jerarquiamodel = models.jerarquia();
+		const procedimientomodel = models.procedimiento();
+		const entidadObjetomodel = models.entidadobjeto();
+		const personamodel = models.persona();
 		/*
 		 origen de datos:
 		'jerarquiadirectalectura' : [Number],
@@ -23,10 +67,10 @@
 		'procedimientosdirectaescritura' : [Number],
 		 */
 
-		var deferred = Q.defer();
-		var deferredProcedimiento = Q.defer();
-		var deferredEntidadObjeto = Q.defer();
-		var defsPEO = [ deferredProcedimiento.promise, deferredEntidadObjeto.promise];
+		const deferred = Q.defer();
+		const deferredProcedimiento = Q.defer();
+		const deferredEntidadObjeto = Q.defer();
+		const defsPEO = [deferredProcedimiento.promise, deferredEntidadObjeto.promise];
 
 		permiso.jerarquialectura = [];
 		permiso.jerarquiaescritura = [];
@@ -36,72 +80,44 @@
 		permiso.entidadobjetoescritura = [];
 
 		/**** PARCHE PARA HABILITAR A LAS PERSONAS CON ALGÚN PERMISO ***/
-		var restriccionPersona = {};
-		if (permiso.login){
-			restriccionPersona.login = permiso.login;
-		}
-		if (permiso.codplaza){
-			restriccionPersona.codplaza = permiso.codplaza;
-		}
-
-		if (permiso.login && permiso.codplaza)
-		{
-			Persona.update(restriccionPersona, { '$set': {habilitado: true}}, {multi: 1}, function (err) {
-				if (err) {
-					console.log(err);
-				}
-			});
-		}
+		habilitaPersonasConPermisos(personamodel, permiso);
 		/**** FIN PARCHE ***/
 
 		// comprobamos que cualquier permiso sobre procedimiento permite leer la jerarquia a que pertenece.
-		var superarray = (Array.isArray(permiso.procedimientosdirectalectura) ? permiso.procedimientosdirectalectura : []);
+		let superarray = (Array.isArray(permiso.procedimientosdirectalectura) ? permiso.procedimientosdirectalectura : []);
 		superarray = superarray.concat(Array.isArray(permiso.procedimientosdirectaescritura) ? permiso.procedimientosdirectaescritura : []);
-		var restriccion_proc = null;
-		if (superarray.length > 0)
-		{
-			restriccion_proc = {
-				'$or': [
-					{'codigo': {'$in': superarray}}
-				]
-			};
+		let restriccionProc = null;
+		if (superarray.length > 0){
+			restriccionProc = {'$or': [{'codigo': {'$in': superarray}}]};
 		}
-		//ideam para las entidadesobjeto
+
+		//idem para las entidadesobjeto
 		superarray = (Array.isArray(permiso.entidadobjetodirectalectura) ? permiso.entidadobjetodirectalectura : []);
 		superarray = superarray.concat(Array.isArray(permiso.entidadobjetodirectaescritura) ? permiso.entidadobjetodirectaescritura : []);
-		var restriccion_eo = null;
+		let restriccionEo = null;
 		if (superarray.length > 0){
-			restriccion_eo = {
-				'$or' : [
-					{ '_id' : {'$in' : superarray}}
-				]
-			};
+			restriccionEo = {'$or': [{'_id': {'$in': superarray}}]};
 		}
 
 		// si el permiso es otorgado a un codigo de plaza...
 		if (permiso.codplaza && permiso.codplaza !== '') {
-			if (restriccion_proc !== null){
-				restriccion_proc['$or'].push({cod_plaza: permiso.codplaza});
+			if (restriccionProc === null){
+				restriccionProc = {cod_plaza: permiso.codplaza};
 			} else {
-				restriccion_proc = {cod_plaza: permiso.codplaza};
+				restriccionProc['$or'].push({cod_plaza: permiso.codplaza});
 			}
-			if (restriccion_eo !== null){
-				restriccion_eo['$or'].push({cod_plaza: permiso.codplaza});
+			if (restriccionEo === null){
+				restriccionEo = {cod_plaza: permiso.codplaza};
+
 			} else {
-				restriccion_eo = {cod_plaza: permiso.codplaza};
+				restriccionEo['$or'].push({cod_plaza: permiso.codplaza});
 			}
 		}
 
 
-		if (restriccion_proc)
-		{
+		if (restriccionProc){
 			//buscamos los procedimientos cuyo responsable sea el del permiso
-			Procedimiento.find(restriccion_proc).select('idjerarquia cod_plaza codigo').exec(function (err, procedimientos) {
-				if (err) {
-					console.error(101, err);
-					deferredProcedimiento.reject(err);
-					return;
-				}
+			procedimientomodel.find(restriccionProc).select('idjerarquia cod_plaza codigo').exec().then(function(procedimientos) {
 				// para cada procedimiento cuyo responsable sea el del permiso dado, comprobamos que el permiso especifica tal relación, es decir, que
 				// existe permisos explícito, y de no ser así se incluye. Esto significa establecer como permiso calculado de lecutra y escritura.
 				// siendo solo en el calculado, de cambiar el propietario del procedimiento, desaparecerá su permiso explícito en cuanto se alcancen las
@@ -112,339 +128,259 @@
 					}
 
 					if (procedimiento.cod_plaza === permiso.codplaza) {
-						if (permiso.procedimientoslectura.indexOf(procedimiento.codigo) === -1){
-							permiso.procedimientoslectura.push(procedimiento.codigo);
+						if (permiso.procedimientoslectura.indexOf(String(procedimiento.codigo)) === -1){
+							permiso.procedimientoslectura.push(String(procedimiento.codigo));
 						}
-						if (permiso.procedimientosescritura.indexOf(procedimiento.codigo) === -1){
-							permiso.procedimientosescritura.push(procedimiento.codigo);
+						if (permiso.procedimientosescritura.indexOf(String(procedimiento.codigo)) === -1){
+							permiso.procedimientosescritura.push(String(procedimiento.codigo));
 						}
 					}
 				});
+
 				deferredProcedimiento.resolve();
-			});
+			}, deferredProcedimiento.reject);
 		} else {
 			deferredProcedimiento.resolve();
 		}
+
 		// idem para entidades objeto
-		if (restriccion_eo)
-		{
+		if (restriccionEo){
 			//buscamos los procedimientos cuyo responsable sea el del permiso
-			EntidadObjeto.find(restriccion_eo).select('idjerarquia responsable codigo').exec(function (err, entidadesobjeto) {
-				if (err) {
-					console.error(136, err);
-					deferredEntidadObjeto.reject(err);
-					return;
-				}
+			entidadObjetomodel.find(restriccionEo).select('idjerarquia responsable codigo').exec().then(function(entidadesobjeto){
 				// para cada entidadobjeto cuyo responsable sea el del permiso dado, comprobamos que el permiso especifica tal relación, es decir, que
 				// existe permisos explícito, y de no ser así se incluye. Esto significa establecer como permiso calculado de lecutra y escritura.
 				// siendo solo en el calculado, de cambiar el propietario del procedimiento, desaparecerá su permiso explícito en cuanto se alcancen las
 				// labores de mantenimiento
-				entidadesobjeto.forEach(function (entidadobjeto) {
-					if (permiso.jerarquialectura.indexOf(entidadobjeto.idjerarquia) < 0){
-						permiso.jerarquialectura.push(entidadobjeto.idjerarquia);
+				entidadesobjeto.forEach(function(entidadobjeto) {
+					if (permiso.jerarquialectura.indexOf(String(entidadobjeto.idjerarquia)) < 0){
+						permiso.jerarquialectura.push(String(entidadobjeto.idjerarquia));
 					}
 
 					if (entidadobjeto.cod_plaza === permiso.codplaza) {
-						if (permiso.entidadobjetolectura.indexOf(entidadobjeto._id) === -1){
-							permiso.entidadobjetolectura.push(entidadobjeto._id);
+						if (permiso.entidadobjetolectura.indexOf(String(entidadobjeto._id)) === -1){
+							permiso.entidadobjetolectura.push(String(entidadobjeto._id));
 						}
-						if (permiso.entidadobjetoescritura.indexOf(entidadobjeto._id) === -1){
-							permiso.entidadobjetoescritura.push(entidadobjeto._id);
+						if (permiso.entidadobjetoescritura.indexOf(String(entidadobjeto._id)) === -1){
+							permiso.entidadobjetoescritura.push(String(entidadobjeto._id));
 						}
 					}
 				});
 				deferredEntidadObjeto.resolve();
-			});
+			}, deferredEntidadObjeto.reject);
 		} else {
 			deferredEntidadObjeto.resolve();
 		}
 
-		Q.all(defsPEO).then(function () {
+		Q.all(defsPEO).then(function(){
+			const attrsjerarquia = ['jerarquialectura', 'jerarquiaescritura'];
+			const defs = [];
 
-			var attrsOrigenjerarquia = ['jerarquiadirectalectura', 'jerarquiadirectaescritura'];
-			var attrsjerarquia = ['jerarquialectura', 'jerarquiaescritura'];
-
-			var defs = [];
 			// para cada uno de los arrays de permisos calculados
 			attrsjerarquia.forEach(function (attr, idx) {
 				// obtenemos el array de permisos directos del mismo tipo
-				var idsjerarquia = permiso[ attrsOrigenjerarquia[idx] ];
+				const idsjerarquia = permiso[attrsOrigenjerarquia[idx]];
 				// si no existe lo creamos
 				if (!idsjerarquia){
-					permiso[ attrsOrigenjerarquia[idx] ] = [];
+					permiso[attrsOrigenjerarquia[idx]] = [];
 				}
 				if (idsjerarquia && idsjerarquia.length === 0){
 					return;
 				}
-				var def = Q.defer();
+				const def = Q.defer();
 				// buscamos todas las jerarquías indicadas en el mismo
-				Jerarquia.find({id: {'$in': idsjerarquia}}, {id: true, descendientes: true}, function (err, jerarquias) {
-					if (err) {
-						def.reject(err);
-						return;
-					}
+
+				// TODO: cachear esta ineficiente consulta, no es necesaria, puede obtenerse de una caché
+				jerarquiamodel.find({id: {'$in': idsjerarquia}}, {id: true, descendientes: true}).exec().then(function (jerarquias) {
+
 					// para cada una de las jerarquías indicadas en el permiso, obtenemos los descendientes ya
 					// se tendrán permisos no explícitos sobre dichas jerarquías. Añadimos a los arrays de
 					// permisos calculados.
-					jerarquias.forEach(function (jerarquia) {
-						if (permiso[ attr ].indexOf(parseInt(jerarquia.id)) < 0){
-							permiso[ attr ].push(parseInt(jerarquia.id));
+					jerarquias.forEach(function(jerarquia){
+						if (permiso[attr].indexOf(parseInt(jerarquia.id, 10)) < 0){
+							permiso[attr].push(parseInt(jerarquia.id, 10));
 						}
-						jerarquia.descendientes.forEach(function (idjerarquia) {
-							if (permiso[ attr ].indexOf(parseInt(idjerarquia)) < 0){
-								permiso[ attr ].push(parseInt(idjerarquia));
+						jerarquia.descendientes.forEach(function(idjerarquia) {
+							if (permiso[attr].indexOf(parseInt(idjerarquia, 10)) < 0){
+								permiso[attr].push(parseInt(idjerarquia, 10));
 							}
 						});
 					});
 
 					def.resolve();
-				});
+				}, def.reject);
 
 				defs.push(def.promise);
 			});
 
-			var defs2 = [];
+			const defs2 = [];
 			Q.all(defs).then(function () {
-				var attrsOrigenjerarquia = ['jerarquialectura', 'jerarquiaescritura'];
-				var attrprocedimientos = ['procedimientoslectura', 'procedimientosescritura'];
-				var attrprocedimientosDirecto = ['procedimientosdirectalectura', 'procedimientosdirectaescritura'];
-				var attrentidadesobjeto = [ 'entidadobjetolectura', 'entidadobjetoescritura'];
-				var attrentidadesobjetoDirecto = [ 'entidadobjetodirectalectura', 'entidadobjetodirectaescritura'];
+				const attrprocedimientos = ['procedimientoslectura', 'procedimientosescritura'];
+				const attrprocedimientosDirecto = ['procedimientosdirectalectura', 'procedimientosdirectaescritura'];
+				const attrentidadesobjeto = ['entidadobjetolectura', 'entidadobjetoescritura'];
+				const attrentidadesobjetoDirecto = ['entidadobjetodirectalectura', 'entidadobjetodirectaescritura'];
 
 				attrprocedimientos.forEach(function (attr, idx) {
 					// si no existe el atributo de permisos para procedimientos lo creamos. Creamos un array vacio
-					if (!permiso [ attrprocedimientosDirecto[idx] ]){
-						permiso [ attrprocedimientosDirecto[idx] ] = [];
+					if (!permiso[attrprocedimientosDirecto[idx]]){
+						permiso[attrprocedimientosDirecto[idx]] = [];
 					}
 					// idem para entidades objetos
-					if (!permiso [ attrentidadesobjetoDirecto[idx] ]){
-						permiso [ attrentidadesobjetoDirecto[idx] ] = [];
+					if (!permiso[attrentidadesobjetoDirecto[idx]]){
+						permiso[attrentidadesobjetoDirecto[idx]] = [];
 					}
 
 					// el calculado siempre incluye al directo
-					permiso[ attr ] = permiso[ attr ].concat(permiso [ attrprocedimientosDirecto[idx] ]);
-					// elimina duplicados
-					permiso[ attr ] = permiso[ attr ].filter(function (value, index, self) {
-						return self.indexOf(value) === index;
-					});
+					permiso[attr] = permiso[attr].concat(permiso[attrprocedimientosDirecto[idx]]);
+					require('uniq')(permiso[attr]);
 
-					//ideam para entidades objeto
-					var attreo = attrentidadesobjeto[idx];
-					permiso[ attreo ] = permiso[ attreo ].concat(permiso [ attrentidadesobjetoDirecto[idx] ]);
-					permiso[ attreo ] = permiso[ attreo ].filter(function (value, index, self) {
-						return self.indexOf(value) === index;
-					});
+					//idem para entidades objeto
+					const attreo = attrentidadesobjeto[idx];
+					permiso[attreo] = permiso[attreo].concat(permiso[attrentidadesobjetoDirecto[idx]]);
+					require('uniq')(permiso[attreo]);
 
-
-					var idsjerarquia = permiso[ attrsOrigenjerarquia[idx] ];
+					const idsjerarquia = permiso[attrsOrigenjerarquia[idx]];
 					if (idsjerarquia && idsjerarquia.length === 0){
+
 						return;
 					}
 
-					var def = Q.defer();
-					var defeo = Q.defer();
+					const dP = Q.defer();
+					const dE = Q.defer();
 
-					var f = function (def, attr, idprop) {
-						return function (err, procedimientos) {
-							if (err) {
-								console.error(93, err);
-								def.reject(err);
-								return;
-							}
-
-							procedimientos.forEach(function (procedimiento) {
-								if (permiso[ attr ].indexOf('' + procedimiento[idprop]) < 0)
-								{
-									permiso[ attr ].push('' + procedimiento[idprop]);
-								}
-							});
-							def.resolve();
-						};
-					};
-
-					Procedimiento.find({idjerarquia: {'$in': idsjerarquia}}, { codigo: true}, f(def, attr, 'codigo'));
-					EntidadObjeto.find({idjerarquia: {'$in': idsjerarquia}}, { codigo: true}, f(defeo, attreo, '_id'));
-					defs2.push(def.promise);
-					defs2.push(defeo.promise);
+					procedimientomodel.find({idjerarquia: {'$in': idsjerarquia}}, {codigo: true}, updatePermisoAttr(dP, attr, 'codigo', permiso));
+					entidadObjetomodel.find({idjerarquia: {'$in': idsjerarquia}}, {_id: true}, updatePermisoAttr(dE, attreo, '_id', permiso));
+					defs2.push(dP.promise);
+					defs2.push(dE.promise);
 				});
 
 
 				Q.all(defs2).then(function () {
 					attrprocedimientos.forEach(function (attr) {
-						permiso[ attr ] = permiso[ attr ].filter(function (value, index, self) {
-							return self.indexOf(value) === index;
-						});
+						require('uniq')(permiso[attr]);
 					});
 					attrentidadesobjeto.forEach(function(attreo){
-						permiso[ attreo ] = permiso[ attreo ].filter(function (value, index, self){
-							return self.indexOf(value) === index;
-						});
+						require('uniq')(permiso[attreo]);
 					});
+
 					deferred.resolve(permiso);
-				}, function (err) {
-					console.error(110);
-					deferred.reject(err);
-				});
+				}, deferred.reject);
 
 			});
 		});
-		return deferred.promise;
-	};
-
-
-	function cacheJerarquias(Jerarquia){
-		var deferred = Q.defer();
-		var jerarquias = {};
-
-
-
-		Jerarquia.find(function (err, jerarquias) {
-
-
-
-				if (err) {
-					deferred.reject(err);
-					return;
-				}
-				if (!jerarquia) {
-					deferred.resolve([]);
-					return;
-				}
-				var ids = [idjerarquia].concat(jerarquia.ancestros);
-
-				Jerarquia.find({id: {'$in': ids}}, function (id, jerarquias) {
-					jerarquias.sort(function (j1, j2) {
-						return j2.ancestros.length - j1.ancestros.length;
-					});
-					deferredJerarquia.resolve(jerarquias);
-				});
-			});
 
 		return deferred.promise;
 	}
 
 
-	//comprobar si el periodo esta cerrado es cosa
-	//del crud
-
+	//comprobar si el periodo esta cerrado es cosa del crud
 	//'ancestros' : [ jerarquia],
 	//responsables : [persona]
-	module.exports.softCalculateProcedimientoCache = function (Q, models, procedimiento, api) {
 
-		var deferred = Q.defer();
-		var deferredJerarquia = Q.defer();
-		var deferredPersona = Q.defer();
+	function softCalculateProcedimientoCache(models, procedimiento, api){
+
+		const deferred = Q.defer();
+		const deferredJerarquia = Q.defer();
+		const jerarquiamodel = models.jerarquia();
+		const personamodel = models.persona();
+
+		let deferredPersona = false;
+		let idjerarquia = procedimiento.idjerarquia;
 
 		procedimiento.ancestros = [];
 		procedimiento.responsables = [];
 
-		var idjerarquia = procedimiento.idjerarquia;
-		var Jerarquia = models.jerarquia();
-		var Persona = models.persona();
 		if (!idjerarquia) {
 			//parche inconsistencia
 			procedimiento.idjerarquia = 1;
 			idjerarquia = procedimiento.idjerarquia;
 		}
+
 		if (idjerarquia){
 			if (typeof api === 'object'){
-				deferredJerarquia.resolve( api.getAncestros(idjerarquia) );
+				deferredJerarquia.resolve(api.getAncestros(idjerarquia));
 			} else {
-				Jerarquia.findOne({id: idjerarquia}, function (err, jerarquia) {
-					if (err) {
-						deferred.reject(err);
-						return;
-					}
+				jerarquiamodel.findOne({id: idjerarquia}).exec().then(function(jerarquia){
 					if (!jerarquia) {
 						deferred.resolve([]);
+
 						return;
 					}
-					var ids = [idjerarquia].concat(jerarquia.ancestros);
 
-					Jerarquia.find({id: {'$in': ids}}, function (id, jerarquias) {
+					jerarquiamodel.find({id: {'$in': jerarquia.ancestros}}, function (id, js) {
+						const jerarquias = [idjerarquia].concat(js);
 						jerarquias.sort(function (j1, j2) {
 							return j2.ancestros.length - j1.ancestros.length;
 						});
 						deferredJerarquia.resolve(jerarquias);
 					});
-				});
+				}, deferred.reject);
 			}
 		} else {
 			deferredJerarquia.resolve([]);
 		}
 		if (procedimiento.cod_plaza) {
-			Persona.find({codplaza: procedimiento.cod_plaza}, function (err, personas) {
-				if (err) {
-					deferred.reject(err);
-					return;
-				}
-				deferredPersona.resolve(personas);
-			});
+			deferredPersona = personamodel.find({codplaza: procedimiento.cod_plaza}).lean().exec();
 		} else {
-			deferredPersona.resolve([]);
+			deferredPersona = Q.all([]);
 		}
 
-		Q.all([deferredJerarquia.promise, deferredPersona.promise]).then(function (datos) {
-			var i;
+		Q.all([deferredJerarquia.promise, deferredPersona.promise]).then(function(datos){
 
 			procedimiento.ancestros = datos[0];//jerarquias;
 			procedimiento.responsables = datos[1];//personas;
-			if (typeof procedimiento.ancestros !== 'undefined') {
-				for (i = 1; i <= 4; i++) {
-					procedimiento[ 'ancestro_' + i ] = '';
-					procedimiento[ 'ancestro_v_' + i ] = '';
-				}
-				var tamanyo = procedimiento.ancestros.length;
-				for (i = 0; i < tamanyo; i++) {
-					procedimiento[ 'ancestro_' + (i + 1) ] = procedimiento.ancestros[i].nombrelargo;
-					procedimiento[ 'ancestro_v_' + ( tamanyo - i) ] = procedimiento.ancestros[i].nombrelargo;
+			for (let i = 1; i <= 4; i += 1) {
+				procedimiento['ancestro_' + i] = '';
+				procedimiento['ancestro_v_' + i] = '';
+			}
+			if (typeof procedimiento.ancestros === 'object') {
+				const tamanyo = procedimiento.ancestros.length;
+				for (let i = 0; i < tamanyo; i += 1) {
+					procedimiento['ancestro_' + (i + 1)] = procedimiento.ancestros[i].nombrelargo;
+					procedimiento['ancestro_v_' + (tamanyo - i)] = procedimiento.ancestros[i].nombrelargo;
 				}
 			}
 			deferred.resolve(procedimiento);
-		}, function (err) {
-			deferred.reject(err);
-		});
+		}, deferred.reject);
 
 		return deferred.promise;
-	};
+	}
 
-
-	module.exports.softCalculateProcedimiento = function (Q, models, procedimiento) {
-		var deferred = Q.defer();
+	function softCalculateProcedimiento(models, procedimiento) {
+		const deferred = Q.defer();
 
 		//para cada periodo
 		if (typeof procedimiento.periodos !== 'object') {
-			logger.error('Error en procedimiento ' + procedimiento.codigo);
-			deferred.reject(procedimiento);
+			deferred.reject({error: 'Error en procedimiento ' + procedimiento.codigo});
 
 			return deferred.promise;
 		}
+		const campos = models.getSchema('plantillaanualidad');
 
-		for (var periodo in procedimiento.periodos){
-			if (typeof procedimiento.periodos[ periodo ] !== 'object'){
+		for (const periodo in procedimiento.periodos){
+			if (typeof procedimiento.periodos[periodo] !== 'object'){
 				continue;
 			}
-
+				
 			//comprobar si está inicilializados los campos de tipo array a 12 elementos
-			var campos = models.getSchema('plantillaanualidad');
-			for (var campo in campos) {
-				if (Array.isArray(procedimiento.periodos[ periodo ][campo]) && procedimiento.periodos[ periodo ][campo].length !== 12) {
-					while (procedimiento.periodos[ periodo ][campo].length < 12){
-						procedimiento.periodos[ periodo ][campo].push(0);
+			
+			for (const campo in campos) {
+				if (Array.isArray(procedimiento.periodos[periodo][campo]) && procedimiento.periodos[periodo][campo].length < 12){
+					while (procedimiento.periodos[periodo][campo].length < 12){
+						procedimiento.periodos[periodo][campo].push(0);
 					}
 				}
 			}
 
-			if (typeof procedimiento.periodos[ periodo ].resueltos_1 === 'undefined'){
+			if (typeof procedimiento.periodos[periodo].resueltos_1 === 'undefined'){
 				continue;
 			}
 
 			//nuevos campos, calculados
-			procedimiento.periodos[ periodo ].actualizado = [];
-			procedimiento.periodos[ periodo ].total_resueltos = [];
-			procedimiento.periodos[ periodo ].fuera_plazo = [];
-			procedimiento.periodos[ periodo ].pendientes = [];
-			procedimiento.periodos[ periodo ].Incidencias = {
+			procedimiento.periodos[periodo].actualizado = [];
+			procedimiento.periodos[periodo].total_resueltos = [];
+			procedimiento.periodos[periodo].fuera_plazo = [];
+			procedimiento.periodos[periodo].pendientes = [];
+			procedimiento.periodos[periodo].Incidencias = {
 				'Se han resuelto expedientes fuera de Plazo': [],
 				'Aumenta el N de expedientes pendientes': [],
 				'Hay quejas presentadas': [],
@@ -452,263 +388,260 @@
 				'Las solicitudes aumentan al menos 20%': []
 			};
 
-			if (parseInt(periodo.replace('a', '')) > 2014) {
-				var iperiodo = parseInt(periodo.replace('a', ''));
-				var sant = 'a' + (iperiodo - 1);
-				var pi = procedimiento.periodos[sant].totalsolicitudes + procedimiento.periodos[sant].pendientes_iniciales;
-				for (var mes = 0; mes < 12; mes++){
+			if (parseInt(periodo.replace('a', ''), 10) > 2014) {
+				const iperiodo = parseInt(periodo.replace('a', ''), 10);
+				const sant = 'a' + (iperiodo - 1);
+				let pi = procedimiento.periodos[sant].totalsolicitudes + procedimiento.periodos[sant].pendientes_iniciales;
+				for (let mes = 0; mes < 12; mes += 1){
 					pi -= procedimiento.periodos[sant].total_resueltos[mes];
 				}
-				procedimiento.periodos[ periodo ].pendientes_iniciales = pi;
+				procedimiento.periodos[periodo].pendientes_iniciales = pi;
 			}
 
-			var pendientes = parseStr2Int(procedimiento.periodos[ periodo ].pendientes_iniciales);
-			var solicitudesprevias = parseStr2Int(procedimiento.periodos[ periodo ].solicitados);
-			var totalsolicitudes = 0;
-			if (parseInt(periodo.replace('a', '')) > 2013)
-			{
-				for (var mes = 0; mes < 12; mes++)
-				{
-
-					var pendientesprevios = pendientes;
-					var totalresueltos =
-							procedimiento.periodos[ periodo ].resueltos_1[mes] +
-							procedimiento.periodos[ periodo ].resueltos_5[mes] +
-							procedimiento.periodos[ periodo ].resueltos_10[mes] +
-							procedimiento.periodos[ periodo ].resueltos_15[mes] +
-							procedimiento.periodos[ periodo ].resueltos_30[mes] +
-							procedimiento.periodos[ periodo ].resueltos_45[mes] +
-							procedimiento.periodos[ periodo ].resueltos_mas_45[mes] +
-							procedimiento.periodos[ periodo ].resueltos_desistimiento_renuncia_caducidad[mes] +
-							procedimiento.periodos[ periodo ].resueltos_prescripcion[mes];
-					var fueradeplazo = totalresueltos - procedimiento.periodos[ periodo ].en_plazo[mes];
-					var solicitudes = parseStr2Int(procedimiento.periodos[ periodo ].solicitados[mes]);
+			let pendientes = parseStr2Int(procedimiento.periodos[periodo].pendientes_iniciales);
+			let solicitudesprevias = parseStr2Int(procedimiento.periodos[periodo].solicitados);
+			let totalsolicitudes = 0;
+			if (parseInt(periodo.replace('a', ''), 10) > 2013){
+				for (let mes = 0; mes < 12; mes += 1){
+					const pendientesprevios = pendientes;
+					const totalresueltos = procedimiento.periodos[periodo].resueltos_1[mes] +
+						procedimiento.periodos[periodo].resueltos_5[mes] +
+						procedimiento.periodos[periodo].resueltos_10[mes] +
+						procedimiento.periodos[periodo].resueltos_15[mes] +
+						procedimiento.periodos[periodo].resueltos_30[mes] +
+						procedimiento.periodos[periodo].resueltos_45[mes] +
+						procedimiento.periodos[periodo].resueltos_mas_45[mes] +
+						procedimiento.periodos[periodo].resueltos_desistimiento_renuncia_caducidad[mes] +
+						procedimiento.periodos[periodo].resueltos_prescripcion[mes];
+					const fueradeplazo = totalresueltos - procedimiento.periodos[periodo].en_plazo[mes];
+					const solicitudes = parseStr2Int(procedimiento.periodos[periodo].solicitados[mes]);
 
 					totalsolicitudes += solicitudes;
 					pendientes = pendientes + solicitudes - totalresueltos;
 
-					procedimiento.periodos[ periodo ].actualizado.push( (solicitudes + totalresueltos) > 0 ? 1 : 0 );
+					procedimiento.periodos[periodo].actualizado.push((solicitudes + totalresueltos) > 0 ? 1 : 0);
 
-					procedimiento.periodos[ periodo ].total_resueltos.push(totalresueltos);
-					procedimiento.periodos[ periodo ].fuera_plazo.push(fueradeplazo);
-					procedimiento.periodos[ periodo ].pendientes.push(pendientes);
+					procedimiento.periodos[periodo].total_resueltos.push(totalresueltos);
+					procedimiento.periodos[periodo].fuera_plazo.push(fueradeplazo);
+					procedimiento.periodos[periodo].pendientes.push(pendientes);
 
-					procedimiento.periodos[ periodo ].Incidencias['Se han resuelto expedientes fuera de Plazo'].push(fueradeplazo);
-					procedimiento.periodos[ periodo ].Incidencias['Aumenta el N de expedientes pendientes'].push(pendientes > pendientesprevios ? pendientes - pendientesprevios : 0);
-					procedimiento.periodos[ periodo ].Incidencias['Hay quejas presentadas'].push(procedimiento.periodos[ periodo ].quejas[mes]);
-					procedimiento.periodos[ periodo ].Incidencias['Hay expedientes prescritos/caducados'].push(procedimiento.periodos[ periodo ].resueltos_prescripcion[mes]);
-					procedimiento.periodos[ periodo ].Incidencias['Las solicitudes aumentan al menos 20%'].push((solicitudes > solicitudesprevias * 1.2) ? solicitudes - solicitudesprevias : 0);
+					procedimiento.periodos[periodo].Incidencias['Se han resuelto expedientes fuera de Plazo'].push(fueradeplazo);
+					procedimiento.periodos[periodo].Incidencias['Aumenta el N de expedientes pendientes'].push(pendientes > pendientesprevios ? pendientes - pendientesprevios : 0);
+					procedimiento.periodos[periodo].Incidencias['Hay quejas presentadas'].push(procedimiento.periodos[periodo].quejas[mes]);
+					procedimiento.periodos[periodo].Incidencias['Hay expedientes prescritos/caducados'].push(procedimiento.periodos[periodo].resueltos_prescripcion[mes]);
+					procedimiento.periodos[periodo].Incidencias['Las solicitudes aumentan al menos 20%'].push((solicitudes > solicitudesprevias * 1.2) ? solicitudes - solicitudesprevias : 0);
 					solicitudesprevias = solicitudes;
 				}
-				procedimiento.periodos[ periodo ].totalsolicitudes = totalsolicitudes;
+				procedimiento.periodos[periodo].totalsolicitudes = totalsolicitudes;
 			}
 		}
 		deferred.resolve(procedimiento);
+
 		return deferred.promise;
-	};
+	}
 
-	module.exports.fullSyncprocedimiento = function (Q, models, fnprocedimiento, api) {
-		var deferred = Q.defer(),
-			Procedimiento = models.procedimiento(),
-			informes = [];
-
-		var pendientes = [];
-		Procedimiento.find({}, function (err, procedimientos) {
-			if (err) {
-				deferred.reject(err);
-				return;
-			}
-
-			var defs = [];
-			var versionsToSave = [];
-			procedimientos.forEach(function (procedimiento) {
-				pendientes.push(procedimiento.codigo);
-				var promise = Q.defer();
-				var f = function (promise, procedimiento) {
-					var proccodigo = procedimiento.codigo;
-					exports.softCalculateProcedimiento(Q, models, procedimiento).then(function (procedimiento) {
-						exports.softCalculateProcedimientoCache(Q, models, procedimiento, api).then(function (procedimiento) {
-							if (!procedimiento.codigo)
-							{
-								informes.push({codigo: proccodigo, status: 500});
-								promise.reject(procedimiento);
+	function recalculateProcedimiento(models, procedimientolib, api, informes, versionsToSave) {
+		return function(procedimiento){
+			const promise = Q.defer();
+			const proccodigo = procedimiento.codigo;
+			softCalculateProcedimiento(models, procedimiento).then(function(proc) {
+				softCalculateProcedimientoCache(models, proc, api).then(function(proced) {
+					if (!proced.codigo){
+						informes.push({codigo: proced, status: 500});
+						promise.reject(proced);
+					} else {
+						versionsToSave.push(proced);
+						proced.markModified('periodos');
+						proced.save(function(error){
+							if (error) {
+								informes.push({codigo: proced.codigo, status: 500});
+								promise.reject(error);
 							} else {
-								versionsToSave.push(procedimiento);
-								procedimiento.markModified('periodos');
-								procedimiento.save(function (error) {
-									if (error) {
-										informes.push({codigo: procedimiento.codigo, status: 500});
-										promise.reject(error);
-									} else {
-										informes.push({codigo: procedimiento.codigo, status: 200, procedimiento: procedimiento});
-										var index = pendientes.indexOf(procedimiento.codigo)
-										if (index > -1) {
-											pendientes.splice(index, 1);
-										}
-										promise.resolve();
-									}
-								});
-							
+								informes.push({codigo: proced.codigo, status: 200, procedimiento: proced});
+								promise.resolve();
 							}
-						}, function (err) {
-							informes.push({codigo: proccodigo, status: 500});
-							promise.reject(err);
 						});
-					}, function (err) {
-						informes.push({codigo: proccodigo, status: 500});
-						promise.reject(err);
-					});
-				};
-				f(promise, procedimiento);
-				defs.push(promise.promise);
+					
+					}
+				}, function (err) {
+					informes.push({codigo: proc, status: 500});
+					promise.reject(err);
+				});
+			}, function (err) {
+				informes.push({codigo: proccodigo, status: 500});
+				promise.reject(err);
 			});
 
-			Q.all(defs).then(function () {
-				fnprocedimiento.saveVersion(models, Q, versionsToSave)
-					.then(function () {
-						deferred.resolve(informes);
-					}, function (err) {
-						err.informes = informes;
-						promise.reject(err);
-					});
+			return promise.promise;
+		};
+	}
+
+	function fullSyncprocedimiento(models, procedimientolib, api) {
+		const procedimientomodel = models.procedimiento(),
+			deferred = Q.defer();
+
+		procedimientomodel.find({}).exec().then(function(procedimientos) {
+			const versionsToSave = [],
+				informes = [],
+				fnRecalculate = recalculateProcedimiento(models, procedimientolib, api, informes, versionsToSave),
+				defs = procedimientos.map(fnRecalculate);
+
+			Q.all(defs).then(function(){
+				procedimientolib.saveVersion(models, versionsToSave).then(function(){
+					deferred.resolve(informes);
+				}, function (erro) {
+					erro.informes = informes;
+					deferred.reject(erro);
+				});
 			}, function (err) {
 				err.informes = informes;
 				deferred.reject(err);
 			});
-		});
+		}, deferred.reject);
+
 		return deferred.promise;
-	};
+	}
 
-	module.exports.fullSyncpermiso = function (Q, models) {
-		var deferred = Q.defer();
-		var Permiso = models.permiso();
-		var informes = [];
-
-		Permiso.find({}, function (err, permisos) {
-			if (err) {
-				deferred.reject(err);
-				return;
-			}
-
-			var defs = [];
-			var pindex = 0;
-			var plength = permisos.length;
-			var f = function (promise, permiso) {
-				exports.softCalculatePermiso(Q, models, permiso).then(function (permiso) {
-					pindex++;
-					permiso.save(function (error) {
-						if (error) {
-							logger.error(error + ' softcalculate permiso concluido ' + permiso._id + ' ; ' + permiso.login + ';' + permiso.codplaza + ' (' + pindex + ' de ' + plength + ')');
-							informes.push({codigo: permiso._id, status: 500});
-							promise.reject(err);
-						} else {
-							//logger.log('softcalculate permiso concluido ' + permiso._id + ' ; ' + permiso.login + ';' + permiso.codplaza + ' (' + pindex + ' de ' + plength + ')');
-							informes.push({codigo: permiso._id, status: 200, permiso: permiso});
-							promise.resolve();
-						}
-					});
-				}, function (err) {
-					informes.push({codigo: permiso._id, status: 500});
-					promise.reject(err);
+	function recalculatePermiso(models){
+		return function(permiso){
+			const deferred = Q.defer();
+			softCalculatePermiso(models, permiso).then(function(perm){
+				perm.save(function(error) {
+					if (error){
+						deferred.reject(error);
+					} else {
+						deferred.resolve({codigo: perm._id, status: 200, permiso: perm});
+					}
 				});
-			};
-			permisos.forEach(function (permiso) {
-				var promise = Q.defer();
-				f(promise, permiso);
-				defs.push(promise.promise);
-			});
+			}, deferred.reject);
 
-			Q.all(defs).then(function () {
-				deferred.resolve(informes);
-			}, function (err) {
-				deferred.reject(err);
-			});
-		});
+			return deferred.promise;
+		};
+	}
+
+	function fullSyncpermiso(models) {
+		const deferred = Q.defer(),
+			permisomodel = models.permiso();
+
+		permisomodel.find({}).then(function(permisos){
+			const recPermisoFn = recalculatePermiso(models);
+			Q.all(permisos.map(recPermisoFn)).then(deferred.resolve, deferred.reject);
+		}, deferred.reject);
+
 		return deferred.promise;
-	};
+	}
 
-	module.exports.fullSyncjerarquia = function (Q, models) {
-		//debe recalcular ancestros y descendientes a partir de ancestrodirecto
-		var deferred = Q.defer();
-		var Jerarquia = models.jerarquia();
-		var Procedimiento = models.procedimiento();
+	function fnActualizacion(campo, promise, actualizarancestros, mapeadoArray){
+		return function(erro, agrupaciones){
+			if (erro){
+				logger.error(erro);
+				promise.reject(erro);
 
-		Jerarquia.find({}, function (err, jerarquias) {
-			if (err) {
-				deferred.reject(err);
 				return;
 			}
 
-			var ids = [];
-			var mapeadoArray = [];
+			//tercero recorrer el listado de agrupaciones calculada, incrementando el valor de las jerarquias:
+			for (let i = 0, j = agrupaciones.length; i < j; i += 1){
+				const idjerarquia = agrupaciones[i]._id,
+					count = agrupaciones[i].count;
 
-			jerarquias.forEach(function (jerarquia) {
-				mapeadoArray[ jerarquia.id ] = jerarquia;
+				if (typeof mapeadoArray[String(idjerarquia)] === 'object'){
+					mapeadoArray[String(idjerarquia)][campo] += count;
+					//actualizar sus ancestros también
+					if (!actualizarancestros){
+						continue;
+					}
+					for (let k = 0, l = mapeadoArray[String(idjerarquia)].ancestros.length; k < l; k++){
+						const idancestro = mapeadoArray[String(idjerarquia)].ancestros[k];
+						mapeadoArray[String(idancestro)][campo] += count;
+					}
+				}
+			}
+			promise.resolve();
+		};
+	}
+
+
+	function fullSyncjerarquia(models) {
+		//debe recalcular ancestros y descendientes a partir de ancestrodirecto
+		const deferred = Q.defer();
+		const jerarquiamodel = models.jerarquia();
+		const cartamodel = models.entidadobjeto();
+		const procedimientomodel = models.procedimiento();
+
+		jerarquiamodel.find({}).exec().then(function(jerarquias) {
+
+			const ids = [];
+			const mapeadoArray = [];
+
+			jerarquias.forEach(function(jerarquia) {
+				mapeadoArray[String(jerarquia.id)] = jerarquia;
 				ids.push(jerarquia.id);
 			});
 
 			//reset
-			for (var i = 0, j = ids.length; i < j; i++) {
-				var id = ids[i];
-				mapeadoArray[id].ancestros = (mapeadoArray[id].ancestrodirecto) ? [(mapeadoArray[id].ancestrodirecto)] : [];
-				mapeadoArray[id].descendientes = [];
+			for (let i = 0, j = ids.length; i < j; i += 1) {
+				const id = ids[i];
+				mapeadoArray[String(id)].ancestros = (mapeadoArray[String(id)].ancestrodirecto) ? [(mapeadoArray[String(id)].ancestrodirecto)] : [];
+				mapeadoArray[String(id)].descendientes = [];
 			}
 
-			var maxiteraciones = ids.length;
-			var cambio = true;
+
+			let maxiteraciones = ids.length;
+			let cambio = 1;
 			while (cambio && maxiteraciones--){
 				cambio = 0;
-				for (var i = 0, j = ids.length; i < j; i++) {
-					var cambiointerno = true;
-					var id = ids[i];
+				for (let i = 0, j = ids.length; i < j; i += 1) {
+					let cambiointerno = 1;
+					const id = ids[i];
 					while (cambiointerno) {
 						cambiointerno = 0;
 						//para todos mis ancestros
-						for (var k = 0; k < mapeadoArray[id].ancestros.length; k++) {
-							var ancestroid = mapeadoArray[id].ancestros[k];
-							if (typeof mapeadoArray[ancestroid] === 'undefined') {
+						for (let k = 0; k < mapeadoArray[String(id)].ancestros.length; k += 1) {
+							const ancestroid = mapeadoArray[String(id)].ancestros[k];
+							if (typeof mapeadoArray[String(ancestroid)] === 'undefined') {
 								logger.error(ancestroid + ' no existe en 35');
 								continue;
 							}
 							//busco si estoy entre sus descendientes
-							if (mapeadoArray[ancestroid].descendientes.indexOf(id) < 0) {
+							if (mapeadoArray[String(ancestroid)].descendientes.indexOf(id) < 0) {
 								cambio++;
 								cambiointerno++;
-								mapeadoArray[ancestroid].descendientes.push(id);
+								mapeadoArray[String(ancestroid)].descendientes.push(id);
 							}
 
 							//busco si mis descendientes están entre sus descendientes
-							for (var l = 0; l < mapeadoArray[id].descendientes.length; l++) {
-								var descendienteid = mapeadoArray[id].descendientes[l];
-								if (mapeadoArray[ancestroid].descendientes.indexOf(descendienteid) < 0) {
-									cambio++;
-									cambiointerno++;
-									mapeadoArray[ancestroid].descendientes.push(descendienteid);
+							for (let l = 0; l < mapeadoArray[String(id)].descendientes.length; l += 1) {
+								const descendienteid = mapeadoArray[String(id)].descendientes[l];
+								if (mapeadoArray[String(ancestroid)].descendientes.indexOf(descendienteid) < 0) {
+									cambio += 1;
+									cambiointerno += 1;
+									mapeadoArray[String(ancestroid)].descendientes.push(descendienteid);
 								}
 							}
 						}
 
 						//para todos mis descendientes
-						for (var k = 0; k < mapeadoArray[id].descendientes.length; k++) {
-							var descendienteid = mapeadoArray[id].descendientes[k];
-							if (typeof mapeadoArray[descendienteid] === 'undefined') {
+						for (let k = 0; k < mapeadoArray[String(id)].descendientes.length; k += 1) {
+							const descendienteid = mapeadoArray[String(id)].descendientes[k];
+							if (typeof mapeadoArray[String(descendienteid)] === 'undefined') {
 								console.error(descendienteid + ' no existe en 47');
 								continue;
 							}
 							//busco si estoy entre sus ancestros
-							if (!mapeadoArray[descendienteid].ancestros.indexOf(id) < 0) {
-								cambio++;
-								cambiointerno++;
-								mapeadoArray[descendienteid].ancestros.push(id);
+							if (!mapeadoArray[String(descendienteid)].ancestros.indexOf(id) < 0) {
+								cambio += 1;
+								cambiointerno += 1;
+								mapeadoArray[String(descendienteid)].ancestros.push(id);
 							}
 
 							//busco si mis ancestros están entre sus ancestros
-							for (var l = 0; l < mapeadoArray[id].ancestros.length; l++) {
-								var ancestroid = mapeadoArray[id].ancestros[l];
-								if (mapeadoArray[descendienteid].ancestros.indexOf(ancestroid) < 0) {
-									cambio++;
-									cambiointerno++;
-									mapeadoArray[descendienteid].ancestros.push(ancestroid);
+							for (let l = 0; l < mapeadoArray[String(id)].ancestros.length; l += 1) {
+								const ancestroid = mapeadoArray[String(id)].ancestros[l];
+								if (mapeadoArray[String(descendienteid)].ancestros.indexOf(ancestroid) < 0) {
+									cambio += 1;
+									cambiointerno += 1;
+									mapeadoArray[String(descendienteid)].ancestros.push(ancestroid);
 								}
 							}
 						}
@@ -716,157 +649,118 @@
 				}
 			}
 
-			var Carta = models.entidadobjeto();
 
 			//primero recorrer el listado de jerarquías que ya existía, asignando el valor 0 a los dos atributos:
-			for (var id in mapeadoArray){
-				if (typeof mapeadoArray[id] !== 'undefined' && typeof mapeadoArray[id].numprocedimientos !== 'undefined' ){
-					mapeadoArray[id].numprocedimientos = 0;
-					mapeadoArray[id].numcartas = 0;
+			for (const id in mapeadoArray){
+				if (typeof mapeadoArray[String(id)] === 'object' && typeof mapeadoArray[String(id)].numprocedimientos === 'number' ){
+					mapeadoArray[String(id)].numprocedimientos = 0;
+					mapeadoArray[String(id)].numcartas = 0;
 				}
 			}
 
 			//segundo definir función genérica, que sirva tanto para numprocedimientos como para numcartas
 			//campo: ['numprocedimientos', 'numcartas']
-			var fnActualizacion = function(campo, promise, actualizarancestros){
-				return function(erro, agrupaciones){
-					if (erro){
-						logger.error(erro);
-						promise.reject(erro);
-						return;
-					}
-
-					//tercero recorrer el listado de agrupaciones calculada, incrementando el valor de las jerarquias:
-					for (i = 0, j = agrupaciones.length; i < j; i++){
-						var idjerarquia = agrupaciones[i]._id,
-							count = agrupaciones[i].count;
-
-						if (typeof mapeadoArray[idjerarquia] !== 'undefined'){
-							mapeadoArray[idjerarquia][campo] += count;
-							//actualizar sus ancestros también
-							if (!actualizarancestros){
-								continue;
-							}
-							for (k = 0, l = mapeadoArray[idjerarquia].ancestros.length; k < l; k++){
-								var idancestro = mapeadoArray[idjerarquia].ancestros[k];
-								mapeadoArray[idancestro][campo] += count;
-							}
-						}
-					}
-					promise.resolve();
-				};
-			};
-
-			var deferNumProcedimientos = Q.defer(),
+			
+			const deferNumProcedimientos = Q.defer(),
 				deferNumCartas = Q.defer();
 
 			//cuarto lanzar el cálculo del número de procedimientos y cartas asignado/as directamente a cada jerarquia:
-			var matchProcedimiento = {'$and': [
-                            {'$or': [
-                                    {'oculto': {$exists: false}},
-                                    {'$and': [
-                                            {'oculto': {$exists: true}},
-                                            {'oculto': false}
-                                        ]}
-                                ]
-                            },
-                            {'$or': [
-                                    {'eliminado': {$exists: false}},
-                                    {'$and': [
-                                            {'eliminado': {$exists: true}},
-                                            {'eliminado': false}
-                                        ]}
-                                ]
-                            }]};
+			const matchProcedimiento = {
+				'$and': [
+					{
+						'$or': [
+							{'oculto': {$exists: false}},
+							{
+								'$and': [
+									{'oculto': {$exists: true}},
+									{'oculto': false}
+								]
+							}
+						]
+					},
+					{
+						'$or': [
+							{'eliminado': {$exists: false}},
+							{
+								'$and': [
+									{'eliminado': {$exists: true}},
+									{'eliminado': false}
+								]
+							}
+						]
+					}
+				]
+			};
 
 
-			Procedimiento.aggregate([{$match: matchProcedimiento}, {$group: { _id: '$idjerarquia', count: {$sum: 1}}}, {$sort: {'_id': 1}} ], fnActualizacion('numprocedimientos', deferNumProcedimientos, true));
-			Carta.aggregate([{$match: {tipoentidad: 'CS'} }, {$group: { _id: '$idjerarquia', count: {$sum: 1}}}, {$sort: {'_id': 1}} ], fnActualizacion('numcartas', deferNumCartas, false));
+			procedimientomodel.aggregate([{$match: matchProcedimiento}, {$group: {_id: '$idjerarquia', count: {$sum: 1}}}, {$sort: {'_id': 1}}], fnActualizacion('numprocedimientos', deferNumProcedimientos, true, mapeadoArray));
+			cartamodel.aggregate([{$match: {tipoentidad: 'CS'}}, {$group: {_id: '$idjerarquia', count: {$sum: 1}}}, {$sort: {'_id': 1}}], fnActualizacion('numcartas', deferNumCartas, false, mapeadoArray));
 
 			//quinto esperar resultados y devolverlos
-			Q.all( [deferNumProcedimientos.promise, deferNumCartas.promise]).then(function(){
-				var reportError = function (e) {
-					if (e) {
-						logger.error(e);
-					}
-				};
-				for (id in mapeadoArray){
-					if (typeof mapeadoArray[id] !== 'undefined'){
-						mapeadoArray[id].save(reportError); /* posible condición de carrera por no esperar */
+			Q.all([deferNumProcedimientos.promise, deferNumCartas.promise]).then(function(){
+
+				for (const id in mapeadoArray){
+					if (typeof mapeadoArray[String(id)] === 'object'){
+						mapeadoArray[String(id)].save(reportError); /* posible condición de carrera por no esperar */
 					}
 				}
-				deferred.resolve(mapeadoArray.filter(function (o) {
-					return o;
-				}));
-			} );
-
-		});
+				deferred.resolve({});
+			}, deferred.reject);
+		}, deferred.reject);
 
 		return deferred.promise;
-	};
-
-	function errorHandler(res){
-		return function(e){
-			console.error(e);
-			res.status(500).json(e);
-		};
 	}
 
-	module.exports.fprocedimiento = function (Q, models, fnprocedimiento, api) {
-		return function (req, res) {
-			var errHdl;
-			if (req.user.permisoscalculados.superuser) {
-				errHdl = errorHandler(res);
 
-				api.resetCache();
-				api.calculateArbol(Q, models)
-					.then(function(){
-						module
-							.exports
-							.fullSyncprocedimiento(Q, models, fnprocedimiento, api)
-							.then(function () {
-								res.json({});
-							}, errHdl);
-					}, errHdl);
-				
-			} else {
-				res.status(401).send('Carece de permisos').end();
-			}
-		};
+	module.exports.fprocedimiento = function (req, res) {
+		const models = req.metaenvironment.models,
+			procedimientolib = req.metaenvironment.procedimiento,
+			api = req.metaenvironment.api;
+
+		if (req.user.permisoscalculados.superuser) {
+			api.resetCache();
+			api.calculateArbol(models).then(function(){
+				fullSyncprocedimiento(models, procedimientolib, api).then(function(){
+					res.json({});
+				}, req.eh.errorHelper(res));
+			}, req.eh.errorHelper(res));
+			
+		} else {
+			req.eh.unauthorizedHelper(res);
+		}
 	};
 
-	module.exports.fjerarquia = function (Q, models, api) {
-		return function (req, res) {
-			if (req.user.permisoscalculados.superuser) {
-				api.resetCache();
-				exports
-					.fullSyncjerarquia(Q, models)
-					.then(function (o) {
-						res.json(o);
-					}, function (e) {
-						res.status(500).json({'error': 'An error has occurred', details: e});
-					});
-			} else {
-				res.status(403).json({'error': 'Not allowed'});
-			}
-		};
+	module.exports.fjerarquia = function (req, res){
+		const models = req.metaenvironment.models,
+			api = req.metaenvironment.api;
+
+		if (req.user.permisoscalculados.superuser) {
+			api.resetCache();
+			fullSyncjerarquia(models).then(req.eh.okHelper(res), req.eh.errorHelper(res));
+		} else {
+			req.eh.unauthorizedHelper(res);
+		}
 	};
 
-	module.exports.fpermiso = function (Q, models, api) {
-		return function (req, res) {
-			if (req.user.permisoscalculados.superuser) {
-				api.resetCache();
-				exports
-					.fullSyncpermiso(Q, models)
-					.then(function () {
-						res.json({});
-					}, function (e) {
-						res.status(500).json({'error': 'An error has occurred', details: e});
-					});
-			} else {
-				res.status(403).json({'error': 'Not allowed'});
-			}
-		};
+	module.exports.fpermiso = function(req, res) {
+		const models = req.metaenvironment.models,
+			api = req.metaenvironment.api;
+		if (req.user.permisoscalculados.superuser) {
+			api.resetCache();
+			fullSyncpermiso(models).then(function(){
+				res.json({});
+			}, req.eh.errorHelper(res));
+		} else {
+			req.eh.unauthorizedHelper(res);
+		}
 	};
+
+	module.exports.fullSyncpermiso = fullSyncpermiso;
+	module.exports.fullSyncjerarquia = fullSyncjerarquia;
+	module.exports.fullSyncprocedimiento = fullSyncprocedimiento;
+	module.exports.softCalculatePermiso = softCalculatePermiso;
+	module.exports.softCalculateProcedimiento = softCalculateProcedimiento;
+	module.exports.softCalculateProcedimientoCache = softCalculateProcedimientoCache;
+	
 
 })(module, console);

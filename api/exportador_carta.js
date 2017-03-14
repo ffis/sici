@@ -1,9 +1,16 @@
 (function(module, logger){
 	'use strict';
 
-	var assert = require('assert');
-	var Excel = require('exceljs'),
-		Q = require('q');
+	const assert = require('assert'),
+		Excel = require('exceljs'),
+		Q = require('q'),
+		md5 = require('md5');
+
+	const WRAPTEXT = {wrapText: true},
+		BOLD = {bold: true},
+		HORIZONTALCENTER = {horizontal: 'center'},
+		THIN = {style: 'thin'},
+		BORDERED = {top: THIN, left: THIN, bottom: THIN, right: THIN};
 
 	function ExportadorCartas(models, templatefile){
 		this.models = models;
@@ -18,12 +25,12 @@
 	function Formulable(formula){
 		this.formula = formula;
 	}
-	Formulable.prototype.traduce = function(){ return { formula: '', result: ''}; };
-
+	Formulable.prototype.traduce = function(){ return {formula: '', result: ''}; };
 
 	function FormulaPorcentaje(formula){ this.formula = formula; }
 	FormulaPorcentaje.prototype = Formulable;
 	FormulaPorcentaje.prototype.traduce = function(worksheet, columna, fila, valor){
+		
 		return valor;
 		/*
 		var celda = worksheet.getRow(fila).getCell(columna);
@@ -35,17 +42,19 @@
 	function formulaEsTraducible(formula){
 		if (formula && typeof formula.computer === 'string' && formula.computer !== ''){
 			try {
-				var pf = JSON.parse(formula.computer);
+				const pf = JSON.parse(formula.computer);
 				if (pf.length === 7 && pf[0].trim() === '(' && pf[2].trim() === '/' && pf[4].trim() === ')' && pf[5].trim() === '*' && pf[6].trim() === '100'){
 					//logger.log('he encontrado formula', pf);
 					return new FormulaPorcentaje(formula);
 				}
 			} catch (exception){
 				logger.log('no es formula', formula.human, formula.computer, exception);
+				
 				return false;
 			}
 		}
 		logger.log('no es formula', formula.human, formula.computer);
+		
 		return false;
 	}
 
@@ -59,98 +68,83 @@
 				t = worksheet.getCell(path);
 				t.type = Excel.ValueType.Formula;
 			}
+		
 			return t;
 		}
+		
 		return worksheet.getCell(path);
 	}
 
 	ExportadorCartas.prototype.loadEntidadObjeto = function(entidadobjetoid) {
-		var defer = Q.defer();
-		this.models.entidadobjetomodel.findOne({_id: entidadobjetoid}).then(function(o){
-			defer.resolve(o);
-		}, defer.reject);
-		return defer.promise;
+		
+		return this.models.entidadobjetomodel.findOne({_id: entidadobjetoid}).lean().exec();
 	};
 
 	ExportadorCartas.prototype.loadObjetivos = function(cartaid){
-		var restriccion = { 'carta': cartaid };
-		var defer = Q.defer();
-		this.models.objetivomodel.find(restriccion).sort({'index': 1}).then(function(o){
-			defer.resolve(o);
-		}, defer.reject);
-		return defer.promise;
+
+		return this.models.objetivomodel.find({'carta': cartaid}).sort({'index': 1}).lean().exec();
 	};
 
 	ExportadorCartas.prototype.loadIndicadores = function(jerarquiaid){
-		var restriccion = { 'idjerarquia': parseInt(jerarquiaid) };
-		var defer = Q.defer();
-		this.models.indicadormodel.find(restriccion).then(function(o){
-			var by_Id = {};
-			for (var i = 0, j = o.length; i < j; i++){
-				by_Id[ o[i]._id ] = o[i];
-			}
-			defer.resolve(by_Id);
+
+		const defer = Q.defer();
+		this.models.indicadormodel.find({'idjerarquia': parseInt(jerarquiaid, 10)}).then(function(indicadores){
+			defer.resolve(indicadores.reduce(function(prev, indicador){
+				prev[String(indicador._id)] = indicador;
+
+				return prev;
+			}, {}));
 		}, defer.reject);
+
 		return defer.promise;
 	};
 
 	ExportadorCartas.prototype.loadProcedimientos = function(ids){
-		var restriccion = { '_id': {$in: ids} };
-		var defer = Q.defer();
-		this.models.procedimientomodel.find(restriccion).then(function(o){
-			var by_Id = {};
-			for (var i = 0, j = o.length; i < j; i++){
-				by_Id[ o[i]._id ] = o[i];
-			}
-			defer.resolve(by_Id);
+		
+		const defer = Q.defer();
+		this.models.procedimientomodel.find({'_id': {$in: ids}}).then(function(o){
+			defer.resolve(o.reduce(function(prev, procedimiento){
+				prev[String(procedimiento._id)] = procedimiento;
+
+				return prev;
+			}, {}));
 		}, defer.reject);
+
 		return defer.promise;
 	};
 
 	ExportadorCartas.prototype.loadJerarquias = function(jerarquiaid){
-		var restriccion = { 'id': parseInt(jerarquiaid) };
-		var defer = Q.defer(),
+		const defer = Q.defer(),
 			instance = this;
-		instance.models.jerarquiamodel.findOne(restriccion).exec().then(function(o){
-			logger.log(o);
-			if (typeof o === 'object'){
+		instance.models.jerarquiamodel.findOne({'id': parseInt(jerarquiaid, 10)}).lean().exec().then(function(o){
+			if (o){
 				if (typeof o.ancestros === 'object' && o.ancestros.length > 0){
-					restriccion = { 'id': {$in: o.ancestros} };
-
-					instance.models.jerarquiamodel.find(restriccion).select('nombrelargo id').exec().then(function(ancestros){
-						if (typeof ancestros !== 'object'){
-							defer.reject({ error: 'ancestros no ha podido cargarse'});
-						} else {
-							/* hay que ordenarlos */
-							var elems = [];
-							for (var i = 0, j = o.ancestros.length; i < j; i++){
-								for (var k = 0, l = ancestros.length; k < l; k++){
-									if (o.ancestros[i] === ancestros[k].id){
-										elems.push(ancestros[k]);
-										break;
-									}
+					instance.models.jerarquiamodel.find({'id': {'$in': o.ancestros}}).select('nombrelargo id').lean().exec().then(function(ancestros){
+						const elems = [];
+						for (let i = 0, j = o.ancestros.length; i < j; i += 1){
+							for (var k = 0, l = ancestros.length; k < l; k += 1){
+								if (o.ancestros[i] === ancestros[k].id){
+									elems.push(ancestros[k]);
+									break;
 								}
 							}
-							defer.resolve( {jerarquia: o, jerarquias: elems } );
-							return;
 						}
-					}, function(error){
-						logger.log(error);
-						defer.reject(error);
-					});
-					return;
+						defer.resolve({jerarquia: o, jerarquias: elems});
+					}, defer.reject);
+				} else {
+					defer.resolve({jerarquia: o, jerarquias: []});
 				}
+			} else {
+				defer.resolve({jerarquia: o, jerarquias: []});
 			}
-			defer.resolve( {jerarquia: o, jerarquias: []});
-		}, function(err){
-			defer.reject(err);
-		});
+		}, defer.reject);
+
 		return defer.promise;
 	};
 
 	function monthRow(worksheet, fila, anualidad){
-		worksheet.getRow(fila).font = { bold: true };
-		worksheet.getRow(fila).alignment = { horizontal: 'center' };
+		worksheet.getRow(fila).font = BOLD;
+		worksheet.getRow(fila).alignment = HORIZONTALCENTER;
 		getCell(worksheet, 'C' + fila).value = 'E';
 		getCell(worksheet, 'D' + fila).value = 'F';
 		getCell(worksheet, 'E' + fila).value = 'M';
@@ -167,35 +161,28 @@
 	}
 
 	function bgColorResultado (resultado, formula){
-		var result = '';
+
 		if (!resultado || resultado === 0 || resultado === ''){
 			return '';
 		}
-		for (var i = 0, j = formula.intervalos.length; i < j; i++){
+		for (let i = 0, j = formula.intervalos.length; i < j; i += 1){
 			if (resultado >= formula.intervalos[i].min && resultado <= formula.intervalos[i].max){
+				
 				return 'FF' + formula.intervalos[i].color.replace('#', '');
 			}
 		}
-		return result;
+		return '';
 	}
 
 	function valueRow(worksheet, fila, anualidad, indicador){
 		var datos = indicador.valores['a' + anualidad],
-			thin = { style: 'thin' },
-			bordered = {
-				top: thin,
-				left: thin,
-				bottom: thin,
-				right: thin
-			},
-			row = worksheet.getRow(fila),
-			cell;
-		for (var i = 0; i < 13; i++){
-			cell = row.getCell(3 + i, 'n');
+			row = worksheet.getRow(fila);
+		for (let i = 0; i < 13; i += 1){
+			const cell = row.getCell(3 + i, 'n');
 			if (datos[i]){
 				cell.value = datos[i];
 			}
-			row.getCell(3 + i).border = bordered;
+			row.getCell(3 + i).border = BORDERED;
 		}
 	}
 
@@ -205,47 +192,34 @@
 
 	function valueRowProcedimiento(worksheet, fila, anualidad, procedimiento, campo){
 		var datos = procedimiento.periodos['a' + anualidad] ? procedimiento.periodos['a' + anualidad][campo] : [],
-			thin = { style: 'thin' },
-			bordered = {
-				top: thin,
-				left: thin,
-				bottom: thin,
-				right: thin
-			},
 			row = worksheet.getRow(fila);
-		datos[0] ? getCell(worksheet, 'C' + fila, 'n').value = datos[0] : '';
-		datos[1] ? getCell(worksheet, 'D' + fila, 'n').value = datos[1] : '';
-		datos[2] ? getCell(worksheet, 'E' + fila, 'n').value = datos[2] : '';
-		datos[3] ? getCell(worksheet, 'F' + fila, 'n').value = datos[3] : '';
-		datos[4] ? getCell(worksheet, 'G' + fila, 'n').value = datos[4] : '';
-		datos[5] ? getCell(worksheet, 'H' + fila, 'n').value = datos[5] : '';
-		datos[6] ? getCell(worksheet, 'I' + fila, 'n').value = datos[6] : '';
-		datos[7] ? getCell(worksheet, 'J' + fila, 'n').value = datos[7] : '';
-		datos[8] ? getCell(worksheet, 'K' + fila, 'n').value = datos[8] : '';
-		datos[9] ? getCell(worksheet, 'L' + fila, 'n').value = datos[9] : '';
-		datos[10] ? getCell(worksheet, 'M' + fila, 'n').value = datos[10] : '';
-		datos[11] ? getCell(worksheet, 'N' + fila, 'n').value = datos[11] : '';
+		const COLUMNS = ['C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'L', 'M', 'N'];
+		COLUMNS.forEach(function(letter, index){
+			if (datos[index]){
+				getCell(worksheet, letter + fila, 'n').value = datos[index];
+			}
+		});
 		getCell(worksheet, 'O' + fila, 'n').value = array_sum(datos);
 
 		for (var i = 3; i < 16; i++){
-			row.getCell(i).border = bordered;
+			row.getCell(i).border = BORDERED;
 		}
 	}
 
 	function valueRowFormula(worksheet, fila, anualidad, formula){
-		var datos = formula.valores['a' + anualidad];
-		var i, j = 13;
-		var row = worksheet.getRow(fila), celda, bg;
-		var f = formulaEsTraducible(formula);
-		for (i = 0, j = 13; i < j; i++){
+		const datos = formula.valores['a' + anualidad];
+		const j = 13;
+		const row = worksheet.getRow(fila);
+		const f = formulaEsTraducible(formula);
+		for (let i = 0; i < j; i += 1){
 			if (datos[i] && datos[i].resultado){
-				celda = row.getCell(3 + i);
+				const celda = row.getCell(3 + i);
 				if (f){
 					celda.value = f.traduce(worksheet, 3 + i, fila, datos[i].resultado);
 				} else {
 					celda.value = datos[i].resultado;
 				}
-				bg = bgColorResultado(datos[i].resultado, formula);
+				const bg = bgColorResultado(datos[i].resultado, formula);
 				if (bg !== ''){
 					celda.fill = {type: 'pattern', pattern: 'darkVertical', fgColor:{argb: bg}};
 				}
@@ -253,66 +227,72 @@
 		}
 	}
 
-	function fulfillFormula(worksheet, formula, fila, anualidad, indicadores, procedimientos){
-		var indicador, procedimiento,
-			i = 0, j = 0;
+
+	function fulfillFormula(worksheet, formula, filainicial, anualidad, indicadores, procedimientos){
+		let fila = filainicial;
+
 		worksheet.mergeCells('B' + fila + ':' + 'O' + fila);
-		getCell(worksheet, 'B' + fila).alignment = { wrapText: true };
+		getCell(worksheet, 'B' + fila).alignment = WRAPTEXT;
 		getCell(worksheet, 'B' + fila).value = formula.human;
-		getCell(worksheet, 'B' + fila).font = {bold: true};
-		fila++;fila++;
+		getCell(worksheet, 'B' + fila).font = BOLD;
+		fila += 2;
 		monthRow(worksheet, fila, anualidad);
-		fila++;
-		for (i = 0, j = formula.indicadores.length; i < j; i++, fila++){
-			if (typeof indicadores[ formula.indicadores[i] ] === 'object'){
-				indicador = indicadores[ formula.indicadores[i] ];
+		fila += 1;
+		for (let i = 0, j = formula.indicadores.length; i < j; i += 1, fila += 1){
+			if (typeof indicadores[String(formula.indicadores[i])] === 'object'){
+				const indicador = indicadores[String(formula.indicadores[i])];
 				getCell(worksheet, 'B' + fila).value = indicador.nombre;
-				getCell(worksheet, 'B' + fila).alignment = { wrapText: true };
+				getCell(worksheet, 'B' + fila).alignment = WRAPTEXT;
 				valueRow(worksheet, fila, anualidad, indicador);
 			} else {
 				logger.error('No se ha cargado:', formula.indicadores[i], indicadores);
 			}
 		}
 		if (typeof formula.procedimientos === 'object'){
-			for (i = 0, j = formula.procedimientos.length; i < j; i++, fila++){
-				if (typeof procedimientos[ formula.procedimientos[i].procedimiento ] === 'object'){
-					procedimiento = procedimientos[ formula.procedimientos[i].procedimiento ];
+			for (let i = 0, j = formula.procedimientos.length; i < j; i++, fila += 1){
+				if (typeof procedimientos[String(formula.procedimientos[i].procedimiento)] === 'object'){
+					const procedimiento = procedimientos[formula.procedimientos[i].procedimiento];
 
 					getCell(worksheet, 'B' + fila).value = procedimiento.denominacion + ' [' + formula.procedimientos[i].campo + ']';
-					getCell(worksheet, 'B' + fila).alignment = { wrapText: true };
+					getCell(worksheet, 'B' + fila).alignment = WRAPTEXT;
 					valueRowProcedimiento(worksheet, fila, anualidad, procedimiento, formula.procedimientos[i].campo);
 				} else {
 					logger.error('No se ha cargado:', formula.procedimientos[i].procedimiento, procedimientos);
 				}
 			}
 		}
-		fila++;
-		fila++;
-		getCell(worksheet, 'B' + fila).value = 'META PARCIAL'; fila++;
+		fila += 1;
+		fila += 1;
+		getCell(worksheet, 'B' + fila).value = 'META PARCIAL';
+		fila += 1;
 		getCell(worksheet, 'B' + fila).value = 'SUMA PARCIAL /CÁLCULO';
 		valueRowFormula(worksheet, fila, anualidad, formula);
-		fila++;
-		getCell(worksheet, 'B' + fila).value = 'VALOR EVALUACION'; fila++;
+		fila += 1;
+		getCell(worksheet, 'B' + fila).value = 'VALOR EVALUACION';
+		fila += 1;
 
 		return fila + 1;
 	}
 
-	function fulfillObjetivo(worksheet, objetivo, fila, anualidad, indicadores, procedimientos){
+	function fulfillObjetivo(worksheet, objetivo, filainicial, anualidad, indicadores, procedimientos){
+		let fila = filainicial;
+
 		getCell(worksheet, 'A' + fila).value = objetivo.index;
-		getCell(worksheet, 'A' + fila).font = {bold: true};
-		getCell(worksheet, 'A' + fila).alignment = {horizontal: 'center'};
+		getCell(worksheet, 'A' + fila).font = BOLD;
+		getCell(worksheet, 'A' + fila).alignment = HORIZONTALCENTER;
 		worksheet.mergeCells('B' + fila + ':' + 'O' + fila);
 		getCell(worksheet, 'B' + fila).value = objetivo.denominacion;
-		getCell(worksheet, 'B' + fila).alignment = { wrapText: true };
+		getCell(worksheet, 'B' + fila).alignment = WRAPTEXT;
 		fila += 2;
-		for (var i = 0, j = objetivo.formulas.length; i < j; i++){
+		for (let i = 0, j = objetivo.formulas.length; i < j; i += 1){
 			fila = fulfillFormula(worksheet, objetivo.formulas[i], fila, anualidad, indicadores, procedimientos);
 		}
+
 		return fila;
 	}
 
 	function fulfillSheet(worksheet, datos){
-		var i = 0, j = 0, fila = 0;
+		let fila = 0;
 		assert(typeof worksheet === 'object', 'fulfillSheet recibe worksheet');
 		assert(typeof datos === 'object', 'fulfillSheet recibe datos');
 		assert(typeof datos.indicadores === 'object', 'fulfillSheet recibe indicadores');
@@ -320,111 +300,104 @@
 		worksheet.getColumn('B').width = 30;
 		getCell(worksheet, 'A' + fila).value = datos.carta.denominacion + ' ' + datos.carta.expediente; fila++;
 		getCell(worksheet, 'A' + fila).value = 'Expediente: ' + datos.carta.expediente;
-		fila++;
-		getCell(worksheet, 'A' + fila).value = {
-			text: 'Enlace: ' + datos.carta.url,
-			hyperlink: datos.carta.url
-		};
-		fila++;
-		getCell(worksheet, 'A' + fila).value = 'Entidad:'; fila++;
+		
+		fila += 1;
+		
+		getCell(worksheet, 'A' + fila).value = {text: 'Enlace: ' + datos.carta.url, hyperlink: datos.carta.url};
 
-		for (i = 0, j = datos.jerarquias.length; i < j; i++, fila++){
+		fila += 1;
+
+		getCell(worksheet, 'A' + fila).value = 'Entidad:';
+		fila += 1;
+
+		for (let i = 0, j = datos.jerarquias.length; i < j; i += 1, fila += 1){
 			getCell(worksheet, 'A' + fila).value = datos.jerarquias[j - i - 1].nombrelargo;
 		}
-		getCell(worksheet, 'A' + fila).value = datos.jerarquia.nombrelargo; fila++;
+		getCell(worksheet, 'A' + fila).value = datos.jerarquia.nombrelargo;
+		fila += 1;
 		getCell(worksheet, 'A' + fila).value = {
 			text: 'http://10.166.47.22/carta/' + datos.carta.idjerarquia,
 			hyperlink: 'http://10.166.47.22/carta/' + datos.carta.idjerarquia
 		};
-		fila++; fila++; fila++;
-		worksheet.getRow(fila).font = {bold: true};
-		getCell(worksheet, 'A' + fila).value = 'Código'; getCell(worksheet, 'B' + fila).value = 'Denominación';
-		getCell(worksheet, 'A' + fila).alignment = {horizontal: 'center'};
-		fila++;
+		fila += 3;
 
-		for (i = 0, j = datos.objetivos.length, fila++; i < j; i++){
+		worksheet.getRow(fila).font = BOLD;
+		getCell(worksheet, 'A' + fila).value = 'Código'; getCell(worksheet, 'B' + fila).value = 'Denominación';
+		getCell(worksheet, 'A' + fila).alignment = HORIZONTALCENTER;
+		fila += 2;
+
+		for (let i = 0, j = datos.objetivos.length; i < j; i += 1, fila += 1){
 			fila = fulfillObjetivo(worksheet, datos.objetivos[i], fila, datos.anualidad, datos.indicadores, datos.procedimientos);
 		}
 	}
 
-
-
 	ExportadorCartas.prototype.toFile = function(filename, entidadobjetoid, anualidad, creator){
-		var defer = Q.defer();
-		var instance = this;
-		Q.all([ this.loadEntidadObjeto(entidadobjetoid), this.loadObjetivos(entidadobjetoid) ])
-			.then(function(information){
-				var i, j, k, l, q, w;
-				var objetivos = information[1],
-					ids_procedimientos = [];
-				for (i = 0, j = objetivos.length; i < j; i++){
-					for (k = 0, l = objetivos[i].formulas.length; k < l; k++){
-						if (typeof objetivos[i].formulas[k].procedimientos === 'object'){
-							for ( q = 0, w = objetivos[i].formulas[k].procedimientos.length; q < w; q++){
-								ids_procedimientos.push( objetivos[i].formulas[k].procedimientos[q].procedimiento );
-							}
+		const defer = Q.defer();
+		const instance = this;
+		Q.all([this.loadEntidadObjeto(entidadobjetoid), this.loadObjetivos(entidadobjetoid)]).then(function(information){
+			const objetivos = information[1],
+				idsprocedimientos = [];
+			for (let i = 0, j = objetivos.length; i < j; i += 1){
+				for (let k = 0, l = objetivos[i].formulas.length; k < l; k += 1){
+					if (typeof objetivos[i].formulas[k].procedimientos === 'object'){
+						for (let q = 0, w = objetivos[i].formulas[k].procedimientos.length; q < w; q += 1){
+							idsprocedimientos.push(objetivos[i].formulas[k].procedimientos[q].procedimiento);
 						}
 					}
 				}
+			}
 
-				Q.all( [ instance.loadJerarquias(information[0].idjerarquia), instance.loadIndicadores(information[0].idjerarquia), instance.loadProcedimientos(ids_procedimientos) ])
-					.then(function(information2){
-						var workbook = new Excel.Workbook(),
-							datos = {
-								anualidad: anualidad,
-								carta: information[0],
-								objetivos: information[1],
-								jerarquia: information2[0].jerarquia,
-								jerarquias: information2[0].jerarquias,
-								indicadores: information2[1],
-								procedimientos: information2[2]
-							};
+			const tasks = [
+				instance.loadJerarquias(information[0].idjerarquia),
+				instance.loadIndicadores(information[0].idjerarquia),
+				instance.loadProcedimientos(idsprocedimientos)
+			];
 
-						if (typeof creator === 'undefined'){
-							creator = 'Me';
-						}
+			Q.all(tasks).then(function(information2){
+				const workbook = new Excel.Workbook(),
+					datos = {
+						anualidad: anualidad,
+						carta: information[0],
+						objetivos: information[1],
+						jerarquia: information2[0].jerarquia,
+						jerarquias: information2[0].jerarquias,
+						indicadores: information2[1],
+						procedimientos: information2[2]
+					};
 
-						workbook.creator = creator;
-						workbook.lastModifiedBy = creator;
-						workbook.created = new Date();
-						workbook.modified = new Date();
+				workbook.creator = (typeof creator === 'undefined') ? 'Me' : creator;
+				workbook.lastModifiedBy = (typeof creator === 'undefined') ? 'Me' : creator;
+				workbook.created = new Date();
+				workbook.modified = new Date();
 
-						workbook.addWorksheet(datos.carta.expediente);
-						var worksheet = workbook.getWorksheet(datos.carta.expediente);
-						fulfillSheet(worksheet, datos);
-						workbook.xlsx.writeFile(filename)
-						.then(function() {
-							logger.log('fichero almacenado');
-							defer.resolve(workbook);
-						}, defer.reject);
-					},
-					function(err){
-						defer.reject({error: 'Cannot load metadata', details: err});
-					});
-			},
-			function(err){
-				defer.reject({error: 'Cannot load metadata', details: err});
-			});
+				workbook.addWorksheet(datos.carta.expediente);
+				const worksheet = workbook.getWorksheet(datos.carta.expediente);
+				fulfillSheet(worksheet, datos);
+				workbook.xlsx.writeFile(filename).then(function() {
+					logger.log('fichero almacenado');
+					defer.resolve(workbook);
+				}, defer.reject);
+			}, defer.reject);
+		}, defer.reject);
+
 		return defer.promise;
 	};
 
-	ExportadorCartas.prototype.toExpress = function(app, md5, cfg){
+	ExportadorCartas.prototype.toExpress = function(app, cfg){
 		var instance = this;
-		return function(req, res){
-			var creator = req.user.login;
-			var time = new Date().getTime();
-			var path = app.get('prefixtmp'),
-				filename = path + time + '.xlsx';
-			var entidadobjetoid = req.params.id,
-				anualidad = parseInt(req.params.anualidad);
 
-			var hash = md5(cfg.downloadhashprefix + time);
-			instance.toFile(filename, entidadobjetoid, anualidad, creator)
-				.then(function(){
-					res.json({'time': time, 'hash': hash, extension: '.xlsx'});
-				}, function(error){
-					res.status(500).json({error: error});
-				});
+		return function(req, res){
+			const creator = req.user.login;
+			const time = new Date().getTime();
+			const path = app.get('prefixtmp'),
+				filename = path + time + '.xlsx',
+				entidadobjetoid = req.params.id,
+				anualidad = parseInt(req.params.anualidad, 10);
+
+			const hash = md5(cfg.downloadhashprefix + time);
+			instance.toFile(filename, entidadobjetoid, anualidad, creator).then(function(){
+				res.json({'time': time, 'hash': hash, extension: '.xlsx'});
+			}, req.eh.errorHelper(res));
 		};
 	};
 

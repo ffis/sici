@@ -1,9 +1,15 @@
 (function(module, logger){
 	'use strict';
 
-	var assert = require('assert');
-	var Excel = require('exceljs'),
-		Q = require('q');
+	const assert = require('assert'),
+		Excel = require('exceljs'),
+		Q = require('q'),
+		md5 = require('md5');
+
+	const INICIALESMESES = ['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'],
+		COLUMNAS = ['Entidad', 'Nombre entidad', 'Denominación carta', 'Número de compromiso', 'Compromiso', 'Número de fórmula', 'Indicador', 'Acumulador'];
+	const THIN = {style: 'thin'},
+		BORDERED = {top: THIN, left: THIN, bottom: THIN, right: THIN};
 
 	function ExportadorIndicador(models, templatefile){
 		this.models = models;
@@ -16,182 +22,165 @@
 	}
 
 	ExportadorIndicador.prototype.loadIndicadores = function(){
-		var defer = Q.defer();
+		const defer = Q.defer();
 		this.models.indicadormodel.find().sort({'idjerarquia': 1}).exec().then(function(indicadores){
-			logger.log(indicadores.length);
-			var objs = {};
-			for (var i = 0, j = indicadores.length; i < j; i++){
-				if (typeof objs['' + indicadores[i].idjerarquia] === 'undefined'){
-					objs['' + indicadores[i].idjerarquia] = {};
+			const objs = {};
+			for (let i = 0, j = indicadores.length; i < j; i += 1){
+				if (typeof objs[String(indicadores[i].idjerarquia)] === 'undefined'){
+					objs[String(indicadores[i].idjerarquia)] = {};
 				}
-				objs['' + indicadores[i].idjerarquia ]['' + indicadores[i]._id] = indicadores[i];
+				objs[String(indicadores[i].idjerarquia)][String(indicadores[i]._id)] = indicadores[i];
 			}
 			defer.resolve(objs);
 		}, defer.reject);
+
 		return defer.promise;
 	};
+
 	ExportadorIndicador.prototype.loadEntidadObjeto = function(){
-		var defer = Q.defer();
-		this.models.entidadobjetomodel.find().sort({'idjerarquia': 1}).then(defer.resolve, defer.reject);
-		return defer.promise;
+
+		return this.models.entidadobjetomodel.find().sort({'idjerarquia': 1});
 	};
+
 	ExportadorIndicador.prototype.loadJerarquias = function(){
-		var defer = Q.defer();
-		this.models.jerarquiamodel.find().then(function(jerarquias){
-			var objs = {};
-			for (var i = 0, j = jerarquias.length; i < j; i++){
-				objs['' + parseInt(jerarquias[i].id) ] = jerarquias[i];
-			}
+		const defer = Q.defer();
+		this.models.jerarquiamodel.find().lean().then(function(jerarquias){
+
+			const objs = jerarquias.reduce(function(prev, jerarquia){
+				prev[String(jerarquia.id)] = jerarquia;
+
+				return prev;
+			}, {});
+
 			defer.resolve(objs);
 		}, defer.reject);
+
 		return defer.promise;
 	};
 	ExportadorIndicador.prototype.loadObjetivos = function(){
-		var defer = Q.defer();
-		this.models.objetivomodel.find().sort({'index': 1}).then(function(objetivos){
-			var objs = {};
-			for (var i = 0, j = objetivos.length; i < j; i++){
-				if (typeof objs['' + objetivos[i].carta] === 'undefined'){
-					objs['' + objetivos[i].carta] = [];
+		const defer = Q.defer();
+		this.models.objetivomodel.find().lean().sort({'index': 1}).then(function(objetivos){
+			const objs = {};
+			for (let i = 0, j = objetivos.length; i < j; i += 1){
+				if (typeof objs[String(objetivos[i].carta)] === 'undefined'){
+					objs[String(objetivos[i].carta)] = [];
 				}
-				objs['' + objetivos[i].carta ].push(objetivos[i]);
+				objs[String(objetivos[i].carta)].push(objetivos[i]);
 			}
 			defer.resolve(objs);
 		}, defer.reject);
+
 		return defer.promise;
 	};
 
 	function getCell(worksheet, path, type){
-		var t;
+		let t = false;
 		if (typeof type !== 'undefined'){
 			if (Array.isArray(path)){
 				t = worksheet.getCell(path[1], path[0]);
 			} else {
 				t = worksheet.getCell(path);
 			}
-			if (type === 'n'){
+			//if (type === 'n'){
 			//	t.type = Excel.ValueType.Number;
-			} else if (type === 'f'){
+			//} else
+			if (type === 'f'){
 				t.type = Excel.ValueType.Formula;
 			}
 
 			return t;
 		}
 		if (Array.isArray(path)){
+
 			return worksheet.getCell(path[1], path[0]);
 		}
+
 		return worksheet.getCell(path);
 	}
 
 	function getRowsInfoCarta (carta, objetivos, indicadores, jerarquia){
 		if (!objetivos || !indicadores){
+
 			return [];
 		}
-		var rows = [], row;
-		for (var i = 0, j = objetivos.length; i < j; i++){
-			for (var q = 0, w = objetivos[i].formulas.length; q < w; q++){
-				for (var e = 0, r = objetivos[i].formulas[q].indicadores.length; e < r; e++){
-					var indicador = indicadores[ objetivos[i].formulas[q].indicadores[e] ];
+		const rows = [];
+		for (let i = 0, j = objetivos.length; i < j; i += 1){
+			for (let q = 0, w = objetivos[i].formulas.length; q < w; q += 1){
+				for (let e = 0, r = objetivos[i].formulas[q].indicadores.length; e < r; e += 1){
+					const indicador = indicadores[String(objetivos[i].formulas[q].indicadores[e])];
 					if (indicador){
-						row = {
+						rows.push({
 							entidad: jerarquia,
 							carta: carta,
 							objetivo: objetivos[i],
 							numero_indicador: e,
 							indicador: indicador
-						};
-						rows.push(row);
-					} else {
-						logger.log('posible corrupción en: ', carta.idjerarquia, i, q, e, objetivos[i].formulas[q].indicadores[e] );
+						});
 					}
 				}
 			}
 		}
+
 		return rows;
 	}
 
 	function monthRow(worksheet, fila, columnainicial, anualidad){
-		var	thin = { style: 'thin' },
-			bordered = {
-				top: thin,
-				left: thin,
-				bottom: thin,
-				right: thin
-			}, celda;
-		var columnas = ['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
-
 		//getCell(worksheet, 'O' + fila).value = anualidad;
-		for (var i = 0, j = columnas.length; i < j; i++){
-			celda = getCell(worksheet, [i + columnainicial, fila]);
-			celda.value = columnas[i];
-			celda.border = bordered;
+		for (let i = 0, j = INICIALESMESES.length; i < j; i++){
+			const celda = getCell(worksheet, [i + columnainicial, fila]);
+			celda.value = INICIALESMESES[i];
+			celda.border = BORDERED;
 		}
-		celda = getCell(worksheet, [columnas.length + columnainicial, fila]);
+		const celda = getCell(worksheet, [INICIALESMESES.length + columnainicial, fila]);
 		celda.value = anualidad;
-		celda.border = bordered;
-		return columnainicial + columnas.length + 1;
+		celda.border = BORDERED;
+
+		return columnainicial + INICIALESMESES.length + 1;
 	}
 
 	function headers(worksheet, fila){
-		var	thin = { style: 'thin' },
-			bordered = {
-				top: thin,
-				left: thin,
-				bottom: thin,
-				right: thin
-			},
-			celda,
-			filaobj = worksheet.getRow(fila),
-			columnas = [
-				'Entidad', 'Nombre entidad', 'Denominación carta', 'Número de compromiso', 'Compromiso', 'Número de fórmula',
-				'Indicador', 'Acumulador'
-			];
+		const filaobj = worksheet.getRow(fila);
 
-		filaobj.font = { bold: true };
-		filaobj.alignment = { horizontal: 'center' };
-		for (var i = 0, j = columnas.length; i < j; i++){
-			celda = filaobj.getCell(i + 1);
-			celda.value = columnas[i];
-			celda.border = bordered;
+		filaobj.font = {bold: true};
+		filaobj.alignment = {horizontal: 'center'};
+		for (let i = 0, j = COLUMNAS.length; i < j; i += 1){
+			const celda = filaobj.getCell(i + 1);
+			celda.value = COLUMNAS[i];
+			celda.border = BORDERED;
 		}
-		var columna = columnas.length + 1;
+		let columna = COLUMNAS.length + 1;
 		//ahora las anualidades
 		//desde 2015
-		var f = new Date();
-		for (i = 2015, j = parseInt( f.getFullYear() ) + 1; i < j; i++){
+		const f = new Date();
+		for (let i = 2015, j = f.getFullYear() + 1; i < j; i += 1){
 			columna = monthRow(worksheet, fila, columna, i);
 		}
 
-		var celdasGrandes = [2, 4, 6];
-		for (i = 0, j = celdasGrandes.length; i < j; i++){
+	//	var celdasGrandes = [2, 4, 6];
+	//	for (i = 0, j = celdasGrandes.length; i < j; i++){
 	//		fila.getCell(celdasGrandes[i]).width = 30;
-		}
+	//	}
 	}
 
-	function addIndicador(worksheet, indicador, fila, columna){
-		var	thin = { style: 'thin' },
-			bordered = {
-				top: thin,
-				left: thin,
-				bottom: thin,
-				right: thin
-			};
+	function addIndicador(worksheet, indicador, fila, columnainicial){
 		if (typeof indicador !== 'object'){
+			
 			return;
 		}
-		var f = new Date(), i, j, q, w, values;
-		for (i = 2015, j = parseInt( f.getFullYear() ) + 1; i < j; i++){
-			values = indicador.valores ? (indicador.valores[ 'a' + i ] ? indicador.valores[ 'a' + i ] : []) : [];
-			w = values.length > 0 ? values.length : 13;
-			for (q = 0; q < w; q++){
-				var celda = getCell(worksheet, [columna, fila], 'n');
-				columna++;
+
+		const f = new Date();
+
+		for (let i = 2015, j = f.getFullYear() + 1; i < j; i += 1){
+			const values = indicador.valores ? (indicador.valores['a' + i] ? indicador.valores['a' + i] : []) : [];
+			const w = values.length > 0 ? values.length : 13;
+			for (let q = 0, columna = columnainicial; q < w; q += 1, columna += 1){
+				const celda = getCell(worksheet, [columna, fila + q], 'n');
 				if (q < values.length && typeof values[q] === 'number'){
 					celda.value = values[q];
 				} else {
 					celda.value = '';
 				}
-				celda.border = bordered;
+				celda.border = BORDERED;
 			}
 		}
 	}
@@ -205,7 +194,7 @@
 
 		getCell(worksheet, [1, fila]).value = row.carta.idjerarquia;
 		getCell(worksheet, [2, fila]).value = row.entidad ? row.entidad.nombrelargo : '';
-		getCell(worksheet, [2, fila]).alignment = { wrapText: true };
+		getCell(worksheet, [2, fila]).alignment = {wrapText: true};
 		getCell(worksheet, [3, fila]).value = row.carta.denominacion;
 		getCell(worksheet, [4, fila]).value = row.objetivo.index;
 		getCell(worksheet, [5, fila]).value = row.objetivo.denominacion;
@@ -217,9 +206,10 @@
 	}
 
 	function addRows(worksheet, rows, fila){
-		for (var i = 0, j = rows.length; i < j; i++){
+		for (let i = 0, j = rows.length; i < j; i += 1){
 			addRow(worksheet, rows[i], fila + i);
 		}
+
 		return fila + rows.length;
 	}
 
@@ -229,80 +219,65 @@
 		assert(typeof datos === 'object', 'fulfillSheet recibe datos');
 		assert(typeof datos.cartas === 'object', 'fulfillSheet recibe cartas');
 
-		var fila = 1, rows;
+		let fila = 1;
 		headers(worksheet, fila);
 		worksheet.getColumn('B').width = 30;
 		worksheet.getColumn('C').width = 30;
 		worksheet.getColumn('E').width = 30;
 		worksheet.getColumn('G').width = 30;
-		fila++;
-		for (var i = 0, j = datos.cartas.length; i < j; i++){
-			rows = getRowsInfoCarta(
+		fila += 1;
+		for (let i = 0, j = datos.cartas.length; i < j; i += 1){
+			const rows = getRowsInfoCarta(
 				datos.cartas[i],
-				datos.objetivos[ '' + datos.cartas[i]._id ],
-				datos.indicadores[ '' + datos.cartas[i].idjerarquia],
-				datos.jerarquias[ '' + parseInt(datos.cartas[i].idjerarquia) ]);
+				datos.objetivos[String(datos.cartas[i]._id)],
+				datos.indicadores[String(datos.cartas[i].idjerarquia)],
+				datos.jerarquias[String(datos.cartas[i].idjerarquia)]);
 			fila = addRows(worksheet, rows, fila);
 		}
 	}
 
 	ExportadorIndicador.prototype.toFile = function(filename, creator){
-		var defer = Q.defer();
-		var instance = this;
+		const defer = Q.defer();
+		const instance = this;
+		const cargas = [instance.loadEntidadObjeto(), instance.loadObjetivos(), instance.loadIndicadores(), instance.loadJerarquias()];
+		Q.all(cargas).then(function(information){
+			const workbook = new Excel.Workbook(),
+				datos = {
+					cartas: information[0],
+					objetivos: information[1],
+					indicadores: information[2],
+					jerarquias: information[3]
+				};
 
-		Q.all([ this.loadEntidadObjeto(), this.loadObjetivos(), this.loadIndicadores(), this.loadJerarquias() ])
-			.then(function(information){
+			workbook.creator = (typeof creator === 'undefined') ? 'Me' : creator;
+			workbook.lastModifiedBy = (typeof creator === 'undefined') ? 'Me' : creator;
+			workbook.created = new Date();
+			workbook.modified = new Date();
 
-				var workbook = new Excel.Workbook(),
-					datos = {
-						cartas: information[0],
-						objetivos: information[1],
-						indicadores: information[2],
-						jerarquias: information[3]
-					};
+			workbook.addWorksheet('Indicadores');
+			const worksheet = workbook.getWorksheet('Indicadores');
 
-				if (typeof creator === 'undefined'){
-					creator = 'Me';
-				}
-				workbook.creator = creator;
-				workbook.lastModifiedBy = creator;
-				workbook.created = new Date();
-				workbook.modified = new Date();
+			fulfillSheet(worksheet, datos);
 
-				workbook.addWorksheet('Indicadores');
-				var worksheet = workbook.getWorksheet('Indicadores');
+			workbook.xlsx.writeFile(filename).then(function(){ defer.resolve(workbook); }, defer.reject);
+		}, defer.reject);
 
-				fulfillSheet(worksheet, datos);
-
-				workbook
-					.xlsx
-					.writeFile(filename)
-					.then(function() {
-						logger.log('fichero almacenado');
-						defer.resolve(workbook);
-					}, defer.reject);
-			},
-			function(err){
-				defer.reject({error: 'Cannot load metadata', details: err});
-			});
 		return defer.promise;
 	};
 
-	ExportadorIndicador.prototype.toExpress = function(app, md5, cfg){
-		var instance = this;
+	ExportadorIndicador.prototype.toExpress = function(app, cfg){
+		const instance = this;
+
 		return function(req, res){
-			var creator = req.user.login;
-			var time = new Date().getTime();
-			var path = app.get('prefixtmp'),
+			const creator = req.user.login;
+			const time = new Date().getTime();
+			const path = app.get('prefixtmp'),
 				filename = path + time + '.xlsx';
 
-			var hash = md5(cfg.downloadhashprefix + time);
-			instance.toFile(filename, creator)
-				.then(function(){
-					res.json({'time': time, 'hash': hash, extension: '.xlsx'});
-				}, function(error){
-					res.status(500).json({error: error});
-				});
+			const hash = md5(cfg.downloadhashprefix + time);
+			instance.toFile(filename, creator).then(function(){
+				res.json({'time': time, 'hash': hash, extension: '.xlsx'});
+			}, req.eh.errorHelper(res));
 		};
 	};
 

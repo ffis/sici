@@ -1,212 +1,139 @@
-(function(module, logger){
+(function(module){
 	'use strict';
 
+	const crypto = require('crypto'),
+		jsonwebtoken = require('jsonwebtoken');
+
+	function sortHelper(a, b){
+		return a > b;
+	}
+
+	function filterHelper(a, b){
+		if (a.slice(-1)[0] !== b){
+			a.push(b);
+		}
+
+		return a;
+	}
+
 	function calcularPermisos(permisos){
-		var permisoscalculados = {
-			jerarquialectura: [], jerarquiaescritura: [],
-			procedimientoslectura: [], procedimientosescritura: [],
-			entidadobjetolectura : [], entidadobjetoescritura: [],
+		const nowtime = (new Date()).getTime();
+		const permisoscalculados = permisos.filter(function(permiso){
+
+			return (!permiso.caducidad || permiso.caducidad.getTime() < nowtime);
+		}).reduce(function(prev, permiso){
+			prev.superuser = prev.superuser || permiso.superuser;
+			prev.grantoption = prev.grantoption || permiso.grantoption;
+
+			prev.jerarquialectura = prev.jerarquialectura.concat(permiso.jerarquialectura, permiso.jerarquiaescritura);
+			prev.jerarquiaescritura = prev.jerarquiaescritura.concat(permiso.jerarquiaescritura);
+
+			prev.procedimientoslectura = prev.procedimientoslectura.concat(permiso.procedimientoslectura, permiso.procedimientosescritura);
+			prev.procedimientosescritura = prev.procedimientosescritura.concat(permiso.procedimientosescritura);
+
+			prev.entidadobjetolectura = prev.entidadobjetolectura.concat(permiso.entidadobjetolectura, permiso.entidadobjetoescritura);
+			prev.entidadobjetoescritura = prev.entidadobjetoescritura.concat(permiso.entidadobjetoescritura);
+
+			return prev;
+		}, {
+			jerarquialectura: [],
+			jerarquiaescritura: [],
+			procedimientoslectura: [],
+			procedimientosescritura: [],
+			entidadobjetolectura: [],
+			entidadobjetoescritura: [],
 			superuser: false,
 			grantoption: false
-		};
+		});
 
-		var now = new Date();
-		//logger.log('Cargando...', permisos.length);
-		for (var i = 0, j = permisos.length; i < j; i++ ){
-			//logger.log(permisos[i]);
-			if (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime())
-			{
-				permisoscalculados.superuser = permisoscalculados.superuser || permisos[i].superuser;
-				permisoscalculados.jerarquialectura = permisoscalculados.jerarquialectura.concat( permisos[i].jerarquialectura);
-				permisoscalculados.jerarquiaescritura = permisoscalculados.jerarquiaescritura.concat( permisos[i].jerarquiaescritura);
-				permisoscalculados.procedimientosescritura = permisoscalculados.procedimientosescritura.concat( permisos[i].procedimientosescritura);
-				permisoscalculados.entidadobjetoescritura = permisoscalculados.entidadobjetoescritura.concat ( permisos[i].entidadobjetoescritura);
-				permisoscalculados.grantoption = permisoscalculados.grantoption || permisos[i].grantoption;
-				//o.permisos.push( permisos[i] );
-			}
-			var k, l;
-			for (k = 0, l = permisos[i].jerarquialectura.length; k < l; k++){
-				if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime()) &&
-					(permisoscalculados.jerarquialectura.indexOf(permisos[i].jerarquialectura[k]) === -1 ) )
-				{
-					permisoscalculados.jerarquialectura.push( permisos[i].jerarquialectura[k]);
-				}
-			}
-			for (k = 0, l = permisos[i].jerarquiaescritura.length; k < l; k++){
-				if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime()) &&
-					(permisoscalculados.jerarquiaescritura.indexOf(permisos[i].jerarquiaescritura[k]) === -1 ) )
-				{
-					permisoscalculados.jerarquiaescritura.push( permisos[i].jerarquiaescritura[k]);
-				}
-			}
-			for (k = 0, l = permisos[i].procedimientoslectura.length; k < l; k++){
-				if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime()) &&
-					(permisoscalculados.procedimientosescritura.indexOf(permisos[i].procedimientoslectura[k]) === -1 ) )
-				{
-					permisoscalculados.procedimientoslectura.push( permisos[i].procedimientoslectura[k]);
-				}
-			}
-			for (k = 0, l = permisos[i].entidadobjetolectura.length; k < l; k++){
-				if ( (!permisos[i].caducidad || permisos[i].caducidad.getTime() < now.getTime()) &&
-					(permisoscalculados.entidadobjetoescritura.indexOf(permisos[i].entidadobjetolectura[k]) === -1 ) )
-				{
-					permisoscalculados.entidadobjetolectura.push( permisos[i].entidadobjetolectura[k]);
-				}
-			}
-		}
+		permisoscalculados.jerarquialectura = permisoscalculados.jerarquialectura.sort(sortHelper).reduce(filterHelper, []);
+		permisoscalculados.jerarquiaescritura = permisoscalculados.jerarquiaescritura.sort(sortHelper).reduce(filterHelper, []);
+		permisoscalculados.procedimientoslectura = permisoscalculados.procedimientoslectura.sort(sortHelper).reduce(filterHelper, []);
+		permisoscalculados.procedimientosescritura = permisoscalculados.procedimientosescritura.sort(sortHelper).reduce(filterHelper, []);
+		permisoscalculados.entidadobjetolectura = permisoscalculados.entidadobjetolectura.sort(sortHelper).reduce(filterHelper, []);
+		permisoscalculados.entidadobjetoescritura = permisoscalculados.entidadobjetoescritura.sort(sortHelper).reduce(filterHelper, []);
 
 		return permisoscalculados;
 	}
 
-	module.exports.getpermisoscalculados = function(models) {
-		return function(req, res){
-			var Permisos = models.permiso();
-			Permisos.find({'_id': {'$in': req.user.idspermisos}}, function(err, permisos){
-				if (err) {
-					res.status(500).json({error: 'Error getpermisoscalculados', details: err});
-				} else {
-					var permisoscalculados = calcularPermisos(permisos);
-					res.json(permisoscalculados);
-				}
-			});
-		};
-	};
-
-	module.exports.setpermisoscalculados = function(config){
-		return function(req, res, next) {
-			var Permisos = config.models.permiso();
-			Permisos.find({'_id': {'$in': req.user.idspermisos}}, function(err, permisos){
-				if (err){
-					next(err);
-				} else {
-					var permisoscalculados = calcularPermisos(permisos);
-					req.user.permisoscalculados = permisoscalculados;
-					next();
-				}
-			});
-		};
-	};
-
-	module.exports.authenticate = function(config){
-		var jwt = config.jwt;
-		var secret = config.secret;
-		var Persona = config.models.persona();
-		var Permisos = config.models.permiso();
-		var crypto = config.crypto;
-
-		if (!jwt || !secret || !Persona || !Permisos){
-			throw new Error('bad config for authenticate method');
-		}
-
-		return function(req, res){
-			var shasum;
-
-			//should delegate
-			//if is invalid, return 401
-			//for testing this should be enough
-
-			/*if (req.body.password !== 'password') {
-				res.status(401).send('Wrong password');
-				return;
-			}*/
-
-			var restriccion = {login: req.body.username, habilitado: true};
-
-			if (req.body.notcarmuser){
-				shasum = crypto.createHash('sha256');
-				shasum.update(req.body.password);
-				restriccion.contrasenya = shasum.digest('hex');
+	module.exports.getpermisoscalculados = function(req, res){
+		const permisomodel = req.metaenvironment.models.permiso();
+		permisomodel.find({'_id': {'$in': req.user.idspermisos}}, function(err, permisos){
+			if (err) {
+				req.eh.callbackErrorHelper(res, err);
+			} else {
+				res.json(calcularPermisos(permisos));
 			}
+		});
+	};
 
-			//console.log(restriccion);
-			Persona.find( restriccion,
-				function(err, personas){
-					if (err || personas.length === 0)
-					{
-						res.status(401).send('Wrong user or password');
-						return;
+	module.exports.setpermisoscalculados = function(req, res, next) {
+		const permisomodel = req.metaenvironment.models.permiso();
+		permisomodel.find({'_id': {'$in': req.user.idspermisos}}).lean().exec().then(function(permisos){
+			req.user.permisoscalculados = calcularPermisos(permisos);
+			next();
+		}, next);
+	};
+
+	function getPersonAndGenerateToken(req, res, restriction){
+		const secret = req.metaenvironment.cfg.secret,
+			cfg = req.metaenvironment.cfg,
+			personamodel = req.metaenvironment.models.persona(),
+			permisomodel = req.metaenvironment.models.permiso();
+
+		personamodel.find(restriction).limit(1).exec().then(function(personas){
+			if (personas.length === 0){
+				res.status(401).json({error: 'Wrong user or password'});
+
+				return;
+			}
+			personas[0].ultimologin = new Date();
+			personas[0].save();
+
+			permisomodel.find({$or: [{login: personas[0].login}, {codplaza: personas[0].codplaza}]},
+				function (erro, permisos){
+					if (erro || permisos.length === 0){
+						res.status(404).json({error: 'Sin permisos'});
+					} else {
+						const o = JSON.parse(JSON.stringify(personas[0]));
+						o.idspermisos = permisos.map(function(permiso){ return permiso._id; });
+						const token = jsonwebtoken.sign(o, secret, {expiresIn: cfg.session_time});
+						/* TODO: check and explain why to delete all these attrs */
+						o.permisos = permisos.map(function(permiso){
+							const attrsfiltrar = ['jerarquialectura', 'jerarquiaescritura', 'procedimientoslectura', 'procedimientosescritura', 'entidadobjetolectura', 'entidadobjetoescritura'];
+							attrsfiltrar.forEach(function(attr){
+								Reflect.deleteProperty(permiso, attr);
+							});
+
+							return permiso;
+						});
+						res.json({profile: o, token: token});
 					}
-					personas[0].ultimologin = new Date();
-					personas[0].save();
-
-					//Permisos are bound using login or codplaza
-					Permisos.find(
-						{ $or: [ {login: personas[0].login}, {codplaza: personas[0].codplaza} ] },
-						function (erro, permisos){
-							if (erro || permisos.length === 0){
-								res.status(404).json({error: 'Sin permisos'});
-							} else {
-								var o = JSON.parse(JSON.stringify(personas[0]));
-								o.idspermisos = [];
-								for (var i = 0, j = permisos.length; i < j; i++ ){
-									o.idspermisos.push(permisos[i]._id);
-									delete permisos[i].jerarquialectura;
-									delete permisos[i].jerarquiaescritura;
-									delete permisos[i].procedimientoslectura;
-									delete permisos[i].procedimientosescritura;
-								}
-								var token = jwt.sign(o, secret, { expiresIn: config.session_time });
-								o.permisos = permisos;
-								res.json({ profile: o, token: token });
-							}
-						}
-					);
 				}
 			);
-		};
-	};
+		}, req.eh.errorHelper(res, 401, 'Wrong user or password'));
+	}
 
-	module.exports.pretend = function(config){
-		var jwt = config.jwt,
-			secret = config.secret,
-			Persona = config.models.persona(),
-			Permisos = config.models.permiso();
+	module.exports.authenticate = function(req, res){
 
-		if (!jwt || !secret || !Persona || !Permisos){
-			throw new Error('bad config for pretend method');
+		const restriccion = {login: req.body.username, habilitado: true};
+		if (req.body.notcarmuser){
+			const shasum = crypto.createHash('sha256');
+			shasum.update(req.body.password);
+			restriccion.contrasenya = shasum.digest('hex');
 		}
 
-		return function(req, res){
-			if (!req.user || !req.user.permisoscalculados || !req.user.permisoscalculados.superuser) {
-				res.status(403).json({'error': 'Not allowed'}); /* provoca perdida de sesión */
-			}else if (typeof req.body.username === 'undefined'){
-				res.status(404).json({'error': 'Fallo de petición'});
-			} else {
-				Persona.find( { login: req.body.username, habilitado: true },
-					function(err, personas){
-						if (err || personas.length === 0)
-						{
-							res.status(404).json({'error': 'Petición fallida o usuario no encontrado en la base de datos.'});
-						} else {
-							personas[0].ultimologin = new Date();
-							personas[0].save();
-							//Permisos are bound using login or codplaza
-							Permisos.find(
-								{ $or: [ {login: personas[0].login}, {codplaza: personas[0].codplaza} ] },
-								function (erro, permisos){
-									if (erro || permisos.length === 0){
-										res.status(404).json({'error': 'El usuario no tiene permisos específicos para usar la aplicación.'});
-									} else {
-										var o = JSON.parse(JSON.stringify(personas[0]));
-										o.idspermisos = [];
-										for (var i = 0, j = permisos.length; i < j; i++ ){
-											o.idspermisos.push(permisos[i]._id);
-											delete permisos[i].jerarquialectura;
-											delete permisos[i].jerarquiaescritura;
-											delete permisos[i].procedimientoslectura;
-											delete permisos[i].procedimientosescritura;
-										}
-										var token = jwt.sign(o, secret, { expiresIn: 86400000 }); /* 1 day */
-										o.permisos = permisos;
-										res.json({ profile: o, token: token });
-									}
-								}
-							);
-						}
-					}
-				);
-			}
-		};
+		getPersonAndGenerateToken(req, res, restriccion);
 	};
 
-})(module, console);
+	module.exports.pretend = function(req, res){
+		if (!req.user || !req.user.permisoscalculados || !req.user.permisoscalculados.superuser) {
+			res.status(403).json({'error': 'Not allowed'}); /* provoca perdida de sesión */
+		} else if (typeof req.body.username === 'undefined'){
+			res.status(404).json({'error': 'Fallo de petición'});
+		} else {
+			getPersonAndGenerateToken(req, res, {login: req.body.username, habilitado: true});
+		}
+	};
+
+})(module);

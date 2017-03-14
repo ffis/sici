@@ -6,12 +6,12 @@
 		path = require('path'),
 		assert = require('assert'),
 		csvparse = require('csv-parse'),
-		parser = csvparse({delimiter: '	'}),
+		parser = csvparse({delimiter: '	', columns: true, rtrim: true}),
 		mongoose = require('mongoose'),
 		config = require('./config.json'),
 		models = require('./api/models');
 
-	var campos = [], registros = [];
+	const registros = [];
 
 	mongoose.set('debug', true);
 	mongoose.connect(config.mongodb.connectionString);
@@ -19,64 +19,57 @@
 
 	function checkRegistroNumerico(registro, campo){
 		/* excepcion */
-		if (campo === 'ancestrodirecto' && registro.id == "1"){
+		if (campo === 'ancestrodirecto' && registro.id == '1'){
+
 			return true;
 		}
 
-		if (!registro[campo]){
-			return false;
-		}
-		return parseInt(registro[campo]) == registro[campo];
+		return registro[campo] && parseInt(registro[campo], 10) == registro[campo];
 	}
 
 	function checkRegistroString(registro, campo){
-		if (!registro[campo]){
-			return false;
-		}
-		return registro[campo] !== '';
+
+		return registro[campo] && registro[campo] !== '';
 	}
 
-	function run_tests(idsjerarquias){
-		var i = 0, j = 0;
+	function runTests(idsjerarquias){
 		assert( registros.length > 0, 'Debe cargar algún registro.');
-		for (i = 0, j = registros.length; i < j; i++){
-			assert( checkRegistroNumerico(registros[i], 'id'), 'El campo id debe existir y ser numérico. Línea:' + (i + 1) + ' ' + JSON.stringify(registros[i]));
-			assert( checkRegistroNumerico(registros[i], 'ancestrodirecto'), 'El campo ancestrodirecto debe existir y ser numérico. Línea:' + (i + 1) + ' ' + JSON.stringify(registros[i]));
-			assert( checkRegistroString(registros[i], 'nombre'), 'El campo nombre debe existir y ser texto. Línea:' + (i + 1) + ' ' + JSON.stringify(registros[i]));
-			assert( checkRegistroString(registros[i], 'nombrelargo'), 'El campo nombre largo debe existir y ser texto. Línea:' + (i + 1) + ' ' + JSON.stringify(registros[i]));
-			assert( checkRegistroString(registros[i], 'inicialestipo'), 'El campo inicialestipo debe existir y ser texto. Línea:' + (i + 1) + ' ' + JSON.stringify(registros[i]));
-			assert( checkRegistroString(registros[i], 'tipo'), 'El campo tipo debe existir y ser texto. Línea:' + (i + 1) + ' ' + JSON.stringify(registros[i]));
-		}
+		registros.forEach(function(registro, i){
+			assert( checkRegistroNumerico(registro, 'id'), 'El campo id debe existir y ser numérico. Línea:' + (i + 1) + ' ' + JSON.stringify(registro));
+			assert( checkRegistroNumerico(registro, 'ancestrodirecto'), 'El campo ancestrodirecto debe existir y ser numérico. Línea:' + (i + 1) + ' ' + JSON.stringify(registro));
+			assert( checkRegistroString(registro, 'nombre'), 'El campo nombre debe existir y ser texto. Línea:' + (i + 1) + ' ' + JSON.stringify(registro));
+			assert( checkRegistroString(registro, 'nombrelargo'), 'El campo nombre largo debe existir y ser texto. Línea:' + (i + 1) + ' ' + JSON.stringify(registro));
+			assert( checkRegistroString(registro, 'inicialestipo'), 'El campo inicialestipo debe existir y ser texto. Línea:' + (i + 1) + ' ' + JSON.stringify(registro));
+			assert( checkRegistroString(registro, 'tipo'), 'El campo tipo debe existir y ser texto. Línea:' + (i + 1) + ' ' + JSON.stringify(registro));
+		});
 
+		const registrosXId = registros.reduce(function(prev, registro){
+			prev[registro.id] = registro;
 
-		//comprobar que existen todos
-		var registrosXId = {};
-		for (i = 0, j = registros.length; i < j; i++){
-			registrosXId[ registros[i].id ] = registros[i];
-		}
+			return prev;
+		}, {});
 
-		for (i = 0, j = registros.length; i < j; i++){
-			var ancestrodirecto = registros[i].ancestrodirecto;
+		registros.forEach(function(registro, i){
+			const ancestrodirecto = registro.ancestrodirecto;
 			if (ancestrodirecto){
-				assert(typeof registrosXId[ ancestrodirecto ] === 'object', 'El campo ancestrodirecto debe existir entre los importados. Línea:' + (i + 1));
+				assert(typeof registrosXId[ancestrodirecto] === 'object', 'El campo ancestrodirecto debe existir entre los importados. Línea:' + (i + 1));
 			}
-		}
+		});
 
-		for (i = 0, j = idsjerarquias; i < j; i++){
-			var jerarquiausadaEnProcedimiento = idsjerarquias[i];
-			assert(typeof registrosXId[ jerarquiausadaEnProcedimiento ] === 'object', 'La jerarquia con id: ' + jerarquiausadaEnProcedimiento + ' no existe y es necesaria');
+		for (let i = 0, j = idsjerarquias; i < j; i++){
+			const jerarquiausadaEnProcedimiento = idsjerarquias[i];
+			assert(typeof registrosXId[jerarquiausadaEnProcedimiento] === 'object', 'La jerarquia con id: ' + jerarquiausadaEnProcedimiento + ' no existe y es necesaria');
 		}
 
 		logger.log('Tests OK');
+
 		return true;
 	}
 
-
-
 	function transformar(){
 		for (var i = 0, j = registros.length; i < j; i++){
-			registros[i].id = parseInt(registros[i].id);
-			registros[i].ancestrodirecto = registros[i].ancestrodirecto ? parseInt(registros[i].ancestrodirecto) : null;
+			registros[i].id = parseInt(registros[i].id, 10);
+			registros[i].ancestrodirecto = registros[i].ancestrodirecto ? parseInt(registros[i].ancestrodirecto, 10) : null;
 			registros[i].numprocedimientos = 0;
 			registros[i].descendientes = [];
 			registros[i].ancestros = [];
@@ -93,36 +86,20 @@
 			logger.log("\tmongoimport --host mongosvr --db sici --collection jerarquia --file data/output.json --jsonArray --drop");
 			logger.log("\tmongo mongosvr/sici");
 			logger.log("\t\tdb.jerarquia.update({id:1}, {$set: {ancestrodirecto : null}});");
-			logger.log("\t")
+			logger.log("\t");
 			logger.log('En caso de crisis:');
 			logger.log("\tmongorestore --db sici -c jerarquia -h mongosvr --drop dump/sici/jerarquia.bson");
 		});
 	}
 
 	parser.on('readable', function(){
-		var i = 0,
-			j = 0,
-			record = parser.read(),
-			registro;
-
-		if (record && record.length > 0){
-			if (campos.length === 0) //cabecera
-			{
-				for (i = 0, j = record.length; i < j; i++){
-					campos.push(record[i].trim());
-				}
-			} else {
-				registro = {};
-				for (i = 0, j = record.length; i < j; i++){
-					registro[ campos[i] ] = record[i].trim();
-				}
-				registros.push(registro);
-			}
+		const record = parser.read();
+		if (record){
+			registros.push(record);
 		}
 	});
 	parser.on('error', function(err){
 		logger.error(err);
-
 	});
 	parser.on('finish', function(){
 		logger.log(registros.length + ' registros');
@@ -131,12 +108,12 @@
 			logger.log(idsjerarquias.length + ' jerarquias usadas en procedimientos');
 			mongoose.disconnect();
 			logger.log('Running tests');
-			try{
-				run_tests(idsjerarquias);
+			try {
+				runTests(idsjerarquias);
 				transformar();
 				volcarJSON();
-			}catch(excepcion){
-				console.error(excepcion);
+			} catch (excepcion) {
+				logger.error(excepcion);
 			}
 		}, function(err){
 			logger.error('Error al conectarse con la base de datos', err);
@@ -144,7 +121,7 @@
 		});
 	});
 
-	var input = fs.createReadStream(path.join(__dirname, 'data', 'organica.csv'));
+	const input = fs.createReadStream(path.join(__dirname, 'data', 'organica.csv'));
 	input.pipe(parser);
 
 })(module, require, console);

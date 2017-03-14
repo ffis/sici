@@ -56,7 +56,6 @@
 				$routeProvider.when('/formula/:idobjetivo/:index', {templateUrl: '/partials/formula.html', controller: 'FormulaCtrl' });
 				$routeProvider.when('/registroactividad', {templateUrl: '/partials/registroactividad.html', controller: 'RegistroActividadCtrl' });
 
-
 				$routeProvider.otherwise({redirectTo: '/welcome' });
 				$locationProvider.html5Mode(true);
 			}

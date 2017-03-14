@@ -1,186 +1,108 @@
-'use strict';
+(function(module){
+	'use strict';
+	const Q = require('q');
 
-exports.getPeriodo = function (models) {
-	return function (req, res) {
-		var periodo = models.periodo(),
-			id = req.params._id;
-		if (id)
-		{
-			periodo.findOne({'_id': id}, function (err, data) {
-				if (err) {
-					console.error(err);
-					res.status(500).end();
-					return;
-				}
-				res.json(data);
-			});
+	module.exports.getPeriodo = function(req, res){
+		const periodomodel = req.metaenvironment.models.periodo(),
+			id = req.params.id;
+		if (typeof id === 'string' && id !== ''){
+			periodomodel.findOne({'_id': req.metaenvironment.models.ObjectId(id)}).exec().then(req.eh.okHelper(res, true), req.eh.errorHelper(res));
 		} else {
-			periodo.find({}, function (err, data) {
-				if (err) {
-					console.error(err);
-					res.status(500).end();
-					return;
-				}
-				res.json(data);
-			});
+			periodomodel.find({}, req.eh.cb(res));
 		}
 	};
-};
 
+	module.exports.updatePeriodo = function(req, res) {
+		const periodomodel = req.metaenvironment.models.periodo(),
+			id = req.params.id,
+			content = JSON.parse(JSON.stringify(req.body));
+		if (typeof id === 'string' && id !== ''){
+			Reflect.deleteProperty(content, '_id');
 
-exports.updatePeriodo = function (models) {
-	return function (req, res) {
-		var periodo = models.periodo();
-		var Procedimiento = models.procedimiento();
-		var content = JSON.parse(JSON.stringify(req.body));
-		var id = content._id;
-
-		delete content._id;
-		console.log(content);
-		periodo.update({'_id': id}, content, {upsert: true}, function (e) {
-			if (e) {
-				res.send({'error': 'An error has occurred:' + e});
-			} else {
-
-				var set = {}, meses = {};
-				for (var p in content) {
-					meses[p] = content[p];
-					set['periodos.' + p + '.periodoscerrados'] = meses[p];
-				}
-				console.log(set);
-				//parche:
-				//periodo 2014 tiene el valor a usar con todos los procedimientos:
-				Procedimiento.update({}, {'$set': set}, {multi: true}, function (err) {
-					if (err){
-						console.error(err);
-					}
-					else{
-						//se reenvía lo mismo que se recibió
-						res.send(req.body);
-					}
-				});
-			}
-		});
+			periodomodel.update({'_id': id}, content, {upsert: false}, req.eh.cbWithDefaultValue(res, req.body));
+		} else {
+			req.eh.notFoundHelper(res);
+		}
 	};
-};
 
-exports.newPeriodo = function (models) {
-	return function (req, res) {
-		var Periodo = models.periodo();
-		var content = req.body;
-		new Periodo(content).save(function (e) {
-			//etiqueta.update({'_id':id}, content, { upsert: true }, function(e){
-			if (e) {
-				res.send({'error': 'An error has occurred'});
-			} else {
-				res.send(content);
-			}
-		});
+	module.exports.newPeriodo = function (req, res) {
+		const periodomodel = req.metaenvironment.models.periodo(),
+			content = req.body;
+		periodomodel.create(content, req.eh.cbWithDefaultValue(res, content));
 	};
-};
 
-exports.removePeriodo = function (models) {
-	return function (req, res) {
-		var periodo = models.periodo(),
+	module.exports.removePeriodo = function (req, res) {
+		const periodomodel = req.metaenvironment.models.periodo(),
 			id = req.params.id,
 			content = req.body;
-		periodo.remove({'_id': id}, function (e) {
-			if (e) {
-				res.send({'error': 'An error has occurred'});
-			} else {
-				res.send(content);
-			}
-		});
+		if (typeof id === 'string' && id !== ''){
+			periodomodel.remove({'_id': req.metaenvironment.models.ObjectId(id)}, req.eh.cbWithDefaultValue(res, content));
+		} else {
+			req.eh.notFoundHelper(res);
+		}
 	};
-};
 
-exports.nuevaAnualidad = function (models, Q) {
-	return function (req, res) {
-		var Plantillaanualidad = models.plantillaanualidad();
-		var Procedimiento = models.procedimiento();
-		Plantillaanualidad.findOne({}, function (err, plantilla) {
-			if (err) {
-				console.error(err);
-				res.status(500).end();
-				return;
-			}
-			var anualidad = req.params.anyo;
-			var Periodo = models.periodo();
-			console.log('Recuperada plantilla de año ' + anualidad);
-			if (anualidad > 2014) {
-				Periodo.findOne({}, function (erro, periodo) {
-					if (erro) {
-						console.error(erro);
-						res.status(500).end();
-						return;
-					}
-					periodo = JSON.parse(JSON.stringify(periodo));
-					delete periodo._id;
-					var anualidades = Object.keys(periodo);
-					var speriodonuevo = '';
-					var max = 0;
-					for (var i = 0, j = anualidades.length; i < j; i++){
-						if (!isNaN(parseInt(anualidades[i].replace('a', ''))))
-						{
-							var nperiodo = parseInt(anualidades[i].replace('a', ''));
-							nperiodo++;
-							if (max < nperiodo) {
-								max = nperiodo;
-								speriodonuevo = 'a' + nperiodo;
-							}
+	module.exports.nuevaAnualidad = function (req, res) {
+		const anualidad = parseInt(req.params.anyo, 10);
+		if (anualidad > 2014){
+			const models = req.metaenvironment.models,
+				plantillaanualidad = models.plantillaanualidad(),
+				periodomodel = models.periodo(),
+				procedimientomodel = models.procedimiento();
+
+			Q.all([plantillaanualidad.findOne().lean().exec(), periodomodel.findOne().lean().exec()]).then(function(cargas){
+				const plantilla = cargas[0],
+					periodo = cargas[1];
+
+				const periodoclone = JSON.parse(JSON.stringify(periodo));
+				Reflect.removeProperty(periodoclone, '_id');
+
+				const anualidades = Object.keys(periodoclone);
+
+				let speriodonuevo = '';
+				let max = 0;
+				/* TODO: CHANGE TO REDUCE */
+				for (let i = 0, j = anualidades.length; i < j; i += 1){
+					if (!isNaN(parseInt(anualidades[i].replace('a', ''), 10))){
+						let nperiodo = parseInt(anualidades[i].replace('a', ''), 10);
+						nperiodo += 1;
+						if (max < nperiodo) {
+							max = nperiodo;
+							speriodonuevo = 'a' + nperiodo;
 						}
 					}
+				}
 
-					if (speriodonuevo !== '') {
-						var nuevoperiodo = JSON.parse(JSON.stringify(plantilla));
-						delete nuevoperiodo._id;
+				if (speriodonuevo === '') {
+					req.eh.notFoundHelper(res);
+				} else {
+					const nuevoperiodo = JSON.parse(JSON.stringify(plantilla));
+					Reflect.deleteProperty(nuevoperiodo, '_id');
 
-						var restriccion = {},
-							set = {},
-							periodos_periodo = 'periodos.' + speriodonuevo;
+					const restriccion = {},
+						restriccionPeriodo = {},
+						setPeriodo = {},
+						set = {'$set': {}},
+						periodosPeriodo = 'periodos.' + speriodonuevo;
 
-						restriccion[periodos_periodo] = {'$exists': false };
-						set['$set'] = {};
-						set['$set'][periodos_periodo] = nuevoperiodo;
+					restriccion[periodosPeriodo] = {'$exists': false};
+					restriccionPeriodo[speriodonuevo] = {'$exists': false};
 
-						var deferActualizacionProcedimiento = Q.defer();
-						var deferActualizacionPeriodo = Q.defer();
+					set.$set[periodosPeriodo] = nuevoperiodo;
 
-						Procedimiento.update(restriccion, set, {upsert: false, multi: true}, function (erro) {
-							if (erro) {
-								console.error('nuevaAnualidad...');
-								console.error(erro);
-								deferActualizacionProcedimiento.reject(erro);
-							} else {
-								console.log('Actualizados procedimientos de mentira');
-								deferActualizacionPeriodo.resolve();
-							}
-						});
-						var restriccion_periodo = {};
-						restriccion_periodo[speriodonuevo] = {'$exists': false};
-						var set_periodo = {};
-						set_periodo['$set'] = {};
-						set_periodo['$set'][speriodonuevo] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-						Periodo.update(restriccion_periodo, set_periodo, {multi: false, upsert: false}, function (error) {
-							if (error) {
-								console.error('nuevaAnualidad...');
-								console.error(error);
-								deferActualizacionPeriodo.reject(error);
-								return;
-							} else {
-								console.log('Actualizados periodos');
-								deferActualizacionPeriodo.resolve();
-							}
-						});
-						Q.all([deferActualizacionProcedimiento, deferActualizacionPeriodo]).then(function(){
-							res.json({});
-						}, function(error){
-							res.status(500).json({error: error});
-						});
-					}
-				});
-			}
-		});
+					setPeriodo.$set = {};
+					setPeriodo.$set[speriodonuevo] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+					const deferActualizacionProcedimiento = procedimientomodel.update(restriccion, set, {upsert: false, multi: true}).exec();
+					const deferActualizacionPeriodo = periodomodel.update(restriccionPeriodo, setPeriodo, {multi: false, upsert: false}).exec();
+					Q.all([deferActualizacionProcedimiento, deferActualizacionPeriodo]).then(req.eh.okHelper(res), req.eh.errorHelper(res));
+				}
+
+			}, req.eh.errorHelper(res));
+
+		} else {
+			req.eh.notFoundHelper(res);
+		}
 	};
-};
 
+})(module);

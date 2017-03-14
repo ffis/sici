@@ -310,7 +310,7 @@
 							clase: 'alert-success',
 							mensaje: 'Ha funcionado correctamente.'
 						};
-						var url = '/download/' + token.time + '/' + token.hash;
+						var url = '/api/v1/download/' + token.time + '/' + token.hash;
 						$window.location = url;
 					} else {
 						$scope.respuesta = {

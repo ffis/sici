@@ -1,35 +1,45 @@
 (function(module, logger){
 	'use strict';
 
-	function socketioconsole(app)
-	{
-		var io = require('socket.io').listen(app);
-		var fns = {
+	function socketioconsole(app){
+		const io = require('socket.io').listen(app);
+		const fns = {
 			log: logger.log,
 			info: logger.info,
 			error: logger.error
 		};
-		var counter = 0;
+		let counter = 0;
 
-		var fn = function(fnname){
-			return function(){
-				var stackTrace = require('stack-trace'),
+		function fn(fnname){
+
+			return function(...args){
+				const stackTrace = require('stack-trace'),
 					frame = stackTrace.get()[1],
 					file = frame.getFileName(),
 					line = frame.getLineNumber(),
 					functionname = frame.getFunctionName();
 
-				for (var i = 0; i < arguments.length; i++)
-				{
-					var debugmessage = { id: counter++, type: fnname, time: new Date(), message: JSON.stringify(arguments[i]), line: line, functionname: functionname, file: file };
+				for (let i = 0; i < args.length; i += 1){
+					const debugmessage = {
+						'id': counter += 1,
+						'type': fnname,
+						'time': new Date(),
+						'message': JSON.stringify(args),
+						'line': line,
+						'functionname': functionname,
+						'file': file
+					};
 					io.sockets.emit(fnname, debugmessage);
 				}
 
-				fns[fnname].apply(console, arguments);
+				fns[fnname].apply(console, args);
 			};
-		};
-		for (var funname in fns){
-			logger[funname] = fn(funname);
+		}
+
+		for (const funname in fns){
+			if ({}.hasOwnProperty.call(fns, funname)) {
+				logger[funname] = fn(funname);
+			}
 		}
 	}
 

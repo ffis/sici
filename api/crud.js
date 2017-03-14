@@ -1,6 +1,6 @@
 /*eslint no-underscore-dangle: [2, { "allow": ["_id"] }]*/
 
-(function(module, logger){
+(function(module){
 	'use strict';
 	function Crud(models, classname){
 		if (typeof models === 'undefined' && typeof classname === 'undefined'){
@@ -10,68 +10,50 @@
 		this.classname = classname;
 	}
 
-	Crud.prototype.get = function () {
+	Crud.prototype.get = function(){
+		const instance = this;
+
 		return function (req, res) {
-			var obj = this.models[this.classname](),
-				id = req.params['_id'];
-			if (typeof id !== 'undefined' && id !== '' && id !== 0){
-				obj.findOne({'_id': id}, function (err, data) {
-					if (err) {
-						res.status(500).json({'error': 'An error has occurred', details: err});
-						return;
-					}
-					res.json(data);
-				});
+			const obj = instance.models[instance.classname]();
+			const id = req.params._id;
+			if (typeof id === 'string' && id !== ''){
+				obj.findOne({'_id': req.metaenvironment.models.ObjectId(id)}).exec().then(req.eh.okHelper(res, true), req.eh.errorHelper(res));
 			} else {
-				obj.find({}, function (err, data) {
-					if (err) {
-						res.status(500).json({'error': 'An error has occurred', details: err});
-						return;
-					}
-					res.json(data);
-				});
+				obj.find({}, req.eh.cb(res));
 			}
 		};
 	};
 	Crud.prototype.update = function(){
+		const instance = this;
+
 		return function(req, res) {
-			var obj = this.models[this.classname](),
+			const obj = instance.models[instance.classname](),
 				id = req.params._id,
 				content = JSON.parse(JSON.stringify(req.body));
-			delete content._id;
-			if (typeof id !== 'undefined' && id !== '' && id !== 0){
-				obj.update({'_id': id}, content, { upsert: true }, function(err){
-					if (err){
-						res.status(500).json({'error': 'An error has occurred', details: err});
-					} else {
-						res.json(content);
-					}
-				});
+		
+			if (typeof id === 'string' && id !== ''){
+				delete content._id;
+				obj.update({'_id': req.metaenvironment.models.ObjectId(id)}, content, {upsert: false}, req.eh.cbWithDefaultValue(res, req.body));
 			} else {
-				res.status(404).json({'error': 'Not found'});
+				req.eh.notFoundHelper(res);
 			}
 		};
 	};
 
 	Crud.prototype.remove = function(){
+		const instance = this;
+
 		return function(req, res) {
-			var obj = this.models[this.classname](),
+			const obj = instance.models[instance.classname](),
 				id = req.params._id,
 				content = req.body;
-			if (typeof id !== 'undefined' && id !== '' && id !== 0){
-				obj.remove({'_id': id}, function(err){
-					if (err){
-						logger.error(err);
-						res.status(500).json({'error': 'An error has occurred', details: err});
-					} else {
-						res.json(content);
-					}
-				});
+			if (typeof id === 'string' && id !== ''){
+				obj.remove({'_id': req.metaenvironment.models.ObjectId(id)}, req.eh.cbWithDefaultValue(res, content));
 			} else {
-				res.status(404).json({'error': 'Not found'});
+				req.eh.notFoundHelper(res);
 			}
 		};
 	};
 
 	module.exports = Crud;
-})(module, console);
+})(module);

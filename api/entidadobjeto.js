@@ -53,21 +53,35 @@
 		return function (req, res) {
 			if (req.user && req.user.permisoscalculados && req.user.permisoscalculados.superuser){
 				var entidadobjeto = models.entidadobjeto();
-				var content = JSON.parse(JSON.stringify(req.body));
-				var id = content._id;
+				var content = req.body;
 
+				if (typeof content !== 'object'){
+					res.status(400).json({'error': 'Bad format'});
+					return;
+				}
+
+				var id = content._id;
 				delete content._id;
 
-				content.idjerarquia = parseInt(content.idjerarquia);
-				content.fecha_version = new Date();
-
-				entidadobjeto.update({'_id': id}, content, {upsert: true}, function (e) {
-					if (e) {
-						res.status(500).json({'error': 'An error has occurred during update.', details: e});
+				entidadobjeto.findOne({'_id': id}).exec().then(function(doc){
+					if (doc){
+						for (var attr in content){
+							doc[attr] = content[attr];
+						}
+						doc.idjerarquia = parseInt(doc.idjerarquia);
+						doc.fecha_version = new Date();
+						doc.save(function (e, doc) {
+							if (e) {
+								res.status(500).json({'error': 'An error has occurred during update. (2)', details: e});
+							} else {
+								res.send(doc);
+							}
+						});
 					} else {
-						//se reenvía lo mismo que se recibió
-						res.send(req.body);
+						res.status(404).json({error: 'Not found'});
 					}
+				}, function(e){
+					res.status(500).json({'error': 'An error has occurred during update. (1)', details: e});
 				});
 			} else {
 				res.status(400).json({error: 'Not allowed'});

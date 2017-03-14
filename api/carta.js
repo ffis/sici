@@ -1,7 +1,9 @@
 (function(module, logger){
 	/** @module carta */
 	'use strict';
-	var Expression = require('./expression');
+	var Q = require('q'),
+		Crawler = require('crawler'),
+		Expression = require('./expression');
 
 	function tokenizer(str){
 		var parts = [];
@@ -13,13 +15,17 @@
 		}).filter(function(a){
 			return a !== '';
 		});
+
 		return parts;
 	}
-
+/*
 	function capitalizeFirst(a){
+
 		return a.charAt(0).toUpperCase() + a.slice(1);
 	}
+	*/
 	function uncapitalizeFirst(a){
+
 		return a.charAt(0).toLowerCase() + a.slice(1);
 	}
 
@@ -60,6 +66,7 @@
 
 		if (frasesAReemplazar.length > 0){
 			var ultimoseparador = Math.max.apply(null, ['=', '≥', '≤', '&ge;', '&le;'].map(function(s){
+
 				return formula.human.lastIndexOf(s);
 			}) );
 			if (ultimoseparador > 0){
@@ -97,571 +104,374 @@
 				}
 			}
 		}
+
 		return formula;
 	}
 
-	module.exports.objetivosStats = function(models){
-		return function(req, res){
-			var objetivomodel = models.objetivo();
-			var ag = [{$group: {_id: '$carta', count: {$sum: 1}, formulas: {$addToSet: '$formulas.computer' } } } ];
-			objetivomodel
-				.aggregate(ag)
-				.exec().then(function(data){
-					res.json(data);
-				}, function(err){
-					res.status(500).json({'error': 'An error has occurred', details: err});
-				});
-		};
+	function saveVersion(models, indicador){
+		const Historico = models.historicoindicador();
+		const v = JSON.parse(JSON.stringify(indicador));
+		delete v._id;
+		const version = new Historico(v);
+
+		return version.save();
+	}
+
+	module.exports.objetivosStats = function(req, res){
+		const objetivomodel = req.metaenvironment.models.objetivo();
+		const ag = [{$group: {_id: '$carta', count: {$sum: 1}, formulas: {$addToSet: '$formulas.computer'}}}];
+		objetivomodel.aggregate(ag).exec().then(req.eh.okHelper(res), req.eh.errorHelper(res));
 	};
 
-	module.exports.usosIndicadores = function(models){
-		return function(req, res){
-			if (req.user.permisoscalculados.superuser) {
-				var objetivomodel = models.objetivo();
-				objetivomodel.aggregate([
-					{ $unwind: '$formulas' },
-					{ $unwind: '$formulas.indicadores' },
-					{ $group: { _id: '$formulas.indicadores', count: { $sum: 1}}}
-				]).exec().then(function(result){
-					res.json(result);
-				}, function(err){
-					res.status(500).json({'error': 'An error has occurred', details: err});
-				});
-			} else {
-				res.status(403).json({'error': 'Not allowed'});
+	module.exports.usosIndicadores = function(req, res){
+		if (req.user.permisoscalculados.superuser) {
+			const objetivomodel = req.metaenvironment.models.objetivo();
+			objetivomodel.aggregate([
+				{$unwind: '$formulas'},
+				{$unwind: '$formulas.indicadores'},
+				{$group: {_id: '$formulas.indicadores', count: {$sum: 1}}}
+			]).exec().then(req.eh.okHelper(res), req.eh.errorHelper(res));
+		} else {
+			req.eh.unauthorizedHelper(res, 'Only superuser is allowed');
+		}
+	};
+
+	module.exports.indicador = function(req, res){
+		const indicadormodel = req.metaenvironment.models.indicador();
+		if (typeof req.params.id === 'string' && req.params.id !== ''){
+			const id = req.params.id;
+			const restriccion = { _id: req.metaenvironment.models.objectId(id) };
+			if (!req.user.permisoscalculados.superuser) {
+				restriccion['$or'] = [
+					{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquiaescritura.concat(req.user.permisoscalculados.jerarquialectura)}},
+					{'responsable': req.user.login}
+				];
 			}
-		};
+			indicadormodel.findOne(restriccion, req.eh.cb(res));
+		} else {
+			let restriccion = {};
+			if (!req.user.permisoscalculados.superuser) {
+				restriccion['$or'] = [
+					{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquiaescritura.concat(req.user.permisoscalculados.jerarquialectura)}},
+					{'responsable': req.user.login}
+				];
+			}
+			if (typeof req.query.idjerarquia !== 'undefined'){
+				if (typeof restriccion['$or'] !== 'undefined'){
+					var restriccionesaux = {};
+					restriccionesaux['$and'] = [
+						restriccion,
+						{'idjerarquia': parseInt(req.query.idjerarquia, 10)}
+					];
+					restriccion = restriccionesaux;
+				} else {
+					restriccion.idjerarquia = parseInt(req.query.idjerarquia, 10);
+				}
+			}
+			indicadormodel.find(restriccion, req.eh.cb(res));
+		}
 	};
 
-	module.exports.indicador = function(models){
-		return function(req, res){
-			var indicadormodel = models.indicador();
-			if (typeof req.params.id !== 'undefined'){
-				var id = req.params.id;
-				var restriccion = { _id: models.ObjectId(id) };
-				if (!req.user.permisoscalculados.superuser) {
-					restriccion['$or'] = [
-						{
-							'idjerarquia': {'$in': req.user.permisoscalculados.jerarquiaescritura.concat(req.user.permisoscalculados.jerarquialectura)}
-						},
-						{
-							'responsable': req.user.login
-						}];
-				}
-				indicadormodel.findOne(restriccion, function(err, indicador){
-					if (err){
-						res.status(500).json({'error': 'An error has occurred', details: err});
-						return;
-					}
-					res.json(indicador);
-				});
-			} else {
-				var restricciones = {};
-				if (!req.user.permisoscalculados.superuser) {
-					restricciones['$or'] = [
-						{
-							'idjerarquia': {'$in': req.user.permisoscalculados.jerarquiaescritura.concat(req.user.permisoscalculados.jerarquialectura)}
-						},
-						{
-							'responsable': req.user.login
-						}];
-				}
-				if (typeof req.query.idjerarquia !== 'undefined'){
-					if (typeof restricciones['$or'] !== 'undefined'){
-						var restriccionesaux = {};
-						restriccionesaux['$and'] = [
-							restricciones,
-							{'idjerarquia': parseInt(req.query.idjerarquia)}
-						];
-						restricciones = restriccionesaux;
+	module.exports.removeindicador = function(req, res){
+		const models = req.metaenvironment.models;
+		const id = req.params.id;
+		const content = req.body;
+
+		if (!req.user.permisoscalculados.superuser){
+			req.eh.unauthorizedHelper(res);
+
+			return;
+		}
+
+		if (typeof req.params.id === 'string'){
+			const indicadormodel = models.indicador();
+			const objetivomodel = models.objetivo();
+
+			indicadormodel.findOne({_id: models.objectId(id)}).exec().then(function(indicador){
+				objetivomodel.find({'formulas.indicadores': models.objectId(id)}).exec().then(function(objetivos){
+					if (objetivos && objetivos.length > 0){
+						const vinculos = objetivos.map(function(o){ return o.denominacion; }).join(' | ');
+						res.status(403).json({'error': 'No se permite eliminar un indicador vinculado a un objetivo', details: vinculos});
 					} else {
-						restricciones.idjerarquia = parseInt(req.query.idjerarquia);
+						indicadormodel.remove({'_id': models.ObjectId(id)}, req.eh.cbWithDefaultValue(res, content));
 					}
+				}, req.eh.errorHelper(res));
+			}, req.eh.errorHelper(res));
+		} else {
+			req.eh.missingParameterHelper(res, 'id');
+		}
+	};
+
+	function recalculateIndicador(indicador, actualizacion){
+		if (indicador.acumulador === 'sum'){
+			for (const attr in indicador.valores){
+				let suma = 0;
+
+				if (typeof indicador.valoresacumulados[attr] === 'undefined'){
+					indicador.valoresacumulados[attr] = [null, null, null, null, null, null, null, null, null, null, null, null, null];
 				}
-				indicadormodel.find(restricciones, function(err, indicadores){
-					if (err){
-						res.status(500).json({'error': 'An error has occurred', details: err});
-						return;
-					}
-					res.json(indicadores);
-				});
-			}
-		};
-	};
-
-	module.exports.removeindicador = function(models){
-		return function(req, res){
-			if (typeof req.params.id !== 'undefined'){
-				var indicadormodel = models.indicador();
-				var objetivomodel = models.objetivo();
-				var id = req.params.id;
-				indicadormodel.findOne({_id: models.ObjectId(id)}, function(err, indicador){
-					if (err){
-						res.status(500).json({'error': 'An error has occurred', details: err});
-						return;
-					}
-					if (req.user.permisoscalculados.superuser ||
-						req.user.permisoscalculados.jerarquiaescritura.indexOf(indicador.idjerarquia) !== -1){
-						objetivomodel.find({'formulas.indicadores': models.ObjectId(id)}, function(erro, objetivos){
-							if (erro){
-								res.status(500).json({'error': 'An error has occurred', details: erro});
-								return;
-							}
-							if (objetivos && objetivos.length > 0){
-								var vinculado = objetivos.map(function(o){ return o.denominacion; }).join(' | ');
-								res.status(403).json({'error': 'No se permite eliminar un indicador vinculado a un objetivo', details: vinculado});
-							} else {
-								var content = req.body;
-								indicadormodel.remove({'_id': models.ObjectId(id)}, function(e){
-									if (e){
-										res.status(400).json({'error': 'An error has occurred'});
-									} else {
-										res.json(content);
-									}
-								});
-							}
-						});
+				for (let i = 0, j = indicador.valores[attr].length; i < j - 1; i += 1){
+					if (actualizacion.valores[attr][i] === null || actualizacion.valores[attr][i] === ''){
+						indicador.valores[attr][i] = null;
 					} else {
-						res.status(403).json({'error': 'Not allowed'});
-						/* not allowed */
+						indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i], 10);
+						suma += indicador.valores[attr][i];
 					}
-				});
-			} else {
-				res.status(404).json({'error': 'Not found'});
+					indicador.valoresacumulados[attr][i] = suma;
+				}
+				indicador.valores[attr][indicador.valores[attr].length - 1] = suma;
+				indicador.valoresacumulados[attr][indicador.valores[attr].length - 1] = suma;
 			}
-		};
-	};
-	module.exports.actualizaindicador = function(models, Q){
-		return function(req, res){
-			if (typeof req.params.id !== 'undefined'){
-				var attr, i, j, suma = 0, min = 0, max = 0,
-					indicadormodel = models.indicador(),
-					id = req.params.id,
-					actualizacion = req.body;
-				indicadormodel.findOne({_id: models.ObjectId(id)}, function(err, indicador){
-					if (err){
-						res.status(500).json({'error': 'An error has occurred', details: err});
-						return;
-					}
-					if (indicador) {
-						var permiso = req.user.permisoscalculados.superuser || req.user.permisoscalculados.jerarquiaescritura.indexOf(indicador.idjerarquia) !== -1;
-						if (permiso){
-							module.exports.saveVersion(models, Q, indicador).then(function(){
-
-								if (permiso){
-									indicador.nombre = actualizacion.nombre;
-									indicador.resturl = actualizacion.resturl;
-									indicador.vinculacion = actualizacion.vinculacion;
-									indicador.acumulador = actualizacion.acumulador;
-									indicador.tipo = actualizacion.tipo;
-									indicador.frecuencia = actualizacion.frecuencia;
-									indicador.pendiente = actualizacion.pendiente;
-								}
-
-								if (typeof indicador.valoresacumulados === 'undefined'){
-									indicador.valoresacumulados = {
-										'a2015': [null, null, null, null, null, null, null, null, null, null, null, null, null ], /* 13 elementos */
-										'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null ], /* 13 elementos */
-										'a2017': [null, null, null, null, null, null, null, null, null, null, null, null, null ] /* 13 elementos */
-									};
-								}
-
-								if (indicador.acumulador === 'sum'){
-									for (attr in indicador.valores){
-										suma = 0;
-
-										if (typeof indicador.valoresacumulados[attr] === 'undefined'){
-											indicador.valoresacumulados[attr] = [null, null, null, null, null, null, null, null, null, null, null, null, null ];
-										}
-										for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
-											if (actualizacion.valores[attr][i] === null || actualizacion.valores[attr][i] === ''){
-												indicador.valores[attr][i] = null;
-											} else {
-												indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i]);
-												suma += indicador.valores[attr][i];
-											}
-											indicador.valoresacumulados[attr][i] = suma;
-										}
-										indicador.valores[attr][ indicador.valores[attr].length - 1 ] = suma;
-										indicador.valoresacumulados[attr][ indicador.valores[attr].length - 1 ] = suma;
-									}
-								} else if (indicador.acumulador === 'mean'){
-									for (attr in indicador.valores){
-										suma = 0;
-										var nindicadoresdistintosde0 = 0;
-										if (typeof indicador.valoresacumulados[attr] === 'undefined'){
-											indicador.valoresacumulados[attr] = [null, null, null, null, null, null, null, null, null, null, null, null, null ];
-										}
-										for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
-											if (actualizacion.valores[attr][i] === null || actualizacion.valores[attr][i] === ''){
-												indicador.valores[attr][i] = null;
-											} else {
-												indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i]);
-												suma += indicador.valores[attr][i];
-												if (!actualizacion.valores[attr][i] !== null && !isNaN(actualizacion.valores[attr][i]) && parseInt(actualizacion.valores[attr][i]) !== 0 ){
-													nindicadoresdistintosde0++;
-												}
-											}
-											indicador.valoresacumulados[attr][i] = suma;
-										}
-										indicador.valores[attr][ indicador.valores[attr].length - 1 ] = (nindicadoresdistintosde0 > 0) ? suma / nindicadoresdistintosde0 : 0;
-										indicador.valoresacumulados[attr][ indicador.valores[attr].length - 1 ] = suma;
-									}
-								} else if (indicador.acumulador === 'max'){
-									for (attr in indicador.valores){
-										max = 0;
-										suma = 0;
-										if (typeof indicador.valoresacumulados[attr] === 'undefined'){
-											indicador.valoresacumulados[attr] = [null, null, null, null, null, null, null, null, null, null, null, null, null ];
-										}
-										for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
-											if (actualizacion.valores[attr][i] === null || actualizacion.valores[attr][i] === ''){
-												indicador.valores[attr][i] = null;
-											} else {
-												indicador.valores[attr][i] = actualizacion.valores[attr][i] === null || isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i]);
-												max = (max < indicador.valores[attr][i]) ? indicador.valores[attr][i] : max;
-												suma += indicador.valores[attr][i];
-											}
-											indicador.valoresacumulados[attr][i] = suma;
-										}
-										indicador.valores[attr][ indicador.valores[attr].length - 1 ] = max;
-										indicador.valoresacumulados[attr][ indicador.valores[attr].length - 1 ] = suma;
-									}
-								} else if (indicador.acumulador === 'min'){
-									for (attr in indicador.valores){
-										min = false;
-										suma = 0;
-										if (typeof indicador.valoresacumulados[attr] === 'undefined'){
-											indicador.valoresacumulados[attr] = [null, null, null, null, null, null, null, null, null, null, null, null, null ];
-										}
-										for (i = 0, j = indicador.valores[attr].length; i < j - 1; i++){
-											if (actualizacion.valores[attr][i] === null || actualizacion.valores[attr][i] === ''){
-												indicador.valores[attr][i] = null;
-											} else {
-												indicador.valores[attr][i] = actualizacion.valores[attr][i] === null || isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i]);
-												if (indicador.valores[attr][i] !== 0 && (!min || min > indicador.valores[attr][i])){
-													min = indicador.valores[attr][i];
-												}
-												suma += indicador.valores[attr][i];
-											}
-											indicador.valoresacumulados[attr][i] = suma;
-										}
-										indicador.valores[attr][ indicador.valores[attr].length - 1 ] = min;
-										indicador.valoresacumulados[attr][ indicador.valores[attr].length - 1 ] = suma;
-									}
-								}
-								for (attr in indicador.observaciones){
-									for (i = 0, j = indicador.observaciones[attr].length; i < j; i++){
-										indicador.observaciones[attr][i] = actualizacion.observaciones[attr][i].trim();
-									}
-								}
-								indicador.markModified('valores');
-								indicador.markModified('valoresacumulados');
-								indicador.markModified('observaciones');
-								indicador.markModified('medidas');
-								indicador.fechaversion = new Date();
-
-								indicador.save(function(erro, doc){
-									if (erro){
-										res.status(500).json({'error': 'An error has occurred', details: erro});
-									} else {
-										res.json(doc);
-									}
-								});
-							}, function(e){
-								res.status(500).json({'error': 'An error has occurred', details: e});
-							});
-
-						} else {
-							res.status(403).json({'error': 'Not allowed'});
+		} else if (indicador.acumulador === 'mean'){
+			for (const attr in indicador.valores){
+				let suma = 0;
+				let nindicadoresdistintosde0 = 0;
+				if (typeof indicador.valoresacumulados[attr] === 'undefined'){
+					indicador.valoresacumulados[attr] = [null, null, null, null, null, null, null, null, null, null, null, null, null];
+				}
+				for (let i = 0, j = indicador.valores[attr].length; i < j - 1; i += 1){
+					if (actualizacion.valores[attr][i] === null || actualizacion.valores[attr][i] === ''){
+						indicador.valores[attr][i] = null;
+					} else {
+						indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i], 10);
+						suma += indicador.valores[attr][i];
+						if (!actualizacion.valores[attr][i] !== null && !isNaN(actualizacion.valores[attr][i]) && parseInt(actualizacion.valores[attr][i], 10) !== 0 ){
+							nindicadoresdistintosde0++;
 						}
-					} else {
-						res.status(404).json({'error': 'Not found'});
 					}
-				});
-			} else {
-				res.status(404).json({'error': 'Not found'});
+					indicador.valoresacumulados[attr][i] = suma;
+				}
+				indicador.valores[attr][indicador.valores[attr].length - 1] = (nindicadoresdistintosde0 > 0) ? suma / nindicadoresdistintosde0 : 0;
+				indicador.valoresacumulados[attr][ indicador.valores[attr].length - 1 ] = suma;
 			}
-		};
+		} else if (indicador.acumulador === 'max'){
+			for (const attr in indicador.valores){
+				let max = 0;
+				let suma = 0;
+				if (typeof indicador.valoresacumulados[attr] === 'undefined'){
+					indicador.valoresacumulados[attr] = [null, null, null, null, null, null, null, null, null, null, null, null, null];
+				}
+				for (let i = 0, j = indicador.valores[attr].length; i < j - 1; i += 1){
+					if (actualizacion.valores[attr][i] === null || actualizacion.valores[attr][i] === ''){
+						indicador.valores[attr][i] = null;
+					} else {
+						indicador.valores[attr][i] = actualizacion.valores[attr][i] === null || isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i]);
+						max = (max < indicador.valores[attr][i]) ? indicador.valores[attr][i] : max;
+						suma += indicador.valores[attr][i];
+					}
+					indicador.valoresacumulados[attr][i] = suma;
+				}
+				indicador.valores[attr][indicador.valores[attr].length - 1] = max;
+				indicador.valoresacumulados[attr][ indicador.valores[attr].length - 1 ] = suma;
+			}
+		} else if (indicador.acumulador === 'min'){
+			for (const attr in indicador.valores){
+				let min = false;
+				let suma = 0;
+				if (typeof indicador.valoresacumulados[attr] === 'undefined'){
+					indicador.valoresacumulados[attr] = [null, null, null, null, null, null, null, null, null, null, null, null, null];
+				}
+				for (let i = 0, j = indicador.valores[attr].length; i < j - 1; i += 1){
+					if (actualizacion.valores[attr][i] === null || actualizacion.valores[attr][i] === ''){
+						indicador.valores[attr][i] = null;
+					} else {
+						indicador.valores[attr][i] = actualizacion.valores[attr][i] === null || isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i]);
+						if (indicador.valores[attr][i] !== 0 && (!min || min > indicador.valores[attr][i])){
+							min = indicador.valores[attr][i];
+						}
+						suma += indicador.valores[attr][i];
+					}
+					indicador.valoresacumulados[attr][i] = suma;
+				}
+				indicador.valores[attr][indicador.valores[attr].length - 1] = min;
+				indicador.valoresacumulados[attr][ indicador.valores[attr].length - 1 ] = suma;
+			}
+		}
+		for (const attr in indicador.observaciones){
+			for (let i = 0, j = indicador.observaciones[attr].length; i < j; i += 1){
+				indicador.observaciones[attr][i] = actualizacion.observaciones[attr][i].trim();
+			}
+		}
+	}
+
+	module.exports.actualizaindicador = function(req, res){
+		const models = req.metaenvironment.models,
+			indicadormodel = models.indicador();
+
+		if (typeof req.params.id !== 'string'){
+			const id = req.params.id,
+				actualizacion = req.body;
+
+			indicadormodel.findOne({_id: models.objectId(id)}).exec().then(function(indicador){
+				if (indicador) {
+					const permiso = req.user.permisoscalculados.superuser || req.user.permisoscalculados.jerarquiaescritura.indexOf(indicador.idjerarquia) !== -1;
+					if (permiso){
+						saveVersion(models, indicador).then(function(){
+							indicador.nombre = actualizacion.nombre;
+							indicador.resturl = actualizacion.resturl;
+							indicador.vinculacion = actualizacion.vinculacion;
+							indicador.acumulador = actualizacion.acumulador;
+							indicador.tipo = actualizacion.tipo;
+							indicador.frecuencia = actualizacion.frecuencia;
+							indicador.pendiente = actualizacion.pendiente;
+
+							if (typeof indicador.valoresacumulados === 'undefined'){
+								indicador.valoresacumulados = {
+									'a2015': [null, null, null, null, null, null, null, null, null, null, null, null, null], /* 13 elementos */
+									'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null], /* 13 elementos */
+									'a2017': [null, null, null, null, null, null, null, null, null, null, null, null, null] /* 13 elementos */
+								};
+							}
+
+							recalculateIndicador(indicador, actualizacion);							
+							indicador.markModified('valores');
+							indicador.markModified('valoresacumulados');
+							indicador.markModified('observaciones');
+							indicador.markModified('medidas');
+							indicador.fechaversion = new Date();
+
+							indicador.save(req.eh.cb(res));
+						}, req.eh.errorHelper(res));
+
+					} else {
+						req.eh.unauthorizedHelper(res);
+					}
+				} else {
+					req.eh.notFoundHelper(res);
+				}
+			}, req.eh.errorHelper(res));
+		} else {
+			req.eh.notFoundHelper(res);
+		}
 	};
+
 
 	/**
 	 * Actualización de objetivo. Helper expressjs. Realiza comprobación de permisos.
 	 * @param {string} id - Identificador del registro mongodb.
 	 */
-	module.exports.actualizaobjetivo = function(models){
-		return function(req, res){
-			var Objetivo = models.objetivo();
-			if (typeof req.params.id !== 'undefined'){
-				Objetivo.findOne({ '_id': models.ObjectId(req.params.id) }, function(erro, objetivo){
-					if (erro){
-						res.status(500).json({'error': 'An error has occurred', details: erro});
-						return;
-					}
-					if (objetivo && (req.user.permisoscalculados.superuser ||
-								req.user.permisoscalculados.entidadobjetoescritura.indexOf('' + objetivo.carta) !== -1)){
-						for (var attr in req.body){
-							//TODO: change this naive
-							objetivo[attr] = req.body[attr];
-						}
-						Objetivo.update({ _id: objetivo._id }, objetivo, function (err){
-							if (err){
-								res.status(500).json({'error': 'An error has occurred', details: err });
-							} else {
-								res.json(objetivo);
+	module.exports.actualizaobjetivo = function(req, res){
+		if (typeof req.params.id !== 'undefined'){
+			const objetivomodel = req.metaenvironment.models.objetivo();
+			objetivomodel.findOne({ '_id': req.metaenvironment.models.objectId(req.params.id)}).exec().then(function(objetivo){
+				if (objetivo){
+					if (req.user.permisoscalculados.superuser || req.user.permisoscalculados.entidadobjetoescritura.indexOf('' + objetivo.carta) !== -1){
+						for (const attr in req.body){
+							//TODO: change this naive update method
+							if (typeof objetivo[attr] !== 'undefined'){
+								objetivo[attr] = req.body[attr];
 							}
-						});
-
+						}
+						objetivomodel.update({ _id: objetivo._id}, objetivo, req.eh.cbWithDefaultValue(res, objetivo));
 					} else {
-						res.status(403).json({'error': 'Not allowed'});
+						req.eh.unauthorizedHelper(res);
 					}
-				});
-			} else {
-				res.status(404).json({'error': 'Not found'});
-			}
-		};
+				} else {
+					req.eh.notFoundHelper(res);
+				}
+			}, req.eh.errorHelper(res));
+		} else {
+			req.eh.missingParameterHelper(res, 'id');
+		}
 	};
-	module.exports.objetivo = function(models, Q){
-		return function(req, res){
-			var Objetivo = models.objetivo();
-			if (typeof req.params.id !== 'undefined'){
-				var restriccion = { '_id': models.ObjectId(req.params.id) };
-				Objetivo.findOne(restriccion, function(erro, objetivo){
-					if (erro){
-						res.status(500).json({'error': 'An error has occurred', details: erro});
-						return;
-					}
-					if (!(req.user.permisoscalculados.superuser ||
-						req.user.permisoscalculados.entidadobjetoescritura.indexOf('' + objetivo.carta) !== -1)){
-						res.status(403).json({'error': 'Not allowed'});
-						return;
-					}
-					if (!objetivo){ res.json(objetivo); return; }
-					var expresion = new Expression(models);
-					var promises = [];
-					var fn = function(promise, idformula){
-						return function(err, val){
-							//logger.log(250, err, val);
-							if (err){
-								promise.reject(err);
-								return;
+
+	module.exports.objetivo = function(req, res){
+		const models = req.metaenvironment.models;
+		const objetivomodel = req.metaenvironment.models.objetivo();
+		const carta = req.query.carta;
+
+		if (typeof req.params.id !== 'undefined'){
+			const restriccion = { '_id': models.ObjectId(req.params.id) };
+			objetivomodel.findOne(restriccion).exec().then(function(objetivo){
+
+				if (!(req.user.permisoscalculados.superuser || req.user.permisoscalculados.entidadobjetoescritura.indexOf('' + objetivo.carta) !== -1)){
+					req.eh.unauthorizedHelper(res);
+
+					return;
+				}
+				if (!objetivo){ res.json(objetivo); return; }
+				var expresion = new Expression(models);
+				var promises = [];
+				var fn = function(promise, idformula){
+					return function(err, val){
+						//logger.log(250, err, val);
+						if (err){
+							promise.reject(err);
+							return;
+						}
+						//disponible objeto con las anualidades
+						var valoressimplicado = {};
+						for (var anualidad in val){
+							if (typeof valoressimplicado[anualidad] === 'undefined'){
+								valoressimplicado[anualidad] = [];
 							}
-							//disponible objeto con las anualidades
-							var valoressimplicado = {};
-							for (var anualidad in val){
-								if (typeof valoressimplicado[anualidad] === 'undefined'){
-									valoressimplicado[anualidad] = [];
-								}
-								for (var m in val[anualidad]){
-									valoressimplicado[anualidad].push(val[anualidad][m]);
-								}
+							for (var m in val[anualidad]){
+								valoressimplicado[anualidad].push(val[anualidad][m]);
 							}
-							objetivo.formulas[idformula].valores = valoressimplicado;
-							objetivo.markModified('formulas');
-							promise.resolve();
-						};
+						}
+						objetivo.formulas[idformula].valores = valoressimplicado;
+						objetivo.markModified('formulas');
+						promise.resolve();
 					};
-					for (var i = 0, j = objetivo.formulas.length; i < j; i++){
-						if (objetivo.formulas[i].computer !== ''){
-							var defer = Q.defer();
-							expresion.evalFormula(objetivo.formulas[i].computer, fn(defer, i));
-							promises.push(defer.promise);
-						}
+				};
+				for (var i = 0, j = objetivo.formulas.length; i < j; i++){
+					if (objetivo.formulas[i].computer !== ''){
+						var defer = Q.defer();
+						expresion.evalFormula(objetivo.formulas[i].computer, fn(defer, i));
+						promises.push(defer.promise);
 					}
-					Q.all(promises).then(function(){
-						//logger.log('calculo OK', objetivo);
+				}
+				Q.all(promises).then(function(){
+					//logger.log('calculo OK', objetivo);
 
-						Objetivo.update({ _id: objetivo._id }, objetivo, function (err){
-							if (err){
-								logger.error(err);
-								res.status(500).json({'error': 'An error has occurred', details: err });
-							} else {
-								res.json(objetivo);
-							}
-						});
-					}, function(error){
-						//fallo con la formula
-						logger.error(error);
-						res.json(objetivo);
-						//res.status(500).json({'error': 'An error has occurred', details: error });
+					objetivomodel.update({ _id: objetivo._id }, objetivo, function (err){
+						if (err){
+							logger.error(err);
+							res.status(500).json({'error': 'An error has occurred', details: err });
+						} else {
+							res.json(objetivo);
+						}
 					});
+				}, function(error){
+					//fallo con la formula
+					logger.error(error);
+					res.json(objetivo);
+					//res.status(500).json({'error': 'An error has occurred', details: error });
 				});
-				return;
-			} else if (req.query.carta === 'undefined'){
-				res.status(404).json({error: 'Not found.'});
-				return;
-			}
+			}, req.eh.errorHelper(res));
 
-			var carta = req.query.carta;
-			Objetivo.find({ 'carta': models.ObjectId(carta) }).sort({'index': 1}).exec(function(erro, objss){
-				if (erro){
-					res.status(500).json({'error': 'An error has occurred', details: erro});
-					return;
-				}
-				res.json(objss);
-			});
-		};
-	};
+			return;
+		} else if (typeof req.query.carta === 'undefined'){
+			req.eh.missingParameterHelper(res, 'carta');
 
-	/** Descarga de la url asociada a una carta sus objetivos e indicadores. */
-	module.exports.downloadCarta = function(carta, Crawler, Q){
-		var deferred = Q.defer();
-		if (!carta || !carta.url){
-			deferred.reject({error: 'Cannot download carta ' + carta.denominacion + ' because is not available'});
-			return deferred.promise;
+			return;
 		}
 
-		if (typeof Crawler !== 'function'){
-			deferred.reject({error: 'Cannot download carta ' + carta.denominacion + ' because the crawler is not available'});
-			return deferred.promise;
-		}
-		var extraeMeta = function(str){
-			var ultimoseparador = Math.max.apply(null, ['=', '≥', '≤'].map(function(s){
-				return str.lastIndexOf(s) + 1;
-			}) );
-			if (ultimoseparador > 0){
-				var finalstr = str.substr(ultimoseparador);
-				return parseInt(finalstr);
-			}
-			return 100;
-		};
-
-		var extraeIntervalos = function(valormeta){
-			var intervaloscalculados = [];
-			if (valormeta > 0){
-				intervaloscalculados = [
-					{'min': 0, 'max': valormeta / 4, 'mensaje': 'Peligro', 'color': '#C50200', 'alerta': 4},
-					{'min': valormeta / 4, 'max': valormeta / 2, 'mensaje': 'Aviso', 'color': '#FF7700', 'alerta': 3},
-					{'min': valormeta / 2, 'max': valormeta / 4 + valormeta / 2, 'mensaje': 'Normal', 'color': '#FDC702', 'alerta': 2},
-					{'min': valormeta / 4 + valormeta / 2, 'max': valormeta, 'mensaje': 'Éxito', 'color': '#C6E497', 'alerta': 1},
-					{'min': valormeta, 'max': valormeta * 2, 'mensaje': 'Superado éxito', 'color': '#8DCA2F', 'alerta': 0}
-				];
-			}
-			return intervaloscalculados;
-		};
-		var extractCompromisos = function($html, $, cartaid){
-			var response = [];
-			var encontrado = false;
-			var contador = '1';
-			var enunciado = '';
-			var formulas = [];
-			for (var i = 0, j = $html.length; i < j; i++){
-				var $descripcion = $($html[i]);
-				var detalle = $descripcion.text().trim();
-				if (detalle.indexOf('COMPROMISOS DE CALIDAD E INDICADORES') >= 0){
-					encontrado = true;
-				} else if (encontrado && detalle.indexOf('DERECHOS DE LOS CIUDADANOS') >= 0){
-					encontrado = false;
-					if (enunciado !== '' && formulas.length > 0){
-						response.push({
-							denominacion: enunciado.replace('' + contador, ''),
-							formulas: formulas,
-							carta: cartaid,
-							index: contador,
-							estado: 'Publicado',
-							objetivoestrategico: 1,
-							procedimientos: []
-						});
-						contador = '' + (parseInt(contador) + 1);
-						enunciado = detalle;
-						formulas = [];
-					}
-				} else if (encontrado){
-					if (detalle.indexOf(contador) === 0){
-						enunciado = detalle;
-						formulas = [];
-					} else if (detalle.indexOf( '' + (parseInt(contador) + 1) ) === 0){
-						if (formulas.length > 0){
-							response.push({
-								denominacion: enunciado.replace('' + contador, ''),
-								formulas: formulas,
-								carta: cartaid,
-								index: contador,
-								estado: 'Publicado',
-								objetivoestrategico: 1,
-								procedimientos: []
-							});
-						}
-						contador = '' + (parseInt(contador) + 1);
-						enunciado = detalle;
-						formulas = [];
-					} else if (detalle !== ''){
-						var meta = extraeMeta(detalle);
-						var intervalos = extraeIntervalos(meta);
-						var formula = {
-							'human': detalle,
-							'computer': '',
-							'frecuencia': 'mensual',
-							'indicadores': [],
-							'meta': meta,
-							'direccion': '',
-							'intervalos': intervalos,
-							'valores': {
-								'a2015': [
-									{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null},
-									{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}],
-								'a2016': [
-									{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null},
-									{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}],
-								'a2017': [
-									{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null},
-									{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}]
-							}
-						};
-						formulas.push(formula);
-					}
-				}
-			}
-
-			return response;
-		};
-		var cb = function(df, cartaid) {
-			return function(error, result, jQuery) {
-				if (error){
-					df.reject({error: 'cb', e: error});
-					return;
-				}
-				var compromisos = extractCompromisos( jQuery('.contenido em,.contenido h3,.contenido h4'), jQuery, cartaid);
-				if (compromisos.length === 0){
-					compromisos = extractCompromisos( jQuery('.contenido p,.contenido h3,.contenido h4'), jQuery, cartaid);
-				}
-				if (compromisos.length === 0){
-					df.reject('No se han extraido compromisos');
-				}
-				df.resolve(compromisos);
-			};
-		};
-
-		var settCraw = {'maxConnections': 10, 'callback': cb(deferred, carta._id), 'userAgent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36' };
-		var c = new Crawler(settCraw);
-		c.queue(carta.url);
-
-		return deferred.promise;
+		objetivomodel.find({ 'carta': models.objectId(carta)}).sort({'index': 1}).exec().then(req.eh.okHelper(res, true), req.eh.errorHelper(res));
 	};
 
-	var counterIndicador = 0;
-	var registerIndicador = function(idjerarquia, txt, indicadormodel, Q){
-		var defer = Q.defer();
 
-		var indicador = {
+	function registerIndicador(idjerarquia, txt, indicadormodel, counterIndicador){
+		const defer = Q.defer();
+		const indicador = {
 			idjerarquia: idjerarquia,
 			id: counterIndicador,
 			nombre: txt,
 			resturl: '/indicador/' + counterIndicador,
 			valores: {
-				'a2015': [null, null, null, null, null, null, null, null, null, null, null, null, null ], /* 13 elementos */
-				'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null ], /* 13 elementos */
-				'a2017': [null, null, null, null, null, null, null, null, null, null, null, null, null ] /* 13 elementos */
+				'a2015': [null, null, null, null, null, null, null, null, null, null, null, null, null], /* 13 elementos */
+				'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null], /* 13 elementos */
+				'a2017': [null, null, null, null, null, null, null, null, null, null, null, null, null] /* 13 elementos */
 			},
 			observaciones: {
-				'a2015': ['', '', '', '', '', '', '', '', '', '', '', '', '' ],
-				'a2016': ['', '', '', '', '', '', '', '', '', '', '', '', '' ],
-				'a2017': ['', '', '', '', '', '', '', '', '', '', '', '', '' ]
+				'a2015': ['', '', '', '', '', '', '', '', '', '', '', '', ''],
+				'a2016': ['', '', '', '', '', '', '', '', '', '', '', '', ''],
+				'a2017': ['', '', '', '', '', '', '', '', '', '', '', '', '']
 			},
 			valoresacumulados: {
-				'a2015': [null, null, null, null, null, null, null, null, null, null, null, null, null ], /* 13 elementos */
-				'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null ], /* 13 elementos */
-				'a2017': [null, null, null, null, null, null, null, null, null, null, null, null, null ] /* 13 elementos */
+				'a2015': [null, null, null, null, null, null, null, null, null, null, null, null, null], /* 13 elementos */
+				'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null], /* 13 elementos */
+				'a2017': [null, null, null, null, null, null, null, null, null, null, null, null, null] /* 13 elementos */
 			},
 			fechaversion: new Date(),
 			medidas: {},
@@ -672,84 +482,204 @@
 			pendiente: false,
 			acumulador: 'sum'
 		};
+		new indicadormodel(indicador).save(defer.makeNodeResolver());
 
-		/*
-		indicadormodel.findOne({idjerarquia: idjerarquia, nombre: txt}, function(err, obj){
-			if (err){
-				defer.reject(err);
-			} else {
-				if (obj){
-					defer.resolve(obj);
-				} else {
-		*/
-		new indicadormodel(indicador).save(function(erro, obj2){
-			if (erro){
-				defer.reject(erro);
-			} else {
-				defer.resolve(obj2);
-			}
-		});
-		/*		}
-			}
-		}); */
 		return defer.promise;
-	};
+	}
 
-	var registerAndSetIndicador = function(idjerarquia, txt, indicadormodel, Q, cb){
-		var defer = Q.defer();
-		registerIndicador(idjerarquia, txt, indicadormodel, Q).then(function(indicador){
+	function extraeMeta(str){
+		const ultimoseparador = Math.max.apply(null, ['=', '≥', '≤'].map(function(s){
+			return str.lastIndexOf(s) + 1;
+		}));
+		if (ultimoseparador > 0){
+			return parseInt(str.substr(ultimoseparador), 10);
+		}
+		return 100;
+	}
+
+	function extraeIntervalos(valormeta){
+		const intervaloscalculados = [];
+		if (valormeta > 0){
+			intervaloscalculados = [
+				{'min': 0, 'max': valormeta / 4, 'mensaje': 'Peligro', 'color': '#C50200', 'alerta': 4},
+				{'min': valormeta / 4, 'max': valormeta / 2, 'mensaje': 'Aviso', 'color': '#FF7700', 'alerta': 3},
+				{'min': valormeta / 2, 'max': (valormeta / 4) + (valormeta / 2), 'mensaje': 'Normal', 'color': '#FDC702', 'alerta': 2},
+				{'min': (valormeta / 4) + valormeta / 2, 'max': valormeta, 'mensaje': 'Éxito', 'color': '#C6E497', 'alerta': 1},
+				{'min': valormeta, 'max': valormeta < 1, 'mensaje': 'Superado éxito', 'color': '#8DCA2F', 'alerta': 0}
+			];
+		}
+
+		return intervaloscalculados;
+	}
+
+	function extractCompromisos($html, $, cartaid){
+		const response = [];
+		let encontrado = false;
+		let contador = '1';
+		let enunciado = '';
+		let formulas = [];
+		for (var i = 0, j = $html.length; i < j; i++){
+			var $descripcion = $($html[i]);
+			var detalle = $descripcion.text().trim();
+			if (detalle.indexOf('COMPROMISOS DE CALIDAD E INDICADORES') >= 0){
+				encontrado = true;
+			} else if (encontrado && detalle.indexOf('DERECHOS DE LOS CIUDADANOS') >= 0){
+				encontrado = false;
+				if (enunciado !== '' && formulas.length > 0){
+					response.push({
+						denominacion: enunciado.replace('' + contador, ''),
+						formulas: formulas,
+						carta: cartaid,
+						index: contador,
+						estado: 'Publicado',
+						objetivoestrategico: 1,
+						procedimientos: []
+					});
+					contador = '' + (parseInt(contador, 10) + 1);
+					enunciado = detalle;
+					formulas = [];
+				}
+			} else if (encontrado){
+				if (detalle.indexOf(contador) === 0){
+					enunciado = detalle;
+					formulas = [];
+				} else if (detalle.indexOf( '' + (parseInt(contador, 10) + 1) ) === 0){
+					if (formulas.length > 0){
+						response.push({
+							denominacion: enunciado.replace('' + contador, ''),
+							formulas: formulas,
+							carta: cartaid,
+							index: contador,
+							estado: 'Publicado',
+							objetivoestrategico: 1,
+							procedimientos: []
+						});
+					}
+					contador = '' + (parseInt(contador, 10) + 1);
+					enunciado = detalle;
+					formulas = [];
+				} else if (detalle !== ''){
+					var meta = extraeMeta(detalle);
+					var intervalos = extraeIntervalos(meta);
+					var formula = {
+						'human': detalle,
+						'computer': '',
+						'frecuencia': 'mensual',
+						'indicadores': [],
+						'meta': meta,
+						'direccion': '',
+						'intervalos': intervalos,
+						'valores': {
+							'a2015': [
+								{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null},
+								{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}],
+							'a2016': [
+								{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null},
+								{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}],
+							'a2017': [
+								{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null},
+								{formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}, {formula: '', resultado: null}]
+						}
+					};
+					formulas.push(formula);
+				}
+			}
+		}
+
+		return response;
+	}
+
+	function cbDownloadCarta(df, cartaid) {
+		return function(error, result, jQuery) {
+			if (error){
+				df.reject({error: 'cb', e: error});
+
+				return;
+			}
+			let compromisos = extractCompromisos(jQuery('.contenido em,.contenido h3,.contenido h4'), jQuery, cartaid);
+			if (compromisos.length === 0){
+				compromisos = extractCompromisos(jQuery('.contenido p,.contenido h3,.contenido h4'), jQuery, cartaid);
+			}
+			if (compromisos.length === 0){
+				df.reject('No se han extraido compromisos');
+			}
+			df.resolve(compromisos);
+		};
+	}
+
+	/** Descarga de la url asociada a una carta sus objetivos e indicadores. */
+	module.exports.downloadCarta = function(carta){
+		const deferred = Q.defer();
+		if (!carta || !carta.url){
+			deferred.reject({error: 'Cannot download carta ' + carta.denominacion + ' because is not available'});
+
+			return deferred.promise;
+		}
+		
+		const settCraw = {'maxConnections': 10, 'callback': cbDownloadCarta(deferred, carta._id), 'userAgent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36' };
+		const c = new Crawler(settCraw);
+		c.queue(carta.url);
+
+		return deferred.promise;
+	};
+	
+	function registerAndSetIndicador(idjerarquia, txt, indicadormodel, cb){
+		const defer = Q.defer();
+		registerIndicador(idjerarquia, txt, indicadormodel, counterIndicador).then(function(indicador){
 			cb(indicador);
 			defer.resolve(indicador);
-		}, function(err){
-			defer.reject(err);
-		});
+		}, defer.reject);
+
 		return defer.promise;
-	};
+	}
 
-	module.exports.newIndicador = function(models, Q){
-		return function(req, res){
-			var idjerarquia, txt;
-			if (typeof req.user !== 'undefined' && typeof req.user.permisoscalculados !== 'undefined' && req.user.permisoscalculados.superuser){
-				txt = req.body.nombre;
-				idjerarquia = parseInt(req.body.idjerarquia);
-				var indicadormodel = models.indicador();
-				registerIndicador(idjerarquia, txt, indicadormodel, Q).then(function(indicador){
-					res.json(indicador);
-				}, function(err){
-					res.status(500).json({error: 'Error registrando indicador', details: err });
-				});
+	function newIndicador(req, res){
+		if (typeof req.user !== 'undefined' && typeof req.user.permisoscalculados !== 'undefined' && req.user.permisoscalculados.superuser){
+			if (req.body && req.body.idjerarquia){
+				const txt = req.body.nombre;
+				const idjerarquia = parseInt(req.body.idjerarquia, 10);
+				const indicadormodel = req.metaenvironment.models.indicador();
+				registerIndicador(idjerarquia, txt, indicadormodel, counterIndicador).then(req.eh.okHelper(res), req.eh.errorHelper(res));
 			} else {
-				res.status(403).json({'error': 'Not allowed'});
+				req.eh.missingParameterHelper(res, 'idjerarquia');
 			}
-		};
-	};
+		} else {
+			req.eh.unauthorizedHelper(res);
+		}
+	}
 
-	module.exports.extractAndSaveIndicadores = function(idjerarquia, objetivos, indicadormodel, Q){
-		var defer = Q.defer();
-		var promises = [];
-		var cbSetIndicador = function(idobjetivo, idformula, ordenindicador){
-			return function(indicador){
-				objetivos[idobjetivo].formulas[idformula].indicadores[ordenindicador] = indicador._id;
-			};
-		};
-		var cbMap = function(formula){
-			return function(s){
-				return formula.lastIndexOf(s);
-			};
-		};
-		for (var i = 0, j = objetivos.length; i < j; i++){
-			for (var k = 0, l = objetivos[i].formulas.length; k < l; k++){
-				var formula = objetivos[i].formulas[k].human;
+	function cbSetIndicador(objetivos, idobjetivo, idformula, ordenindicador){
 
-				var ultimoseparador = Math.max.apply(null, ['=', '≥', '≤', '&ge;', '&le;'].map(cbMap(formula) ) );
+		return function(indicador){
+			objetivos[idobjetivo].formulas[idformula].indicadores[ordenindicador] = indicador._id;
+		};
+	}
+
+	function cbMap(formula){
+
+		return function(s){
+
+			return formula.lastIndexOf(s);
+		};
+	}
+
+	module.exports.extractAndSaveIndicadores = function(idjerarquia, objetivos, indicadormodel){
+		const defer = Q.defer();
+		const promises = [];
+
+		for (let i = 0, j = objetivos.length; i < j; i++){
+			for (const k = 0, l = objetivos[i].formulas.length; k < l; k++){
+				let formula = objetivos[i].formulas[k].human;
+
+				const ultimoseparador = Math.max.apply(null, ['=', '≥', '≤', '&ge;', '&le;'].map(cbMap(formula)));
 				if (ultimoseparador > 0){
 					formula = formula.substr(0, ultimoseparador);
 				}
-				var	partes = tokenizer(formula),
-					orden = 0;
+				const partes = tokenizer(formula);
+				let orden = 0;
 
-				for (var n = 0, m = partes.length; n < m; n++ ){
-					var parte = partes[n].trim();
+				for (let n = 0, m = partes.length; n < m; n +=1 ){
+					const parte = partes[n].trim();
 					if (parte === ''){
 						continue;
 					}
@@ -760,7 +690,8 @@
 						continue;
 					}
 					if (parte.indexOf('100') === -1){
-						var promiseIndicador = registerAndSetIndicador(idjerarquia, parte, indicadormodel, Q, cbSetIndicador(i, k, orden++) );
+						var promiseIndicador = registerAndSetIndicador(idjerarquia, parte, indicadormodel, cbSetIndicador(objetivos, i, k, orden));
+						orden += 1;
 						promises.push(promiseIndicador);
 					}
 				}
@@ -768,159 +699,128 @@
 		}
 		Q.all(promises).then(function(indicadoresobtenidos){
 			defer.resolve({objetivos: objetivos, indicadoresobtenidos: indicadoresobtenidos});
-		}, function(err){
-			defer.reject(err);
-		});
+		}, defer.reject);
+
 		return defer.promise;
 	};
 
-	module.exports.updateFormula = function(models){
-		return function(req, res){
-			var idobjetivo = req.body.idobjetivo,
-				indiceformula = req.body.indiceformula,
-				formula = req.body.formula,
-				objetivomodel = models.objetivo();
-			if (idobjetivo){
-				objetivomodel.findOne({'_id': models.ObjectId(idobjetivo) }, function (err, objetivo) {
-					if (err){
-						res.status(500).json({'error': 'An error has occurred', details: err});
-						return;
-					}
-					if (objetivo){
-						if (req.user.permisoscalculados.superuser ||
-							req.user.permisoscalculados.entidadobjetoescritura.indexOf('' + objetivo.carta)) {
+	module.exports.updateFormula = function(req, res){
+		const idobjetivo = req.body.idobjetivo,
+			models = req.metaenvironment.models,
+			objetivomodel = models.objetivo();
 
-							if (typeof objetivo.formulas[parseInt(indiceformula)] !== 'undefined'){
-								objetivo.formulas[parseInt(indiceformula)].computer = formula;
-								objetivo.markModified('formulas');
-								objetivomodel.update({'_id': models.ObjectId(objetivo._id)}, objetivo, function(error){
-									if (error){
-										res.status(500).json({'error': 'Error during update', details: error});
-									} else {
-										res.json(objetivo);
-									}
-								});
-							} else {
-								res.status(404).json({'error': 'Not found3'});
-							}
+		if (typeof idobjetivo === 'undefined' || idobjetivo === ''){
+			req.eh.missingParameterHelper(res, 'idobjetivo');
 
-						} else {
-							res.status(403).json({'error': 'Not allowed'});
-						}
+			return;
+		}
+
+		if (typeof req.body.indiceformula === 'undefined' || isNaN(parseInt(req.body.indiceformula, 10))){
+			req.eh.missingParameterHelper(res, 'indiceformula');
+
+			return;
+		}
+
+		if (typeof req.body.formula === 'undefined'){
+			req.eh.missingParameterHelper(res, 'formula');
+
+			return;
+		}
+
+		const indiceformula = parseInt(indiceformula, 10);
+		const formula = req.body.formula;
+	
+		objetivomodel.findOne({'_id': models.objectId(idobjetivo)}, function(objetivo){
+			if (objetivo){
+				if (req.user.permisoscalculados.superuser || req.user.permisoscalculados.entidadobjetoescritura.indexOf('' + objetivo.carta)){
+					if (typeof objetivo.formulas[indiceformula] !== 'undefined'){
+						objetivo.formulas[indiceformula].computer = formula;
+						objetivo.markModified('formulas');
+						objetivomodel.update({'_id': models.objectId(objetivo._id)}, objetivo).exec().then(req.eh.cbWithDefaultValue(res, objetivo), req.eh.errorHelper(res));
 					} else {
-						res.status(404).json({'error': 'Not found2'});
+						req.eh.notFoundHelper(res);
 					}
-				});
+
+				} else {
+					req.eh.unauthorizedHelper(res);
+				}
 			} else {
-				res.status(404).json({'error': 'Not valid params'});
+				req.eh.notFoundHelper(res);
 			}
-		};
+		}, req.eh.errorHelper(res));
 	};
 
-	module.exports.dropCarta = function(models, Q){
-		return function(req, res){
-			var id = req.params.id,
-				indicadormodel = models.indicador(),
-				objetivomodel = models.objetivo(),
-				entidadobjetomodel = models.entidadobjeto();
+	module.exports.dropCarta = function(req, res){
+		const id = req.params.id,
+			models = req.metaenvironment.models,
+			indicadormodel = models.indicador(),
+			objetivomodel = models.objetivo(),
+			entidadobjetomodel = models.entidadobjeto();
 
-			if (id &&
-					(req.user.permisoscalculados.superuser
-						|| req.user.permisoscalculados.entidadobjetoescritura.indexOf(id)
-					)
-				){
-				entidadobjetomodel.findOne({'_id': models.ObjectId(req.params.id) }, function (err, carta) {
-					if (err){
-						res.status(500).json({'error': 'An error has occurred', details: err});
-						return;
-					} else if (carta){
-						var defer = Q.defer(),
-							defer2 = Q.defer();
-						var fn = function(def){
-							return function(erro){
-								if (erro){
-									def.reject(erro);
-								} else {
-									def.resolve();
-								}
-							};
-						};
+		if (typeof id === 'undefined' || id === ''){
+			req.eh.missingParameterHelper(res, 'id');
 
-						indicadormodel.remove({ idjerarquia: carta.idjerarquia }, fn(defer));
-						objetivomodel.remove({ carta: carta._id }, fn(defer2));
-						Q.all([defer, defer2]).then(function(){
-							res.json('OK');
-						}, function(error){
-							res.status(500).json({'error': 'Error during dropCarta', details: error});
-						});
+			return;
+		}
 
-					} else {
-						res.status(404).json({'error': 'Not found'});
-					}
-				});
-			} else {
-				res.status(403).json({'error': 'Not allowed'});
-			}
-		};
+		/*  || req.user.permisoscalculados.entidadobjetoescritura.indexOf(id) */
+		if (req.user.permisoscalculados.superuser){
+			entidadobjetomodel.findOne({'_id': models.objectId(req.params.id) }).exec().then(function(carta){
+				if (carta){
+					const defer = Q.defer(),
+						defer2 = Q.defer();
+
+					indicadormodel.remove({idjerarquia: carta.idjerarquia}, defer.makeNodeResolver());
+					objetivomodel.remove({carta: carta._id}, defer2.makeNodeResolver());
+					Q.all([defer, defer2]).then(function(){ res.json('OK');	}, req.eh.errorHelper(res));
+				} else {
+					req.eh.notFoundHelper(res);
+				}
+			}, req.eh.errorHelper(res));
+		} else {
+			req.eh.unauthorizedHelper(res);
+		}
 	};
 
-	module.exports.testDownloadCarta = function(models, Crawler, Q){
-		return function(req, res){
-			var entidadobjeto = models.entidadobjeto(),
+	module.exports.testDownloadCarta = function(req, res){
+		if (req.user.permisoscalculados.superuser){
+			const entidadobjeto = req.metaenvironment.models.entidadobjeto(),
 				id = req.params.id,
-				indicadormodel = models.indicador(),
-				objetivomodel = models.objetivo();
-			if (id && req.user.permisoscalculados.superuser){
-				entidadobjeto.findOne({'_id': id}, function (err, data) {
-					if (err){
-						res.status(500).json({'error': 'An error has occurred', details: err});
-						return;
-					} else if (data){
-						module.exports.downloadCarta(data, Crawler, Q).then(function(objetivos){
+				indicadormodel = req.metaenvironment.models.indicador(),
+				objetivomodel = req.metaenvironment.models.objetivo();
+			if (typeof id === 'string' && id !== ''){
+				entidadobjeto.findOne({'_id': id}).exec().then(function(data){
+					if (data){
+						module.exports.downloadCarta(data, Crawler).then(function(objetivos){
 							if (objetivos.length === 0){
 								res.status(500).json({'error': 'Empty page'});
 							} else {
-								module.exports.extractAndSaveIndicadores(data.idjerarquia, objetivos, indicadormodel, Q)
-									.then(function(objetivosConIndicadores){
-										var objetivosAAlmacenar = objetivosConIndicadores.objetivos;
-										for (var i = 0, j = objetivosAAlmacenar.length; i < j; i++){
-											for (var k = 0, l = objetivosAAlmacenar[i].formulas.length; k < l; k++){
-												objetivosAAlmacenar[i].formulas[k] = trytoparseFormula(objetivosAAlmacenar[i].formulas[k], objetivosConIndicadores.indicadoresobtenidos);
-											}
-											new objetivomodel(objetivosAAlmacenar[i]).save();
-											/* TODO: wait? */
+								module.exports.extractAndSaveIndicadores(data.idjerarquia, objetivos, indicadormodel).then(function(objetivosConIndicadores){
+									const objetivosAAlmacenar = objetivosConIndicadores.objetivos;
+									for (const i = 0, j = objetivosAAlmacenar.length; i < j; i++){
+										for (const k = 0, l = objetivosAAlmacenar[i].formulas.length; k < l; k++){
+											objetivosAAlmacenar[i].formulas[k] = trytoparseFormula(objetivosAAlmacenar[i].formulas[k], objetivosConIndicadores.indicadoresobtenidos);
 										}
-										res.json(objetivosConIndicadores);
-									}, function(errorI){
-										res.status(500).json({'error': 'Error during download', details: errorI});
-									});
+										new objetivomodel(objetivosAAlmacenar[i]).save();
+										/* TODO: wait? */
+									}
+									res.json(objetivosConIndicadores);
+								}, req.eh.errorHelper(res));
 							}
-						}, function(error){
-							res.status(500).json({'error': 'Error during download', details: error});
-						});
+						}, req.eh.errorHelper(res));
 					} else {
-						res.status(404).json({'error': 'Not found'});
+						req.eh.notFoundHelper(res);
 					}
-				});
+				}, req.eh.errorHelper(res));
 			} else {
-				res.status(404).json({'error': 'Not valid params'});
+				req.eh.missingParameterHelper(res, 'id');
 			}
-		};
+		} else {
+			req.eh.unauthorizedHelper(res);
+		}
 	};
 
-	module.exports.saveVersion = function (models, Q, indicador) {
-		var defer = Q.defer();
-		var Historico = models.historicoindicador();
-		var v = JSON.parse(JSON.stringify(indicador));
-		delete v._id;
-		var version = new Historico(v);
-		version.save(function (err) {
-			if (err){
-				defer.reject(err);
-			} else {
-				defer.resolve();
-			}
-		});
-		return defer.promise;
-	};
+	module.exports.newIndicador = newIndicador;
+	module.exports.saveVersion = saveVersion;
+
 })(module, console);
