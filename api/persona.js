@@ -7,16 +7,55 @@
 
 	const WS_USUARIO_EN_GESPER = '00';
 	const WS_USUARIO_NO_EN_GESPER = '01';
-	const EXPRESSION_REGULAR_CODIGO_PLAZA = new RegExp(/X{3}\d{3}/i);
-	const EXPRESSION_REGULAR_CODIGO_PLAZA2 = new RegExp(/[A-Z]{2}\d{5}/);
-	const EXPRESSION_REGULAR_LOGIN_CARM = new RegExp(/[a-z]{3}\d{2}[a-z]{1}/);
-	const EXPRESSION_REGULAR_RESPUESTA_WS = new RegExp(/(\d{2})\.-(.*)/g);
+	const EXPRESSION_REGULAR_CODIGO_PLAZA = /X{3}\d{3}/i;
+	const EXPRESSION_REGULAR_CODIGO_PLAZA2 = /[A-Z]{2}\d{5}/;
+	const EXPRESSION_REGULAR_LOGIN_CARM = /[a-z]{3}\d{2}[a-z]{1}/;
+	const EXPRESSION_REGULAR_RESPUESTA_WS = /(\d{2})\.-(.*)/g;
+
+	function callWs(cfg, method, args, cb){
+		soap.createClient(cfg.ws_url, {}, function (err, client) {
+			if (err) {
+				cb(err);
+			} else {
+				client.setSecurity(new soap.WSSecurity(cfg.ws_user, cfg.ws_pwd, 'PasswordText'));
+				client[method](args, cb);
+			}
+		});
+	}
+
+	function infoByPlaza2(req, res) {
+		const cfg = req.metaenvironment.cfg,
+			args = {arg0: {key: 'P_PLAZA', value: req.params.codplaza}};
+		callWs(cfg, 'SacaOcupante', args, req.eh.cb(res));
+	}
+
+	function infoByLogin2(req, res) {
+		const cfg = req.metaenvironment.cfg,
+			args = {arg0: {key: 'p_login', value: req.params.login}};
+		callWs(cfg, 'SacaPlaza', args, req.eh.cb(res));
+	}
+
+	function infoByLogin(login, cfg) {
+		const def = Q.defer(),
+			args = {arg0: {key: 'p_login', value: login}};
+		callWs(cfg, 'SacaPlaza', args, def.makeNodeResolver());
+
+		return def.promise;
+	}
+
+	function infoByPlaza(codplaza, cfg) {
+		const def = Q.defer(),
+			args = {arg0: {key: 'P_PLAZA', value: codplaza}};
+		callWs(cfg, 'SacaOcupante', args, def.makeNodeResolver());
+
+		return def.promise;
+	}
 
 	module.exports.get = function (req, res) {
 		const personamodel = req.metaenvironment.models.persona(),
 			id = req.params.id;
-		if (typeof id === 'string' && id !== ''){
-			personamodel.findOne({'_id': req.metaenvironment.models.ObjectId(id)}, req.eh.cbHelper(res));
+		if (typeof id === 'string' && id.trim() !== ''){
+			personamodel.findOne({'_id': req.metaenvironment.models.objectId(id)}, req.eh.cb(res));
 		} else {
 			req.eh.notFoundHelper(res);
 		}
@@ -25,7 +64,7 @@
 	module.exports.personasByPuesto = function (req, res) {
 		const personamodel = req.metaenvironment.models.persona();
 		if (typeof req.params.cod_plaza === 'string' && req.params.cod_plaza !== ''){
-			personamodel.find({codplaza: req.params.cod_plaza}, req.eh.cbHelper(res));
+			personamodel.find({codplaza: req.params.cod_plaza}, req.eh.cb(res));
 		} else {
 			req.eh.notFoundHelper(res);
 		}
@@ -34,25 +73,26 @@
 	module.exports.personasByLogin = function (req, res) {
 		const personamodel = req.metaenvironment.models.persona();
 		if (typeof req.params.login !== 'undefined' && req.params.cod_plaza !== ''){
-			personamodel.find({login: req.params.login}, req.eh.cbHelper(res));
+			personamodel.find({login: req.params.login}, req.eh.cb(res));
 		} else {
 			req.eh.notFoundHelper(res);
 		}
 	};
 
 	module.exports.setHabilitado = function(req, res){
-		const personamodel = req.metaenvironment.models.persona(),
+		const models = req.metaenvironment.models,
+			personamodel = models.persona(),
 			id = req.params.id,
 			content = req.body,
 			habilitado = content.habilitado ? content.habilitado === 'true' || content.habilitado === true : false;
-		personamodel.update({'_id': id}, {'$set': {habilitado: habilitado}}, req.eh.cbWithDefaultValue(res, {habilitado: habilitado, id: id}));
+		personamodel.update({'_id': models.objectId(id)}, {'$set': {habilitado: habilitado}}, req.eh.cbWithDefaultValue(res, {habilitado: habilitado, id: id}));
 	};
 
 	module.exports.updatePersona = function (req, res) {
 		const personamodel = req.metaenvironment.models.persona(),
 			id = req.params.id,
 			content = req.body;
-		personamodel.update({'_id': id}, content, {upsert: true}, req.eh.cbHelper(res));
+		personamodel.update({'_id': id}, content, {upsert: true}, req.eh.cb(res));
 	};
 
 	module.exports.newPersona = function (req, res) {
@@ -61,112 +101,18 @@
 		personamodel.create(content, req.eh.cbWithDefaultValue(res, content));
 	};
 
-	module.exports.personasByRegex = function (models, cfg) {
-		return function (req, res) {
-			var personamodel = models.persona();
-			var restriccion = {};
-			if (typeof req.params.regex === 'string'){
-				restriccion = {
-					'$or': [
-						{
-							'login': {
-								'$regex': '^' + req.params.regex,
-								'$options': 'i'
-							}
-						},
-						{
-							'codplaza': {
-								'$regex': '^' + req.params.regex,
-								'$options': 'i'
-							}
-						},
-						{
-							'nombre': {
-								'$regex': '^' + req.params.regex,
-								'$options': 'i'
-							}
-						},
-						{
-							'apellidos': {
-								'$regex': '^' + req.params.regex,
-								'$options': 'i'
-							}
-						}
-					]
-				};
-				personamodel.find(restriccion, function (err, data) {
-					if (err) {
-						req.eh.callbackErrorHelper(res, err);
 
-						return;
-					}
-
-					if (data.length === 0) {
-						if (EXPRESSION_REGULAR_LOGIN_CARM.test(req.params.regex)) {
-							exports.infoByLogin(req.params.regex, cfg).then(function(result) {
-								if ((result !== null) && (typeof result.return !== 'undefined') && (result.return.length > 0) && (result.return[2].key === 'ERR_MSG')) {
-									var msg = result.return[2].value;
-
-									var valores = /(\d{2})\.-(.*)/g.exec(msg);
-									if (valores !== null) {
-										if (valores[1] !== '00') {
-											logger.error(valores[2]);
-											res.json(data);
-
-											return;
-										}
-										const nuevaPersona = {
-											codplaza: result.return[1].value,
-											login: req.params.regex,
-											nombre: result.return[0].value,
-											apellidos: result.return[6].value + ' ' + result.return[5].value,
-											telefono: result.return[7].value,
-											habilitado: false
-										};
-										const defaultOutput = [{'login': nuevaPersona.login, 'codplaza': nuevaPersona.codplaza, 'nombre': nuevaPersona.nombre, 'apellidos': nuevaPersona.apellidos}];
-										personamodel.create(nuevaPersona, req.eh.cbWithDefaultValue(res, defaultOutput));
-
-									} else if (result){
-										res.json(data);
-									} else {
-										req.eh.notFoundHelper(res);
-									}
-								}
-							}, req.eh.errorHelper(res));
-
-							return;
-						}
-						var regPlaza = new RegExp(/[A-Z]{2}\d{5}/);
-						if (regPlaza.test(req.params.regex)) {
-							exports.registroPersonaWS(req.params.regex, models, cfg).then(res.json, function(erro) {
-								logger.error(erro);
-								/* TODO revisar esto, debería devolver un 500? */
-								res.json(data);
-							});
-						} else {
-							res.json(data);
-						}
-					} else {
-						res.json(data);
-					}
-				});
-			} else {
-				req.eh.missingParameterHelper(res, 'regex');
-			}
-		};
-	};
-
-	module.exports.registroPersonaWS = function (codplaza, models, cfg) {
+	function registroPersonaWS(codplaza, models, cfg) {
 		var deferRegistro = Q.defer();
 		var personamodel = models.persona();
 		personamodel.count({'codplaza': codplaza}, function (err, count) {
 			if (err){
 				deferRegistro.reject(err);
 			} else if (count === 0) {
-				exports.infoByPlaza(codplaza, cfg).then(function (result) {
+				infoByPlaza(codplaza, cfg).then(function (result) {
 					if ((result !== null) && (typeof result.return !== 'undefined') && (result.return.length > 0) && (result.return[2].key === 'ERR_MSG')) {
 						var msg = result.return[2].value;
-						var valores = /(\d{2})\.-(.*)/g.exec(msg);
+						var valores = EXPRESSION_REGULAR_RESPUESTA_WS.exec(msg);
 						if (Array.isArray(valores)) {
 							if (valores[1] === '00') {
 
@@ -203,46 +149,93 @@
 		});
 
 		return deferRegistro.promise;
+	}
+
+	module.exports.personasByRegex = function (req, res) {
+		if (typeof req.params.regex === 'string'){
+			const models = req.metaenvironment.models,
+				cfg = req.metaenvironment.settings,
+				personamodel = models.persona();
+
+			const restriccion = {
+				'$or': [
+					{
+						'login': {
+							'$regex': '^' + req.params.regex,
+							'$options': 'i'
+						}
+					},
+					{
+						'codplaza': {
+							'$regex': '^' + req.params.regex,
+							'$options': 'i'
+						}
+					},
+					{
+						'nombre': {
+							'$regex': '^' + req.params.regex,
+							'$options': 'i'
+						}
+					},
+					{
+						'apellidos': {
+							'$regex': '^' + req.params.regex,
+							'$options': 'i'
+						}
+					}
+				]
+			};
+			personamodel.find(restriccion).lean().exec().then(function(data){
+				if (data){
+					res.json(data);
+				} else if (EXPRESSION_REGULAR_LOGIN_CARM.test(req.params.regex)) {
+					infoByLogin(req.params.regex, cfg).then(function(result) {
+						if ((result !== null) && (typeof result.return !== 'undefined') && (result.return.length > 0) && (result.return[2].key === 'ERR_MSG')) {
+							const msg = result.return[2].value;
+
+							const valores = EXPRESSION_REGULAR_RESPUESTA_WS.exec(msg);
+							if (valores !== null) {
+								if (valores[1] !== '00') {
+									logger.error(valores[2]);
+									res.json(data);
+
+									return;
+								}
+								const nuevaPersona = {
+									codplaza: result.return[1].value,
+									login: req.params.regex,
+									nombre: result.return[0].value,
+									apellidos: result.return[6].value + ' ' + result.return[5].value,
+									telefono: result.return[7].value,
+									habilitado: false
+								};
+								const defaultOutput = [{'login': nuevaPersona.login, 'codplaza': nuevaPersona.codplaza, 'nombre': nuevaPersona.nombre, 'apellidos': nuevaPersona.apellidos}];
+								personamodel.create(nuevaPersona, req.eh.cbWithDefaultValue(res, defaultOutput));
+
+							} else if (result){
+								res.json(data);
+							} else {
+								req.eh.notFoundHelper(res);
+							}
+						}
+					}, req.eh.errorHelper(res));
+
+					return;
+				} else if (EXPRESSION_REGULAR_CODIGO_PLAZA2.test(req.params.regex)) {
+					registroPersonaWS(req.params.regex, models, cfg).then(res.json, function(erro) {
+						logger.error(erro);
+						/* TODO revisar esto, debería devolver un 500? */
+						res.json(data);
+					});
+				} else {
+					res.json([]);
+				}
+
+			}, req.eh.errorHelper(res));
+		} else {
+			req.eh.missingParameterHelper(res, 'regex');
+		}
 	};
-
-	function callWs(cfg, method, args, cb){
-		soap.createClient(cfg.ws_url, {}, function (err, client) {
-			if (err) {
-				cb(err);
-			} else {
-				client.setSecurity(new soap.WSSecurity(cfg.ws_user, cfg.ws_pwd, 'PasswordText'));
-				client[method](args, cb);
-			}
-		});
-	}
-
-	function infoByPlaza2(req, res) {
-		const cfg = req.metaenvironment.cfg,
-			args = {arg0: {key: 'P_PLAZA', value: req.params.codplaza}};
-		callWs(cfg, 'SacaOcupante', args, req.eh.cbHelper(res));
-	}
-
-	function infoByLogin2(req, res) {
-		const cfg = req.metaenvironment.cfg,
-			args = {arg0: {key: 'p_login', value: req.params.login}};
-		callWs(cfg, 'SacaPlaza', args, req.eh.cbHelper(res));
-	}
-
-	function infoByLogin(login, cfg) {
-		const def = Q.defer(),
-			args = {arg0: {key: 'p_login', value: login}};
-		callWs(cfg, 'SacaPlaza', args, def.makeNodeResolver());
-
-		return def.promise;
-	}
-
-	function infoByPlaza(codplaza, cfg) {
-		const def = Q.defer(),
-			args = {arg0: {key: 'P_PLAZA', value: codplaza}};
-		callWs(cfg, 'SacaOcupante', args, def.makeNodeResolver());
-
-		return def.promise;
-	}
 
 	/* TODO: ESTE METODO DEBE REVISARSE, ES INCOHERENTE RESPECTO A FILA, FILAS */
 	module.exports.updateCodPlazaByLogin = function (req, res) {
@@ -272,11 +265,12 @@
 				}
 			
 				let actualizacion = false;
+				let codplaza = '';
 				const msg = result.return[2].value;
-				const valores = /(\d{2})\.-(.*)/g.exec(msg);
+				const valores = EXPRESSION_REGULAR_RESPUESTA_WS.exec(msg);
 				if (Array.isArray(valores)) {
 					if (valores[1] === WS_USUARIO_EN_GESPER) {
-						const codplaza = result.return[1].value;
+						codplaza = result.return[1].value;
 						const telefono = result.return[7].value;
 						let mensaje = false;
 						if (codplaza !== persona.codplaza){
@@ -300,7 +294,7 @@
 						persona.telefono = telefono;
 
 					} else if (valores[1] === WS_USUARIO_NO_EN_GESPER) {
-						const codplaza = persona.codplaza;
+						codplaza = persona.codplaza;
 						if (EXPRESSION_REGULAR_CODIGO_PLAZA.test(persona.codplaza)) {
 							actualizacion = {'fecha': new Date(), comentario: 'Usuario ' + persona.login + ' ya no está en gesper y eliminamos su código plaza ' + persona.codplaza};
 							persona.codplaza = '';
@@ -319,21 +313,21 @@
 						promesaUpdate.reject('NO se ha podido actualizar el usuario ' + persona.login + '. Error: ' + err);
 					} else if (persona.codplaza === codplaza) {
 							promesaUpdate.resolve();
-					} else {
+					} else if (codplaza && codplaza !== ''){
 						personamodel.count({'codplaza': codplaza}, function (erro, count) {
 							if (erro) {
 								promesaUpdate.reject(erro);
 							} else if (count > 0) {
 									promesaUpdate.resolve();
 							} else {
-								module.exports.registroPersonaWS(codplaza, models, cfg).then(function(/*resultado*/) {
+								registroPersonaWS(codplaza, models, cfg).then(function(/*resultado*/) {
 									//fila.nuevoUsuario = resultado.login;
 									promesaUpdate.resolve();
-								}, function (error) {
-									promesaUpdate.reject(error);
-								});
+								}, promesaUpdate.reject);
 							}
 						});
+					} else {
+						promesaUpdate.resolve();
 					}
 				});
 			}, promesaUpdate.reject);
@@ -349,42 +343,37 @@
 			personamodel = models.persona(),
 			procedimientomodel = models.procedimiento();
 
-		const deferProcedimiento = Q.defer();
-
 		/// 1. Buscamos personas en la tabla personas.
-		const deferPersona = personamodel.find({}, {codplaza: true, login: true, nombre: true, apellidos: true}).exec();
+		const deferPersona = personamodel.find({}, {codplaza: true, login: true, nombre: true, apellidos: true}).lean().exec();
 
 		/// 2. Buscamos personas como responsables de procedimientos ... ¡¡¡Y que no estén en el primer grupo!!!
-		procedimientomodel.aggregate().unwind('responsables').group(
-				{
-					'_id': {
-						'login': '$responsables.login',
-						'codplaza': '$responsables.codplaza'
-					},
-					'nombre': {'$first': '$responsables.nombre'},
-					'apellidos': {'$first': '$responsables.apellidos'}
-				}
-			).exec(deferProcedimiento.makeNodeResolver());
+		const deferProcedimiento = procedimientomodel.aggregate().unwind('responsables').group({
+			'_id': {
+				'login': '$responsables.login',
+				'codplaza': '$responsables.codplaza'
+			},
+			'nombre': {'$first': '$responsables.nombre'},
+			'apellidos': {'$first': '$responsables.apellidos'}
+		}).exec();
 
-		Q.all([deferPersona.promise, deferProcedimiento.promise]).then(function(data){
+		Q.all([deferPersona, deferProcedimiento]).then(function(data){
 			const r = {};
 			const response = [];
 			const personasByPersona = data[0];
 			const personasByResponsable = data[1];
 
-
-			for (let i = 0; i < personasByPersona.length; i++) {
+			for (let i = 0; i < personasByPersona.length; i += 1) {
 				const persona = personasByPersona[i];
 				const idr = persona.login + '-' + persona.codplaza;
 				r[idr] = persona;
-				response.push();
+				response.push({'login': persona.login, 'codplaza': persona.codplaza, 'nombre': persona.nombre, 'apellidos': persona.apellidos});
 			}
-			for (let i = 0; i < personasByResponsable.length; i++) {
+			for (let i = 0; i < personasByResponsable.length; i += 1){
 				const persona = personasByResponsable[i];
 				const idr = persona._id.login + '-' + persona._id.codplaza;
 				if (typeof r[idr] === 'undefined') {
 					r[idr] = persona;
-					response.push({data: persona._id.login + ' ; ' + persona._id.codplaza + ' ; ' + persona.nombre + ' ' + persona.apellidos});
+					response.push({'login': persona._id.login, 'codplaza': persona._id.codplaza, 'nombre': persona.nombre, 'apellidos': persona.apellidos});
 				}
 			}
 
@@ -397,5 +386,6 @@
 	module.exports.infoByLogin2 = infoByLogin2;
 	module.exports.infoByPlaza = infoByPlaza;
 	module.exports.infoByPlaza2 = infoByPlaza2;
+	module.exports.registroPersonaWS = registroPersonaWS;
 
 })(module, process, console);
