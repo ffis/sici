@@ -35,7 +35,7 @@
 			} else {
 				message = 'An error has occurred';
 			}
-			if (Number.isNumber(errCode)){
+			if (Number.isInteger(errCode)){
 				errorCode = errCode;
 			}
 			res.status(errorCode).json({'error': message, details: err});
