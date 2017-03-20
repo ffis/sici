@@ -24,71 +24,14 @@
 		<div class="alert {{respuesta.clase}}" role="alert" ng-repeat="respuesta in respuestas">{{respuesta.mensaje}}</div>
 	</div>
 </div>
+
+
+
 <div class="row" ng-if="arbol.length>0">
-	<div ng-class="{'col-lg-5': !oculto, 'hidden': oculto}" class="left animated">
-		<div class="panel panel-danger">
-			<div class="panel-heading">
-				<h3 class="panel-title">
-					Organismos
-				</h3>
-			</div>
-			<div class="panel-body">
-				<input type="text" ng-model="texto.$" placeholder="Filtro" style="margin-bottom:1em" class="form-control"/>
-				<ul ng-if="arbol.length" style="padding-left:0.6em">
-					<li ng-repeat="element in arbol |filter:texto| filter:filtrojerarquia" ng-class="{'list-group-item-warning':element.id==seleccionado.id}">
-						<p>
-						<strong>
-							[{{element.id}}] &nbsp;
-						</strong>
-						<span ng-click="setSeleccionado(element)" class="cursor"  title="Engloba {{element.numprocedimientos}} procedimientos">
-							{{element.title}}
-						</span>
-						<span class="badge pull-right">{{element.numprocedimientos}}</span>
-						</p>
-						<ul class="list-group" ng-if="element.nodes" style="clear:both">
-							<li class="list-group-item" ng-repeat="elemen in element.nodes |filter:texto | filter:filtrojerarquia" ng-class="{'list-group-item-danger':elemen.id==seleccionado.id}">
-							<p>
-								<strong>
-									[{{elemen.id}}] &nbsp;
-								</strong>
-								<span ng-click="setSeleccionado(elemen)" class="cursor" title="Engloba {{elemen.numprocedimientos}} procedimientos">
-									{{elemen.title}}
-								</span>
-								<span class="badge pull-right">{{elemen.numprocedimientos}}</span>
-								</p>
-								<ul ng-if="elemen.nodes" style="clear:both">
-									<li ng-repeat="eleme in elemen.nodes |filter:texto |filter:filtrojerarquia"  ng-class="{'list-group-item-danger':eleme.id==seleccionado.id}" >
-									<p>
-										<strong>
-											[{{eleme.id}}] &nbsp;
-										</strong>
-										<span ng-class="{'bg-danger':eleme.id==seleccionado.id }" ng-click="setSeleccionado(eleme)" class="cursor" title="Engloba {{eleme.numprocedimientos}} procedimientos">
-											{{eleme.title}}
-										</span>
-										<span class="badge pull-right">{{eleme.numprocedimientos}}</span>
-										</p>
-										<ul ng-if="eleme.nodes" style="clear:both">
-											<li ng-repeat="elem in eleme.nodes |filter:texto |filter:filtrojerarquia">
-											<p>
-												<strong>
-													[{{elem.id}}] &nbsp;
-												</strong>
-												<span ng-class="{'bg-danger':elem.id==seleccionado.id }" ng-click="setSeleccionado(elem)" class="cursor"  title="Engloba {{elem.numprocedimientos}} procedimientos">
-													{{elem.title}}
-												</span>
-												<span class="badge pull-right">{{elem.numprocedimientos}}</span>
-												</p>
-											</li>
-										</ul>
-									</li>
-								</ul>
-							</li>
-						</ul>
-					</li>
-				</ul>
-			</div>
-		</div>
+	<div class="left hidden-print nga-default nga-slide-left col-lg-5 col-md-5 col-sm-5 col-xs-12 animated" ng-hide="oculto" ng-class="{'col-lg-5': !oculto, 'hidden': oculto}">
+		<organismos otitle="'Organismos'" arbol="arbol" tipoelementos="''" attr="'numprocedimientos'" setseleccionado="setSeleccionado" seleccionado="seleccionado" filtro="filtro"></organismos>
 	</div>
+
 	<div ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated" id="detallesjerarquia" ng-If="seleccionado ">
 		<div class="col-md-12 text-right">
 			<select ng-model="anualidad" ng-options="a.value as a.name for a in anyos"></select>

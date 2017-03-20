@@ -29,36 +29,36 @@
 				$scope.camposguia = [];
 				$scope.camposcrawled = ['any.Código y denominación', 'any.Plazo de resolución'];
 
-				$scope.procedimiento = ProcedimientoList.query({idjerarquia: 1, fields: camposprocedimiento.join(' ')},
+				$scope.procedimiento = ProcedimientoList.query({'idjerarquia': 1, 'fields': camposprocedimiento.join(' ')},
 					function(){
 						if (!$scope.idsencomun){ $scope.idsencomun = {}; }
 						$scope.procedimiento.forEach(function(p){
 							if (typeof $scope.idsencomun['id' + p.codigo] === 'undefined'){
-								$scope.idsencomun['id' + parseInt(p.codigo)] = {id: parseInt(p.codigo), procedimiento: p};
-							}else{
-								$scope.idsencomun['id' + parseInt(p.codigo)].procedimiento = p;
+								$scope.idsencomun['id' + parseInt(p.codigo, 10)] = {'id': parseInt(p.codigo, 10), 'procedimiento': p};
+							} else {
+								$scope.idsencomun['id' + parseInt(p.codigo, 10)].procedimiento = p;
 							}
 						});
 					});
 
-				$scope.crawled = Raw.query({model: 'crawled', fields: ['id', 'jerarquia', 'any'].join(' ')}, function(){
+				$scope.crawled = Raw.query({'model': 'crawled', 'fields': ['id', 'jerarquia', 'any'].join(' ')}, function(){
 					if (!$scope.idsencomun){ $scope.idsencomun = {}; }
 					$scope.crawled.forEach(function(p){
-						if (typeof $scope.idsencomun['id' + parseInt(p.id)] === 'undefined'){
-							$scope.idsencomun['id' + parseInt(p.id)] = {id: parseInt(p.id), crawled: p};
-						}else{
-							$scope.idsencomun['id' + parseInt(p.id)].crawled = p;
+						if (typeof $scope.idsencomun['id' + parseInt(p.id, 10)] === 'undefined'){
+							$scope.idsencomun['id' + parseInt(p.id, 10)] = {id: parseInt(p.id, 10), 'crawled': p};
+						} else {
+							$scope.idsencomun['id' + parseInt(p.id, 10)].crawled = p;
 						}
 					});
 				});
 
 				$scope.toDays = function(str){
-					str = str.replace('\r', ' ').replace('\n', ' ').trim();
-					var n = parseInt(str);
+					var n = parseInt(str.replace('\r', ' ').replace('\n', ' ').trim(), 10);
 					if (str.indexOf('Mes') !== -1){ n *= 30; }
+
 					return n;
 				};
-				$scope.parseInt = function(n){ return (n && n !== '') ? parseInt(n) : 0; };
+				$scope.parseInt = function(n){ return (n && n !== '') ? parseInt(n, 10) : 0; };
 				$scope.testwarning = function(row){
 					if (!row.crawled || !row.crawled.any || !row.crawled.any['Plazo de resolución']){ return true; }
 					if (!row.procedimiento ){ return true; }
@@ -68,7 +68,8 @@
 						$scope.parseInt(row.procedimiento.periodos['a' + $scope.anualidad].plazo_CS_ANS_naturales) +
 						$scope.parseInt(row.procedimiento.periodos['a' + $scope.anualidad].plazo_CS_ANS_habiles);
 					var	plazo = $scope.toDays( row.crawled.any['Plazo de resolución']);
-					return ( sum !== plazo );
+
+					return (sum !== plazo);
 				};
 			}
 ]);

@@ -129,11 +129,11 @@
 					const campos = browser.querySelectorAll('.campoProcedimiento');
 					const lista = turnObjToArray(campos);
 					lista.forEach(function(detalle){
-						const campo = detalle.childNodes && detalle.childNodes.length > 0 ? detalle.childNodes.item(0).textContent : detalle.textContent;
+						const campo = detalle.childNodes && detalle.childNodes.length > 0 ? detalle.childNodes.item(0).textContent.trim() : detalle.textContent.trim();
 						const valorDiv = detalle.nextSibling;
 						const parent = valorDiv.parentNode;
-						const valor = typeof parent.innerHTML === 'string' ? parent.innerHTML : false;
-						if (valor){
+						const valor = typeof parent.innerHTML === 'string' ? parent.innerHTML.trim() : false;
+						if (campo && campo !== '' && valor && valor !== ''){
 							datos[campo] = valor;
 						}
 					});
@@ -151,7 +151,7 @@
 	function cbParseCr(defer, id) {
 		return function(error, result, $) {
 			if (error){
-				defer.reject({});
+				defer.reject(error);
 
 				return;
 			}
@@ -184,21 +184,23 @@
 			const id = parseInt(req.params.id, 10);
 			const url = settings.urls.procedimiento + id;
 			const crawledmodel = req.metaenvironment.models.crawled();
-			const restriccion = {id: id, jerarquia: {'$exists': true}, expires: {'$gt': new Date()}};
+			const restriccion = {'id': id, jerarquia: {'$exists': true}, expires: {'$gt': new Date()}};
 
-			crawledmodel.find(restriccion).exec().then(function(data){
+			crawledmodel.findOne(restriccion).lean().exec().then(function(data){
+
 				if (data){
 					res.json(data);
 				} else {
 					const deferred = Q.defer(),
-						c = new Crawler({'maxConnections': 10, 'callback': cbParseCr(deferred, id)});
+						c = new Crawler({'maxConnections': 10, 'callback': cbParseCr(deferred, id), userAgent: settings.userAgent});
 					c.queue(url);
-
-					deferred.promise.then(function (v){
-						const expiresDate = new Date();
-						expiresDate.setDate(expiresDate.getDate() + 1);
-						v.expires = expiresDate;
-						crawledmodel.update({id: id}, v, {upsert: true});
+					deferred.promise.then(function(v){
+						if (Array.isArray(v.jerarquia) && v.jerarquia.length > 0){
+							const expiresDate = new Date();
+							expiresDate.setDate(expiresDate.getDate() + 1);
+							v.expires = expiresDate;
+							crawledmodel.update({'id': id}, v, {upsert: true});
+						}
 						res.json(v.any);
 					}, req.eh.errorHelper(res));
 				}

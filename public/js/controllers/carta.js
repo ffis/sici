@@ -1,45 +1,66 @@
 (function(angular, $, Math){
 	'use strict';
-	angular.module('sici')
-		.controller('CartaCtrl',
+	angular.module('sici').controller('CartaCtrl',
 			['$q', '$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', '$log', '$http', 'Arbol', 'Objetivo', 'EntidadObjeto', 'PastelColor', 'ImportarObjetivo', 'Indicador', 'ProcedimientoList', 'Jerarquia',
 			function ($q, $rootScope, $scope, $location, $window, $routeParams, $timeout, $log, $http, Arbol, Objetivo, EntidadObjeto, PastelColor, ImportarObjetivo, Indicador, ProcedimientoList, Jerarquia) {
 				$rootScope.nav = 'carta';
-				$scope.idjerarquia = ($routeParams.idjerarquia) ? parseInt( $routeParams.idjerarquia ) : false;
+				$scope.idjerarquia = ($routeParams.idjerarquia) ? parseInt($routeParams.idjerarquia, 10) : false;
 				$scope.arbol = Arbol.query(function(){ $scope.setJerarquiaById($scope.idjerarquia); });
 				$scope.indicadores = {};
 				$scope.procedimientos = {};
 				$scope.showformulas = false;
 				$scope.superuser = $rootScope.superuser();
 				$scope.aanualidad = '';
-				$scope.W_Indicador = false;
-				$scope.R_Indicador = false;
+				$scope.anualidad = new Date().getFullYear(); //temporalmente */
+				$scope.aanualidad = 'a' + $scope.anualidad;
+				$scope.goToJerarquia = function(selection){
+					$location.path('/carta/' + selection.id);
+				};
+
+				$scope.WIndicador = false;
+				$scope.RIndicador = false;
+				
 				$scope.mutexFormulas = function(){
 					$scope.showformulas = !$scope.showformulas;
 				};
 				$scope.jerarquias = [];
-				var loadJerarquia = function(idjerarquia){
+				function loadJerarquia(idjerarquia){
 					if (typeof $scope.jerarquias[idjerarquia] === 'undefined'){
-						$scope.jerarquias[idjerarquia] = Jerarquia.get({id: idjerarquia});
+						$scope.jerarquias[idjerarquia] = Jerarquia.get({'id': idjerarquia});
 					}
-				};
-				$scope.setJerarquiaById = function(idj){
-					if (!idj){ return; }
-					var setJ = function(nodo, idjerarquia){
-						if (nodo.id === idjerarquia){
-							$scope.setSeleccionado(nodo);
+				}
+
+				function setJ(nodo, idjerarquia){
+					if (nodo.id === idjerarquia){
+						$scope.setSeleccionado(nodo);
+
+						return true;
+					}
+					if (!nodo.nodes){
+
+						return false;
+					}
+					for (var i = 0, j = nodo.nodes.length; i < j; i += 1){
+						if (setJ(nodo.nodes[i], idjerarquia)){
+
 							return true;
 						}
-						if (!nodo.nodes) { return false; }
-						for (var i = 0, j = nodo.nodes.length; i < j; i++){
-							if (setJ(nodo.nodes[i], idjerarquia)) {
-								return true;
-							}
+					}
+
+					return false;
+				}
+
+				$scope.setJerarquiaById = function(idj){
+					if (!idj){
+
+						return;
+					}
+					
+
+					for (var idx = 0, idxmax = $scope.arbol.length; idx < idxmax; idx += 1){
+						if (setJ($scope.arbol[idx], idj)){
+							break;
 						}
-						return false;
-					};
-					for (var idx = 0, idxmax = $scope.arbol.length; idx < idxmax; idx++){
-						if (setJ( $scope.arbol[idx], idj)){ break; }
 					}
 				};
 				$scope.filtro = function(){
@@ -57,36 +78,24 @@
 					$scope.aanualidad = 'a' + $scope.anualidad;
 				};
 
-				var postLoadObjetivo = function(objetivo, loadIndicador, loadProcedimiento){
-					var maxValuePerFormula = 0;
-					for (var k = 0, l = objetivo.formulas.length; k < l; k++) {
-						if (typeof loadIndicador === 'function' && typeof objetivo.formulas[k].indicadores === 'object'){
-							objetivo.formulas[k].indicadores.forEach(loadIndicador);
-						}
-						if (typeof loadProcedimiento === 'function' && typeof objetivo.formulas[k].procedimientos === 'object'){
-							objetivo.formulas[k].procedimientos.forEach(loadProcedimiento);
-						}
-						maxValuePerFormula = 0;
-						for (var y = 0, u = objetivo.formulas[k].intervalos.length; y < u; y++){
-							if (objetivo.formulas[k].intervalos[y].max > maxValuePerFormula){
-								maxValuePerFormula = objetivo.formulas[k].intervalos[y].max;
-							}
-						}
-						objetivo.formulas[k].valor = {};
-						for (var anu in objetivo.formulas[k].valores){
-							$scope.anualidadesKeys[anu] = parseInt(anu.replace('a', ''));
-							objetivo.formulas[k].valor[anu] = objetivo.formulas[k].valores[anu][ objetivo.formulas[k].valores[anu].length - 1 ].resultado;
-							if (typeof objetivo.formulas[k].gaugevalue === 'undefined'){
-								objetivo.formulas[k].gaugevalue = {};
-							}
-							objetivo.formulas[k].gaugevalue[anu] = !objetivo.formulas[k].valor[anu] ? 0 :
-								(objetivo.formulas[k].valor[anu] > maxValuePerFormula ? maxValuePerFormula : objetivo.formulas[k].valor[anu]);
-							/*: objetivo.formulas[k].valor[anu];*/
-						}
-						objetivo.formulas[k].uppervalue = Math.max(/* objetivo.formulas[k].valor[anu],*/ objetivo.formulas[k].meta, maxValuePerFormula);
+				function loadIndicador(indicador){
+					if (typeof $scope.indicadores[indicador] === 'undefined'){
+						$scope.indicadores[indicador] = Indicador.get({'id': indicador});
 					}
-					getAnualidades();
-				};
+				}
+				function loadProcedimiento(procedimiento){
+					var clave = procedimiento.procedimiento;
+					if (typeof $scope.procedimientos[clave] === 'undefined'){
+						ProcedimientoList.query({'id': procedimiento.procedimiento, fields: 'codigo denominacion periodos'}).$promise.then(function(procs){
+							if (procs.length > 0){
+								$scope.procedimientos[clave] = procs[0];
+							}
+						}, function(/* err */){
+							$rootScope.toaster('Error durante la importación', 'Error', 'error');
+						});
+					}
+				}
+
 				function getAnualidades(){
 					if (Object.keys($scope.anualidadesKeys).length > 0){
 						$scope.anualidades = [];
@@ -98,65 +107,70 @@
 							}
 						}
 						$scope.anualidades.sort();
-						/*
-						$scope.aanualidad = max;
-						$scope.anualidad = parseInt(max.replace('a', ''));
-						*/
 					}
 				}
-				var loadIndicador = function(indicador){
-					if (typeof $scope.indicadores[indicador] === 'undefined'){
-						$scope.indicadores[indicador] = Indicador.get({id: indicador});
-					}
-				};
-				var loadProcedimiento = function(procedimiento){
-					var clave = procedimiento.procedimiento;
-					if (typeof $scope.procedimientos[clave] === 'undefined'){
-						ProcedimientoList.query({id: procedimiento.procedimiento, fields: 'codigo denominacion periodos'})
-							.$promise
-							.then(function(procs){
-								if (procs.length > 0){
-									$scope.procedimientos[clave] = procs[0];
-								}
-							}, function(/* err */){
-								$rootScope.toaster('Error durante la importación', 'Error', 'error');
-							});
-					}
-				};
-
-				var postLoadObjetivos = function(loadIndicador){
-					return function(){
-						$scope.anualidadesKeys = {};
-						for (var i = 0, j = $scope.objetivos.length; i < j; i++) {
-							postLoadObjetivo($scope.objetivos[i], loadIndicador, loadProcedimiento);
+				function postLoadObjetivo(objetivo){
+					var maxValuePerFormula = 0;
+					for (var k = 0, l = objetivo.formulas.length; k < l; k += 1) {
+						if (typeof loadIndicador === 'function' && typeof objetivo.formulas[k].indicadores === 'object'){
+							objetivo.formulas[k].indicadores.forEach(loadIndicador);
 						}
-					};
-				};
+						if (typeof loadProcedimiento === 'function' && typeof objetivo.formulas[k].procedimientos === 'object'){
+							objetivo.formulas[k].procedimientos.forEach(loadProcedimiento);
+						}
+						maxValuePerFormula = 0;
+						for (var y = 0, u = objetivo.formulas[k].intervalos.length; y < u; y += 1){
+							if (objetivo.formulas[k].intervalos[y].max > maxValuePerFormula){
+								maxValuePerFormula = objetivo.formulas[k].intervalos[y].max;
+							}
+						}
+						objetivo.formulas[k].valor = {};
+						for (var anu in objetivo.formulas[k].valores){
+							$scope.anualidadesKeys[anu] = parseInt(anu.replace('a', ''), 10);
+							objetivo.formulas[k].valor[anu] = objetivo.formulas[k].valores[anu][objetivo.formulas[k].valores[anu].length - 1].resultado;
+							if (typeof objetivo.formulas[k].gaugevalue === 'undefined'){
+								objetivo.formulas[k].gaugevalue = {};
+							}
+							objetivo.formulas[k].gaugevalue[anu] = !objetivo.formulas[k].valor[anu] ? 0 :
+								(objetivo.formulas[k].valor[anu] > maxValuePerFormula ? maxValuePerFormula : objetivo.formulas[k].valor[anu]);
+							/*: objetivo.formulas[k].valor[anu];*/
+						}
+						objetivo.formulas[k].uppervalue = Math.max(/* objetivo.formulas[k].valor[anu],*/ objetivo.formulas[k].meta, maxValuePerFormula);
+					}
+					getAnualidades();
+				}
+
+				function postLoadObjetivos(){
+					$scope.anualidadesKeys = {};
+					$scope.objetivos.forEach(postLoadObjetivo);
+				}
 
 				$scope.setCartaServicio = function(cartaservicio){
-					if (typeof cartaservicio !== 'undefined'){
+					if (typeof cartaservicio === 'object'){
 						$rootScope.setTitle(cartaservicio.denominacion);
 						$scope.cartaservicioseleccionada = cartaservicio;
-						var restrictions = { idjerarquia: cartaservicio.idjerarquia, carta: cartaservicio._id };
+						var restrictions = {'idjerarquia': cartaservicio.idjerarquia, 'carta': cartaservicio._id};
 
-						$scope.objetivos = Objetivo.query(restrictions, postLoadObjetivos(loadIndicador));
+						$scope.objetivos = Objetivo.query(restrictions, postLoadObjetivos);
 					} else {
 						$scope.objetivos = [];
 						delete $scope.cartaservicioseleccionada;
 					}
 				};
-				$scope.anualidad = new Date().getFullYear(); //temporalmente */
-				$scope.aanualidad = 'a' + $scope.anualidad;
-				$scope.goToJerarquia = function(selection){
-					$location.path('/carta/' + selection.id);
-				};
+
 				$scope.setSeleccionado = function(selection){
-					if (selection) {
+					if (selection){
+						$scope.WIndicador = false;
+						$scope.RIndicador = false;
+						$rootScope.superuser().then(function(isSuper){
+							$scope.WIndicador = isSuper || $scope.WIndicador;
+							$scope.RIndicador = isSuper || $scope.RIndicador;
+						});
 						$rootScope.jerarquiaescritura().then(function(jerarquiaescritura){
-							$scope.W_Indicador = jerarquiaescritura.indexOf(selection.id) >= 0;
+							$scope.WIndicador = $scope.WIndicador || jerarquiaescritura.indexOf(selection.id) >= 0;
 						});
 						$rootScope.jerarquialectura().then(function(jerarquialectura){
-							$scope.R_Indicador = jerarquialectura.indexOf(selection.id) >= 0;
+							$scope.RIndicador = $scope.RIndicador || jerarquialectura.indexOf(selection.id) >= 0;
 						});
 						$scope.idjerarquia = selection.id;
 						$scope.jerarquia = Jerarquia.get({id: $scope.idjerarquia}, function(){
@@ -164,14 +178,15 @@
 							$scope.jerarquia.ancestros.forEach(loadJerarquia);
 						});
 						$scope.cartasservicio = EntidadObjeto.query({'tipoentidad': 'CS', 'idjerarquia': $scope.idjerarquia}, function(){
-							for (var i = 0, j = $scope.cartasservicio.length; i < j; i++){
-								$scope.cartasservicio[i].urledicion = '/carta/' + $scope.idjerarquia + '/' + $scope.cartasservicio[i]._id;
-								$scope.cartasservicio[i].urlprintable = '/carta-printable/' + $scope.idjerarquia + '/' + $scope.cartasservicio[i]._id;
-							}
+							$scope.cartasservicio.forEach(function(cartasservicio){
+								cartasservicio.urledicion = '/carta/' + $scope.idjerarquia + '/' + cartasservicio._id;
+								cartasservicio.urlprintable = '/carta/' + $scope.idjerarquia + '/' + cartasservicio._id;
+							});
+
 							if ($scope.cartasservicio.length > 0){
 								var seleccionada = $scope.cartasservicio[0];
 								if (typeof $routeParams.idcarta !== 'undefined'){
-									var seleccionadas = $scope.cartasservicio.filter(function(a){ return a._id == $routeParams.idcarta; });
+									var seleccionadas = $scope.cartasservicio.filter(function(a){ return a._id === $routeParams.idcarta; });
 									if (seleccionadas.length > 0){
 										seleccionada = seleccionadas[0];
 									}
@@ -186,23 +201,23 @@
 						$scope.seleccionado = selection;
 
 						$timeout(function(){
-							$('body').animate({scrollTop: $('#detallesjerarquia').offset().top }, 'slow');
+							$('body').animate({'scrollTop': $('#detallesjerarquia').offset().top}, 'slow');
 							$scope.oculto = true;
 						}, 20);
 					}
 				};
+
 				$scope.sumatorioParcial = function(valores, $index){
 					var sum = 0;
-					for (var i = 0; i <= $index; i++){
-						if (typeof valores[i] !== 'undefined' && valores[i] ){
+					for (var i = 0; i <= $index; i += 1){
+						if (typeof valores[i] !== 'undefined' && valores[i]){
 							sum += parseFloat(valores[i]);
 						}
 					}
-					if (sum === 0){
-						return '';
-					}
-					return sum;
+
+					return (sum === 0) ? '' : sum;
 				};
+
 				$scope.bgColorResultadoParcial = function(sumatorio, metaparcial, meta, formula){
 					if (sumatorio === ''){
 						return {};
@@ -212,24 +227,26 @@
 						return '';
 					}
 					var coef = meta / metaparcial;
-					for (var i = 0, j = formula.intervalos.length; i < j; i++){
+					for (var i = 0, j = formula.intervalos.length; i < j; i += 1){
 						if (sumatorio * coef >= formula.intervalos[i].min && sumatorio * coef <= formula.intervalos[i].max){
 							result = formula.intervalos[i].color;
 						}
 					}
-					if (result === '' && formula.intervalos.length > 0 && formula.intervalos[ formula.intervalos.length - 1 ].max ){
-						result = formula.intervalos[ formula.intervalos.length - 1 ].color;
+					if (result === '' && formula.intervalos.length > 0 && formula.intervalos[formula.intervalos.length - 1].max){
+						result = formula.intervalos[formula.intervalos.length - 1].color;
 					}
-					//return {'background-color': result};
+
 					return 'background-color:' + result + '!important';
 				};
+
 				$scope.getPastel = function(i){
 					return PastelColor(i);
 				};
+
 				$scope.importarObjetivos = function(){
 					$http.post('/api/v2/public/testDownloadCarta/' + $scope.cartaservicioseleccionada._id, {}).then(function(dato){
 						$rootScope.toaster('Carta de servicios importada correctamente. Registrados ' + dato.data.objetivos.length + ' objetivos y ' + dato.data.indicadoresobtenidos.length + ' indicador/es.');
-						$scope.setCartaServicio( $scope.cartaservicioseleccionada );
+						$scope.setCartaServicio($scope.cartaservicioseleccionada);
 					}, function(e){
 						if (typeof e.data !== 'undefined' && typeof e.data.error !== 'undefined'){
 							$rootScope.toaster('Error durante la importación: ' + e.data.error, 'Error', 'error');
@@ -239,12 +256,12 @@
 					});
 				};
 
-				$scope.recargarObjetivo = function(i){
+				$scope.recargarObjetivo = function(counter){
 					var loadAndSetValores = function(obj){
 						return function(loaded){
 							postLoadObjetivo(loaded);
 							if (typeof loaded.formulas !== 'undefined'){
-								for (var i = 0, j = loaded.formulas.length; i < j; i++){
+								for (var i = 0, j = loaded.formulas.length; i < j; i += 1){
 									obj.formulas[i].valores = loaded.formulas[i].valores;
 									if (typeof loaded.formulas[i].gaugevalue !== 'undefined'){
 										for (var anu in loaded.formulas[i].gaugevalue){
@@ -256,29 +273,31 @@
 							}
 						};
 					};
-					Objetivo.get( {id: $scope.objetivos[i]._id}, loadAndSetValores($scope.objetivos[i]) );
+					Objetivo.get({'id': $scope.objetivos[counter]._id}, loadAndSetValores($scope.objetivos[counter]));
 				};
 
-				$scope.updateIndicador = function(indicadorid){
-					var f = function(indicadorid, desplegado){
-						return function() {
-							$scope.indicadores[indicadorid].desplegado = desplegado;
-							var indicadoresARecargar = [];
-							for (var i = 0, j = $scope.objetivos.length; i < j; i++){
-								for (var k = 0, l = $scope.objetivos[i].formulas.length; k < l; k++){
-									if ($scope.objetivos[i].formulas[k].indicadores.indexOf(indicadorid) > -1){
-										indicadoresARecargar.push(i);
-										break;
-									}
+				function postUpdateIndicador(indicadorid, desplegado){
+					return function() {
+						$scope.indicadores[indicadorid].desplegado = desplegado;
+						var indicadoresARecargar = [];
+						for (var i = 0, j = $scope.objetivos.length; i < j; i += 1){
+							for (var k = 0, l = $scope.objetivos[i].formulas.length; k < l; k += 1){
+								if ($scope.objetivos[i].formulas[k].indicadores.indexOf(indicadorid) > -1){
+									indicadoresARecargar.push(i);
+									break;
 								}
 							}
+						}
 
-							indicadoresARecargar.filter(function (e, idx, arr) {
-								return arr.lastIndexOf(e) === idx;
-							}).forEach($scope.recargarObjetivo);
-						};
+						indicadoresARecargar.filter(function (e, idx, arr) {
+							return arr.lastIndexOf(e) === idx;
+						}).forEach($scope.recargarObjetivo);
 					};
-					$scope.indicadores[indicadorid].$update(f(indicadorid, $scope.indicadores[indicadorid].desplegado), function(e){
+				}
+
+				$scope.updateIndicador = function(indicadorid){
+					
+					$scope.indicadores[indicadorid].$update(postUpdateIndicador(indicadorid, $scope.indicadores[indicadorid].desplegado), function(e){
 						if (typeof e.data !== 'undefined' && typeof e.data.error !== 'undefined'){
 							$rootScope.toaster('Error durante la actualización: ' + e.data.error, 'Error', 'error');
 						} else {
@@ -286,19 +305,11 @@
 						}
 					});
 				};
+
 				$scope.existeComentario = function(observaciones) {
-					if (typeof observaciones === 'undefined') {
-						return false;
-					}
-					for (var i = 0, j = observaciones.length; i < j; i++) {
-						if (typeof observaciones[i] !== 'undefined') {
-							if (observaciones[i].length !== 0) {
-								return true;
-							}
-						}
-					}
-					return false;
+					return Array.isArray(observaciones) && observaciones.some(function(observacion){ return observacion && typeof observacion === 'string' && observacion.length > 0; });
 				};
+
 				$scope.setIndicadorSeleccionado = function(indicadorSeleccionado) {
 					$scope.indicadorSeleccionado = indicadorSeleccionado;
 				};
@@ -306,38 +317,41 @@
 					$location.path(url);
 				};
 				$scope.bgColorResultado = function(resultado, formula){
-					var result = '';
 					if (!resultado || resultado === 0 || resultado === ''){
+						
 						return '';
 					}
-					for (var i = 0, j = formula.intervalos.length; i < j; i++){
+
+					let result = '';
+					for (let i = 0, j = formula.intervalos.length; i < j; i += 1){
 						if (resultado >= formula.intervalos[i].min && resultado <= formula.intervalos[i].max){
 							result = formula.intervalos[i].color;
+							break;
 						}
 					}
-					return 'background-color:' + result + '!important';
-					//return {'background-color': result};
+
+					return 'background-color:' + result + ' !important';
 				};
 
 				$scope.downloadxls = function(){
 					$scope.descargando = true;
-					$http.get('/api/v2/public/exportadorCarta/' + $scope.cartaservicioseleccionada._id + '/' + $scope.anualidad)
-						.then(function (res) {
-							$scope.descargando = false;
-							var url = '/api/v1/download/' + res.data.time + '/' + res.data.hash + '?extension=' + res.data.extension;
-							$window.location = url;
-						}, function() {
-							$scope.descargando = false;
-							$rootScope.toaster('Error al descargar el informe', 'Error', 'error');
-						});
+					$http.get('/api/v2/public/exportadorCarta/' + $scope.cartaservicioseleccionada._id + '/' + $scope.anualidad).then(function (res) {
+						$scope.descargando = false;
+						var url = '/api/download/' + res.data.time + '/' + res.data.hash + '?extension=' + res.data.extension;
+						$window.location = url;
+					}, function() {
+						$scope.descargando = false;
+						$rootScope.toaster('Error al descargar el informe', 'Error', 'error');
+					});
 				};
 				$scope.mini = function(){
-					var minval = arguments[i];
-					for (var i = 1; i < arguments.length; i++) {
+					let minval = arguments[0];
+					for (let i = 1; i < arguments.length; i += 1) {
 						if (minval > arguments[i]){
 							minval = arguments[i];
 						}
 					}
+
 					return minval;
 				};
 

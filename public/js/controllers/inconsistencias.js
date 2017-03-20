@@ -1,12 +1,11 @@
 (function(angular){
 	'use strict';
-	angular.module('sici')
-	.controller('InconsistenciasCtrl', ['$rootScope', '$scope', '$routeParams', 'Raw', 'Aggregate',
+	angular.module('sici').controller('InconsistenciasCtrl', ['$rootScope', '$scope', '$routeParams', 'Raw', 'Aggregate',
 		function ($rootScope, $scope, $routeParams, Raw, Aggregate) {
 			$scope.inconsistencias = Raw.query({model: 'reglasinconsistencias'}, function(){ $scope.update(); });
 			$rootScope.nav = 'inconsistencias';
 			$scope.oneAtATime = true;
-			$scope.camposamostrar = ['codigo', 'denominacion' ];
+			$scope.camposamostrar = ['codigo', 'denominacion'];
 			$scope.camposmostrados = $scope.camposamostrar;
 			$scope.seleccionados = {};
 			$scope.camposamostrar.forEach(function(campo){
@@ -18,11 +17,10 @@
 			$scope.update = function(){
 				$scope.inconsistencias.forEach(function(inconsistencia, i){
 					var c = {};
-					for(var campoM in $scope.seleccionados)
-					{
+					for (var campoM in $scope.seleccionados){
 						c[campoM] = '$' + campoM;
 					}
-					$scope.inconsistencias[i].datos = Aggregate.query({anualidad: $scope.anualidad, campo: JSON.stringify(c), restriccion: inconsistencia.restriccion} );
+					$scope.inconsistencias[i].datos = Aggregate.query({'anualidad': $scope.anualidad, 'campo': JSON.stringify(c), 'restriccion': inconsistencia.restriccion});
 				});
 			};
 		}

@@ -312,13 +312,13 @@
 	function loadPlan(models, planmodel, accionmodel, personamodel, organicamodel, carta, anualidad){
 		const q = Q.defer();
 
-		planmodel.findOne({'carta': '' + carta._id, anualidad: anualidad}).lean().exec().then(function(plan){
+		planmodel.findOne({'carta': '' + models.objectId(carta._id), anualidad: anualidad}).lean().exec().then(function(plan){
 			if (!plan){
 				q.reject({error: 'plan not found'});
 
 				return;
 			}
-			accionmodel.find({'plan': '' + plan._id}).lean().exec().then(function(accionescargadas){
+			accionmodel.find({'plan': String(plan._id)}).lean().exec().then(function(accionescargadas){
 				const qacciones = accionescargadas.map(function(accion){
 
 					return rellenaAccion(accion, models, personamodel, organicamodel);
@@ -372,9 +372,8 @@
 			jerarquiasmodel.findOne({id: carta.idjerarquia}).exec().then(function(jerarquia){
 				const ancestrosids = jerarquia.ancestros;
 				jerarquiasmodel.find({'id': {'$in': ancestrosids}}, {'id': 1, 'nombrelargo': 1}).exec().then(function(jerarquiascargadas){
-
 					const jerarquias = ordenarJerarquias(jerarquia, jerarquiascargadas);
-					objetivomodel.find({'carta': carta._id}).sort({index: 1}).exec().then(function(objetivos){
+					objetivomodel.find({'carta': String(carta._id)}).sort({index: 1}).exec().then(function(objetivos){
 						const indicadores = {},
 							objetivostransformados = transformarObjetivos(objetivos, anualidad, indicadores);
 

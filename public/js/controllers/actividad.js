@@ -1,12 +1,13 @@
 (function(angular, $){
 	'use strict';
+
 	angular.module('sici')
 		.controller('ActividadCtrl',
 			['$q', '$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', '$log', 'Arbol', 'ProcedimientoList', 'DetalleCarmProcedimiento', 'DetalleCarmProcedimiento2', 'PersonasByPuesto', 'Etiqueta', 'ExportarResultadosJerarquia',
 		function ($q, $rootScope, $scope, $location, $window, $routeParams, $timeout, $log, Arbol, ProcedimientoList, DetalleCarmProcedimiento, DetalleCarmProcedimiento2, PersonasByPuesto, Etiqueta, ExportarResultadosJerarquia) {
 			$rootScope.nav = 'actividad';
 			$rootScope.setTitle('Actividad');
-			$scope.idjerarquia = ($routeParams.idjerarquia) ? parseInt( $routeParams.idjerarquia ) : false;
+			$scope.idjerarquia = ($routeParams.idjerarquia) ? parseInt($routeParams.idjerarquia, 10) : false;
 			$scope.arbol = Arbol.query(function(){ $scope.setJerarquiaById($scope.idjerarquia); });
 
 			$scope.camposfiltros = ['cod_plaza'];
@@ -28,15 +29,14 @@
 			}
 
 			$scope.anyos = [];
-			for (var anyo = 2013, maxanyo = fecha.getFullYear; anyo <= maxanyo; anyo++){
-				$scope.anyos.push( { code: 'a' + anyo, name: '' + anyo });
+			for (var anyo = 2013, maxanyo = fecha.getFullYear; anyo <= maxanyo; anyo += 1){
+				$scope.anyos.push({ code: 'a' + anyo, name: String(anyo) });
 			}
 
 			$scope.etiquetas = Etiqueta.query(function(){
 				$scope.etiquetasPorTipo	= {};
 				$scope.etiquetas.forEach(function(etiqueta){
-					if (typeof $scope.etiquetasPorTipo[etiqueta.familia] === 'undefined')
-					{
+					if (typeof $scope.etiquetasPorTipo[etiqueta.familia] === 'undefined'){
 						$scope.etiquetasPorTipo[etiqueta.familia] = [];
 					}
 					$scope.etiquetasPorTipo[etiqueta.familia].push(etiqueta);
@@ -56,25 +56,31 @@
 				var setJ = function(nodo, idjerarquia){
 					if (nodo.id === idjerarquia){
 						$scope.setSeleccionado(nodo);
+
 						return true;
 					}
-					if (!nodo.nodes) { return false; }
-					for (var i = 0, j = nodo.nodes.length; i < j; i++){
-						if (setJ(nodo.nodes[i], idjerarquia)) {
+					if (!nodo.nodes) {
+					
+						return false;
+					}
+					for (var i = 0, j = nodo.nodes.length; i < j; i += 1){
+						if (setJ(nodo.nodes[i], idjerarquia)){
+
 							return true;
 						}
 					}
+
 					return false;
 				};
 				for (var idx = 0, idxmax = $scope.arbol.length; idx < idxmax; idx++){
-					if (setJ( $scope.arbol[idx], idj)){
+					if (setJ($scope.arbol[idx], idj)){
 						break;
 					}
 				}
 			};
 
 			if ($scope.idjerarquia){
-				$timeout(function() { $scope.setJerarquiaById($scope.idjerarquia); }, 100);
+				$timeout(function(){ $scope.setJerarquiaById($scope.idjerarquia); }, 100);
 			}
 
 			$scope.oculto = false;
@@ -93,21 +99,19 @@
 			$scope.fj = function(item) {
 				if ($scope.jerarquia.indexOf(item.id) !== -1 ){ return true; }
 				if (item.nodes){
-					for (var i = 0; i < item.nodes.length; i++){
-						if ($scope.filtrojerarquia(item.nodes[i])){
-							return true;
-						}
-					}
+					return item.nodes.some($scope.filtrojerarquia);
 				}
+
 				return false;
 			};
 
 			$scope.filtrojerarquia = function(item) {
 				var def = $q.defer();
-				$scope.pjerarquia.then( function(){
+				$scope.pjerarquia.then(function(){
 					def.resolve($scope.fj(item));
 					$scope.filtrojerarquia = $scope.fj;
-				}, function(err){ def.reject(err); });
+				}, def.reject);
+
 				return def.promise;
 			};
 
@@ -116,11 +120,11 @@
 				if (selection) {
 					$scope.seleccionado = selection;
 					$rootScope.setTitle(selection.title);
-					$scope.procedimientos = ProcedimientoList.query({idjerarquia: selection.id, fields: camposProcedimientos.join(' ')});
+					$scope.procedimientos = ProcedimientoList.query({'idjerarquia': selection.id, 'recursivo': 1, 'fields': camposProcedimientos.join(' ')});
 					$scope.cumplimentados = 0;
 					$scope.count = 1;
 					$timeout(function(){
-						$('body').animate({scrollTop: $('#detallesjerarquia').offset().top }, 'slow');
+						$('body').animate({scrollTop: $('#detallesjerarquia').offset().top}, 'slow');
 					}, 20);
 				}
 			};
@@ -140,10 +144,8 @@
 			function sparkline(){
 				$.each($('.sparkline'), function(k, v){
 					var obj = '[' + $(v).data('value') + ']';
-					var t;
 					try {
-						t = JSON.parse( '' + obj );
-						$(v).sparkline( t, {type: 'bar', barColor: '#a94442'});
+						$(v).sparkline(JSON.parse(obj), {type: 'bar', barColor: '#a94442'});
 					} catch (e) {
 						/*$log.error('sparkline mal formed VALUE WAS:' + t , obj);*/
 						$(v).sparkline( [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], {type: 'bar', barColor: '#a94442'});
@@ -166,7 +168,8 @@
 					var ok = true;
 					for (var campofiltro in $scope.filtro){
 						if ($scope.filtro[campofiltro] !== 'TODOS' && p[campofiltro] !== $scope.filtro[campofiltro]){
-							ok = false; break;
+							ok = false;
+							break;
 						}
 					}
 					if (ok){
@@ -185,8 +188,7 @@
 			$scope.$watch('procedimientos.$resolved', function() {
 
 				$scope.procedimientosfiltrados = $scope.procedimientos;
-				if ($scope.procedimientos.length > 0)
-				{
+				if ($scope.procedimientos.length > 0){
 					$scope.currentPage = 0;
 					$scope.responsables = {};
 					$scope.filtros = {};
@@ -199,13 +201,15 @@
 							$scope.cumplimentados++;
 						}
 						for (var idxfiltro in $scope.camposfiltros){
-							var campo = $scope.camposfiltros[idxfiltro], value = p[campo], name = p[campo], count = 1;
+							var campo = $scope.camposfiltros[idxfiltro],
+								value = p[campo],
+								name = p[campo],
+								count = 1;
 							if (typeof $scope.filtros[campo] === 'undefined'){
 								$scope.filtros[campo] = {};
 							}
-							if (typeof $scope.filtros[campo][value] === 'undefined')
-							{
-								$scope.filtros[campo][value] = { name: name, value: value, count: count, cumplimentados: cumplimentado ? 1 : 0};
+							if (typeof $scope.filtros[campo][value] === 'undefined'){
+								$scope.filtros[campo][value] = {'name': name, 'value': value, 'count': count, 'cumplimentados': cumplimentado ? 1 : 0};
 							} else {
 								$scope.filtros[campo][value].count = $scope.filtros[campo][value].count + 1;
 								if (cumplimentado){
@@ -218,20 +222,18 @@
 
 					for (var i in $scope.camposfiltros){
 						var campofiltro = $scope.camposfiltros[i];
-						if (Object.keys($scope.filtros[campofiltro]).length > 1)
-						{
-							$scope.filtros[campofiltro].TODOS = { name: 'TODOS', value: 'TODOS', count: 0};
+						if (Object.keys($scope.filtros[campofiltro]).length > 1){
+							$scope.filtros[campofiltro].TODOS = {'name': 'TODOS', 'value': 'TODOS', 'count': 0};
 							$scope.filtro[campofiltro] = 'TODOS';
-						}else {
+						} else {
 							for (var a in $scope.filtros[campofiltro]){
 								$scope.filtro[campofiltro] = $scope.filtros[campofiltro][a].value;
 							}
 						}
 					}
 
-					if (Object.keys($scope.responsables).length > 1)
-					{
-						$scope.responsables.TODOS = { name: 'TODOS', value: 'TODOS', count: 0};
+					if (Object.keys($scope.responsables).length > 1){
+						$scope.responsables.TODOS = {'name': 'TODOS', 'value': 'TODOS', 'count': 0};
 						$scope.responsable = $scope.responsables.TODOS;
 					} else {
 						for (var only in $scope.responsables){
@@ -245,8 +247,7 @@
 			$scope.range = function() {
 				var rangeSize = 5;
 				var ps = [];
-				var start;
-				start = $scope.currentPage;
+				var start = $scope.currentPage;
 				if ( start > $scope.pageCount() - rangeSize ) {
 					start = $scope.pageCount() - rangeSize + 1;
 				}
@@ -257,6 +258,7 @@
 						ps.push(i);
 					}
 				}
+
 				return ps;
 			};
 
@@ -300,6 +302,7 @@
 						clase: 'alert-warning',
 						mensaje: 'Debe seleccionar un nodo.'
 					};
+
 					return;
 				}
 				$scope.actualizando = 1;
@@ -310,7 +313,7 @@
 							clase: 'alert-success',
 							mensaje: 'Ha funcionado correctamente.'
 						};
-						var url = '/api/v1/download/' + token.time + '/' + token.hash;
+						var url = '/api/download/' + token.time + '/' + token.hash;
 						$window.location = url;
 					} else {
 						$scope.respuesta = {

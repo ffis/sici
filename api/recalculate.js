@@ -29,12 +29,8 @@
 			restriccionPersona.codplaza = permiso.codplaza;
 		}
 
-		if (permiso.login && permiso.codplaza){
-			personamodel.update(restriccionPersona, {'$set': {'habilitado': true}}, {'multi': 1}, function (err) {
-				if (err) {
-					console.log(err);
-				}
-			});
+		if (permiso.login || permiso.codplaza){
+			personamodel.update(restriccionPersona, {'$set': {'habilitado': true}}, {'multi': 1}, reportError);
 		}
 	}
 
@@ -54,18 +50,19 @@
 		};
 	}
 
+	/*
+	 origen de datos:
+	'jerarquiadirectalectura' : [Number],
+	'jerarquiadirectaescritura' : [Number],
+	'procedimientosdirectalectura' : [Number],
+	'procedimientosdirectaescritura' : [Number],
+	 */
 	function softCalculatePermiso(models, permiso) {
 		const jerarquiamodel = models.jerarquia();
 		const procedimientomodel = models.procedimiento();
 		const entidadObjetomodel = models.entidadobjeto();
 		const personamodel = models.persona();
-		/*
-		 origen de datos:
-		'jerarquiadirectalectura' : [Number],
-		'jerarquiadirectaescritura' : [Number],
-		'procedimientosdirectalectura' : [Number],
-		'procedimientosdirectaescritura' : [Number],
-		 */
+
 
 		const deferred = Q.defer();
 		const deferredProcedimiento = Q.defer();
@@ -102,15 +99,15 @@
 		// si el permiso es otorgado a un codigo de plaza...
 		if (permiso.codplaza && permiso.codplaza !== '') {
 			if (restriccionProc === null){
-				restriccionProc = {cod_plaza: permiso.codplaza};
+				restriccionProc = {'cod_plaza': permiso.codplaza};
 			} else {
-				restriccionProc['$or'].push({cod_plaza: permiso.codplaza});
+				restriccionProc.$or.push({'cod_plaza': permiso.codplaza});
 			}
 			if (restriccionEo === null){
-				restriccionEo = {cod_plaza: permiso.codplaza};
+				restriccionEo = {'cod_plaza': permiso.codplaza};
 
 			} else {
-				restriccionEo['$or'].push({cod_plaza: permiso.codplaza});
+				restriccionEo.$or.push({'cod_plaza': permiso.codplaza});
 			}
 		}
 
@@ -190,7 +187,7 @@
 				// buscamos todas las jerarquías indicadas en el mismo
 
 				// TODO: cachear esta ineficiente consulta, no es necesaria, puede obtenerse de una caché
-				jerarquiamodel.find({id: {'$in': idsjerarquia}}, {id: true, descendientes: true}).exec().then(function (jerarquias) {
+				jerarquiamodel.find({id: {'$in': idsjerarquia}}, {id: true, descendientes: true}).exec().then(function(jerarquias) {
 
 					// para cada una de las jerarquías indicadas en el permiso, obtenemos los descendientes ya
 					// se tendrán permisos no explícitos sobre dichas jerarquías. Añadimos a los arrays de
@@ -357,22 +354,17 @@
 		const campos = models.getSchema('plantillaanualidad');
 
 		for (const periodo in procedimiento.periodos){
-			if (typeof procedimiento.periodos[periodo] !== 'object'){
+			if (typeof procedimiento.periodos[periodo] !== 'object' || typeof procedimiento.periodos[periodo].resueltos_1 === 'undefined'){
 				continue;
 			}
-				
-			//comprobar si está inicilializados los campos de tipo array a 12 elementos
 			
+
 			for (const campo in campos) {
 				if (Array.isArray(procedimiento.periodos[periodo][campo]) && procedimiento.periodos[periodo][campo].length < 12){
 					while (procedimiento.periodos[periodo][campo].length < 12){
 						procedimiento.periodos[periodo][campo].push(0);
 					}
 				}
-			}
-
-			if (typeof procedimiento.periodos[periodo].resueltos_1 === 'undefined'){
-				continue;
 			}
 
 			//nuevos campos, calculados
@@ -446,10 +438,7 @@
 			const proccodigo = procedimiento.codigo;
 			softCalculateProcedimiento(models, procedimiento).then(function(proc) {
 				softCalculateProcedimientoCache(models, proc, api).then(function(proced) {
-					if (!proced.codigo){
-						informes.push({codigo: proced, status: 500});
-						promise.reject(proced);
-					} else {
+					if (proced.codigo){
 						versionsToSave.push(proced);
 						proced.markModified('periodos');
 						proced.save(function(error){
@@ -461,7 +450,9 @@
 								promise.resolve();
 							}
 						});
-					
+					} else {
+						informes.push({codigo: proced, status: 500});
+						promise.reject(proced);
 					}
 				}, function (err) {
 					informes.push({codigo: proc, status: 500});
@@ -510,7 +501,7 @@
 					if (error){
 						deferred.reject(error);
 					} else {
-						deferred.resolve({codigo: perm._id, status: 200, permiso: perm});
+						deferred.resolve({'codigo': perm._id, 'status': 200, 'permiso': perm});
 					}
 				});
 			}, deferred.reject);
@@ -569,7 +560,7 @@
 		const cartamodel = models.entidadobjeto();
 		const procedimientomodel = models.procedimiento();
 
-		jerarquiamodel.find({}).exec().then(function(jerarquias) {
+		jerarquiamodel.find({}).exec().then(function(jerarquias){
 
 			const ids = [];
 			const mapeadoArray = [];
@@ -593,26 +584,27 @@
 				cambio = 0;
 				for (let i = 0, j = ids.length; i < j; i += 1) {
 					let cambiointerno = 1;
-					const id = ids[i];
+					const id = ids[i],
+						nodo = mapeadoArray[String(id)];
 					while (cambiointerno) {
 						cambiointerno = 0;
 						//para todos mis ancestros
-						for (let k = 0; k < mapeadoArray[String(id)].ancestros.length; k += 1) {
-							const ancestroid = mapeadoArray[String(id)].ancestros[k];
+						for (let k = 0; k < nodo.ancestros.length; k += 1) {
+							const ancestroid = nodo.ancestros[k];
 							if (typeof mapeadoArray[String(ancestroid)] === 'undefined') {
 								logger.error(ancestroid + ' no existe en 35');
 								continue;
 							}
 							//busco si estoy entre sus descendientes
 							if (mapeadoArray[String(ancestroid)].descendientes.indexOf(id) < 0) {
-								cambio++;
-								cambiointerno++;
+								cambio += 1;
+								cambiointerno += 1;
 								mapeadoArray[String(ancestroid)].descendientes.push(id);
 							}
 
 							//busco si mis descendientes están entre sus descendientes
-							for (let l = 0; l < mapeadoArray[String(id)].descendientes.length; l += 1) {
-								const descendienteid = mapeadoArray[String(id)].descendientes[l];
+							for (let l = 0; l < nodo.descendientes.length; l += 1) {
+								const descendienteid = nodo.descendientes[l];
 								if (mapeadoArray[String(ancestroid)].descendientes.indexOf(descendienteid) < 0) {
 									cambio += 1;
 									cambiointerno += 1;
@@ -622,8 +614,8 @@
 						}
 
 						//para todos mis descendientes
-						for (let k = 0; k < mapeadoArray[String(id)].descendientes.length; k += 1) {
-							const descendienteid = mapeadoArray[String(id)].descendientes[k];
+						for (let k = 0; k < nodo.descendientes.length; k += 1) {
+							const descendienteid = nodo.descendientes[k];
 							if (typeof mapeadoArray[String(descendienteid)] === 'undefined') {
 								console.error(descendienteid + ' no existe en 47');
 								continue;
@@ -636,8 +628,8 @@
 							}
 
 							//busco si mis ancestros están entre sus ancestros
-							for (let l = 0; l < mapeadoArray[String(id)].ancestros.length; l += 1) {
-								const ancestroid = mapeadoArray[String(id)].ancestros[l];
+							for (let l = 0; l < nodo.ancestros.length; l += 1) {
+								const ancestroid = nodo.ancestros[l];
 								if (mapeadoArray[String(descendienteid)].ancestros.indexOf(ancestroid) < 0) {
 									cambio += 1;
 									cambiointerno += 1;
@@ -762,5 +754,4 @@
 	module.exports.softCalculateProcedimiento = softCalculateProcedimiento;
 	module.exports.softCalculateProcedimientoCache = softCalculateProcedimientoCache;
 	
-
 })(module, console);

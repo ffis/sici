@@ -56,6 +56,9 @@
 		} else {
 			this.app.use('/authenticate', metaenvironment.login.authenticate);
 		}
+
+		this.app.use('/download/:token/:hash', metaenvironment.exportador.download);
+
 		this.app.use('/', expressJwt({secret: cfg.secret}));
 		this.app.use('/', metaenvironment.login.setpermisoscalculados);
 		this.app.use('/', metaenvironment.api.log);

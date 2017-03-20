@@ -58,7 +58,7 @@
 	};
 
 	module.exports.unauthorizedHelper = function(res, details){
-		res.status(403).json({error: 'Unathorized', details: details});
+		res.status(403).json({error: 'Unauthorized', details: details});
 	};
 
 	module.exports.callbackErrorHelper = function(res, err){

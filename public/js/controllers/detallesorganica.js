@@ -76,7 +76,7 @@
 							clase: 'alert-success',
 							mensaje: 'Ha funcionado correctamente.'
 						};
-						var url = '/api/v1/download/' + token.time + '/' + token.hash;
+						var url = '/api/download/' + token.time + '/' + token.hash;
 						$window.location = url;
 					}, function () {
 						$scope.actualizando = 0;

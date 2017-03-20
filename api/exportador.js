@@ -746,7 +746,6 @@
 			}, req.eh.errorHelper(res));
 		});
 	};
-	module.exports.rellenarProcedimientos = rellenarProcedimientos;
 	
 
 	function download(req, res) {
@@ -793,5 +792,6 @@
 	module.exports.mapReducePeriodos = mapReducePeriodos;
 	module.exports.completarTabla = completarTabla;
 	module.exports.download = download;
+	module.exports.rellenarProcedimientos = rellenarProcedimientos;
 
 })(module, console);

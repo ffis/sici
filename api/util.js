@@ -197,7 +197,7 @@
 		}
 
 		let match = {};
-		const jerarquia = {'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}};
+		const jerarquia = req.user.permisoscalculados.superuser ? false : {'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}};
 		const oculto = {
 			'$or': [
 				{'oculto': {$exists: false}},
@@ -238,9 +238,9 @@
 					match[campomatch] = valor;
 				});
 			}
-			match = {'$and': [match, blancos, jerarquia, oculto, eliminado]};
+			match = {'$and': [match, blancos, jerarquia, oculto, eliminado].filter((a) => a)};
 		} else {
-			match = {'$and': [blancos, jerarquia, oculto, eliminado]};
+			match = {'$and': [blancos, jerarquia, oculto, eliminado].filter((a) => a)};
 		}
 		group.push({'$match': match});
 		groupfield.count = {'$sum': 1};

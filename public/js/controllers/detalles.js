@@ -546,7 +546,7 @@
 
 				$scope.descargarExcel = function() {
 					ExportarResultadosProcedimiento.get({codigo: $scope.procedimientoSeleccionado.codigo, year: $scope.anualidad}, function (token) {
-						var url = '/api/v1/download/' + token.time + '/' + token.hash;
+						var url = '/api/download/' + token.time + '/' + token.hash;
 						$window.location = url;
 					}, function(err) {
 						$log.error(err);

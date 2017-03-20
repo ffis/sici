@@ -5,19 +5,16 @@ angular.module('sici.login.util', ['ngResource'])
 			this.userId = false;
 			this.create = function (data) {
 				var attr;
-				if (data)
-				{
+				if (data){
 					data.date = new Date().getTime();
-					for(attr in data)
-					{
+					for(attr in data){
 						this[attr] = data[attr];
 					}
 
 					$rootScope.setLogeado(true);
 					$window.localStorage.client_session = JSON.stringify(data);
 					return this;
-				}else if ($window.localStorage.client_session)
-				{
+				} else if ($window.localStorage.client_session){
 					$log.debug('Cargando desde session storage');
 					var suser, user;
 					suser = $window.localStorage.client_session;
@@ -26,12 +23,11 @@ angular.module('sici.login.util', ['ngResource'])
 					}
 					var today = new Date().getTime();
 					if (user && (today - user.date) < 86400000) { /* 1 day */
-						for(attr in user)
-						{
+						for(attr in user){
 							this[attr] = user[attr];
 						}
 						$rootScope.setLogeado(true);
-					}else{
+					} else {
 						$window.localStorage.client_session = '';
 						delete $window.localStorage.client_session;
 						$rootScope.setLogeado(false);
@@ -71,14 +67,13 @@ angular.module('sici.login.util', ['ngResource'])
 				if (!AuthService.isAuthenticated() && next && next.templateUrl !== 'partials/login.html'){
 					$log.debug('No autenticado e intentando acceder a otra dirección. Vamos a login');
 					$location.path('/login');
-				}
-				else if (AuthService.isAuthenticated() && next && next.templateUrl === 'partials/login.html') {
+				} else if (AuthService.isAuthenticated() && next && next.templateUrl === 'partials/login.html') {
 					$log.debug('Autenticado e intentando acceder a login. Vamos a /');
 					$location.path('/welcome');
 				} else if (next && next.templateUrl) {
 					//ignorable
 					$log.debug(next.templateUrl);
-				}else {
+				} else {
 					$log.debug(next);
 				}
 			});
@@ -142,8 +137,7 @@ angular.module('sici.login.util', ['ngResource'])
 					$rootScope.setLogeado(false);
 					$rootScope.logeado = false;
 
-					return $http(
-						{
+					return $http({
 							method: 'POST',
 							url: '/logout',
 							data: JSON.stringify({ username: username })
@@ -166,8 +160,8 @@ angular.module('sici.login.util', ['ngResource'])
 			};
 		}
 	])
-	.factory('AuthInterceptor', ['$rootScope', '$q', '$window', '$location', 'Session',
-		function ($rootScope, $q, $window, $location, Session) {
+	.factory('AuthInterceptor', ['$rootScope', '$q', '$window', '$location', '$log', 'Session',
+		function ($rootScope, $q, $window, $location, $log, Session) {
 			return {
 				request: function (config) {
 					config.headers = config.headers || {};
@@ -189,6 +183,19 @@ angular.module('sici.login.util', ['ngResource'])
 						Session.destroy();
 						$location.path('/login');//si no tiene sesion se manda a login
 					}
+					if (response.status === 403){
+						var txt = 'Error',
+							title = 'No tiene permiso para la funcionalidad solicitada';
+						$log.error(response);
+						$rootScope.toaster(txt, title, 'error');
+					}
+					if (response.status === 500){
+						var txt = 'Error alguna petición realizada no pudo quedar satisfecha.',
+							title = 'Error';
+						$log.error(response);
+						$rootScope.toaster(txt, title, 'error');
+					}
+
 				/* 403 => usuario autenticado pero sin permiso para esta funcionalidad.
 					if (response.status === 403) {
 					$window.localStorage.token = '';

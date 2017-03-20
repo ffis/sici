@@ -33,6 +33,7 @@
 		app.get('/jerarquiaancestros/:idjerarquia', metaenvironment.jerarquia.getAncestros);
 		app.get('/mapReducePeriodos', metaenvironment.exportador.mapReducePeriodosExpress);
 		app.get('/operador', metaenvironment.operador.getOperador);
+		app.get('/operador/:id', metaenvironment.operador.getOperador);
 		app.get('/permisoscalculados', metaenvironment.login.getpermisoscalculados);
 		app.get('/procedimiento', metaenvironment.procedimiento.procedimiento);
 		app.get('/procedimiento/:codigo', metaenvironment.procedimiento.procedimiento);

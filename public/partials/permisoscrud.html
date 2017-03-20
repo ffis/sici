@@ -1,380 +1,371 @@
 
-
-<div ng-controller="PermisoCtrl" class="row">
-<div id="superuser" ng-if="$root.permisoscalculados.grantoption || $root.permisoscalculados.superuser">
-	<div ng-class="{'col-lg-5': !oculto, 'hidden': oculto}" class="left animated">
-		<div class="panel panel-danger" ng-if="$root.permisoscalculados.superuser">
-			<div class="panel-heading">
-				<div class="input-group">
-				  <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
-					<input  class="form-control" ng-model="usuariosbuscado" typeahead-on-select="on_usuariobuscado_selected($item,$model,$label)" placeholder="Buscar por plaza, login carm o nombre"  type="text" typeahead-min-length="3" typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)"  />
+<div class="row">
+	<div id="superuser" ng-show="$root.permisoscalculados.grantoption || $root.permisoscalculados.superuser">
+		<div ng-class="{'col-lg-5': !oculto, 'hidden': oculto}" class="left animated">
+			<div class="panel panel-danger" ng-if="$root.permisoscalculados.superuser">
+				<div class="panel-heading">
+					<div class="input-group">
+					  <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
+						<input  class="form-control" ng-model="usuariosbuscado" typeahead-on-select="on_usuariobuscado_selected($item,$model,$label)" placeholder="Buscar por plaza, login carm o nombre"  type="text" typeahead-min-length="3" uib-typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)" />
+					</div>
 				</div>
 			</div>
+			<br/>
+			<organismos otitle="'Organismos'" arbol="arbol" tipoelementos="'subelementos (procedimientos y cartas de servicio)'" attr="'sumatorio'" setseleccionado="setSeleccionado" seleccionado="seleccionado" filtro="filtro" showprocedimientos="true" showcartas="true" setprocseleccionado="setProcSeleccionado" procseleccionado="procedimiento_seleccionado" setcartaseleccionada="setCartaSeleccionada" cartaseleccionada="carta_seleccionada"></organismos>
 		</div>
-		<br/>
-		<organismos otitle="'Organismos'" arbol="arbol" tipoelementos="'subelementos (procedimientos y cartas de servicio)'" attr="'sumatorio'" setseleccionado="setSeleccionado" seleccionado="seleccionado" filtro="filtro" showprocedimientos="true" showcartas="true" setprocseleccionado="setProcSeleccionado" procseleccionado="procedimiento_seleccionado" setcartaseleccionada="setCartaSeleccionada" cartaseleccionada="carta_seleccionada"></organismos>
-	</div>
-        <!-- PERMISOS DE UN USUARIO -->
-	<div ng-if="show_details_permiso && $root.permisoscalculados.superuser" ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated" >
-		<h2 class="center">Permisos de
-			<span class="hidden-sm hidden-xs">{{usuariodetalle.nombre}} {{usuariodetalle.apellidos}}</span>
-			<span class="hidden-lg hidden-md">{{usuariodetalle.login}}/{{usuariodetalle.codplaza}}</span>
-		</h2>
-		<table class="table table-striped table-bordered table-condensed table-hover">
-			<thead>
-				<tr>
-					<th>Usuario</th>
-					<th>
-						<span class="hidden-sm hidden-xs">Codigo plaza</span>
-						<span class="hidden-lg hidden-md">Plaza</span>
-					</th>
-					<th><span class="hidden-sm hidden-xs hidden-md">Nombre</span></th>
-					<th>Org&aacute;nica / Procedimiento / Carta</th>
-					<th>
-						<span class="visible-lg visible-md hidden-sm hidden-xs">Responsable</span>
-						<span class="hidden-lg hidden-md visible-sm hidden-xs">Resp.</span>
-						<span class="hidden-lg hidden-md hidden-sm visible-xs">R.</span>
-					</th>
-					<th>
-						<span class="visible-lg visible-md hidden-sm hidden-xs" title="¿Permite introducir datos?"> Lectura datos </span>
-						<span class="hidden-lg hidden-md visible-sm hidden-xs" title="¿Permite introducir datos?"> Lect. datos</span>
-						<span class="hidden-lg hidden-md hidden-sm visible-xs" title="¿Permite introducir datos?"> Lect.</span>
-					</th><th>
-						<span class="visible-lg visible-md hidden-sm hidden-xs" title="¿Permite introducir datos?"> Escribir datos </span>
-						<span class="hidden-lg hidden-md visible-sm hidden-xs" title="¿Permite introducir datos?"> Escr. datos </span>
-						<span class="hidden-lg hidden-md hidden-sm visible-xs" title="¿Permite introducir datos?"> Escr.</span>
-					</th><th>
-						<span class="visible-lg visible-md hidden-sm hidden-xs" title="¿Permite otorgar permisos?"> Dar permisos </span>
-						<span class="hidden-lg hidden-md visible-sm hidden-xs" title="¿Permite otorgar permisos?"> Permisos </span>
-						<span class="hidden-lg hidden-md hidden-sm visible-xs" title="¿Permite otorgar permisos?"> Perm.</span>
-					</th>
-					<th></th>
-				</tr>
-			</thead>
-			<tbody ng-if="permisos.length || procedimientos.length || cartas.length " id="LISTADO_PERMISOS_DE_UN_USUARIO">
+	        <!-- PERMISOS DE UN USUARIO -->
+		<div ng-show="show_details_permiso && $root.permisoscalculados.superuser" ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated" >
+			<h2 class="center">Permisos de
+				<span class="hidden-sm hidden-xs">{{usuariodetalle.nombre}} {{usuariodetalle.apellidos}}</span>
+				<span class="hidden-lg hidden-md">{{usuariodetalle.login}}/{{usuariodetalle.codplaza}}</span>
+			</h2>
+			<table class="table table-striped table-bordered table-condensed table-hover">
+				<thead>
+					<tr>
+						<th>Usuario</th>
+						<th>
+							<span class="hidden-sm hidden-xs">Codigo plaza</span>
+							<span class="hidden-lg hidden-md">Plaza</span>
+						</th>
+						<th><span class="hidden-sm hidden-xs hidden-md">Nombre</span></th>
+						<th>Org&aacute;nica / Procedimiento / Carta</th>
+						<th>
+							<span class="visible-lg visible-md hidden-sm hidden-xs">Responsable</span>
+							<span class="hidden-lg hidden-md visible-sm hidden-xs">Resp.</span>
+							<span class="hidden-lg hidden-md hidden-sm visible-xs">R.</span>
+						</th>
+						<th>
+							<span class="visible-lg visible-md hidden-sm hidden-xs" title="¿Permite introducir datos?"> Lectura datos </span>
+							<span class="hidden-lg hidden-md visible-sm hidden-xs" title="¿Permite introducir datos?"> Lect. datos</span>
+							<span class="hidden-lg hidden-md hidden-sm visible-xs" title="¿Permite introducir datos?"> Lect.</span>
+						</th><th>
+							<span class="visible-lg visible-md hidden-sm hidden-xs" title="¿Permite introducir datos?"> Escribir datos </span>
+							<span class="hidden-lg hidden-md visible-sm hidden-xs" title="¿Permite introducir datos?"> Escr. datos </span>
+							<span class="hidden-lg hidden-md hidden-sm visible-xs" title="¿Permite introducir datos?"> Escr.</span>
+						</th><th>
+							<span class="visible-lg visible-md hidden-sm hidden-xs" title="¿Permite otorgar permisos?"> Dar permisos </span>
+							<span class="hidden-lg hidden-md visible-sm hidden-xs" title="¿Permite otorgar permisos?"> Permisos </span>
+							<span class="hidden-lg hidden-md hidden-sm visible-xs" title="¿Permite otorgar permisos?"> Perm.</span>
+						</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody ng-if="permisos.length || procedimientos.length || cartas.length " id="LISTADO_PERMISOS_DE_UN_USUARIO">
+					<tr ng-repeat="permiso in permisos" ng-if="permisos.length" ng-init="objetopermiso=getObjetoPermisoUsuario(permiso)" >
+						<td>{{permiso.login}}</td>
+						<td>{{permiso.codplaza}}</td>
+						<td ><span ng-class="{'text-danger': !persona[0].habilitado}" style="cursor:pointer" ng-click="setHabilitado(persona[0])" class="hidden-sm hidden-xs" ng-init="persona=getPersona(permiso)">{{persona[0].nombre}} {{ persona[0].apellidos}}</span></td>
+						<td>
+							<span ng-if="objetopermiso && objetopermiso.length === 1">{{objetopermiso[0].nombre}}</span>
+							<span ng-if="objetopermiso && !objetopermiso.length">{{objetopermiso.nombre}}</span>
+							<span>
+								<i ng-if="objetopermiso && objetopermiso.length==0 && permiso.superuser">administrador</i>
+								<i ng-if="objetopermiso && objetopermiso.length==0 && !permiso.superuser">permiso sobre procedimiento</i>
+							</span>
+							<ul ng-if="objetopermiso && objetopermiso.length && objetopermiso.length>1">
+								<li ng-repeat="obj in objetopermiso">{{obj.nombre}} </li>
+							</ul>
+						</td>
+						<td><span class="burdeos glyphicon glyphicon-remove"></span></td>
 
-				<tr ng-repeat="permiso in permisos" ng-if="permisos.length" ng-init="objetopermiso=getObjetoPermisoUsuario(permiso)" >
-					<td>{{permiso.login}}</td>
-					<td>{{permiso.codplaza}}</td>
-					<td ><span ng-class="{'text-danger': !persona[0].habilitado}" style="cursor:pointer" ng-click="setHabilitado(persona[0])" class="hidden-sm hidden-xs" ng-init="persona=getPersona(permiso)">{{persona[0].nombre}} {{ persona[0].apellidos}}</span></td>
-					<td>
-						<span ng-if="objetopermiso && objetopermiso.length==1">{{objetopermiso[0].nombre}}</span>
-						<span ng-if="objetopermiso && !objetopermiso.length">{{objetopermiso.nombre}}</span>
-						<span>
-							<i ng-if="objetopermiso && objetopermiso.length==0 && permiso.superuser">administrador</i>
-							<i ng-if="objetopermiso && objetopermiso.length==0 && !permiso.superuser">permiso sobre procedimiento</i>
-						</span>
-						<ul ng-if="objetopermiso && objetopermiso.length && objetopermiso.length>1">
-							<li ng-repeat="obj in objetopermiso">{{obj.nombre}} </li>
-                                                </ul>
-
-					</td>
-					<td><span class="burdeos glyphicon glyphicon-remove"></span></td>
-
-					<td style="color:gray"><span class="glyphicon" ng-class="{'glyphicon-ok':isR(permiso),'glyphicon-remove':!isR(permiso)}"></span></td>
-					<td><a ng-click="changeW(permiso)" href=""><span class="glyphicon" ng-class="{'glyphicon-ok green':isW(permiso),'glyphicon-remove burdeos':!isW(permiso)}"></span></a></td>
-					<td><a ng-click="changeP(permiso)" href="" ><span class="glyphicon" ng-class="{'glyphicon-ok green':isP(permiso),'glyphicon-remove burdeos':!isP(permiso)}"></span></a></td>
-					<td>
-						<div class="btn-group pull-right">
-						  <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-						    <span class="glyphicon glyphicon glyphicon-remove"></span>&nbsp;<span class="caret"></span>
-						  </button>
-						  <ul class="dropdown-menu" role="menu">
-						    <li><a href="" ng-click="eliminarPermiso(permiso)">Eliminar permiso sobre el nodo.</a></li>
-						    <li><a href="" ng-click="eliminarDefinitivamentePermiso(permiso)">Eliminar permiso completo.</a></li>
-						  </ul>
-						</div>
-					  <button type="button" class="btn btn-xs btn-default dropdown-toggle" ng-click="eliminarPermiso(permiso)" ng-if="!$root.permisoscalculados.superuser">
-					    <span class="glyphicon glyphicon glyphicon-remove"></span>
-					  </button>
-					</td>
-				</tr>
-				<tr ng-repeat="procedimiento in procedimientos" class="responsable">
-					<td>
-						<span style="font-size:smaller" class="badge" ng-repeat="r in procedimiento.responsables" ng-if="procedimiento.responsables && procedimiento.cod_plaza" title="{{r.nombre}} {{r.apellidos}}">
-							{{r.login}} &nbsp;&nbsp;
-						</span>
-						<span style="font-size:smaller" class="badge alert-warning" ng-if="!procedimiento.responsables  && procedimiento.cod_plaza"><i>No disponible</i></span>
-					</td>
-					<td>{{procedimiento.cod_plaza}}</td>
-					<td>{{usuariodetalle.nombre}} {{usuariodetalle.apellidos}}</td>
-					<td><a href="/procedimiento/{{procedimiento.codigo}}" title="{{procedimiento.codigo}}">[{{procedimiento.codigo}}] <span class="visible-lg visible-md">{{procedimiento.denominacion}}</span></a></td>
-					<td><span class="glyphicon glyphicon-ok gray"></span></td>
-					<td><span class="glyphicon glyphicon-ok gray"></span></td>
-					<td><span class="glyphicon glyphicon-ok gray"></span></td>
-					<td><span class="glyphicon glyphicon-ok gray"></span></td>
-					<td>
-						<!--
-						<div class="btn-group pull-right" ng-if="$root.permisoscalculados.superuser">
-						  <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-						    <span class="glyphicon glyphicon glyphicon-remove"></span>&nbsp;<span class="caret"></span>
-						  </button>
-						  <ul class="dropdown-menu" role="menu">
-						    <li><a href="" ng-click="eliminarPermiso(permiso)">Eliminar permiso sobre el nodo.</a></li>
-						    <li><a href="" ng-click="eliminarDefinitivamentePermiso(permiso)">Eliminar permiso completo.</a></li>
-						  </ul>
-						</div>
+						<td style="color:gray"><span class="glyphicon" ng-class="{'glyphicon-ok':isR(permiso),'glyphicon-remove':!isR(permiso)}"></span></td>
+						<td><a ng-click="changeW(permiso)" href=""><span class="glyphicon" ng-class="{'glyphicon-ok green':isW(permiso),'glyphicon-remove burdeos':!isW(permiso)}"></span></a></td>
+						<td><a ng-click="changeP(permiso)" href="" ><span class="glyphicon" ng-class="{'glyphicon-ok green':isP(permiso),'glyphicon-remove burdeos':!isP(permiso)}"></span></a></td>
+						<td>
+							<div class="btn-group pull-right">
+							  <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+							    <span class="glyphicon glyphicon glyphicon-remove"></span>&nbsp;<span class="caret"></span>
+							  </button>
+							  <ul class="dropdown-menu" role="menu">
+							    <li><a href="" ng-click="eliminarPermiso(permiso)">Eliminar permiso sobre el nodo.</a></li>
+							    <li><a href="" ng-click="eliminarDefinitivamentePermiso(permiso)">Eliminar permiso completo.</a></li>
+							  </ul>
+							</div>
 						  <button type="button" class="btn btn-xs btn-default dropdown-toggle" ng-click="eliminarPermiso(permiso)" ng-if="!$root.permisoscalculados.superuser">
 						    <span class="glyphicon glyphicon glyphicon-remove"></span>
 						  </button>
-						  -->
-					</td>
-				</tr>
-				<tr ng-repeat="carta in cartas" class="responsable">
-					<td>
-						<span style="font-size:smaller" class="badge" ng-repeat="r in getResponsable(carta.responsable)" ng-if="carta.responsable" title="{{r.nombre}} {{r.apellidos}}">
-							{{r.login}} &nbsp;&nbsp;
-						</span>
-						<span style="font-size:smaller" class="badge alert-warning" ng-if="!carta.responsable"><i>No disponible</i></span>
-					</td>
-					<td>{{carta.responsable}}</td>
-					<td>{{usuariodetalle.nombre}} {{usuariodetalle.apellidos}}</td>
-					<td><a href="/carta/{{carta._id}}" title="codigo: {{carta.codigo}} ; id: {{carta._id}}">[{{carta._id}}] <span class="visible-lg visible-md">{{carta.denominacion}}</span></a></td>
-					<td><span class="glyphicon glyphicon-ok gray"></span></td>
-					<td><span class="glyphicon glyphicon-ok gray"></span></td>
-					<td><span class="glyphicon glyphicon-ok gray"></span></td>
-					<td><span class="glyphicon glyphicon-ok gray"></span></td>
-					<td>
-
-					</td>
-				</tr>
-			</tbody>
-			<tfoot></tfoot>
-		</table>
-	</div>
-        <!-- PERMISOS APLICADOS SOBRE EL NODO SELECCIONADO -->
-	<div ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated" ng-if="!show_details_permiso">
-		<h2 class="center">Permisos</h2>
-		<table class="table table-striped table-bordered table-condensed table-hover">
-			<!--<caption>Permisos</caption>-->
-			<thead>
-				<tr>
-					<th colspan="{{ !is_show_recursive_users && !procedimientos.length ? 8 : 9 }}">
-						<div class="btn-group pull-right">
-							<!--<button ng-class="{}" class="btn btn-default" ng-click="searchUser()" title="Buscar los permisos de un usuario o plaza">
-								<span class="glyphicon glyphicon-search"></span>
-							</button>-->
-							<button ng-class="{}" class="btn btn-default" ng-click="addPermiso()" title="Añadir permiso sobre la jerarquía seleccionada">
-								<span class="glyphicon glyphicon-plus"></span>
-							</button>
-							<button ng-class="{'btn-danger':!is_show_recursive_users && !is_show_inherited_users,'btn-default':is_show_recursive_users || is_show_inherited_users}" class="btn btn-default" ng-click="show_normal()" title="Mostrar todos los usuarios con permiso explítico sobre el elemento actual">
-								<span class="glyphicon glyphicon-arrow-right"></span>
-							</button>
-							<button ng-class="{'btn-danger':is_show_recursive_users,'btn-default':!is_show_recursive_users}" class="btn btn-default" ng-click="show_recursive_users()" title="Mostrar recursivamente permisos sobre elementos que dependan jerárquicamente del elemento actual">
-								<span class="glyphicon glyphicon-import"></span>
-							</button>
-							<button ng-class="{'btn-danger':is_show_inherited_users,'btn-default':!is_show_inherited_users}" class="btn btn-default" ng-click="show_inherited_users()" title="Mostrar todos los usuarios con permiso sobre el elemento actual">
-								<span class="glyphicon glyphicon-export"></span>
-							</button>
-						</div>
-					</th>
-				</tr>
-				<tr ng-if="show_form_add_permiso">
-
-					<td colspan="{{ !is_show_recursive_users && !procedimientos.length? 8 : 9 }}" class="form-container">
-						<form name="nuevousuario-form" id="nuevousuario-form" ng-init="usuarioseleccionado=''">
-								<input  class="form-control" ng-model="usuarioseleccionado" placeholder="Buscar por plaza, login carm o nombre"  type="text" typeahead-min-length="3" typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)"  />
-							<!--<br/>
-							<button type="button" class="btn btn-default" ng-click="crearnuevousuario()" ng-if="!is_nuevousuario">
-							  <span class="glyphicon glyphicon-search"></span> Nuevo usuario
-							</button>
-							<fieldset ng-if="is_nuevousuario"><legend>Nuevo usuario</legend>
-								<br/>
-								<span><strong>Introducir nueva persona.</strong></span><br/>
-								<br/>
-								<label name="nombre"  style="width:100%">
-									<span>Nombre: </span><input  class="form-control" type="text" ng-model="nuevousuario.nombre" name="nombre" />
-								</label>
-								<br/>
-								<label name="apellidos" style="width:100%">
-									<span>Apellidos: </span><input  class="form-control" type="text" ng-model="nuevousuario.apellidos" name="apellidos" />
-								</label>
-								<br/>
-								<label name="genero" style="width:100%">
-									<span>G&eacute;nero: </span>
-									<select ng-model="nuevousuario.genero" name="genero" class="form-control" >
-										<option value="Hombre">Hombre</option>
-										<option value="Mujer">Mujer</option>
-									</select>
-								</label>
-								<br/>
-								<label name="telefono" style="width:100%">
-									<span>Telefono: </span><input type="text" ng-model="buscado_telefono" name="nuevousuario.telefono" class="form-control"  />
-								</label>
-								<br/>
-								<label name="login" style="width:100%">
-									<span>Login: </span><input type="text" ng-model="nuevousuario.login" name="login" class="form-control"  />
-								</label>
-								<br/>
-								<label name="plaza" style="width:100%">
-									<span>Plaza: </span><input type="text" ng-model="nuevousuario.codplaza" name="plaza" class="form-control"  />
-								</label>
-								<br/>
-								<button type="button" class="btn btn-default" ng-click="_crearnuevousuario()">
-									<span class="glyphicon glyphicon-search"></span> Crear
-								</button>
-								<button type="button" class="btn btn-default" ng-click="cancelarnuevousuario()">
-									<span class="glyphicon glyphicon-remove"></span> Cancelar
-								</button>
-							</fieldset>-->
-							<input type="hidden" name="procedimiento" value="{{procedimiento_seleccionado.codigo || 0}}" />
-							<input type="hidden" name="nodojerarquia" value="{{seleccionado.id || 0}}" />
-							<input type="hidden" name="tiposeleccion" value="{{seleccionado_organica?'jerarquia':'procedimiento'}}" />
-							<br/>
-                            <p>Si no encuentra la persona, debe realizar la búsqueda exacta por login carm o plaza.</p>
-							<label for="permisoallogin" >
-								<input type="checkbox" ng-model="permisoallogin" name="permisoallogin" ng-disabled="!usuarioseleccionado"/> Asignar permiso al login y no a la plaza
-							</label>
-
-							<div ng-if="$root.permisoscalculados.superuser">
-								<label for="propietario" ng-if="!seleccionado_organica && procedimiento_seleccionado">
-									<input type="checkbox" ng-model="propietario" name="propietario" ng-disabled="  !usuarioseleccionado " value="1"/> Es propietario del procedimiento
-								</label>
-								<br/>
-								<label for="grantoption">
-									<input type="checkbox" ng-model="cb_grantoption" name="grantoption" ng-disabled=" !usuarioseleccionado || propietario" value="1"/> Puede conceder permisos
-								</label>
-								<br/>
-								<label for="w_option">
-									<input type="checkbox" ng-model="w_option" name="w_option" ng-disabled="  !usuarioseleccionado || propietario" value="1" /> Puede introducir datos
-								</label>
-								<br/>
-								<label for="psuperuser">
-									<input type="checkbox" ng-model="psuperuser" name="psuperuser" ng-disabled=" !usuarioseleccionado  || propietario" value="1" /> Superusuario
-								</label>
-								<br class="clear"/>
-								<button class="btn btn-default danger" ng-disabled="is_nuevousuario || !usuarioseleccionado" ng-click="crearpermiso(usuarioseleccionado,w_option,cb_grantoption,psuperuser,permisoallogin)" ><span class="glyphicon glyphicon-ok"></span> <span>Crear</span></button>
-								 &nbsp;<button class="btn btn-default danger" ng-disabled="is_nuevousuario || !usuarioseleccionado" ng-click="delegar(usuarioseleccionado)" title="concede tus permisos, salvo la capacidad de dar permiso a otros" ><span class="glyphicon glyphicon-share"></span> <span>Delegar permisos</span></button>
+						</td>
+					</tr>
+					<tr ng-repeat="procedimiento in procedimientos" class="responsable">
+						<td>
+							<span style="font-size:smaller" class="badge" ng-repeat="r in procedimiento.responsables" ng-if="procedimiento.responsables && procedimiento.cod_plaza" title="{{r.nombre}} {{r.apellidos}}">
+								{{r.login}} &nbsp;&nbsp;
+							</span>
+							<span style="font-size:smaller" class="badge alert-warning" ng-if="!procedimiento.responsables  && procedimiento.cod_plaza"><i>No disponible</i></span>
+						</td>
+						<td>{{procedimiento.cod_plaza}}</td>
+						<td>{{usuariodetalle.nombre}} {{usuariodetalle.apellidos}}</td>
+						<td><a href="/procedimiento/{{procedimiento.codigo}}" title="{{procedimiento.codigo}}">[{{procedimiento.codigo}}] <span class="visible-lg visible-md">{{procedimiento.denominacion}}</span></a></td>
+						<td><span class="glyphicon glyphicon-ok gray"></span></td>
+						<td><span class="glyphicon glyphicon-ok gray"></span></td>
+						<td><span class="glyphicon glyphicon-ok gray"></span></td>
+						<td><span class="glyphicon glyphicon-ok gray"></span></td>
+						<td>
+							<!--
+							<div class="btn-group pull-right" ng-if="$root.permisoscalculados.superuser">
+							  <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+							    <span class="glyphicon glyphicon glyphicon-remove"></span>&nbsp;<span class="caret"></span>
+							  </button>
+							  <ul class="dropdown-menu" role="menu">
+							    <li><a href="" ng-click="eliminarPermiso(permiso)">Eliminar permiso sobre el nodo.</a></li>
+							    <li><a href="" ng-click="eliminarDefinitivamentePermiso(permiso)">Eliminar permiso completo.</a></li>
+							  </ul>
 							</div>
-							<div ng-if="!$root.permisoscalculados.superuser">
-								&nbsp;<button class="btn btn-default danger" ng-disabled="is_nuevousuario || !usuarioseleccionado" ng-click="delegar(usuarioseleccionado)" title="concede tus permisos, salvo la capacidad de dar permiso a otros" >
-									<span class="glyphicon glyphicon-share"></span> <span>Delegar permisos</span>
+							  <button type="button" class="btn btn-xs btn-default dropdown-toggle" ng-click="eliminarPermiso(permiso)" ng-if="!$root.permisoscalculados.superuser">
+							    <span class="glyphicon glyphicon glyphicon-remove"></span>
+							  </button>
+							  -->
+						</td>
+					</tr>
+					<tr ng-repeat="carta in cartas" class="responsable">
+						<td>
+							<span style="font-size:smaller" class="badge" ng-repeat="r in getResponsable(carta.responsable)" ng-if="carta.responsable" title="{{r.nombre}} {{r.apellidos}}">
+								{{r.login}} &nbsp;&nbsp;
+							</span>
+							<span style="font-size:smaller" class="badge alert-warning" ng-if="!carta.responsable"><i>No disponible</i></span>
+						</td>
+						<td>{{carta.responsable}}</td>
+						<td>{{usuariodetalle.nombre}} {{usuariodetalle.apellidos}}</td>
+						<td><a href="/carta/{{carta._id}}" title="codigo: {{carta.codigo}} ; id: {{carta._id}}">[{{carta._id}}] <span class="visible-lg visible-md">{{carta.denominacion}}</span></a></td>
+						<td><span class="glyphicon glyphicon-ok gray"></span></td>
+						<td><span class="glyphicon glyphicon-ok gray"></span></td>
+						<td><span class="glyphicon glyphicon-ok gray"></span></td>
+						<td><span class="glyphicon glyphicon-ok gray"></span></td>
+						<td>
+
+						</td>
+					</tr>
+				</tbody>
+				<tfoot></tfoot>
+			</table>
+		</div>
+	        <!-- PERMISOS APLICADOS SOBRE EL NODO SELECCIONADO -->
+		<div ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}" class="right animated" ng-if="!show_details_permiso">
+			<h2 class="center">Permisos</h2>
+			<table class="table table-striped table-bordered table-condensed table-hover">
+				<!--<caption>Permisos</caption>-->
+				<thead>
+					<tr>
+						<th colspan="{{ !is_show_recursive_users && !procedimientos.length ? 8 : 9 }}">
+							<div class="btn-group pull-right">
+								<button ng-class="{}" class="btn btn-default" ng-click="addPermiso()" title="Añadir permiso sobre la jerarquía seleccionada">
+									<span class="glyphicon glyphicon-plus"></span>
+								</button>
+								<button ng-class="{'btn-danger':!is_show_recursive_users && !is_show_inherited_users,'btn-default':is_show_recursive_users || is_show_inherited_users}" class="btn btn-default" ng-click="show_normal()" title="Mostrar todos los usuarios con permiso explítico sobre el elemento actual">
+									<span class="glyphicon glyphicon-arrow-right"></span>
+								</button>
+								<button ng-class="{'btn-danger':is_show_recursive_users,'btn-default':!is_show_recursive_users}" class="btn btn-default" ng-click="show_recursive_users()" title="Mostrar recursivamente permisos sobre elementos que dependan jerárquicamente del elemento actual">
+									<span class="glyphicon glyphicon-import"></span>
+								</button>
+								<button ng-class="{'btn-danger':is_show_inherited_users,'btn-default':!is_show_inherited_users}" class="btn btn-default" ng-click="show_inherited_users()" title="Mostrar todos los usuarios con permiso sobre el elemento actual">
+									<span class="glyphicon glyphicon-export"></span>
 								</button>
 							</div>
-						</form>
-					</td>
-				</tr>
+						</th>
+					</tr>
+					<tr ng-if="show_form_add_permiso">
 
-				<tr>
-					<th>Usuario</th>
-					<th>
-						<span class="hidden-sm hidden-xs">Codigo plaza</span>
-						<span class="hidden-lg hidden-md">Plaza</span>
-					</th>
-					<th><span class="hidden-sm hidden-xs hidden-md">Nombre</span></th>
-					<th ng-if="is_show_recursive_users || is_show_inherited_users || procedimientos.length">
-						Procedimiento / Org&aacute;nica
-					</th>
-					<th>
-						<span class="visible-lg visible-md hidden-sm hidden-xs">Responsable</span>
-						<span class="hidden-lg hidden-md visible-sm hidden-xs">Resp.</span>
-						<span class="hidden-lg hidden-md hidden-sm visible-xs">R.</span>
-					</th>
-					<th>
-						<span class="visible-lg visible-md hidden-sm hidden-xs" title="¿Permite introducir datos?"> Lectura datos </span>
-						<span class="hidden-lg hidden-md visible-sm hidden-xs" title="¿Permite introducir datos?"> Lect. datos</span>
-						<span class="hidden-lg hidden-md hidden-sm visible-xs" title="¿Permite introducir datos?"> Lect.</span>
-					</th><th>
-						<span class="visible-lg visible-md hidden-sm hidden-xs" title="¿Permite introducir datos?"> Escribir datos </span>
-						<span class="hidden-lg hidden-md visible-sm hidden-xs" title="¿Permite introducir datos?"> Escr. datos </span>
-						<span class="hidden-lg hidden-md hidden-sm visible-xs" title="¿Permite introducir datos?"> Escr.</span>
-					</th><th>
-						<span class="visible-lg visible-md hidden-sm hidden-xs" title="¿Permite otorgar permisos?"> Dar permisos </span>
-						<span class="hidden-lg hidden-md visible-sm hidden-xs" title="¿Permite otorgar permisos?"> Permisos </span>
-						<span class="hidden-lg hidden-md hidden-sm visible-xs" title="¿Permite otorgar permisos?"> Perm.</span>
-					</th>
-					<th></th>
-				</tr>
-			</thead>
-			<tbody ng-if="permisos.length || procedimientos.length || cartas.length">
-				<tr ng-if="show_details_permiso">
-					<th colspan="{{ !is_show_inherited_users && !is_show_recursive_users && !procedimientos.length? 8 : 9 }}">
-					</th>
-				</tr>
-				<tr ng-repeat="permiso in permisos" ng-if="permisos.length" ng-init="objetopermiso=getObjetoPermiso(permiso)">
-					<td>{{permiso.login}}</td>
-					<td>{{permiso.codplaza}}</td>
-					<td ><span class="hidden-sm hidden-xs " ng-init="persona=getPersona(permiso)">{{persona[0].nombre}} {{ persona[0].apellidos}}</span></td>
-					<td ng-if="is_show_recursive_users || is_show_inherited_users || procedimientos.length">
+						<td colspan="{{ !is_show_recursive_users && !procedimientos.length? 8 : 9 }}" class="form-container">
+							<form name="nuevousuario-form" id="nuevousuario-form" ng-init="usuarioseleccionado=''">
+									<input  class="form-control" ng-model="usuarioseleccionado" placeholder="Buscar por plaza, login carm o nombre"  type="text" uib-typeahead-min-length="3" uib-typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)"  />
+								<!--<br/>
+								<button type="button" class="btn btn-default" ng-click="crearnuevousuario()" ng-if="!is_nuevousuario">
+								  <span class="glyphicon glyphicon-search"></span> Nuevo usuario
+								</button>
+								<fieldset ng-if="is_nuevousuario"><legend>Nuevo usuario</legend>
+									<br/>
+									<span><strong>Introducir nueva persona.</strong></span><br/>
+									<br/>
+									<label name="nombre"  style="width:100%">
+										<span>Nombre: </span><input  class="form-control" type="text" ng-model="nuevousuario.nombre" name="nombre" />
+									</label>
+									<br/>
+									<label name="apellidos" style="width:100%">
+										<span>Apellidos: </span><input  class="form-control" type="text" ng-model="nuevousuario.apellidos" name="apellidos" />
+									</label>
+									<br/>
+									<label name="genero" style="width:100%">
+										<span>G&eacute;nero: </span>
+										<select ng-model="nuevousuario.genero" name="genero" class="form-control" >
+											<option value="Hombre">Hombre</option>
+											<option value="Mujer">Mujer</option>
+										</select>
+									</label>
+									<br/>
+									<label name="telefono" style="width:100%">
+										<span>Telefono: </span><input type="text" ng-model="buscado_telefono" name="nuevousuario.telefono" class="form-control"  />
+									</label>
+									<br/>
+									<label name="login" style="width:100%">
+										<span>Login: </span><input type="text" ng-model="nuevousuario.login" name="login" class="form-control"  />
+									</label>
+									<br/>
+									<label name="plaza" style="width:100%">
+										<span>Plaza: </span><input type="text" ng-model="nuevousuario.codplaza" name="plaza" class="form-control"  />
+									</label>
+									<br/>
+									<button type="button" class="btn btn-default" ng-click="_crearnuevousuario()">
+										<span class="glyphicon glyphicon-search"></span> Crear
+									</button>
+									<button type="button" class="btn btn-default" ng-click="cancelarnuevousuario()">
+										<span class="glyphicon glyphicon-remove"></span> Cancelar
+									</button>
+								</fieldset>-->
+								<input type="hidden" name="procedimiento" value="{{procedimiento_seleccionado.codigo || 0}}" />
+								<input type="hidden" name="nodojerarquia" value="{{seleccionado.id || 0}}" />
+								<input type="hidden" name="tiposeleccion" value="{{seleccionado_organica?'jerarquia':'procedimiento'}}" />
+								<br />
+	                            <p>Si no encuentra la persona, debe realizar la búsqueda exacta por login carm o plaza.</p>
+								<label for="permisoallogin" >
+									<input type="checkbox" ng-model="permisoallogin" name="permisoallogin" ng-disabled="!usuarioseleccionado"/> Asignar permiso al login y no a la plaza
+								</label>
 
-						<span ng-if="objetopermiso && objetopermiso.length==1">{{objetopermiso[0].nombre}}</span>
-						<ul ng-if="objetopermiso && objetopermiso.length>1">
-							<li ng-repeat="obj in objetopermiso">{{obj.nombre}} </li>
-						</ul>
+								<div ng-if="$root.permisoscalculados.superuser">
+									<label for="propietario" ng-if="!seleccionado_organica && procedimiento_seleccionado">
+										<input type="checkbox" ng-model="propietario" name="propietario" ng-disabled="  !usuarioseleccionado " value="1"/> Es propietario del procedimiento
+									</label>
+									<br/>
+									<label for="grantoption">
+										<input type="checkbox" ng-model="cb_grantoption" name="grantoption" ng-disabled=" !usuarioseleccionado || propietario" value="1"/> Puede conceder permisos
+									</label>
+									<br/>
+									<label for="w_option">
+										<input type="checkbox" ng-model="w_option" name="w_option" ng-disabled="  !usuarioseleccionado || propietario" value="1" /> Puede introducir datos
+									</label>
+									<br/>
+									<label for="psuperuser">
+										<input type="checkbox" ng-model="psuperuser" name="psuperuser" ng-disabled=" !usuarioseleccionado  || propietario" value="1" /> Superusuario
+									</label>
+									<br class="clear"/>
+									<button class="btn btn-default danger" ng-disabled="is_nuevousuario || !usuarioseleccionado" ng-click="crearpermiso(usuarioseleccionado,w_option,cb_grantoption,psuperuser,permisoallogin)" ><span class="glyphicon glyphicon-ok"></span> <span>Crear</span></button>
+									 &nbsp;<button class="btn btn-default danger" ng-disabled="is_nuevousuario || !usuarioseleccionado" ng-click="delegar(usuarioseleccionado)" title="concede tus permisos, salvo la capacidad de dar permiso a otros" ><span class="glyphicon glyphicon-share"></span> <span>Delegar permisos</span></button>
+								</div>
+								<div ng-if="!$root.permisoscalculados.superuser">
+									&nbsp;<button class="btn btn-default danger" ng-disabled="is_nuevousuario || !usuarioseleccionado" ng-click="delegar(usuarioseleccionado)" title="concede tus permisos, salvo la capacidad de dar permiso a otros" >
+										<span class="glyphicon glyphicon-share"></span> <span>Delegar permisos</span>
+									</button>
+								</div>
+							</form>
+						</td>
+					</tr>
 
-						<span ng-if="objetopermiso && !objetopermiso.length">{{objetopermiso.nombre}}</span>
-					</td>
-					<td><span class="burdeos glyphicon glyphicon-remove"></span></td>
-					<td style="color:gray"><span class="glyphicon" ng-class="{'glyphicon-ok':isR(permiso),'glyphicon-remove':!isR(permiso)}"></span></td>
-					<td><a ng-click="changeW(permiso)" href=""><span class="glyphicon" ng-class="{'glyphicon-ok green':isW(permiso),'glyphicon-remove burdeos':!isW(permiso)}"></span></a></td>
-					<td><a ng-click="changeP(permiso)" href="" ><span class="glyphicon" ng-class="{'glyphicon-ok green':isP(permiso),'glyphicon-remove burdeos':!isP(permiso)}"></span></a></td>
-					<td>
-						<div class="btn-group pull-right" ng-if="$root.permisoscalculados.superuser">
-						  <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-						    <span class="glyphicon glyphicon glyphicon-remove"></span>&nbsp;<span class="caret"></span>
+					<tr>
+						<th>Usuario</th>
+						<th>
+							<span class="hidden-sm hidden-xs">Código plaza</span>
+							<span class="hidden-lg hidden-md">Plaza</span>
+						</th>
+						<th><span class="hidden-sm hidden-xs hidden-md">Nombre</span></th>
+						<th ng-if="is_show_recursive_users || is_show_inherited_users || procedimientos.length">
+							Procedimiento / Org&aacute;nica
+						</th>
+						<th>
+							<span class="visible-lg visible-md hidden-sm hidden-xs">Responsable</span>
+							<span class="hidden-lg hidden-md visible-sm hidden-xs">Resp.</span>
+							<span class="hidden-lg hidden-md hidden-sm visible-xs">R.</span>
+						</th>
+						<th>
+							<span class="visible-lg visible-md hidden-sm hidden-xs" title="¿Permite introducir datos?"> Lectura datos </span>
+							<span class="hidden-lg hidden-md visible-sm hidden-xs" title="¿Permite introducir datos?"> Lect. datos</span>
+							<span class="hidden-lg hidden-md hidden-sm visible-xs" title="¿Permite introducir datos?"> Lect.</span>
+						</th><th>
+							<span class="visible-lg visible-md hidden-sm hidden-xs" title="¿Permite introducir datos?"> Escribir datos </span>
+							<span class="hidden-lg hidden-md visible-sm hidden-xs" title="¿Permite introducir datos?"> Escr. datos </span>
+							<span class="hidden-lg hidden-md hidden-sm visible-xs" title="¿Permite introducir datos?"> Escr.</span>
+						</th><th>
+							<span class="visible-lg visible-md hidden-sm hidden-xs" title="¿Permite otorgar permisos?"> Dar permisos </span>
+							<span class="hidden-lg hidden-md visible-sm hidden-xs" title="¿Permite otorgar permisos?"> Permisos </span>
+							<span class="hidden-lg hidden-md hidden-sm visible-xs" title="¿Permite otorgar permisos?"> Perm.</span>
+						</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody ng-if="permisos.length || procedimientos.length || cartas.length">
+					<tr ng-if="show_details_permiso">
+						<th colspan="{{ !is_show_inherited_users && !is_show_recursive_users && !procedimientos.length? 8 : 9 }}"></th>
+					</tr>
+					<tr ng-repeat="permiso in permisos" ng-if="permisos.length" ng-init="objetopermiso=getObjetoPermiso(permiso)">
+						<td>{{permiso.login}}</td>
+						<td>{{permiso.codplaza}}</td>
+						<td ><span class="hidden-sm hidden-xs " ng-init="persona=getPersona(permiso)">{{persona[0].nombre}} {{ persona[0].apellidos}}</span></td>
+						<td ng-if="is_show_recursive_users || is_show_inherited_users || procedimientos.length">
+
+							<span ng-if="objetopermiso && objetopermiso.length==1">{{objetopermiso[0].nombre}}</span>
+							<ul ng-if="objetopermiso && objetopermiso.length>1">
+								<li ng-repeat="obj in objetopermiso">{{obj.nombre}} </li>
+							</ul>
+
+							<span ng-if="objetopermiso && !objetopermiso.length">{{objetopermiso.nombre}}</span>
+						</td>
+						<td><span class="burdeos glyphicon glyphicon-remove"></span></td>
+						<td style="color:gray"><span class="glyphicon" ng-class="{'glyphicon-ok':isR(permiso),'glyphicon-remove':!isR(permiso)}"></span></td>
+						<td><a ng-click="changeW(permiso)" href=""><span class="glyphicon" ng-class="{'glyphicon-ok green':isW(permiso),'glyphicon-remove burdeos':!isW(permiso)}"></span></a></td>
+						<td><a ng-click="changeP(permiso)" href="" ><span class="glyphicon" ng-class="{'glyphicon-ok green':isP(permiso),'glyphicon-remove burdeos':!isP(permiso)}"></span></a></td>
+						<td>
+							<div class="btn-group pull-right" ng-if="$root.permisoscalculados.superuser">
+							  <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+							    <span class="glyphicon glyphicon glyphicon-remove"></span>&nbsp;<span class="caret"></span>
+							  </button>
+							  <ul class="dropdown-menu" role="menu">
+							    <li><a href="" ng-click="eliminarPermiso(permiso)">Eliminar permiso sobre el nodo.</a></li>
+							    <li><a href="" ng-click="eliminarDefinitivamentePermiso(permiso)">Eliminar permiso completo.</a></li>
+							  </ul>
+							</div>
+						  <button type="button" class="btn btn-xs btn-default dropdown-toggle" ng-click="eliminarPermiso(permiso)" ng-if="!$root.permisoscalculados.superuser">
+						    <span class="glyphicon glyphicon glyphicon-remove"></span>
 						  </button>
-						  <ul class="dropdown-menu" role="menu">
-						    <li><a href="" ng-click="eliminarPermiso(permiso)">Eliminar permiso sobre el nodo.</a></li>
-						    <li><a href="" ng-click="eliminarDefinitivamentePermiso(permiso)">Eliminar permiso completo.</a></li>
-						  </ul>
-						</div>
-					  <button type="button" class="btn btn-xs btn-default dropdown-toggle" ng-click="eliminarPermiso(permiso)" ng-if="!$root.permisoscalculados.superuser">
-					    <span class="glyphicon glyphicon glyphicon-remove"></span>
-					  </button>
-						<!--<div class="btn-group pull-right">
-							<div class="btn btn-xs btn-default" title="Editar permiso">
-								<span class="glyphicon glyphicon-edit" title="Editar el permiso"></span>
-							</div>
-						<div>-->
-					</td>
-				</tr>
-				<tr ng-repeat="procedimiento in procedimientos" class="responsable" ng-if="seleccionado_procedimiento || seleccionado_organica">
-					<td>
-						<span style="font-size:smaller" class="badge" ng-repeat="r in procedimiento.responsables" ng-if="procedimiento.responsables && procedimiento.cod_plaza" title="{{r.nombre}} {{r.apellidos}}">
-							{{r.login}} &nbsp;&nbsp;
-						</span>
-						<span style="font-size:smaller" class="badge alert-warning" ng-if="!procedimiento.responsables  && procedimiento.cod_plaza"><i>No disponible</i></span>
-					</td>
-					<td>{{procedimiento.cod_plaza}}</td>
-					<td ><span class="hidden-sm hidden-xs hidden-md" ng-init="persona=getResponsable(procedimiento)">{{persona[0].nombre}} {{ persona[0].apellidos}}</span></td>
-					<td><a href="/procedimiento/{{procedimiento.codigo}}" title="{{procedimiento.codigo}}">[{{procedimiento.codigo}}] <span class="visible-lg visible-md">{{procedimiento.denominacion}}</span></a></td>
-					<td><span class="glyphicon glyphicon-ok gray"></span></td>
-					<td><span class="glyphicon glyphicon-ok gray"></span></td>
-					<td><span class="glyphicon glyphicon-ok gray"></span></td>
-					<td><span class="glyphicon glyphicon-ok gray"></span></td>
-					<td>
-					</td>
-				</tr>
-				<tr ng-repeat="carta in cartas" class="responsable" ng-if="!seleccionado_procedimiento">
-					<td>
-						<span style="font-size:smaller" class="badge" ng-repeat="r in getResponsable(carta)" ng-if="carta.responsable" title="{{r.nombre}} {{r.apellidos}}">
-							{{r.login}} &nbsp;&nbsp;
-						</span>
-						<span style="font-size:smaller" class="badge alert-warning" ng-if="!carta.responsable"><i>No disponible</i></span>
-					</td>
-					<td>{{carta.responsable}}</td>
-					<td ><span ng-if="carta.responsable" class="hidden-sm hidden-xs hidden-md" ng-init="persona=getResponsable(carta)">{{persona[0].nombre}} {{ persona[0].apellidos}}</span></td>
-					<td><a href="/carta/{{carta._id}}" title="código: {{carta.codigo}} ; id: {{carta._id}}">[{{carta._id}}] <span class="visible-lg visible-md">{{carta.denominacion}}</span></a></td>
-					<td><span class="glyphicon glyphicon-ok gray"></span></td>
-					<td><span class="glyphicon glyphicon-ok gray"></span></td>
-					<td><span class="glyphicon glyphicon-ok gray"></span></td>
-					<td><span class="glyphicon glyphicon-ok gray"></span></td>
-					<td>
-
-					</td>
-				</tr>
-			</tbody>
-			<tbody ng-if="!permisos.length && !procedimientos.length && !cartas.length">
-				<tr>
- 					<td ng-if="is_show_recursive_users" colspan="8">
-						No hay permisos asignados a este nivel de jerarquía o en los descendientes.
-					</td>
-					<td ng-if="!is_show_recursive_users" colspan="7">
-						No hay permisos asignados a este nivel de jerarquía.
-					</td>
-				</tr>
-			</tbody>
-		</table>
+							<!--<div class="btn-group pull-right">
+								<div class="btn btn-xs btn-default" title="Editar permiso">
+									<span class="glyphicon glyphicon-edit" title="Editar el permiso"></span>
+								</div>
+							<div>-->
+						</td>
+					</tr>
+					<tr ng-repeat="procedimiento in procedimientos" class="responsable" ng-if="seleccionado_procedimiento || seleccionado_organica">
+						<td>
+							<span style="font-size:smaller" class="badge" ng-repeat="r in procedimiento.responsables" ng-if="procedimiento.responsables && procedimiento.cod_plaza" title="{{r.nombre}} {{r.apellidos}}">
+								{{r.login}} &nbsp;&nbsp;
+							</span>
+							<span style="font-size:smaller" class="badge alert-warning" ng-if="!procedimiento.responsables  && procedimiento.cod_plaza"><i>No disponible</i></span>
+						</td>
+						<td>{{procedimiento.cod_plaza}}</td>
+						<td ><span class="hidden-sm hidden-xs hidden-md" ng-init="persona=getResponsable(procedimiento)">{{persona[0].nombre}} {{ persona[0].apellidos}}</span></td>
+						<td><a href="/procedimiento/{{procedimiento.codigo}}" title="{{procedimiento.codigo}}">[{{procedimiento.codigo}}] <span class="visible-lg visible-md">{{procedimiento.denominacion}}</span></a></td>
+						<td><span class="glyphicon glyphicon-ok gray"></span></td>
+						<td><span class="glyphicon glyphicon-ok gray"></span></td>
+						<td><span class="glyphicon glyphicon-ok gray"></span></td>
+						<td><span class="glyphicon glyphicon-ok gray"></span></td>
+						<td></td>
+					</tr>
+					<tr ng-repeat="carta in cartas" class="responsable" ng-if="!seleccionado_procedimiento">
+						<td>
+							<span style="font-size:smaller" class="badge" ng-repeat="r in getResponsable(carta)" ng-if="carta.responsable" title="{{r.nombre}} {{r.apellidos}}">
+								{{r.login}}
+							</span>
+							<span style="font-size:smaller" class="badge alert-warning" ng-if="!carta.responsable"><i>No disponible</i></span>
+						</td>
+						<td>{{carta.responsable}}</td>
+						<td><span ng-if="carta.responsable" class="hidden-sm hidden-xs hidden-md" ng-init="persona=getResponsable(carta)">{{persona[0].nombre}} {{persona[0].apellidos}}</span></td>
+						<td><a href="/carta/{{carta._id}}" title="código: {{carta.codigo}} ; id: {{carta._id}}">[{{carta._id}}] <span class="visible-lg visible-md">{{carta.denominacion}}</span></a></td>
+						<td><span class="glyphicon glyphicon-ok gray"></span></td>
+						<td><span class="glyphicon glyphicon-ok gray"></span></td>
+						<td><span class="glyphicon glyphicon-ok gray"></span></td>
+						<td><span class="glyphicon glyphicon-ok gray"></span></td>
+						<td></td>
+					</tr>
+				</tbody>
+				<tbody ng-if="!permisos.length && !procedimientos.length && !cartas.length">
+					<tr>
+	 					<td ng-if="is_show_recursive_users" colspan="8">
+							No hay permisos asignados a este nivel de jerarquía o en los descendientes.
+						</td>
+						<td ng-if="!is_show_recursive_users" colspan="7">
+							No hay permisos asignados a este nivel de jerarquía.
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 	</div>
-</div>
 
+</div>

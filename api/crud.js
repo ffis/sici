@@ -17,7 +17,7 @@
 			const obj = instance.models[instance.classname]();
 			const id = req.params._id;
 			if (typeof id === 'string' && id !== ''){
-				obj.findOne({'_id': req.metaenvironment.models.ObjectId(id)}).exec().then(req.eh.okHelper(res, true), req.eh.errorHelper(res));
+				obj.findOne({'_id': req.metaenvironment.models.objectId(id)}).exec().then(req.eh.okHelper(res, true), req.eh.errorHelper(res));
 			} else {
 				obj.find({}, req.eh.cb(res));
 			}
@@ -32,8 +32,8 @@
 				content = JSON.parse(JSON.stringify(req.body));
 		
 			if (typeof id === 'string' && id !== ''){
-				delete content._id;
-				obj.update({'_id': req.metaenvironment.models.ObjectId(id)}, content, {upsert: false}, req.eh.cbWithDefaultValue(res, req.body));
+				Reflect.removeProperty(content, '_id');
+				obj.update({'_id': req.metaenvironment.models.objectId(id)}, content, {upsert: false}, req.eh.cbWithDefaultValue(res, req.body));
 			} else {
 				req.eh.notFoundHelper(res);
 			}
@@ -48,7 +48,7 @@
 				id = req.params._id,
 				content = req.body;
 			if (typeof id === 'string' && id !== ''){
-				obj.remove({'_id': req.metaenvironment.models.ObjectId(id)}, req.eh.cbWithDefaultValue(res, content));
+				obj.remove({'_id': req.metaenvironment.models.objectId(id)}, req.eh.cbWithDefaultValue(res, content));
 			} else {
 				req.eh.notFoundHelper(res);
 			}

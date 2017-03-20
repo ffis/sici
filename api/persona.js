@@ -338,50 +338,6 @@
 		}, req.eh.errorHelper(res));
 	};
 
-	module.exports.personassearchlist = function (req, res){
-		const models = req.metaenvironment.models,
-			personamodel = models.persona(),
-			procedimientomodel = models.procedimiento();
-
-		/// 1. Buscamos personas en la tabla personas.
-		const deferPersona = personamodel.find({}, {codplaza: true, login: true, nombre: true, apellidos: true}).lean().exec();
-
-		/// 2. Buscamos personas como responsables de procedimientos ... ¡¡¡Y que no estén en el primer grupo!!!
-		const deferProcedimiento = procedimientomodel.aggregate().unwind('responsables').group({
-			'_id': {
-				'login': '$responsables.login',
-				'codplaza': '$responsables.codplaza'
-			},
-			'nombre': {'$first': '$responsables.nombre'},
-			'apellidos': {'$first': '$responsables.apellidos'}
-		}).exec();
-
-		Q.all([deferPersona, deferProcedimiento]).then(function(data){
-			const r = {};
-			const response = [];
-			const personasByPersona = data[0];
-			const personasByResponsable = data[1];
-
-			for (let i = 0; i < personasByPersona.length; i += 1) {
-				const persona = personasByPersona[i];
-				const idr = persona.login + '-' + persona.codplaza;
-				r[idr] = persona;
-				response.push({'login': persona.login, 'codplaza': persona.codplaza, 'nombre': persona.nombre, 'apellidos': persona.apellidos});
-			}
-			for (let i = 0; i < personasByResponsable.length; i += 1){
-				const persona = personasByResponsable[i];
-				const idr = persona._id.login + '-' + persona._id.codplaza;
-				if (typeof r[idr] === 'undefined') {
-					r[idr] = persona;
-					response.push({'login': persona._id.login, 'codplaza': persona._id.codplaza, 'nombre': persona.nombre, 'apellidos': persona.apellidos});
-				}
-			}
-
-			res.json(response);
-		}, req.eh.errorHelper(res));
-	};
-
-
 	module.exports.infoByLogin = infoByLogin;
 	module.exports.infoByLogin2 = infoByLogin2;
 	module.exports.infoByPlaza = infoByPlaza;

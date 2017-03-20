@@ -38,7 +38,6 @@
 		app.use('/private', privatelib.app);
 		app.use('/restricted', restrictedlib.app);
 		
-		app.get('/download/:token/:hash', metaenvironment.exportador.download);
 
 		this.app = app;
 	}

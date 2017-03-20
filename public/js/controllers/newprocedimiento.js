@@ -40,15 +40,11 @@
 				});
 
 				$scope.getPersonas = function(viewValue) {
-					if (viewValue.length > 2) {
-						return PersonasByRegexp.query({'regex': viewValue}).$promise;
-					} else {
-						return [];
-					}
+					
+					return (viewValue.length > 2) ? PersonasByRegexp.query({'regex': viewValue}).$promise : [];
 				};
 
 				$scope.guardar = function(){
-					console.log($scope.responsable);
 					if ($scope.seleccionado && $scope.procedimiento.denominacion && $scope.procedimiento.codigo && $scope.responsable) {
 						Procedimiento.save($scope.procedimiento, function(){
 							$window.alert('Procedimiento registrado correctamente. Redirigiendo...');
@@ -66,21 +62,15 @@
 				};
 
 				$scope.showPersona = function (persona){
-					if (persona && persona.login && persona.codplaza && persona.nombre && persona.apellidos){
-						return persona.codplaza + '-' + persona.login + '-' + persona.nombre + ' ' + persona.apellidos;
-					}
-					else{
-						return '';
-					}
+
+					return (persona && persona.login && persona.codplaza && persona.nombre && persona.apellidos) ?
+						(persona.codplaza + '-' + persona.login + '-' + persona.nombre + ' ' + persona.apellidos) : '';
 				};
 
 				$scope.showProcedimiento = function (procedimiento){
-					if (procedimiento && procedimiento.denominacion && procedimiento.codigo){
-						return '[' + procedimiento.codigo + '] ' + procedimiento.denominacion;
-					}
-					else{
-						return '';
-					}
+
+					return (procedimiento && procedimiento.denominacion && procedimiento.codigo) ?
+						('[' + procedimiento.codigo + '] ' + procedimiento.denominacion) : '';
 				};
 
 				$scope.arbol = ArbolWithEmptyNodes.query(function(){

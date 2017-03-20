@@ -4,7 +4,6 @@
 
 	module.exports.uncrypt = function(req, res, next){
 		if (typeof req.body.notcarmuser !== 'undefined' && req.body.notcarmuser){
-console.log('next');
 			next();
 
 			return;
@@ -18,7 +17,7 @@ console.log('next');
 			if (err){
 				res.status(401).send({error: err});
 
-				next({error: err});
+				//next({error: err});
 			} else if (txt){
 				//aqui debería comprobarse si el lapso de tiempo es válido
 				try {
@@ -33,13 +32,13 @@ console.log('next');
 					logger.error('Wrong token password');
 					res.status(401).send({error: 'Wrong token password'});
 
-					next({error: 'Wrong token password'});
+					//next({error: 'Wrong token password'});
 				}
 			} else {
 				logger.error('Wrong token password');
 				res.status(401).send({error: 'Wrong token password'});
 
-				next({error: 'Wrong token password'});
+				//next({error: 'Wrong token password'});
 			}
 		});
 	};

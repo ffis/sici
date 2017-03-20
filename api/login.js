@@ -20,7 +20,7 @@
 		const nowtime = (new Date()).getTime();
 		const permisoscalculados = permisos.filter(function(permiso){
 
-			return (!permiso.caducidad || permiso.caducidad.getTime() < nowtime);
+			return (!permiso.caducidad || (permiso.caducidad && permiso.caducidad.getTime() < nowtime));
 		}).reduce(function(prev, permiso){
 			prev.superuser = prev.superuser || permiso.superuser;
 			prev.grantoption = prev.grantoption || permiso.grantoption;
@@ -107,6 +107,7 @@
 
 							return permiso;
 						});
+						Reflect.deleteProperty(o, 'contrasenya');
 						res.json({profile: o, token: token});
 					}
 				}

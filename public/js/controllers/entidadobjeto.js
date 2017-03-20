@@ -1,7 +1,7 @@
 (function(angular){
 	'use strict';
-	angular.module('sici')
-		.controller('EntidadObjetoCtrl', ['$rootScope', '$scope', '$routeParams', '$window', '$http', 'EntidadObjeto', 'ObjetivoStats', 'Jerarquia', 'Indicador', 'PlanMejoraList', 'AccionMejora',
+	angular.module('sici').controller('EntidadObjetoCtrl',
+		['$rootScope', '$scope', '$routeParams', '$window', '$http', 'EntidadObjeto', 'ObjetivoStats', 'Jerarquia', 'Indicador', 'PlanMejoraList', 'AccionMejora',
 			function ($rootScope, $scope, $routeParams, $window, $http, EntidadObjeto, ObjetivoStats, Jerarquia, Indicador, PlanMejoraList, AccionMejora) {
 				$rootScope.nav = 'EntidadObjeto';
 				$rootScope.setTitle('Entidad Objeto');
@@ -25,7 +25,7 @@
 								if ($scope.objetivostats[i].formulas[k][q] !== '[]'){
 									$scope.formulas[ $scope.objetivostats[i]._id ].formsok++;
 								}
-								$scope.formulas[ $scope.objetivostats[i]._id ].forms++;
+								$scope.formulas[$scope.objetivostats[i]._id].forms++;
 							}
 						}
 					}
@@ -42,19 +42,20 @@
 					return 0;
 				};*/
 				$scope.anualidades = [];
-				for (var anualidad = 2015, maxanualidad = new Date().getFullYear(); anualidad <= maxanualidad; anualidad++ ){
+				for (var anualidad = 2015, maxanualidad = new Date().getFullYear(); anualidad <= maxanualidad; anualidad += 1){
 					$scope.anualidades.push({label: anualidad, value: 'a' + anualidad});
 				}
-				$scope.anualidad = $scope.anualidades[ $scope.anualidades.length - 1];
+				$scope.anualidad = $scope.anualidades[$scope.anualidades.length - 1];
 
 				$scope.getIndicadoresStats = function(idjerarquia, anualidad){
-					if (!idjerarquia || typeof $scope.indicadores[idjerarquia] === 'undefined'){ return 0;}
+					if (!idjerarquia || typeof $scope.indicadores[idjerarquia] === 'undefined'){ return 0; }
 					var indicadoresOK = 0;
 					for (var i = 0, j = $scope.indicadores[idjerarquia].length; i < j; i++){
 						if ($rootScope.isIndicadorCumplimentado($scope.indicadores[idjerarquia][i], anualidad)){
 							indicadoresOK++;
 						}
 					}
+
 					return indicadoresOK;
 				};
 
@@ -90,28 +91,33 @@
 					if (typeof $scope.planesmejora[anualidad][ entidadobjeto._id] === 'undefined'){
 						$scope.planesmejora[anualidad][ entidadobjeto._id] =
 							entidadobjeto.idjerarquia > 0
-							? PlanMejoraList.query({idjerarquia: entidadobjeto.idjerarquia, anualidad: anualidad }, h(anualidad, entidadobjeto._id))
+							? PlanMejoraList.query({'idjerarquia': entidadobjeto.idjerarquia, 'anualidad': anualidad }, h(anualidad, entidadobjeto._id))
 							: [];
 					} else {
-						return $scope.planesmejora[anualidad][ entidadobjeto._id].length;
+
+						return $scope.planesmejora[anualidad][entidadobjeto._id].length;
 					}
+
 					return '-';
 				};
 
 				$scope.load = function(){
 					$scope.entidades = EntidadObjeto.query( function(){
-						for (var i = 0, j = $scope.entidades.length; i < j; i++){
+						for (var i = 0, j = $scope.entidades.length; i < j; i += 1){
 							$scope.cargaJerarquia($scope.entidades[i].idjerarquia);
 						}
 					});
 				};
 				$scope.cargaJerarquia = function(idjerarquia){
-					if (!idjerarquia){ $scope.indicadores[0] = []; return; }
-					if (parseInt(idjerarquia) <= 0 ){ $scope.indicadores[0] = []; return; }
-					idjerarquia = parseInt(idjerarquia);
-					if (typeof $scope.jerarquias['' + idjerarquia] === 'undefined'){
-						$scope.jerarquias['' + idjerarquia] = Jerarquia.get({id: idjerarquia});
-						$scope.indicadores[idjerarquia] = Indicador.query({idjerarquia: idjerarquia });
+					if (!idjerarquia || (parseInt(idjerarquia, 10) <= 0)){
+						$scope.indicadores[0] = [];
+
+						return;
+					}
+					idjerarquia = parseInt(idjerarquia, 10);
+					if (typeof $scope.jerarquias[String(idjerarquia)] === 'undefined'){
+						$scope.jerarquias[String(idjerarquia)] = Jerarquia.get({'id': idjerarquia});
+						$scope.indicadores[idjerarquia] = Indicador.query({'idjerarquia': idjerarquia});
 					}
 				};
 				$scope.load();
@@ -188,15 +194,14 @@
 				$scope.downloadxls = function(){
 					if (!$scope.descargando){
 						$scope.descargando = true;
-						$http.get('/api/v2/restricted/exportadorIndicador')
-							.then(function (res) {
-								$scope.descargando = false;
-								var url = '/api/v1/download/' + res.data.time + '/' + res.data.hash + '?extension=' + res.data.extension;
-								$window.location = url;
-							}, function() {
-								$scope.descargando = false;
-								$rootScope.toaster('Error al descargar el informe', 'Error', 'error');
-							});
+						$http.get('/api/v2/restricted/exportadorIndicador').then(function (res) {
+							$scope.descargando = false;
+							var url = '/api/download/' + res.data.time + '/' + res.data.hash + '?extension=' + res.data.extension;
+							$window.location = url;
+						}, function() {
+							$scope.descargando = false;
+							$rootScope.toaster('Error al descargar el informe', 'Error', 'error');
+						});
 					}
 				};
 			}

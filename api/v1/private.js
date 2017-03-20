@@ -23,7 +23,6 @@
 		app.get('/personasByPuesto/:cod_plaza', metaenvironment.persona.personasByPuesto);
 		app.get('/personasByLogin/:login', metaenvironment.persona.personasByLogin);
 		app.get('/personasByRegexp/:regex', metaenvironment.persona.personasByRegex);
-		app.get('/searchpersonas', metaenvironment.persona.personassearchlist);
 
 		//cambiar por post
 		app.get('/permisos/delete-jerarquia/:idpermiso/:idjerarquia', metaenvironment.permiso.removePermisoJerarquia);

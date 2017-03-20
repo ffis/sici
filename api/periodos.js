@@ -6,7 +6,7 @@
 		const periodomodel = req.metaenvironment.models.periodo(),
 			id = req.params.id;
 		if (typeof id === 'string' && id !== ''){
-			periodomodel.findOne({'_id': req.metaenvironment.models.ObjectId(id)}).exec().then(req.eh.okHelper(res, true), req.eh.errorHelper(res));
+			periodomodel.findOne({'_id': req.metaenvironment.models.objectId(id)}).exec().then(req.eh.okHelper(res, true), req.eh.errorHelper(res));
 		} else {
 			periodomodel.find({}, req.eh.cb(res));
 		}
@@ -14,12 +14,12 @@
 
 	module.exports.updatePeriodo = function(req, res) {
 		const periodomodel = req.metaenvironment.models.periodo(),
-			id = req.params.id,
-			content = JSON.parse(JSON.stringify(req.body));
+			id = req.params.id;
 		if (typeof id === 'string' && id !== ''){
+			const content = JSON.parse(JSON.stringify(req.body));
 			Reflect.deleteProperty(content, '_id');
 
-			periodomodel.update({'_id': id}, content, {upsert: false}, req.eh.cbWithDefaultValue(res, req.body));
+			periodomodel.update({'_id': req.metaenvironment.models.objectId(id)}, content, {upsert: false}, req.eh.cbWithDefaultValue(res, req.body));
 		} else {
 			req.eh.notFoundHelper(res);
 		}
@@ -36,7 +36,7 @@
 			id = req.params.id,
 			content = req.body;
 		if (typeof id === 'string' && id !== ''){
-			periodomodel.remove({'_id': req.metaenvironment.models.ObjectId(id)}, req.eh.cbWithDefaultValue(res, content));
+			periodomodel.remove({'_id': req.metaenvironment.models.objectId(id)}, req.eh.cbWithDefaultValue(res, content));
 		} else {
 			req.eh.notFoundHelper(res);
 		}
@@ -59,23 +59,16 @@
 
 				const anualidades = Object.keys(periodoclone);
 
-				let speriodonuevo = '';
-				let max = 0;
-				/* TODO: CHANGE TO REDUCE */
-				for (let i = 0, j = anualidades.length; i < j; i += 1){
-					if (!isNaN(parseInt(anualidades[i].replace('a', ''), 10))){
-						let nperiodo = parseInt(anualidades[i].replace('a', ''), 10);
-						nperiodo += 1;
-						if (max < nperiodo) {
-							max = nperiodo;
-							speriodonuevo = 'a' + nperiodo;
-						}
-					}
-				}
+				const mayoranualidad = anualidades.reduce(function(prev, aanualidad){
+					const anyo = parseInt(aanualidad.replace('a', ''), 10);
+					
+					return (anyo > prev) ? anyo : prev;
+				}, 0);
 
-				if (speriodonuevo === '') {
+				if (mayoranualidad) {
 					req.eh.notFoundHelper(res);
 				} else {
+					const speriodonuevo = 'a' + (mayoranualidad + 1);
 					const nuevoperiodo = JSON.parse(JSON.stringify(plantilla));
 					Reflect.deleteProperty(nuevoperiodo, '_id');
 

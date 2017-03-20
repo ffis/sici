@@ -10,34 +10,34 @@
 			$scope.campo = $scope.campos[0];
 			$scope.anualidad = new Date().getFullYear();
 			$scope.anualidades = [];
-			for(var anyo = 2014; anyo <= $scope.anualidad; anyo++){
+			for (let anyo = 2014; anyo <= $scope.anualidad; anyo += 1){
 				$scope.anualidades.push(anyo);
 			}
 
 			function aux(campo, titulo){
 				return function(){
-					var sum = 0, porcumplimentar = 0;
+					var sum = 0,
+						porcumplimentar = 0;
 					$scope.tmp.forEach(function(g, i){
 						sum += g.count;
 						porcumplimentar += g.porcumplimentar;
 						$scope.tmp[i].cumplimentadas = g.count - g.porcumplimentar;
 					});
 					$scope.widthgraph = angular.element(angular.element('.graphid')[0]).width();
-					$scope.graphs.push({data: $scope.tmp, sum: sum, porcumplimentar: porcumplimentar, campo: campo, titulo: titulo });
+					$scope.graphs.push({'data': $scope.tmp, 'sum': sum, 'porcumplimentar': porcumplimentar, 'campo': campo, 'titulo': titulo});
 				};
 			}
 
 			$scope.newGraph = function(){
 				var campo = $scope.campo;
-				$scope.tmp = Aggregate.query({ anualidad: $scope.anualidad, campo: campo}, aux(campo, '', null));
+				$scope.tmp = Aggregate.query({'anualidad': $scope.anualidad, 'campo': campo}, aux(campo, '', null));
 				var index = $scope.campos.indexOf($scope.campo);
 				if (index < $scope.campos.length - 1){
 					$scope.campo = $scope.campos[index + 1];
 				}
 			};
 
-			$scope.removeGraph = function(index)
-			{
+			$scope.removeGraph = function(index){
 				$scope.graphs.splice(index, 1);
 			};
 
@@ -59,13 +59,14 @@
 					if (a.length > 20){
 						a = a.substring(0, 18) + '…';
 					}
+
 					return a;
 				};
 			};
 			$scope.yFunction = function () { return function (d) { return d.count; }; };
 			$scope.yFunction2 = function () { return function (d) { return d.porcumplimentar; }; };
 			$scope.yFunction3 = function () { return function (d) { return d.cumplimentadas; }; };
-			$scope.toolTipContentFunction = function(){ return function(key, x, y) { return '<p>' + y.point._id + ' : ' + parseInt(x) + '</p>'; }; };
+			$scope.toolTipContentFunction = function(){ return function(key, x, y) { return '<p>' + y.point._id + ' : ' + parseInt(x, 10) + '</p>'; }; };
 			$scope.widthgraph = 0;
 		}
 	]);

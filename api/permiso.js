@@ -2,7 +2,6 @@
 	'use strict';
 	const Q = require('q');
 
-
 	/* TODO: explicar esto, es poco intuitivo y eso aparenta ocultar errores */
 	function getPermisosByLoginPlaza(params, models, login, codPlaza){
 		const permisomodel = models.permiso(),
@@ -22,7 +21,7 @@
 			restriccion = {'$or': [{'login': login}, {'codplaza': codPlaza}]};
 		} else if (login && login !== '-'){
 			restriccion.login = login;
-		} else if (codPlaza &&  codPlaza !== '-'){
+		} else if (codPlaza && codPlaza !== '-'){
 			restriccion.codplaza = codPlaza;
 		}
 
@@ -77,9 +76,7 @@
 						caducidad.setFullYear(caducidad.getFullYear() + 2);
 
 						ep.caducidad = permisos.reduce(function(prev, permiso){
-							if (permiso.caducidad && permiso.caducidad.getTime() > prev.getTime())
-								return permiso.caducidad;
-							return prev;
+							return (permiso.caducidad && permiso.caducidad.getTime() > prev.getTime()) ? permiso.caducidad : prev;
 						}, caducidad);
 
 						permisomodel.create(ep, req.eh.cb(res));
@@ -143,9 +140,7 @@
 					caducidad.setFullYear(caducidad.getFullYear() + 2);
 
 					ep.caducidad = permisos.reduce(function(prev, permiso){
-						if (permiso.caducidad && permiso.caducidad.getTime() > prev.getTime())
-							return permiso.caducidad;
-						return prev;
+						return (permiso.caducidad && permiso.caducidad.getTime() > prev.getTime()) ? permiso.caducidad : prev;
 					}, caducidad);
 
 					permisomodel.create(ep, req.eh.cb(res));
@@ -189,11 +184,11 @@
 
 				if (paux.indexOf(p._id) !== -1){
 					continue;
-				}else {
+				} else {
 					paux.push(p._id);
 				}
 
-				delete p._id;
+				Reflect.removeProperty(p, '_id');
 
 				if (req.params.login && req.params.login !== '-'){
 					p.login = req.params.login;
@@ -253,7 +248,7 @@
 							if (permi.entidadobjetodirectalectura.length === 0 && (typeof permi.jerarquiadirectalectura === 'undefined' || permi.jerarquiadirectalectura.length === 0)){
 								permisomodel.remove({'_id': models.objectId(idpermiso)}, req.eh.cbWithDefaultValue(res, {}));
 							} else {
-								permisomodel.update({'_id': models.objectId(idpermiso)}, permi, {upsert: false}, req.eh.cbWithDefaultValue(res, permi));
+								permisomodel.update({'_id': models.objectId(idpermiso)}, permi, {'upsert': false}, req.eh.cbWithDefaultValue(res, permi));
 							}
 						}, req.eh.errorHelper(res));
 					}, req.eh.errorHelper(res));
@@ -298,7 +293,7 @@
 								if (permi.procedimientosdirectalectura.length === 0 && (typeof permi.jerarquiadirectalectura === 'undefined' || permi.jerarquiadirectalectura.length === 0)){
 									permisomodel.remove({'_id': models.objectId(idpermiso)}, req.eh.cbWithDefaultValue(res, {}));
 								} else {
-									permisomodel.update({'_id': models.objectId(idpermiso)}, permi, {upsert: false}, req.eh.cbWithDefaultValue(permi));
+									permisomodel.update({'_id': models.objectId(idpermiso)}, permi, {'upsert': false}, req.eh.cbWithDefaultValue(permi));
 								}
 							}, req.eh.errorHelper(res));
 						} else {
@@ -383,17 +378,17 @@
 			const idj = parseInt(req.params.idjerarquia, 10);
 
 			if (isNaN(idj)){
-				dpermisos.reject({error: 'Error. Id jerarquía no válido'});
+				dpermisos.reject({'error': 'Error. Id jerarquía no válido'});
 
 			} else if (jerarquiaspermitidas.indexOf(idj) < 0){
-				dpermisos.reject({error: 'Error. Id jerarquía no permitido'});
+				dpermisos.reject({'error': 'Error. Id jerarquía no permitido'});
 
 			} else if (heredado){
 				permisomodel.find({'jerarquialectura': parseInt(req.params.idjerarquia, 10)}, function(err, permisos){
 					if (err){
 						dpermisos.reject(err);
 					} else {
-						dpermisos.resolve({procedimientos: [], permisos: permisos, totallength: permisos.length});
+						dpermisos.resolve({'procedimientos': [], 'permisos': permisos, 'totallength': permisos.length});
 					}
 				});
 
@@ -410,7 +405,7 @@
 					jerarquiasBuscadas.push(idj);
 
 
-					const fields = {cod_plaza: 1, codigo: 1, responsables: 1, idjerarquia: 1, denominacion: 1};
+					const fields = {'cod_plaza': 1, 'codigo': 1, 'responsables': 1, 'idjerarquia': 1, 'denominacion': 1};
 					procedimientomodel.find({'idjerarquia': {'$in': jerarquiasBuscadas}}, fields).exec().then(function(procedimientos){
 						const idsprocedimientos = procedimientos.map(function(p){ return p.codigo; });
 						
@@ -442,10 +437,10 @@
 	};
 
 	//// Devuelve las instancias de permiso que tienen concedido permiso directo sobre el id de jerarquía indicado
-	/* TODO revisar el porqué no se usa */
+	/* TODO: revisar el porqué no se usa */
 	module.exports.permisosDirectosList = function(req, res){
 		if (typeof req.params.idjerarquia === 'string' && !isNaN(parseInt(req.params.idjerarquia, 10))) {
-			const permisomodel =  req.metaenvironment.models.permiso();
+			const permisomodel = req.metaenvironment.models.permiso();
 			const idj = parseInt(req.params.idjerarquia, 10);
 			const jerarquiaspermitidas = req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura);
 
@@ -459,10 +454,10 @@
 		}
 	};
 
-	/** Devuelve las instancias de permiso que tienen concedido permiso directo sobre la entidadobjeto indicada */
+	/* Devuelve las instancias de permiso que tienen concedido permiso directo sobre la entidadobjeto indicada */
 	module.exports.permisosDirectosEntidadObjetoList = function(req, res){
 		if (typeof req.params.codigoentidadobjeto === 'string' && req.params.codigoentidadobjeto !== '') {
-			const permisomodel =  req.metaenvironment.models.permiso();
+			const permisomodel = req.metaenvironment.models.permiso();
 			const idp = req.params.codigoentidadobjeto;
 			const eopermitidos = req.user.permisoscalculados.entidadobjetolectura.concat(req.user.permisoscalculados.entidadobjetoescritura);
 			if (req.user.permisoscalculados.superuser || (req.user.permisoscalculados.grantoption && eopermitidos.indexOf(idp) >= 0)){
@@ -475,10 +470,10 @@
 		}
 	};
 
-	/** Devuelve las instancias de permiso que tienen concedido permiso directo sobre el procedimiento indicado */
+	/* Devuelve las instancias de permiso que tienen concedido permiso directo sobre el procedimiento indicado */
 	module.exports.permisosDirectosProcedimientoList = function(req, res){
 		if (typeof req.params.codigoprocedimiento === 'string' && req.params.codigoprocedimiento !== '') {
-			const permisomodel =  req.metaenvironment.models.permiso();
+			const permisomodel = req.metaenvironment.models.permiso();
 			const idp = req.params.codigoprocedimiento;
 			const procedimientospermitidos = req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura);
 			if (req.user.permisoscalculados.superuser || (req.user.permisoscalculados.grantoption && procedimientospermitidos.indexOf(idp) >= 0)){
@@ -492,7 +487,7 @@
 	};
 
 
-	/** Devuelve las instancias de permiso que tienen concedido permiso sobre la entidadobjeto indicada */
+	/* Devuelve las instancias de permiso que tienen concedido permiso sobre la entidadobjeto indicada */
 	module.exports.permisosEntidadObjetoList = function(req, res){
 
 		const permisomodel = req.metaenvironment.models.permiso();
@@ -569,17 +564,25 @@
 		}
 	};
 
-	module.exports.create = function(req, res){
+	function createPermission(req, res, permiso){
 		const models = req.metaenvironment.models,
 				recalculate = req.metaenvironment.recalculate;
-		const Permiso = models.permiso();
-		const personamodel = models.persona();
+
+		recalculate.softCalculatePermiso(models, permiso).then(function(permis){
+			models.permiso().create(permis, req.eh.cbWithDefaultValue(permis));
+		}, req.eh.errorHelper(res));
+	}
+
+	module.exports.create = function(req, res){
+ 
+		const models = req.metaenvironment.models,
+			personamodel = models.persona();
 		const argPermiso = req.body;
 		const permiso = {
 			login: argPermiso.login,
 			codplaza: argPermiso.codplaza,
 			jerarquialectura: (typeof argPermiso.jerarquialectura === 'undefined' ? [] : argPermiso.jerarquialectura),
-			jerarquiaescritura: (typeof argPermiso.jerarquiaescritura !== 'undefined' ? [] : argPermiso.jerarquiaescritura),
+			jerarquiaescritura: (typeof argPermiso.jerarquiaescritura === 'undefined' ? [] : argPermiso.jerarquiaescritura),
 			jerarquiadirectalectura: (typeof argPermiso.jerarquiadirectalectura === 'undefined' ? [] : argPermiso.jerarquiadirectalectura),
 			jerarquiadirectaescritura: (typeof argPermiso.jerarquiadirectaescritura === 'undefined' ? [] : argPermiso.jerarquiadirectaescritura),
 			procedimientoslectura: (typeof argPermiso.procedimientoslectura === 'undefined' ? [] : argPermiso.procedimientoslectura),
@@ -610,19 +613,17 @@
 
 				return;
 			}
-			var fn = function(){
-				recalculate.softCalculatePermiso(models, permiso).then(function(permis){
-					const opermiso = new Permiso(permis);
-					opermiso.save(req.eh.cbWithDefaultValue(permis));
-				}, req.eh.errorHelper(res));
-			};
-			if (!persona.habilitado){
-				persona.habilitado = true;
-				personamodel.update({_id: models.objectId(persona._id)}, {$set: {habilitado: true}}, {'upsert': false, 'multi': false}).exec().then(function(){
-					fn();
-				}, req.eh.errorHelper(res));
+			
+			if (persona.habilitado){
+				createPermission(req, res, permiso);
+				
+				
 			} else {
-				fn();
+				persona.habilitado = true;
+				personamodel.update({'_id': models.objectId(persona._id)}, {$set: {habilitado: true}}, {'upsert': false, 'multi': false}).exec().then(function(){
+					createPermission(req, res, permiso);
+				}, req.eh.errorHelper(res));
+				
 			}
 		}, req.eh.errorHelper(res));
 	};
@@ -642,7 +643,7 @@
 	module.exports.removePermiso = function(req, res) {
 		if (typeof req.params.id === 'string' && req.params.id !== ''){
 			const permisomodel = req.metaenvironment.models.permiso();
-			permisomodel.remove({'_id':  req.metaenvironment.models.objectId(req.params.id)}, req.eh.cb(res));
+			permisomodel.remove({'_id': req.metaenvironment.models.objectId(req.params.id)}, req.eh.cb(res));
 		} else {
 			req.eh.missingParameterHelper(res, 'id');
 		}

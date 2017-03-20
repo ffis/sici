@@ -90,14 +90,20 @@
 					$scope.pjerarquia = defjerarquia.promise;
 					$rootScope.jerarquialectura().then(function(j){
 						$rootScope.jerarquiaescritura().then(function(j2){
-							$scope.jerarquia = j.concat(j2);
+							$scope.jerarquiaspermitidas = j.concat(j2);
 							defjerarquia.resolve($scope.jerarquia);
 						});
 					});
 
+					$scope.issuperuser = false;
+					$rootScope.superuser().then(function(issuperuser){
+						$scope.issuperuser = issuperuser;
+					});
+
 					$scope.fj = function(item) {
 						if (typeof $scope.filtro === 'function' && !$scope.filtro(item)){ return false; }
-						if ($scope.jerarquia.indexOf(item.id) !== -1 ){ return true; }
+						if ($scope.issuperuser) return true;
+						if ($scope.jerarquiaspermitidas.indexOf(item.id) > -1){ return true; }
 						if (item.nodes){
 							for(var i = 0; i < item.nodes.length; i++){
 								if ($scope.filtrojerarquia(item.nodes[i])){
@@ -110,10 +116,10 @@
 
 					$scope.filtrojerarquia = function(item) {
 						var def = $q.defer();
-						$scope.pjerarquia.then( function(){
+						$scope.pjerarquia.then(function(){
 							def.resolve($scope.fj(item));
 							$scope.filtrojerarquia = $scope.fj;
-						}, function(err){ def.reject(err); });
+						},  def.reject);
 						return def.promise;
 					};
 				}]

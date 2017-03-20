@@ -2,10 +2,32 @@
 	'use strict';
 	const Q = require('q');
 
+	function saveVersion (models, ps) {
+		if (!ps){
+
+			return Q.all([]);
+		}
+		const procedimientos = Array.isArray(ps) ? ps : [ps];
+
+		if (procedimientos.length === 0){
+
+			return Q.all([]);
+		}
+
+		const clones = procedimientos.map(function(p){
+			const clon = JSON.parse(JSON.stringify(p));
+			Reflect.removeProperty(clon, '_id');
+
+			return clon;
+		});
+			
+		return models.historico().insertMany(clones).exec();
+	}
+
 	module.exports.hasChildred = function (req, res) {
 		const procedimientomodel = req.metaenvironment.models.procedimiento(),
 			codigo = req.params.codigo;
-		if (req.user.permisoscalculados && (req.user.permisoscalculados.procedimientoslectura.indexOf(codigo) !== -1 || req.user.permisoscalculados.superuser)) {
+		if (req.user.permisoscalculados && (req.user.permisoscalculados.procedimientoslectura.indexOf(codigo) > -1 || req.user.permisoscalculados.superuser)) {
 
 			procedimientomodel.count({'padre': codigo}, function(err, count) {
 				if (err) {
@@ -44,7 +66,7 @@
 				procedimiento.cod_plaza = req.body.cod_plaza;
 			}
 			if (req.body.padre){
-				procedimiento.padre = '' + req.body.padre;
+				procedimiento.padre = String(req.body.padre);
 			}
 
 			//check jerarquia $exists
@@ -69,16 +91,15 @@
 							const periodos = JSON.parse(JSON.stringify(data[0]));
 							const plantilla = JSON.parse(JSON.stringify(data[1]));
 
-							delete periodos._id;
-							delete plantilla._id;
+							Reflect.deleteProperty(periodos, '_id');
+							Reflect.deleteProperty(plantilla, '_id');
 
 							procedimiento.periodos = {};
 							for (const anualidad in periodos){
-								if (isNaN(parseInt(anualidad.replace('a', ''), 10))){
-									continue;
+								if (!isNaN(parseInt(anualidad.replace('a', ''), 10))){
+									procedimiento.periodos[anualidad] = JSON.parse(JSON.stringify(plantilla));
+									procedimiento.periodos[anualidad].periodoscerrados = periodos[anualidad];
 								}
-								procedimiento.periodos[anualidad] = JSON.parse(JSON.stringify(plantilla));
-								procedimiento.periodos[anualidad].periodoscerrados = periodos[anualidad];
 							}
 							procedimiento.periodos.a2013 = {
 								'plazo_maximo_resolver': 0,
@@ -115,11 +136,17 @@
 	module.exports.procedimiento = function (req, res) {
 		const procedimientomodel = req.metaenvironment.models.procedimiento(),
 			restriccion = {};
-		if (typeof req.params.codigo !== 'undefined'){
+		if (typeof req.params.codigo === 'string' && req.params.codigo.trim() !== ''){
 			restriccion.codigo = req.params.codigo;
+			
+			if (!req.user.permisoscalculados.superuser){
+				restriccion.idjerarquia = {'$in': req.user.permisoscalculados.jerarquialectura};
+			}
+			procedimientomodel.findOne(restriccion, req.eh.cb(res));
+
+		} else {
+			req.eh.missingParameterHelper(res, 'codigo');
 		}
-		restriccion.idjerarquia = {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)};
-		procedimientomodel.findOne(restriccion, req.eh.cb(res));
 	};
 
 	module.exports.deleteProcedimiento = function(req, res) {
@@ -129,15 +156,17 @@
 			recalculate = req.metaenvironment.recalculate,
 			restriccion = {};
 
-		if (typeof req.params.codigo === 'string' && req.params.codigo !== ''){
+		if (typeof req.params.codigo === 'string' && req.params.codigo.trim() !== ''){
 			restriccion.codigo = req.params.codigo;
 		} else {
 			req.eh.missingParameterHelper(res, 'codigo');
 
 			return;
 		}
-		//comprobar si tiene permiso el usuario actual
-		restriccion.idjerarquia = {'$in': req.user.permisoscalculados.jerarquiaescritura};
+
+		if (!req.user.permisoscalculados.superuser){
+			restriccion.idjerarquia = {'$in': req.user.permisoscalculados.jerarquiaescritura};
+		}
 
 		procedimientomodel.findOne(restriccion).exec().then(function(original){
 			if (original){
@@ -145,10 +174,10 @@
 				if (puedeEscribirSiempre) {
 					original.eliminado = true;
 					if (!isNaN(parseInt(original.codigo, 10))){
-						crawledmodel.remove({id: parseInt(original.codigo, 10)});
+						crawledmodel.remove({'id': parseInt(original.codigo, 10)});
 					}
 				}
-				procedimientomodel.count({'padre': original.codigo}).exec(function (count){
+				procedimientomodel.count({'padre': original.codigo}).exec().then(function(count){
 					if (count > 0) {
 						res.status(400).end({error: 'No puede eliminar un procedimiento con hijos'});
 
@@ -156,7 +185,7 @@
 					}
 					recalculate.softCalculateProcedimiento(models, original).then(function (origin){
 						recalculate.softCalculateProcedimientoCache(models, origin).then(function (orig) {
-							exports.saveVersion(models, orig).then(function(){
+							saveVersion(models, orig).then(function(){
 								orig.fecha_version = new Date();
 								procedimientomodel.update({codigo: orig.codigo}, JSON.parse(JSON.stringify(orig)), {multi: false, upsert: false}).then(function(){
 									recalculate.fullSyncjerarquia(models).then(function(){
@@ -184,7 +213,7 @@
 			}
 			const promesasProcs = [];
 			procs.forEach(function(proc){
-				exports.saveVersion(models, proc).then(function(){
+				saveVersion(models, proc).then(function(){
 					const deferProc = Q.defer();
 					promesasProcs.push(deferProc.promise);
 					procedimiento.fecha_version = new Date();
@@ -261,7 +290,7 @@
 			req.user.permisoscalculados.procedimientosdirectaescritura = [];
 		}
 
-		const arrays = [
+		const capacidades = [
 			'jerarquiaescritura',
 			'jerarquialectura',
 			'jerarquiadirectalectura',
@@ -272,11 +301,11 @@
 			'procedimientosdirectalectura'
 		];
 
-		for (let i = 0; i < arrays.length; i++){
-			if (!Array.isArray(req.user.permisoscalculados[arrays[i]])){
-				req.user.permisoscalculados[arrays[i]] = [];
+		capacidades.forEach(function(capacidad){
+			if (!Array.isArray(req.user.permisoscalculados[capacidad])){
+				req.user.permisoscalculados[capacidad] = [];
 			}
-		}
+		});
 	}
 
 	module.exports.updateProcedimiento = function (req, res) {
@@ -295,7 +324,7 @@
 		//comprobar si tiene permiso el usuario actual
 		setPermisosToEmptyIfNone(req);
 
-		restriccion['$or'] = [
+		restriccion.$or = [
 			{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquiaescritura.concat(req.user.permisoscalculados.jerarquiadirectaescritura)}},
 			{'codigo': {'$in': req.user.permisoscalculados.procedimientosdirectaescritura.concat(req.user.permisoscalculados.procedimientosescritura)}}
 		];
@@ -359,14 +388,14 @@
 								continue;
 							}
 							if (typeof original.periodos[anualidad][attr] === 'object' && Array.isArray(original.periodos[anualidad][attr])){
-								for (let mes = 0, meses = periodoscerrados.length; mes < meses; mes++){
-									if (!periodoscerrados[mes] || puedeEscribirSiempre) {
-									//el periodo no está cerrado y se puede realizar la asignacion
+								for (let mes = 0, meses = periodoscerrados.length; mes < meses; mes += 1){
+									if (puedeEscribirSiempre || !periodoscerrados[mes]) {
+										//el periodo no está cerrado y se puede realizar la asignacion
 										original.periodos[anualidad][attr][mes] = procedimiento.periodos[anualidad][attr][mes] === null ? null : parseInt(procedimiento.periodos[anualidad][attr][mes], 10);
 									}
 								}
 							} else {
-								original.periodos[anualidad][attr] = procedimiento.periodos[anualidad][attr] !== null ? parseInt(procedimiento.periodos[anualidad][attr], 10) : null;
+								original.periodos[anualidad][attr] = procedimiento.periodos[anualidad][attr] === null ? null : parseInt(procedimiento.periodos[anualidad][attr], 10);
 							}
 						}
 					}
@@ -390,7 +419,7 @@
 
 				recalculate.softCalculateProcedimiento(models, original).then(function(origin){
 					recalculate.softCalculateProcedimientoCache(models, origin).then(function(orig){
-						exports.saveVersion(models, orig).then(function(){
+						saveVersion(models, orig).then(function(){
 							original.fecha_version = new Date();
 							procedimientomodel.update({codigo: orig.codigo}, JSON.parse(JSON.stringify(orig)), {multi: false, upsert: false}).then(function(){
 								const promesaProc = Q.defer();
@@ -439,68 +468,38 @@
 		}
 	};
 
-	module.exports.procedimientoList = function (req, res) {
+	module.exports.procedimientoList = function(req, res) {
 		const models = req.metaenvironment.models;
 		const procedimientomodel = models.procedimiento();
 		const fields = req.query.fields;
-		const restriccion =
-			(typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia, 10))) ?
-			(typeof req.params.recursivo === 'undefined' || JSON.parse(req.params.recursivo) ? {
-				'$and': [
-						{'ancestros.id': {'$in': [parseInt(req.params.idjerarquia, 10)]}},
-						{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}},
-						{'oculto': {'$ne': true}},
-						{'eliminado': {'$ne': true}}
-					]} : {'$and': [
-						{'idjerarquia': parseInt(req.params.idjerarquia, 10)},
-						{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}},
-						{'oculto': {'$ne': true}},
-						{'eliminado': {'$ne': true}}
-					]}
-				) : {
-				'$and': [
-					{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}},
-					{'oculto': {'$ne': true}},
-					{'eliminado': {'$ne': true}}
-				]
-			};
-		if (typeof req.query.id !== 'undefined'){
-			restriccion.$and.push({_id: models.objectId(req.query.id)});
+		const restriccion = {'$and': [{'oculto': {'$ne': true}}, {'eliminado': {'$ne': true}}]};
+
+		if (typeof req.params.idjerarquia === 'string' && !isNaN(parseInt(req.params.idjerarquia, 10))){
+			if (typeof req.params.recursivo === 'string' && JSON.parse(req.params.recursivo)){
+				restriccion.$and.push({'$or': [{'ancestros.id': {'$in': [parseInt(req.params.idjerarquia, 10)]}}, {'idjerarquia': parseInt(req.params.idjerarquia, 10)}]});
+			} else {
+				restriccion.$and.push({'idjerarquia': parseInt(req.params.idjerarquia, 10)});
+			}
+		}
+
+		if (!req.user.permisoscalculados.superuser){
+			restriccion.$and.push({idjerarquia: {$in: req.user.permisoscalculados.jerarquialectura}});
+		}
+		if (typeof req.query.id === 'string'){
+			restriccion.$and.push({'_id': models.objectId(req.query.id)});
 		}
 
 		const query = procedimientomodel.find(restriccion);
-		if (typeof fields !== 'undefined') {
+		if (typeof fields === 'string') {
 			query.select(fields);
 		}
 		query.exec(req.eh.cb(res));
 	};
 
-	module.exports.saveVersion = function (models, ps) {
-		if (!ps){
-
-			return Q.all([]);
-		}
-		const procedimientos = Array.isArray(ps) ? ps : [ps];
-
-		if (procedimientos.length === 0){
-
-			return Q.all([]);
-		}
-
-		const v = procedimientos.map(function(p){
-			const t = JSON.parse(JSON.stringify(p));
-			delete t._id;
-
-			return t;
-		});
-			
-		return models.historico().insertMany(v).exec();
-	};
-
 	module.exports.totalProcedimientos = function (req, res) {
 		const procedimientomodel = req.metaenvironment.models.procedimiento();
-
-		procedimientomodel.count({idjerarquia: {$in: req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}},
+		const restriccion = req.user.permisoscalculados.superuser ? {} : {'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura}};
+		procedimientomodel.count(restriccion,
 			function (err, count) {
 				if (err){
 					req.eh.callbackErrorHelper(res, err);
@@ -514,12 +513,15 @@
 		const settings = req.metaenvironment.settings,
 			models = req.metaenvironment.models,
 			procedimientomodel = models.procedimiento(),
-			anualidad = req.params.anualidad ? parseInt(req.params.anualidad, 10) : settings.anyo;
+			anualidad = req.params.anualidad ? parseInt(req.params.anualidad, 10) : settings.anyo,
+			pipeline = [];
 
-		procedimientomodel.aggregate([
-			{'$match': {idjerarquia: {$in: req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}},
-			{'$group': {_id: '', suma: {$sum: '$periodos.a' + anualidad + '.totalsolicitados'}}}
-		], function (err, result) {
+		if (!req.user.permisoscalculados.superuser){
+			pipeline.push({'$match': {idjerarquia: {$in: req.user.permisoscalculados.jerarquialectura}}});
+		}
+		pipeline.push({'$group': {_id: '', suma: {$sum: '$periodos.a' + anualidad + '.totalsolicitados'}}});
+
+		procedimientomodel.aggregate(pipeline, function (err, result) {
 			if (err) {
 				req.eh.callbackErrorHelper(res, err);
 			} else {
@@ -532,17 +534,20 @@
 		const settings = req.metaenvironment.settings,
 			models = req.metaenvironment.models,
 			procedimientomodel = models.procedimiento(),
-			anualidad = req.params.anualidad ? parseInt(req.params.anualidad, 10) : settings.anyo;
+			anualidad = req.params.anualidad ? parseInt(req.params.anualidad, 10) : settings.anyo,
+			pipeline = [];
 
-		procedimientomodel.aggregate([
-			{'$match': {idjerarquia: {$in: req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}},
-			{'$unwind': '$periodos.a' + anualidad + '.solicitados'},
+		if (!req.user.permisoscalculados.superuser){
+			pipeline.push({'$match': {idjerarquia: {$in: req.user.permisoscalculados.jerarquialectura}}});
+		}
+		pipeline.push({'$unwind': '$periodos.a' + anualidad + '.solicitados'},
 			{'$group': {_id: '$_id', suma: {'$sum': '$periodos.a' + anualidad + '.solicitados'}, resueltos: {'$first': '$periodos.a' + anualidad + '.total_resueltos'}}},
 			{'$unwind': '$resueltos'},
 			{'$group': {_id: '$_id', suma: {'$first': '$suma'},	resueltos: {'$sum': '$resueltos'}}},
 			{'$group': {_id: '', suma: {'$sum': '$suma'}, resueltos: {'$sum': '$resueltos'}}},
-			{'$project': {'ratio': {'$divide': ['$resueltos', '$suma']}}}
-		]).then(function(result){
+			{'$project': {'ratio': {'$divide': ['$resueltos', '$suma']}}});
+
+		procedimientomodel.aggregate(pipeline).then(function(result){
 			if (result.length === 0) {
 				res.json({'ratio': 0});
 			} else {
@@ -556,15 +561,18 @@
 		const settings = req.metaenvironment.settings,
 			models = req.metaenvironment.models,
 			procedimientomodel = models.procedimiento(),
-			anualidad = req.params.anualidad ? parseInt(req.params.anualidad, 10) : settings.anyo;
+			anualidad = req.params.anualidad ? parseInt(req.params.anualidad, 10) : settings.anyo,
+			pipeline = [];
 
-		procedimientomodel.aggregate([
-			{'$match': {'idjerarquia': {$in: req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}},
-			{'$unwind': '$periodos.a' + anualidad + '.solicitados'},
+		if (!req.user.permisoscalculados.superuser){
+			pipeline.push({'$match': {idjerarquia: {$in: req.user.permisoscalculados.jerarquialectura}}});
+		}
+		pipeline.push({'$unwind': '$periodos.a' + anualidad + '.solicitados'},
 			{'$group': {'_id': '$_id', suma: {'$sum': '$periodos.a' + anualidad + '.solicitados'}}},
 			{'$match': {'suma': 0}},
-			{'$group': {'_id': '', 'total': {'$sum': 1}}}
-		], function (err, result) {
+			{'$group': {'_id': '', 'total': {'$sum': 1}}});
+
+		procedimientomodel.aggregate(pipeline, function (err, result) {
 			if (err) {
 				req.eh.callbackErrorHelper(res, err);
 			} else {
@@ -573,56 +581,12 @@
 		});
 	};
 
-	module.exports.mediaMesTramites = function (req, res) {
-		/* TODO: complete this method */
+	function notFound(req, res){
 		req.eh.notFoundHelper(res);
-			/*
-			//var anualidad = settings.anyo;
-			var Procedimiento = models.procedimiento();
-			Procedimiento.aggregate([
-				{$project: {name: {}}}
-			], function (err, count) {
-				if (err) {
-					res.status(500).json({error: 'Invocación inválida en la búsqueda del expediente'});
-				} else {
-					res.json({count: count});
-				}
-			});
-			*/
-	};
+	}
 
-	module.exports.setPeriodosCerrados = function (req, res) {
-		/* TODO: setPeriodosCerrados no realiza la transacción */
-
-		//espera recibir en el body el array de periodos cerrados
-		if (req.user.permisoscalculados && req.user.permisoscalculados.superuser) {
-			const periodoscerrados = req.body;
-/*
-			var anualidad = req.params.anualidad ? req.params.anualidad : new Date().getFullYear();
-
-			var periodoscerrados = req.body,
-				field = 'periodos.a' + anualidad + '.periodoscerrados',
-				conditions = {},
-				update = {$set: {}},
-				Procedimiento = models.procedimiento();
-
-			update.$set[ field ] = periodoscerrados;
-
-			var callback = function (err, doc) {
-				if (err) {
-					console.error(err);
-					res.status(500).end();
-					return;
-				}
-				res.json(periodoscerrados);
-			};*/
-			res.json(periodoscerrados);
-			//Procedimiento.update(conditions, update, options, callback);
-			//BUG
-		} else {
-			res.status(300);
-		}
-	};
-
+	module.exports.mediaMesTramites = notFound;
+	module.exports.setPeriodosCerrados = notFound;
+	module.exports.saveVersion = saveVersion;
 
 })(module, console);
