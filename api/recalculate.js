@@ -264,7 +264,7 @@
 
 			});
 		});
-
+/* TODO: GARANTIZAR QUE PARA TODO PERMISO DE ESCRITURA ESTÁ CONTENIDO EN LECTURA */
 		return deferred.promise;
 	}
 

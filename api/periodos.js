@@ -5,6 +5,7 @@
 	module.exports.getPeriodo = function(req, res){
 		const periodomodel = req.metaenvironment.models.periodo(),
 			id = req.params.id;
+
 		if (typeof id === 'string' && id !== ''){
 			periodomodel.findOne({'_id': req.metaenvironment.models.objectId(id)}).exec().then(req.eh.okHelper(res, true), req.eh.errorHelper(res));
 		} else {
@@ -55,7 +56,7 @@
 					periodo = cargas[1];
 
 				const periodoclone = JSON.parse(JSON.stringify(periodo));
-				Reflect.removeProperty(periodoclone, '_id');
+				Reflect.deleteProperty(periodoclone, '_id');
 
 				const anualidades = Object.keys(periodoclone);
 

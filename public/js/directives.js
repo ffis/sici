@@ -1,82 +1,83 @@
-(function(angular, $){ 'use strict';
-	angular.module('sici.directives', []).
-		directive('appVersion', ['version', function(version) {
+(function(angular, $){
+	'use strict';
+	angular.module('sici.directives', []).directive('appVersion', ['version', function(version) {
 			return function(scope, elm) {
 				elm.text(version);
 			};
-		}])
-		.filter('orderObjectBy', function(){
+		}]).filter('orderObjectBy', function(){
 			return function(input, attribute, reverse){
 				if (!angular.isObject(input)){
 					return input;
 				}
 				var array = [];
-				for(var objectKey in input){
+				for (var objectKey in input){
 					array.push(input[objectKey]);
 				}
 				array.sort(function(a, b){
 					if (typeof a[attribute] === 'string'){
-						return a[attribute].localeCompare( b[attribute] );
-					}else if (Array.isArray(attribute)) {
+						return a[attribute].localeCompare(b[attribute]);
+					} else if (Array.isArray(attribute)) {
 						var c = 0;
-						for(var i = 0; i < attribute.length && c === 0; i++)
-						{
+						for (let i = 0; i < attribute.length && c === 0; i += 1){
 							var aux = attribute[i];
-							if (typeof a[aux] === 'string'){ c = a[aux].localeCompare( b[aux] ); }
-							else{ c = a[aux] - b[aux]; }
+							if (typeof a[aux] === 'string'){
+								c = a[aux].localeCompare(b[aux]);
+							} else {
+								c = a[aux] - b[aux];
+							}
 						}
+
 						return c;
 					}
+
 					return a[attribute] - b[attribute];
 				});
 				if (typeof reverse !== 'undefined' && reverse){
 					array.reverse();
 				}
+
 				return array;
 			};
-		})
-		.directive('scrollToItem', function() {
+		}).directive('scrollToItem', function() {
 			return {
-				restrict: 'A',
-				scope: { scrollTo: '@' },
+				'restrict': 'A',
+				'scope': {'scrollTo': '@'},
 				link: function(scope, $elm) {
 					$elm.on('click', function() {
-						angular.element('html,body').animate({scrollTop: $(scope.scrollTo).offset().top - 80 }, 'slow');
+						angular.element('html,body').animate({'scrollTop': $(scope.scrollTo).offset().top - 80}, 'slow');
 					});
 				}
 			};
-		})
-		.directive('fileInput', ['$parse', function($parse){
+		}).directive('fileInput', ['$parse', function($parse){
 			return {
-				restrict: 'A',
-				link: function(scope, elm, attrs){
+				'restrict': 'A',
+				'link': function(scope, elm, attrs){
 					elm.bind('change', function(){
 						$parse(attrs.fileInput).assign(scope, elm[0].files);
 						scope.$apply();
 					});
 				}
 			};
-		}])
-		.directive('organismos', function(){
+		}]).directive('organismos', function(){
 			return {
-				restrict: 'E',
-				scope: {
-					arbol: '=',
-					tipoelementos: '=',
-					setseleccionado: '=',
-					seleccionado: '=',
-					attr: '=',
-					title: '=otitle',
-					filtro: '=filtro',
-					showprocedimientos: '=',
-					showcartas: '=',
-					setprocseleccionado: '=',
-					procseleccionado: '=',
-					setcartaseleccionada: '=',
-					cartaseleccionada: '='
+				'restrict': 'E',
+				'scope': {
+					'arbol': '=',
+					'tipoelementos': '=',
+					'setseleccionado': '=',
+					'seleccionado': '=',
+					'attr': '=',
+					'title': '=otitle',
+					'filtro': '=filtro',
+					'showprocedimientos': '=',
+					'showcartas': '=',
+					'setprocseleccionado': '=',
+					'procseleccionado': '=',
+					'setcartaseleccionada': '=',
+					'cartaseleccionada': '='
 				},
-				templateUrl: '/partials/organismos.html',
-				controller: ['$scope', '$rootScope', '$q', function($scope, $rootScope, $q){
+				'templateUrl': '/partials/organismos.html',
+				'controller': ['$scope', '$rootScope', '$q', function($scope, $rootScope, $q){
 					$scope.setSeleccionado = function(i){
 						$scope.setseleccionado(i);
 					};
@@ -102,15 +103,16 @@
 
 					$scope.fj = function(item) {
 						if (typeof $scope.filtro === 'function' && !$scope.filtro(item)){ return false; }
-						if ($scope.issuperuser) return true;
+						if ($scope.issuperuser){
+							return true;
+						}
+
 						if ($scope.jerarquiaspermitidas.indexOf(item.id) > -1){ return true; }
 						if (item.nodes){
-							for(var i = 0; i < item.nodes.length; i++){
-								if ($scope.filtrojerarquia(item.nodes[i])){
-									return true;
-								}
-							}
+
+							return item.nodes.some($scope.filtrojerarquia);
 						}
+
 						return false;
 					};
 
@@ -119,13 +121,13 @@
 						$scope.pjerarquia.then(function(){
 							def.resolve($scope.fj(item));
 							$scope.filtrojerarquia = $scope.fj;
-						},  def.reject);
+						}, def.reject);
+
 						return def.promise;
 					};
 				}]
 			};
-		})
-		.constant('AUTH_EVENTS', {
+		}).constant('AUTH_EVENTS', {
 			loginSuccess: 'auth-login-success',
 			loginFailed: 'auth-login-failed',
 			logoutSuccess: 'auth-logout-success',

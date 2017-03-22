@@ -1,7 +1,7 @@
 (function(angular, $){
 	'use strict';
-	angular.module('sici').controller('InformesCtrl', ['$rootScope', '$scope', '$window', '$http', '$timeout', 'ExportarInforme', 'PeriodosStats', 'Arbol',
-		function ($rootScope, $scope, $window, $http, $timeout, ExportarInforme, PeriodosStats, Arbol) {
+	angular.module('sici').controller('InformesCtrl', ['$rootScope', '$scope', '$timeout', 'ExportarInforme', 'PeriodosStats', 'Arbol',
+		function ($rootScope, $scope, $timeout, ExportarInforme, PeriodosStats, Arbol) {
 			$scope.funcionalidades = [
 				{'label': 'Informe global', 'selectanyo': true, 'fn': [{'label': 'Descargar Excel', 'cmd': 'descargarexcel', 'anyo': true}]},
 				{'label': 'Informe resumen', 'selectanyo': false, 'fn': [{'label': 'Generar Resumen', 'cmd': 'periodosStats', 'anyo': true}]}
@@ -12,13 +12,11 @@
 			$scope.respuestas = [];
 			$scope.tienePermisoVar = false;
 			$scope.anyos = [];
-			var maxAnyo = new Date().getFullYear();
+			const maxAnyo = new Date().getFullYear();
 
-			for (var anyo = 2014; anyo <= maxAnyo; anyo += 1){
+			for (let anyo = 2014; anyo <= maxAnyo; anyo += 1){
 				$scope.anyos.push({'code': 'a' + anyo, 'name': String(anyo), 'value': anyo});
 			}
-			
-			/* TODO: CHANGE MESSAGES TO TOASTER */
 
 			$scope.anyoSelected = $scope.anyos[$scope.anyos.length - 1];
 			$scope.anualidad = parseInt($scope.anyos[$scope.anyos.length - 2].name, 10);
@@ -34,39 +32,26 @@
 
 			$scope.invoke = function (cmd, anyoSelected) {
 				if ($scope.actualizando) {
-					$window.alert('Espere a que termine la actualización previa');
+					$rootScope.toaster('Espere a que termine la actualización previa', 'Error', 'error');
 
 					return;
 				}
 				switch (cmd) {
 					case 'descargarexcel':
 						if (!anyoSelected || !anyoSelected.code || anyoSelected.code === '') {
-							
-							$scope.respuestas.push({
-								'clase': 'alert-warning',
-								'mensaje': 'Debe seleccionar un año.'
-							});
+							$rootScope.toaster('Debe seleccionar un año', 'Error', 'error');
 
 							return;
 						}
 						$scope.actualizando += 1;
-						ExportarInforme.get({year: anyoSelected.code},
-							function (token) {
-								$scope.actualizando -= 1;
-								$scope.respuestas.push({
-									'clase': 'alert-success',
-									'mensaje': 'Ha funcionado perfectamente.'
-								});
-								var url = '/api/download/' + token.time + '/' + token.hash;
-								$window.location = url;
-							}, function() {
-								$scope.actualizando -= 1;
-								$scope.respuestas.push({
-									'clase': 'alert-warning',
-									'mensaje': 'Error al descargar el informe.'
-								});
+						ExportarInforme.get({'year': anyoSelected.code}, function (token) {
+							$scope.actualizando -= 1;
+							if (typeof token === 'object'){
+								$rootScope.cbDownload(token);
+							} else {
+								$rootScope.toaster('Error al descargar el informe', 'Error', 'error');
 							}
-						);
+						});
 					break;
 					case 'periodosStats':
 						$scope.arbol = Arbol.query();
@@ -124,18 +109,17 @@
 
 					return cached;
 				}
-				for (var i = 0, j = $scope.stats.length; i < j; i += 1){
+				for (let i = 0, j = $scope.stats.length; i < j; i += 1){
 					if ($scope.stats[i]._id.idjerarquia === nodoid && $scope.stats[i]._id.anualidad === anualidad){
-						cached = $scope.stats[i];
 
-						return cached;
+						return $scope.stats[i];
 					}
 				}
 
 				return null;
 			};
 			$scope.getTotales = function(nodoid, anualidad, campo){
-				var nodo = $scope.fnGetStatsNode(nodoid, anualidad);
+				const nodo = $scope.fnGetStatsNode(nodoid, anualidad);
 				if (!nodo){ return ''; }
 				if (!nodo.value[campo]){ return '0'; }
 

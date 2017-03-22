@@ -188,7 +188,7 @@
 					paux.push(p._id);
 				}
 
-				Reflect.removeProperty(p, '_id');
+				Reflect.deleteProperty(p, '_id');
 
 				if (req.params.login && req.params.login !== '-'){
 					p.login = req.params.login;
@@ -202,7 +202,7 @@
 				const defer = Q.defer();
 				promesasPermisos.push(defer.promise);
 
-				var op = new Permiso(p);
+				const op = new Permiso(p);
 				op.save(permisosPostSave(op, defer, models, recalculate));
 			}
 
@@ -218,7 +218,7 @@
 	module.exports.removePermisoCarta = function(req, res) {
 
 		if (typeof req.params.identidadobjeto === 'string' && req.params.identidadobjeto !== ''){
-			if (typeof req.params.idpermiso !== 'string' && req.params.idpermiso !== ''){
+			if (typeof req.params.idpermiso === 'string' && req.params.idpermiso !== ''){
 				const models = req.metaenvironment.models,
 					recalculate = req.metaenvironment.recalculate,
 					permisomodel = models.permiso(),

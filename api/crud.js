@@ -32,7 +32,7 @@
 				content = JSON.parse(JSON.stringify(req.body));
 		
 			if (typeof id === 'string' && id !== ''){
-				Reflect.removeProperty(content, '_id');
+				Reflect.deleteProperty(content, '_id');
 				obj.update({'_id': req.metaenvironment.models.objectId(id)}, content, {upsert: false}, req.eh.cbWithDefaultValue(res, req.body));
 			} else {
 				req.eh.notFoundHelper(res);

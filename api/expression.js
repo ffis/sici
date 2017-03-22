@@ -80,7 +80,7 @@
 			const esProcedimiento = parte.indexOf('/procedimiento') === 0;
 			const esIndicador = parte.indexOf('/indicador') === 0;
 			if (esProcedimiento || esIndicador){
-				const tokens = partes.split('/'),
+				const tokens = parte.split('/'),
 					id = tokens.length >= 3 ? tokens[2].trim() : '';
 				if (id.length === 24 || id.length === 12){
 					const tipo = esProcedimiento ? 'procedimientos' : 'indicadores';
@@ -92,9 +92,9 @@
 		}, {indicadores: {}, procedimientos: {}});
 
 		const promises = [].concat(Object.keys(elementosACargar.indicadores).map(function(idIndicador){
-			return indicadormodel.findOne({_id: objectid(idIndicador)}).exec();
+			return indicadormodel.findOne({_id: objectid(idIndicador)}).lean().exec();
 		}), Object.keys(elementosACargar.procedimientos).map(function(idProcedimiento){
-			return procedimientomodel.findOne({_id: objectid(idProcedimiento)}).exec();
+			return procedimientomodel.findOne({_id: objectid(idProcedimiento)}).lean().exec();
 		}));
 
 		Q.all(promises).then(function(varis){
@@ -105,12 +105,13 @@
 			}
 
 			const variables = varis.reduce(function(prev, obj){
+				if (typeof obj.valores !== 'undefined'){
 					prev[obj._id] = obj;
+				}
 
-					return prev;
-				}, {}).filter(function(idIndicador){
-					return (typeof variables[idIndicador].valores !== 'undefined');
-				});
+				return prev;
+			}, {});
+
 			const vars = JSON.parse(JSON.stringify(variables));
 			function entero(v){
 				return parseFloat(v, 10).toFixed(0);

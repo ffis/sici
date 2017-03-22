@@ -196,8 +196,11 @@
 						$scope.descargando = true;
 						$http.get('/api/v2/restricted/exportadorIndicador').then(function (res) {
 							$scope.descargando = false;
-							var url = '/api/download/' + res.data.time + '/' + res.data.hash + '?extension=' + res.data.extension;
-							$window.location = url;
+							if (typeof res.data === 'object'){
+								$rootScope.cbDownload(res.data);
+							} else {
+								$rootScope.toaster('Error al descargar el informe', 'Error', 'error');
+							}
 						}, function() {
 							$scope.descargando = false;
 							$rootScope.toaster('Error al descargar el informe', 'Error', 'error');

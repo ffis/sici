@@ -16,7 +16,7 @@
 
 		const clones = procedimientos.map(function(p){
 			const clon = JSON.parse(JSON.stringify(p));
-			Reflect.removeProperty(clon, '_id');
+			Reflect.deleteProperty(clon, '_id');
 
 			return clon;
 		});
@@ -187,7 +187,7 @@
 						recalculate.softCalculateProcedimientoCache(models, origin).then(function (orig) {
 							saveVersion(models, orig).then(function(){
 								orig.fecha_version = new Date();
-								procedimientomodel.update({codigo: orig.codigo}, JSON.parse(JSON.stringify(orig)), {multi: false, upsert: false}).then(function(){
+								procedimientomodel.update({'codigo': orig.codigo}, JSON.parse(JSON.stringify(orig)), {multi: false, upsert: false}).exec().then(function(){
 									recalculate.fullSyncjerarquia(models).then(function(){
 										res.json(orig);
 									}, req.eh.errorHelper(res));
@@ -285,28 +285,6 @@
 		return defer.promise;
 	}
 
-	function setPermisosToEmptyIfNone(req){
-		if (!req.user.permisoscalculados.procedimientosdirectaescritura){
-			req.user.permisoscalculados.procedimientosdirectaescritura = [];
-		}
-
-		const capacidades = [
-			'jerarquiaescritura',
-			'jerarquialectura',
-			'jerarquiadirectalectura',
-			'jerarquiadirectaescritura',
-			'procedimientosdirectalectura',
-			'procedimientosdirectaescritura',
-			'procedimientoslectura',
-			'procedimientosdirectalectura'
-		];
-
-		capacidades.forEach(function(capacidad){
-			if (!Array.isArray(req.user.permisoscalculados[capacidad])){
-				req.user.permisoscalculados[capacidad] = [];
-			}
-		});
-	}
 
 	module.exports.updateProcedimiento = function (req, res) {
 		const models = req.metaenvironment.models,
@@ -321,19 +299,19 @@
 		if (typeof req.params.codigo === 'string'){
 			restriccion.codigo = req.params.codigo;
 		}
-		//comprobar si tiene permiso el usuario actual
-		setPermisosToEmptyIfNone(req);
 
-		restriccion.$or = [
-			{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquiaescritura.concat(req.user.permisoscalculados.jerarquiadirectaescritura)}},
-			{'codigo': {'$in': req.user.permisoscalculados.procedimientosdirectaescritura.concat(req.user.permisoscalculados.procedimientosescritura)}}
-		];
+		if (!req.user.permisoscalculados.superuser){
+			restriccion.$or = [
+				{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquiaescritura.concat(req.user.permisoscalculados.jerarquiadirectaescritura)}},
+				{'codigo': {'$in': req.user.permisoscalculados.procedimientosdirectaescritura.concat(req.user.permisoscalculados.procedimientosescritura)}}
+			];
+		}
 
 		const deferPeriodos = periodomodel.findOne();
 
-		procedimientomodel.findOne(restriccion).then(function(original){
+		procedimientomodel.findOne(restriccion).exec().then(function(original){
 
-			if (typeof original !== 'object') {
+			if (!original || typeof original !== 'object') {
 				req.eh.callbackErrorHelper(res, {error: 'Error en updateProcedimiento (Procedimiento.findOne, original === null)', restriccion: restriccion});
 			
 				return;
@@ -421,7 +399,8 @@
 					recalculate.softCalculateProcedimientoCache(models, origin).then(function(orig){
 						saveVersion(models, orig).then(function(){
 							original.fecha_version = new Date();
-							procedimientomodel.update({codigo: orig.codigo}, JSON.parse(JSON.stringify(orig)), {multi: false, upsert: false}).then(function(){
+							console.log(orig);
+							procedimientomodel.update({'codigo': orig.codigo}, JSON.parse(JSON.stringify(orig))).then(function(){
 								const promesaProc = Q.defer();
 
 								if (codplazaChanged) {

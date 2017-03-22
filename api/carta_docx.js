@@ -41,7 +41,7 @@
 	}
 
 	function angularParser(tag){
-		return {get: expressions.compile(tag)};
+		return {'get': expressions.compile(tag)};
 	}
 
 	const FILE = 'FILE',
@@ -54,19 +54,19 @@
 		//set the templateVariables
 		//params.imagen  = './data/gauge.png';
 			//.attachModule(imagedocx)
-		doc.load(content).setOptions({parser: angularParser}).setData(params);
+		doc.load(content).setOptions({'parser': angularParser}).setData(params);
 		try {
 			doc.render();
 			if (outputtype === FILE){
 
-				const buf = doc.getZip().generate({type: 'nodebuffer'});
+				const buf = doc.getZip().generate({'type': 'nodebuffer'});
 				const filename = path.join(pathdir, outputparams);
 
 				fs.writeFileSync(filename, buf);
 				cb(null, 'ok');
 			} else if (outputtype === BUFFER){
 
-				const buf = doc.getZip().generate({type: 'nodebuffer'});
+				const buf = doc.getZip().generate({'type': 'nodebuffer'});
 				const filename = path.join(pathdir, outputparams);
 				fs.writeFileSync(filename, buf);
 				cb(null, filename);
@@ -80,7 +80,7 @@
 	}
 
 	function toFixedIfNeeds2(n){
-		if (n === +n && n !== (n | 0) ){
+		if (n === Number(n) && n !== (n | 0) ){
 		
 			return n.toFixed(2);
 		}
@@ -200,7 +200,8 @@
 
 	function getIndicador(id, indicadorescargados){
 		for (let i = 0, j = indicadorescargados.length; i < j; i += 1){
-			if ((indicadorescargados[i]._id + '') === (id + '')){
+			if (String(indicadorescargados[i]._id) === String(id)){
+
 				return indicadorescargados[i];
 			}
 		}
@@ -312,7 +313,7 @@
 	function loadPlan(models, planmodel, accionmodel, personamodel, organicamodel, carta, anualidad){
 		const q = Q.defer();
 
-		planmodel.findOne({'carta': '' + models.objectId(carta._id), anualidad: anualidad}).lean().exec().then(function(plan){
+		planmodel.findOne({'carta': String(carta._id), anualidad: anualidad}).lean().exec().then(function(plan){
 			if (!plan){
 				q.reject({error: 'plan not found'});
 

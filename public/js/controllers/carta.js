@@ -219,13 +219,12 @@
 				};
 
 				$scope.bgColorResultadoParcial = function(sumatorio, metaparcial, meta, formula){
-					if (sumatorio === ''){
-						return {};
-					}
-					var result = '';
-					if (!sumatorio || sumatorio === 0 || sumatorio === ''){
+					if (sumatorio === null || sumatorio === '' || isNaN(sumatorio)){
+
 						return '';
 					}
+
+					var result = '';
 					var coef = meta / metaparcial;
 					for (var i = 0, j = formula.intervalos.length; i < j; i += 1){
 						if (sumatorio * coef >= formula.intervalos[i].min && sumatorio * coef <= formula.intervalos[i].max){
@@ -317,7 +316,7 @@
 					$location.path(url);
 				};
 				$scope.bgColorResultado = function(resultado, formula){
-					if (!resultado || resultado === 0 || resultado === ''){
+					if (resultado === null || resultado === '' || isNaN(resultado)){
 						
 						return '';
 					}
@@ -337,8 +336,11 @@
 					$scope.descargando = true;
 					$http.get('/api/v2/public/exportadorCarta/' + $scope.cartaservicioseleccionada._id + '/' + $scope.anualidad).then(function (res) {
 						$scope.descargando = false;
-						var url = '/api/download/' + res.data.time + '/' + res.data.hash + '?extension=' + res.data.extension;
-						$window.location = url;
+						if (typeof res.data === 'object'){
+							$rootScope.cbDownload(res.data);
+						} else {
+							$rootScope.toaster('Error al descargar el informe', 'Error', 'error');
+						}
 					}, function() {
 						$scope.descargando = false;
 						$rootScope.toaster('Error al descargar el informe', 'Error', 'error');

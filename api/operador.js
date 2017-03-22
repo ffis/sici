@@ -17,7 +17,7 @@
 					content = JSON.parse(JSON.stringify(req.body));
 				Reflect.deleteProperty(content, '_id');
 				
-				operadormodel.update({'_id': req.metaenvironment.models.objectId(req.params.id)}, content, {upsert: true}, req.eh.cbWithDefaultValue(res, req.body));
+				operadormodel.update({'_id': req.metaenvironment.models.objectId(req.params.id)}, content, req.eh.cbWithDefaultValue(res, req.body));
 			} else {
 				req.eh.unauthorizedHelper(res);
 			}

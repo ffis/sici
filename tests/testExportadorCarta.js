@@ -18,8 +18,7 @@ usage: mocha testExportadorCarta.js
 		Ec = require('../api/exportador_carta'),
 		config = require('../config.json');
 
-	if (typeof describe === 'function')
-	{
+	if (typeof describe === 'function'){
 
 		describe('ExportadorCarta', function(){
 			var ec,

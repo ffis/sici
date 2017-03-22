@@ -3,13 +3,29 @@
 	angular.module('sici')
 		.controller('DetallesOrganicaCtrl', ['$q', '$rootScope', '$scope', '$routeParams', '$window', '$location', '$timeout', '$http', '$log', 'JerarquiaAncestros', 'Periodo', 'ExportarResultadosJerarquia', 'ResumenNodoJerarquia', 'Jerarquia',
 			function ($q, $rootScope, $scope, $routeParams, $window, $location, $timeout, $http, $log, JerarquiaAncestros, Periodo, ExportarResultadosJerarquia, ResumenNodoJerarquia, Jerarquia) {
-
+				$scope.actualizando = 0;
 				$scope.numgraphs = 0;
 				$scope.graficasbarras = false;
 				$scope.mesActual = (new Date()).getMonth();
 				$scope.graphs = false;
 				$scope.padre = '';
 				$scope.ancestros = [];
+
+				$scope.resetAnualidad = function(){
+					$scope.anualidad = 'a' + (new Date()).getFullYear();
+					$scope.anualidades = [];
+				};
+				$scope.calculateAnualidades = function(){
+					if (typeof $scope.resumenJerarquiaSeleccionada === 'object'){
+						const anualidades = Object.keys($scope.resumenJerarquiaSeleccionada.periodos);
+						anualidades.sort(function(a, b){ return a - b; });
+						$scope.anualidades = anualidades.map(function(aanualidad){ return {str: parseInt(aanualidad.substring(1, 5), 10), value: aanualidad}; });
+
+					} else {
+						$scope.anualidades = [];		
+					}
+				};
+				$scope.resetAnualidad();
 
 				$scope.periodos = Periodo.query(function(){
 					$scope.periodo = $scope.periodos[0];
@@ -20,106 +36,82 @@
 					return $scope.ancestros;
 				};
 
-				$scope.nextYear = function () {
-					var year = parseInt($scope.anualidad.replace('a', '')) + 1;
-					$scope.anualidad = '' + (year);
-					$scope.updateGraphKeys(year);
+				$scope.getIntAnualidad = function(){ return parseInt($scope.anualidad.substring(1, 5), 10); };
+				$scope.goToYear = function(y){
+					$scope.anualidad = 'a' + String(y);
+					$scope.updateGraphKeys();
 				};
+				$scope.getNext = function(){ return $scope.getIntAnualidad() + 1; };
+				$scope.getPrev = function(){ return $scope.getIntAnualidad() - 1; };
 
-				$scope.exists = function (attr) {
-					if ($scope.anualidad) {
-						return $scope.resumenJerarquiaSeleccionada[$scope.anualidad] &&
-							typeof $scope.resumenJerarquiaSeleccionada[$scope.anualidad][attr] !== 'undefined';
-					}
+				$scope.nextYear = function () {
+					$scope.anualidad = 'a' + String($scope.getIntAnualidad() + 1);
+					$scope.updateGraphKeys();
 				};
 
 				$scope.prevYear = function () {
-					var year = parseInt($scope.anualidad.replace('a', '')) - 1;
-					$scope.anualidad = '' + (year);
-					$scope.updateGraphKeys(year);
+					$scope.anualidad = 'a' + String($scope.getIntAnualidad() - 1);
+					$scope.updateGraphKeys();
 				};
 
-				$scope.getNext = function () {
-					if ($scope.anualidad) {
-						return '' + (parseInt($scope.anualidad.replace('a', '')) + 1);
-					}
-				};
-
-				$scope.getPrev = function () {
-					if ($scope.anualidad) {
-						return '' + (parseInt($scope.anualidad.replace('a', '')) - 1);
-					}
-				};
-
-				$scope.editarPadre = function () {
-					$scope.mostrarAutocompletePadre = true;
-				};
-
-				$scope.ocultarEditarPadre = function () {
-					$scope.mostrarAutocompletePadre = false;
-				};
-
-				$scope.deletePadre = function () {
-					$scope.procedimientoSeleccionado.padre = null;
-					$scope.procedimientoSeleccionado.$update(function (response) {
-						$log.error(response);
-					});
-					$scope.nombrePadre = 'Sin definir';
+				$scope.exists = function (attr) {
+					
+					return $scope.anualidad && $scope.resumenJerarquiaSeleccionada[$scope.anualidad] &&
+						typeof $scope.resumenJerarquiaSeleccionada[$scope.anualidad][attr] !== 'undefined';
 				};
 
 				$scope.descargarExcel = function () {
-					$scope.actualizando = 1;
+					if ($scope.actualizando === 0){
+						$scope.actualizando += 1;
 
-					ExportarResultadosJerarquia.get({jerarquia: $scope.jerarquiaSeleccionada.id}, function (token) {
-						$scope.actualizando = 0;
-						$scope.respuesta = {
-							clase: 'alert-success',
-							mensaje: 'Ha funcionado correctamente.'
-						};
-						var url = '/api/download/' + token.time + '/' + token.hash;
-						$window.location = url;
-					}, function () {
-						$scope.actualizando = 0;
-						$scope.respuesta = {
-							clase: 'alert-warning',
-							mensaje: 'Error al descargar el informe.'
-						};
-					});
+						ExportarResultadosJerarquia.get({'jerarquia': $scope.jerarquiaSeleccionada.id}).$promise.then(function(token){
+							$scope.actualizando -= 1;
+							if (typeof token === 'object'){
+								$rootScope.cbDownload(token);
+							} else {
+								$rootScope.toaster('Error al descargar el informe', 'Error', 'error');
+							}
+						}, function(){
+							$scope.actualizando -= 1;
+							$rootScope.toaster('Error al descargar el informe.', 'Error', 'error');
+						});
+					} else {
+						$rootScope.toaster('Espere a que termine la generación y descarga del informe previo solicitado.', 'Error', 'error');
+					}
 				};
 
-				$scope.updateGraphKeys = function(anualidad) {
-					anualidad = parseInt(anualidad);
-					$log.log('voy a dibujar anualidad=' + anualidad);
+				$scope.updateGraphKeys = function(){
+					const anualidad = $scope.getIntAnualidad();
 					var anualidadAnterior = anualidad - 1;
 					var graphskeys = [
 						{
 							caption: 'RESUMEN DE DATOS DE GESTIÓN ' + anualidad,
 							keys: [
-								{caption: 'Solicitados', vals: '' + anualidad + '.solicitados', maxx: $scope.mesActual},
-								{caption: 'Iniciados', vals: '' + anualidad + '.iniciados', maxx: $scope.mesActual},
-								{caption: 'Pendientes', vals: '' + anualidad + '.pendientes', maxx: $scope.mesActual},
-								{caption: 'Total resueltos', vals: '' + anualidad + '.total_resueltos', maxx: $scope.mesActual},
-								{caption: 'Total resueltos ' + anualidadAnterior, vals: '' + anualidadAnterior + '.total_resueltos', maxx: 12}
+								{caption: 'Solicitados', vals: 'periodos.a' + anualidad + '.solicitados', maxx: $scope.mesActual},
+								{caption: 'Iniciados', vals: 'periodos.a' + anualidad + '.iniciados', maxx: $scope.mesActual},
+								{caption: 'Pendientes', vals: 'periodos.a' + anualidad + '.pendientes', maxx: $scope.mesActual},
+								{caption: 'Total resueltos', vals: 'periodos.a' + anualidad + '.total_resueltos', maxx: $scope.mesActual},
+								{caption: 'Total resueltos ' + anualidadAnterior, vals: 'periodos.a' + anualidadAnterior + '.total_resueltos', maxx: 12}
 							]
 						},
 						{
 							caption: 'RESUELTOS EN PLAZO ' + anualidad,
 							keys: [
-								{caption: 'En plazo', vals: '' + anualidad + '.en_plazo', maxx: $scope.mesActual},
-								{caption: 'Fuera de plazo', vals: '' + anualidad + '.fuera_plazo', maxx: $scope.mesActual}
+								{caption: 'En plazo', vals: 'periodos.a' + anualidad + '.en_plazo', maxx: $scope.mesActual},
+								{caption: 'Fuera de plazo', vals: 'periodos.a' + anualidad + '.fuera_plazo', maxx: $scope.mesActual}
 							]
 						},
 						{
 							caption: 'DESESTIMIENTOS/RENUNCIAS Y PRESCRITOS/CADUCADOS ' + anualidad,
 							keys: [
-								{caption: 'Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)', vals: '' + anualidad + '.resueltos_desistimiento_renuncia_caducidad', maxx: $scope.mesActual},
-								{caption: 'Resueltos por Prescripcion/Caducidad (Resp_Admon)', vals: '' + anualidad + '.resueltos_prescripcion', maxx: $scope.mesActual}
+								{caption: 'Resueltos por Desistimiento/Renuncia/Caducidad (Resp_Ciudadano)', vals: 'periodos.a' + anualidad + '.resueltos_desistimiento_renuncia_caducidad', maxx: $scope.mesActual},
+								{caption: 'Resueltos por Prescripcion/Caducidad (Resp_Admon)', vals: 'periodos.a' + anualidad + '.resueltos_prescripcion', maxx: $scope.mesActual}
 							]
 						},
 						{
-							caption: 'QUEJAS Y RECURSOS CONTRA EL PROCEDIMIENTO ' + anualidad, keys: [
-								{caption: 'Quejas presentadas en el mes', vals: '' + anualidad + '.quejas', maxx: $scope.mesActual},
-								{caption: 'Recursos presentados en el mes', vals: '' + anualidad + '.recursos', maxx: $scope.mesActual}
+							caption: 'QUEJAS Y RECURSOS CONTRA LOS PROCEDIMIENTOS DE LA JERARQUÍA ' + anualidad, keys: [
+								{caption: 'Quejas presentadas en el mes', vals: 'periodos.a' + anualidad + '.quejas', maxx: $scope.mesActual},
+								{caption: 'Recursos presentados en el mes', vals: 'periodos.a' + anualidad + '.recursos', maxx: $scope.mesActual}
 							]
 						}
 					];
@@ -144,7 +136,7 @@
 							if (typeof k !== 'undefined' && k.length > 0) {
 								k.forEach(function (val, idx) {
 									//dibujar meses anteriores al actual
-									if ((anualidad < $scope.anualidadActual) || ( (idx <= graphskeys[i].keys[indx].maxx) && (anualidad === $scope.anualidadActual) )) {
+									if ((anualidad < $scope.getIntAnualidad()) || ( (idx <= graphskeys[i].keys[indx].maxx) && (anualidad === $scope.getIntAnualidad()) )) {
 										values.push([idx, val]);
 										if (maxvalue < val){
 											maxvalue = val;
@@ -156,39 +148,32 @@
 								}
 							} else {
 								$log.log('Index malo:' + JSON.stringify(indexes));
-								$log.log(JSON.stringify($scope.resumenJerarquiaSeleccionada));
+								//$log.log(JSON.stringify($scope.resumenJerarquiaSeleccionada));
 							}
 						});
 						var forcey = [0, Math.ceil(maxvalue * 1.3)];
 						if (maxvalue > 0 && data.length > 0) {
 
-							$scope.graphs.push({data: data, forcey: forcey, caption: caption});
-							$scope.numgraphs = $scope.numgraphs + 1;
-							$log.log($scope.graphs);
+							$scope.graphs.push({'data': data, 'forcey': forcey, 'caption': caption});
+							$scope.numgraphs += 1;
 						}
 					});
 				};
 
+				$scope.resumenJerarquiaSeleccionada = ResumenNodoJerarquia.get({'jerarquia': $routeParams.idjerarquia}, function(){
+					$scope.calculateAnualidades();
+					$scope.updateGraphKeys();
+				});
 
-				$scope.resumenJerarquiaSeleccionada = ResumenNodoJerarquia.get({jerarquia: $routeParams.idjerarquia},
-					function(){
-						$scope.updateGraphKeys($scope.anualidad.replace('a', ''));
-					}
-				);
-
-				$scope.jerarquiaSeleccionada = Jerarquia.get({id: $routeParams.idjerarquia}, function () {
+				$scope.jerarquiaSeleccionada = Jerarquia.get({'id': $routeParams.idjerarquia}, function () {
 					$rootScope.setTitle('$scope.jerarquiaSeleccionada.nombrelargo');
-					$scope.anualidad = '' + (new Date()).getFullYear();
-					$scope.anualidadActual = parseInt($scope.anualidad.replace('a', ''));
-					//$scope.procedimientosPadre = ProcedimientoList.query({'idjerarquia': $scope.procedimientoSeleccionado.idjerarquia, 'recursivo': false});
+					$scope.resetAnualidad();
 
 					$scope.ancestros = JerarquiaAncestros.query({'idjerarquia': $routeParams.idjerarquia}, function(){
-						if ($scope.ancestros && $scope.ancestros[0] && $scope.ancestros[0].id === 1)
-						{
+						if ($scope.ancestros && $scope.ancestros[0] && $scope.ancestros[0].id === 1){
 							$scope.ancestros.reverse();//TODO: revisar este parche
 						}
 					});
-
 
 					$scope.superuser = $rootScope.superuser();
 
@@ -245,18 +230,12 @@
 						return colorCategory(i);
 					};
 				};
+			}
+		]);
 
-				$scope.checkNumber = function (data, anualidad, attr, index) {
+})(angular, d3);
 
-					$scope.cellChanged = ($scope.resumenJerarquiaSeleccionada[anualidad][attr][index] !== data);
-
-					var valor = parseInt(data);
-					if (isNaN(valor) || !/^\d+$/.test(data)) {
-						return 'Esto no es un número';
-					} else if (valor < 0) {
-						return 'No se admiten valores menores de 0';
-					}
-				};
+/*
 
 			//    $scope.downloadGraphic = function (id) {
 			//        console.log(id);
@@ -298,8 +277,4 @@
 			//            a.click();
 			//        };
 			//    };
-
-			}
-		]);
-
-})(angular, d3);
+*/

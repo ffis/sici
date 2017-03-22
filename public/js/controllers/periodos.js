@@ -8,7 +8,7 @@
 			$scope.periodo = false;
 
 			$scope.load = function(){
-				$scope.periodos = Periodo.query( function(){
+				$scope.periodos = Periodo.query(function(){
 					if ($scope.periodos.length){
 						$scope.periodo = $scope.periodos[0];
 					}
@@ -17,7 +17,7 @@
 			$scope.load();
 			$scope.actualizar = function(periodo, clave, index){
 				periodo[clave][index] = parseInt(periodo[clave][index], 10);
-				periodo.$update(function(){
+				periodo.$update().then(function(){
 					$scope.cambios = [];
 				});
 			};

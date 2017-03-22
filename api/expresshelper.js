@@ -1,4 +1,4 @@
-(function(module){
+(function(module, logger){
 	'use strict';
 
 	module.exports.cbWithDefaultValue = function(res, defaultvalue){
@@ -38,6 +38,7 @@
 			if (Number.isInteger(errCode)){
 				errorCode = errCode;
 			}
+			logger.error(err);
 			res.status(errorCode).json({'error': message, details: err});
 		};
 	};
@@ -69,7 +70,7 @@
 		res.status(400).json({'error': 'Missing parameter', details: parametername});
 	};
 
-})(module);
+})(module, console);
 
 /*
 req.eh.okHelper(res, true), req.eh.errorHelper(res)

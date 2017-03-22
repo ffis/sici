@@ -109,12 +109,11 @@
 	}
 
 	function saveVersion(models, indicador){
-		const Historico = models.historicoindicador();
+		const historicoindicadormodel = models.historicoindicador();
 		const v = JSON.parse(JSON.stringify(indicador));
-		Reflect.removeProperty(v, '_id');
-		const version = new Historico(v);
+		Reflect.deleteProperty(v, '_id');
 
-		return version.save();
+		return historicoindicadormodel.create(v);
 	}
 
 	module.exports.objetivosStats = function(req, res){
@@ -210,21 +209,29 @@
 	function recalculateIndicador(indicador, actualizacion){
 		const acumuladorestratables = ['sum', 'mean', 'max', 'min'];
 
-		for (const attr in indicador.observaciones){
-			if (Array.isArray(indicador.observaciones[attr])){
-				indicador.observaciones[attr] = indicador.observaciones[attr].map(function(observacion){ return observacion.trim(); });
-			}
-		}
-		for (const attr in indicador.valores){
-			if (typeof indicador.valoresacumulados[attr] === 'undefined'){
-				indicador.valoresacumulados[attr] = [null, null, null, null, null, null, null, null, null, null, null, null, null];
+		for (const anualidad in indicador.observaciones){
+			if (Array.isArray(indicador.observaciones[anualidad])){
+				indicador.observaciones[anualidad] = indicador.observaciones[anualidad].map(function(observacion){ return typeof observacion === 'string' ? observacion.trim() : ''; });
+			} else {
+				indicador.observaciones[anualidad] = ['', '', '', '', '', '', '', '', '', '', '', ''];
 			}
 
-			for (let i = 0, j = indicador.valores[attr].length; i < j - 1; i += 1){
-				if (actualizacion.valores[attr][i] === null || actualizacion.valores[attr][i] === ''){
-					indicador.valores[attr][i] = null;
+			if (Array.isArray(actualizacion.observaciones[anualidad])){
+				indicador.observaciones[anualidad] = actualizacion.observaciones[anualidad].map(function(observacion){ return typeof observacion === 'string' ? observacion.trim() : ''; });
+			}
+		}
+
+		for (const anualidad in indicador.valores){
+			if (typeof indicador.valoresacumulados[anualidad] === 'undefined'){
+				indicador.valoresacumulados[anualidad] = [null, null, null, null, null, null, null, null, null, null, null, null, null];
+			}
+
+			for (let i = 0, j = indicador.valores[anualidad].length; i < j - 1; i += 1){
+				if (actualizacion.valores[anualidad][i] === null || actualizacion.valores[anualidad][i] === ''){
+					indicador.valores[anualidad][i] = null;
 				} else {
-					indicador.valores[attr][i] = isNaN(actualizacion.valores[attr][i]) ? 0 : parseFloat(actualizacion.valores[attr][i], 10);
+					indicador.valores[anualidad][i] = isNaN(actualizacion.valores[anualidad][i]) ? null : parseFloat(actualizacion.valores[anualidad][i], 10);
+					indicador.valores[anualidad][i] = isNaN(indicador.valores[anualidad][i]) ? null : indicador.valores[anualidad][i];
 				}
 			}
 		}
@@ -237,32 +244,34 @@
 
 		if (indicador.acumulador === 'sum'){
 			for (const attr in indicador.valores){
-				let suma = 0;
-				for (let i = 0, j = indicador.valores[attr].length; i < j - 1; i += 1){
+				let suma = 0, j = indicador.valores[attr].length;
+				for (let i = 0; i < j - 1; i += 1){
 					if (!isNaN(actualizacion.valores[attr][i])){
 						suma += indicador.valores[attr][i];
 					}
 					indicador.valoresacumulados[attr][i] = suma;
 				}
-				indicador.valores[attr][indicador.valores[attr].length - 1] = suma;
-				indicador.valoresacumulados[attr][indicador.valores[attr].length - 1] = suma;
+				indicador.valores[attr][j - 1] = suma;
+				indicador.valoresacumulados[attr][j - 1] = suma;
 			}
 		} else if (indicador.acumulador === 'mean'){
+
 			for (const attr in indicador.valores){
 				let suma = 0;
 				let nindicadoresdistintosde0 = 0;
 				for (let i = 0, j = indicador.valores[attr].length; i < j - 1; i += 1){
 					if (!isNaN(actualizacion.valores[attr][i])){
 						suma += indicador.valores[attr][i];
-						if (!actualizacion.valores[attr][i] !== null && !isNaN(actualizacion.valores[attr][i]) && parseInt(actualizacion.valores[attr][i], 10) !== 0 ){
+						if (!actualizacion.valores[attr][i] !== null && !isNaN(actualizacion.valores[attr][i])){
 							nindicadoresdistintosde0++;
 						}
 					}
 					indicador.valoresacumulados[attr][i] = suma;
 				}
-				indicador.valores[attr][indicador.valores[attr].length - 1] = (nindicadoresdistintosde0 > 0) ? suma / nindicadoresdistintosde0 : 0;
+				indicador.valores[attr][indicador.valores[attr].length - 1] = (nindicadoresdistintosde0 > 0) ? (suma / nindicadoresdistintosde0) : 0;
 				indicador.valoresacumulados[attr][indicador.valores[attr].length - 1] = suma;
 			}
+
 		} else if (indicador.acumulador === 'max'){
 			for (const attr in indicador.valores){
 				let max = 0;
@@ -303,9 +312,9 @@
 		if (typeof req.params.id === 'string' && req.params.id !== ''){
 			const id = req.params.id,
 				actualizacion = req.body;
+			indicadormodel.findOne({'_id': models.objectId(id)}).lean().exec().then(function(indicador){
 
-			indicadormodel.findOne({'_id': models.objectId(id)}).exec().then(function(indicador){
-				if (indicador) {
+				if (indicador){
 					const permiso = req.user.permisoscalculados.superuser || req.user.permisoscalculados.jerarquiaescritura.indexOf(indicador.idjerarquia) !== -1;
 					if (permiso){
 						saveVersion(models, indicador).then(function(){
@@ -326,13 +335,9 @@
 							}
 
 							recalculateIndicador(indicador, actualizacion);
-							indicador.markModified('valores');
-							indicador.markModified('valoresacumulados');
-							indicador.markModified('observaciones');
-							indicador.markModified('medidas');
 							indicador.fechaversion = new Date();
 
-							indicador.save(req.eh.cb(res));
+							indicadormodel.update({'_id': models.objectId(id)}, JSON.parse(JSON.stringify(indicador)), req.eh.cbWithDefaultValue(res, indicador));
 						}, req.eh.errorHelper(res));
 
 					} else {
@@ -354,28 +359,32 @@
 	 * @param {string} res - Expressjs response like.
 	 */
 	module.exports.actualizaobjetivo = function(req, res){
-		if (typeof req.params.id === 'string' && req.params.id.trim() !== ''){
-			const models = req.metaenvironment.models;
-			const objetivomodel = models.objetivo();
-			objetivomodel.findOne({'_id': req.metaenvironment.models.objectId(req.params.id)}).lean().exec().then(function(objetivo){
-				if (objetivo){
-					if (req.user.permisoscalculados.superuser || req.user.permisoscalculados.entidadobjetoescritura.indexOf(String(objetivo.carta)) !== -1){
-						for (const attr in req.body){
-							//TODO: change this naive update method
-							if (typeof objetivo[attr] !== 'undefined'){
-								objetivo[attr] = req.body[attr];
+		if (req.user.permisoscalculados.superuser){
+			if (typeof req.params.id === 'string' && req.params.id.trim() !== ''){
+				const models = req.metaenvironment.models;
+				const objetivomodel = models.objetivo();
+				objetivomodel.findOne({'_id': req.metaenvironment.models.objectId(req.params.id)}).lean().exec().then(function(objetivo){
+					if (objetivo){
+						if (req.user.permisoscalculados.superuser || req.user.permisoscalculados.entidadobjetoescritura.indexOf(String(objetivo.carta)) !== -1){
+							for (const attr in req.body){
+								//TODO: change this naive update method
+								if (typeof objetivo[attr] !== 'undefined'){
+									objetivo[attr] = req.body[attr];
+								}
 							}
+							objetivomodel.update({'_id': models.objectId(objetivo._id)}, objetivo, req.eh.cbWithDefaultValue(res, objetivo));
+						} else {
+							req.eh.unauthorizedHelper(res);
 						}
-						objetivomodel.update({'_id': models.objectId(objetivo._id)}, objetivo, req.eh.cbWithDefaultValue(res, objetivo));
 					} else {
-						req.eh.unauthorizedHelper(res);
+						req.eh.notFoundHelper(res);
 					}
-				} else {
-					req.eh.notFoundHelper(res);
-				}
-			}, req.eh.errorHelper(res));
+				}, req.eh.errorHelper(res));
+			} else {
+				req.eh.missingParameterHelper(res, 'id');
+			}
 		} else {
-			req.eh.missingParameterHelper(res, 'id');
+			req.eh.unauthorizedHelper(res);
 		}
 	};
 
@@ -397,7 +406,6 @@
 				}
 			}
 			objetivo.formulas[idformula].valores = valoressimplicado;
-			objetivo.markModified('formulas');
 			promise.resolve();
 		};
 	}
@@ -407,37 +415,36 @@
 		const objetivomodel = req.metaenvironment.models.objetivo();
 		const carta = req.query.carta;
 
-		if (typeof req.params.id !== 'undefined'){
+		if (typeof req.params.id === 'string'){
 			const restriccion = {'_id': models.objectId(req.params.id)};
 			objetivomodel.findOne(restriccion).lean().exec().then(function(objetivo){
 
-				if (!(req.user.permisoscalculados.superuser || req.user.permisoscalculados.entidadobjetoescritura.indexOf(String(objetivo.carta)) !== -1)){
-					req.eh.unauthorizedHelper(res);
-
-					return;
-				}
-				if (!objetivo){
-					res.json(objetivo);
-				
-					return;
-				}
-				const expresion = new Expression(models);
-				const promises = [];
-				
-				for (let i = 0, j = objetivo.formulas.length; i < j; i += 1){
-					if (objetivo.formulas[i].computer !== ''){
-						const defer = Q.defer();
-						expresion.evalFormula(objetivo.formulas[i].computer, fnPostEvalFormula(defer, objetivo, i));
-						promises.push(defer.promise);
+				if (req.user.permisoscalculados.superuser || req.user.permisoscalculados.entidadobjetolectura.indexOf(String(objetivo.carta)) > -1){
+					if (typeof objetivo !== 'object'){
+						res.json(null);
+					
+						return;
 					}
+					const expresion = new Expression(models);
+					const promises = [];
+					
+					for (let i = 0, j = objetivo.formulas.length; i < j; i += 1){
+						if (objetivo.formulas[i].computer.trim() !== ''){
+							const defer = Q.defer();
+							expresion.evalFormula(objetivo.formulas[i].computer, fnPostEvalFormula(defer, objetivo, i));
+							promises.push(defer.promise);
+						}
+					}
+					Q.all(promises).then(function(){
+						objetivomodel.update({'_id': models.objectId(objetivo._id)}, objetivo, req.eh.cbWithDefaultValue(res, objetivo));
+					}, function(error){
+						//fallo con la formula
+						logger.error(error);
+						res.json(objetivo);
+					});
+				} else {
+					req.eh.unauthorizedHelper(res);
 				}
-				Q.all(promises).then(function(){
-					objetivomodel.update({'_id': models.objectId(objetivo._id)}, objetivo, req.eh.cbWithDefaultValue(res, objetivo));
-				}, function(error){
-					//fallo con la formula
-					logger.error(error);
-					res.json(objetivo);
-				});
 			}, req.eh.errorHelper(res));
 
 			return;
@@ -447,7 +454,11 @@
 			return;
 		}
 
-		objetivomodel.find({'carta': models.objectId(carta)}).sort({'index': 1}).exec().then(req.eh.okHelper(res, true), req.eh.errorHelper(res));
+		if (req.user.permisoscalculados.superuser || req.user.permisoscalculados.entidadobjetolectura.indexOf(carta) > -1){
+			objetivomodel.find({'carta': models.objectId(carta)}).sort({'index': 1}).exec().then(req.eh.okHelper(res, true), req.eh.errorHelper(res));
+		} else {
+			req.eh.unauthorizedHelper(res);
+		}
 	};
 
 
@@ -820,6 +831,7 @@
 	module.exports.downloadCarta = downloadCarta;
 	module.exports.extractAndSaveIndicadores = extractAndSaveIndicadores;
 	module.exports.newIndicador = newIndicador;
+	module.exports.recalculateIndicador = recalculateIndicador;
 	module.exports.saveVersion = saveVersion;
 
 })(module, console);

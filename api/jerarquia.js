@@ -24,8 +24,18 @@
 	module.exports.getResumenJerarquia = function(req, res) {
 		const idjerarquia = req.params.idjerarquia;
 		if (typeof idjerarquia === 'string' && idjerarquia !== '' && parseInt(idjerarquia, 10) > 0){
+			const idj = parseInt(req.params.idjerarquia, 10);
 			const exportador = req.metaenvironment.exportador;
-			exportador.mapReducePeriodos(req.metaenvironment.models, parseInt(req.params.idjerarquia, 10), req.permisoscalculados).then(req.eh.okHelper(res, false), req.eh.errorHelper(res));
+			exportador.mapReducePeriodos(req.metaenvironment.models, idj, req.permisoscalculados).then(function(results){
+				const plain = results.filter(function(result){
+					return result._id.idjerarquia == idj;
+				}).reduce(function(prev, element){
+					prev.periodos['a' + element._id.anualidad] = element.value;
+					return prev;
+				}, {periodos:{}});
+
+				res.json(plain);
+			}, req.eh.errorHelper(res));
 		} else {
 			req.eh.notFoundHelper(res);
 		}

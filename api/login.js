@@ -4,11 +4,27 @@
 	const crypto = require('crypto'),
 		jsonwebtoken = require('jsonwebtoken');
 
+	const capacidades = [
+		'jerarquialectura',
+		'jerarquiaescritura',
+		'procedimientoslectura',
+		'procedimientosescritura',
+		'entidadobjetolectura',
+		'entidadobjetoescritura',
+		'jerarquiadirectalectura',
+		'jerarquiadirectaescritura',
+		'procedimientosdirectalectura',
+		'procedimientosdirectaescritura',
+		'entidadobjetodirectalectura',
+		'entidadobjetodirectaescritura'
+	];
+
 	function sortHelper(a, b){
 		return a > b;
 	}
 
 	function filterHelper(a, b){
+		console.log(a, b)
 		if (a.slice(-1)[0] !== b){
 			a.push(b);
 		}
@@ -17,6 +33,7 @@
 	}
 
 	function calcularPermisos(permisos){
+
 		const nowtime = (new Date()).getTime();
 		const permisoscalculados = permisos.filter(function(permiso){
 
@@ -25,33 +42,37 @@
 			prev.superuser = prev.superuser || permiso.superuser;
 			prev.grantoption = prev.grantoption || permiso.grantoption;
 
-			prev.jerarquialectura = prev.jerarquialectura.concat(permiso.jerarquialectura, permiso.jerarquiaescritura);
-			prev.jerarquiaescritura = prev.jerarquiaescritura.concat(permiso.jerarquiaescritura);
+			capacidades.forEach(function(capacidad){
 
-			prev.procedimientoslectura = prev.procedimientoslectura.concat(permiso.procedimientoslectura, permiso.procedimientosescritura);
-			prev.procedimientosescritura = prev.procedimientosescritura.concat(permiso.procedimientosescritura);
-
-			prev.entidadobjetolectura = prev.entidadobjetolectura.concat(permiso.entidadobjetolectura, permiso.entidadobjetoescritura);
-			prev.entidadobjetoescritura = prev.entidadobjetoescritura.concat(permiso.entidadobjetoescritura);
+				if (permiso[capacidad] && Array.isArray(permiso[capacidad]) && permiso[capacidad].length > 0){
+					prev[capacidad] = prev[capacidad].concat(permiso[capacidad]);
+				}
+			});
 
 			return prev;
 		}, {
-			jerarquialectura: [],
-			jerarquiaescritura: [],
-			procedimientoslectura: [],
-			procedimientosescritura: [],
-			entidadobjetolectura: [],
-			entidadobjetoescritura: [],
-			superuser: false,
-			grantoption: false
+			'jerarquialectura': [],
+			'jerarquiaescritura': [],
+			'procedimientoslectura': [],
+			'procedimientosescritura': [],
+			'entidadobjetolectura': [],
+			'entidadobjetoescritura': [],
+			'jerarquiadirectalectura': [],
+			'jerarquiadirectaescritura': [],
+			'procedimientosdirectalectura': [],
+			'procedimientosdirectaescritura': [],
+			'entidadobjetodirectalectura': [],
+			'entidadobjetodirectaescritura': [],
+			'superuser': false,
+			'grantoption': false
 		});
 
-		permisoscalculados.jerarquialectura = permisoscalculados.jerarquialectura.sort(sortHelper).reduce(filterHelper, []);
-		permisoscalculados.jerarquiaescritura = permisoscalculados.jerarquiaescritura.sort(sortHelper).reduce(filterHelper, []);
-		permisoscalculados.procedimientoslectura = permisoscalculados.procedimientoslectura.sort(sortHelper).reduce(filterHelper, []);
-		permisoscalculados.procedimientosescritura = permisoscalculados.procedimientosescritura.sort(sortHelper).reduce(filterHelper, []);
-		permisoscalculados.entidadobjetolectura = permisoscalculados.entidadobjetolectura.sort(sortHelper).reduce(filterHelper, []);
-		permisoscalculados.entidadobjetoescritura = permisoscalculados.entidadobjetoescritura.sort(sortHelper).reduce(filterHelper, []);
+		capacidades.forEach(function(capacidad){
+			if (permisoscalculados[capacidad].length > 0){
+				require('uniq')(permisoscalculados[capacidad]);
+				//permisoscalculados[capacidad] = permisoscalculados[permisoscalculados].sort(sortHelper).reduce(filterHelper, []);
+			}
+		});
 
 		return permisoscalculados;
 	}

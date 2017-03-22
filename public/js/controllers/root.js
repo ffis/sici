@@ -195,6 +195,11 @@
 				}
 			};
 
+			$rootScope.cbDownload = function (token) {
+				var url = '/api/download/' + token.time + '/' + token.hash + (token.extension ? '?extension=' + token.extension : '');
+				$window.location = url;
+			};
+
 			$rootScope.apiFeedback = null;
 
 			$rootScope.report = function(){

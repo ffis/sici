@@ -129,7 +129,7 @@
 															{{indicadores[indicadorid].nombre}}
 														</td>
 														<td ng-repeat="(v,a) in indicadores[indicadorid].valores[aanualidad] track by $index" style="white-space:nowrap" class="text-right">
-															<div ng-show="W_Indicador">
+															<div ng-show="WIndicador">
 																<input ng-hide="$index == indicadores[indicadorid].valores[aanualidad].length - 1" ng-blur="updateIndicador(indicadorid)" type="text" style="width:3em; font-size:smaller; padding:1px; min-width:100%" class="text-right form-control" ng-model="indicadores[indicadorid].valores[aanualidad][v]" />
 																<span ng-if="$index == indicadores[indicadorid].valores[aanualidad].length - 1">
 																	<span ng-show="indicadores[indicadorid].acumulador === 'sum' ">∑</span>
@@ -139,7 +139,7 @@
 																	= {{ indicadores[indicadorid].valores[aanualidad][v] | number:($root.isInt(indicadores[indicadorid].valores[aanualidad][v]) ? 0 : 2)   }}
 																</span>
 															</div>
-															<div class="text-right" ng-show="!W_Indicador && R_Indicador">
+															<div class="text-right" ng-show="!WIndicador && RIndicador">
 																<span ng-if="$index == indicadores[indicadorid].valores[aanualidad].length - 1">
 																	<span ng-show="indicadores[indicadorid].acumulador === 'sum' ">∑</span>
 																	<span ng-show="indicadores[indicadorid].acumulador === 'mean' ">x&#772;</span>

@@ -21,7 +21,7 @@
 			$scope.itemsPerPage = 20;
 			$scope.currentPage = 0;
 
-			var fecha = new Date();
+			const fecha = new Date();
 			$scope.anualidad = 'a' + fecha.getFullYear();
 			$scope.mesanterior = fecha.getMonth() - 1;
 			if ($scope.mesanterior < 0){
@@ -42,7 +42,6 @@
 					$scope.etiquetasPorTipo[etiqueta.familia].push(etiqueta);
 				});
 			});
-
 
 			var camposProcedimientos = [
 				'codigo', 'denominacion', 'cod_plaza',
@@ -92,7 +91,7 @@
 				$rootScope.jerarquiaescritura().then(function(j2){
 					$scope.jerarquia = j.concat(j2);
 					defjerarquia.resolve($scope.jerarquia);
-				});
+				}, defjerarquia.reject);
 			});
 
 			/*$scope.filtrojerarquia*/
@@ -308,13 +307,8 @@
 				$scope.actualizando = 1;
 				ExportarResultadosJerarquia.get({jerarquia: $scope.seleccionado.id}, function (token) {
 					$scope.actualizando = 0;
-					if (token){
-						$scope.respuesta = {
-							clase: 'alert-success',
-							mensaje: 'Ha funcionado correctamente.'
-						};
-						var url = '/api/download/' + token.time + '/' + token.hash;
-						$window.location = url;
+					if (typeof token === 'object'){
+						$rootScope.cbDownload(token);
 					} else {
 						$scope.respuesta = {
 							clase: 'alert-warning',

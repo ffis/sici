@@ -68,7 +68,7 @@
 			bot = new Bot(metaenvironment);
 
 		this.app.use('/v1', v1.app);
-		this.app.use('/v1', v2.app);
+		this.app.use('/v2', v2.app);
 		this.app.use('/bot', bot.app);
 
 

@@ -22,14 +22,11 @@
   "dependencies": {
     "ng-file-upload": "~11.0.0",
     "jquery.easy-pie-chart": "~2.1.6",
-    "d3": "~3.5.12",
     "angular": "latest",
     "angular-route": "latest",
     "angular-resource": "latest",
-    "angularjs-nvd3-directives": "latest",
     "angular-xeditable": "~0.1.9",
     "angular-translate": "~2.8.1",
-    "nvd3": "latest",
     "allmighty-autocomplete": "*",
     "angular-bootstrap-colorpicker": "~3.0.22",
     "angular-bootstrap": "~0.14.3",
@@ -48,14 +45,17 @@
     "angular-sanitize": "latest",
     "angular-i18n": "^1.5.0",
     "angular-animate-css": "^0.0.4",
-    "angular-downloadsvg-directive": "^0.1.5"
+    "angular-downloadsvg-directive": "^0.1.5",
+    "nvd3": "^1.8.5",
+    "d3": "^4.7.3",
+    "angularjs-nvd3-directives": "^0.0.7"
   },
   "resolutions": {
-    "d3": "~3.4.13",
+    "d3": "^3.4.4",
     "ng-file-upload": "~11.0.0",
     "angular": "latest",
     "angular-translate": "~2.8.1",
-    "nvd3": "~1.8.1",
+    "nvd3": "^1.8.5",
     "angular-bootstrap": "~0.14.3"
   }
 }
