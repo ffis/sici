@@ -5,6 +5,7 @@
   "dependencies": {
     "angular-expressions": "^0.3.0",
     "body-parser": "^1.10.2",
+    "cas": "0.0.3",
     "compression": "^1.4.1",
     "crawler": "^0.4.3",
     "crypto": "0.0.3",

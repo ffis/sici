@@ -17,6 +17,7 @@
 			api: require('./util'),
 			cartadocx: require('./carta_docx'),
 			carta: require('./carta'),
+			cas: require('./cas'),
 			csvsici: require('./csvsici'),
 			entidadobjeto: require('./entidadobjeto'),
 			expresshelper: require('./expresshelper'),
@@ -51,11 +52,15 @@
 			req.eh = metaenvironment.expresshelper;
 			next();
 		});
-		if (cfg.logincarm){
-			this.app.use('/authenticate', metaenvironment.logincarm.uncrypt, metaenvironment.login.authenticate);
-		} else {
+
+		//if (cfg.logincarm){
+		this.app.use('/authenticate', metaenvironment.cas.casLogin, metaenvironment.login.authenticate);
+		//	this.app.use('/authenticate', metaenvironment.logincarm.uncrypt, metaenvironment.login.authenticate);
+		//}
+		/* else {
 			this.app.use('/authenticate', metaenvironment.login.authenticate);
 		}
+		*/
 
 		this.app.use('/download/:token/:hash', metaenvironment.exportador.download);
 

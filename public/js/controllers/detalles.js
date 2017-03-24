@@ -21,7 +21,6 @@
 				$scope.mensajeMoviendo = '';
 				$scope.msjBase = 'Moviendo (Esta operación puede tardar un tiempo)...';
 
-
 				$scope.getIntAnualidad = function(){ return parseInt($scope.anualidad.substring(1, 5), 10); };
 
 				$scope.getNext = function(){ return $scope.getIntAnualidad() + 1; };

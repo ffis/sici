@@ -33,16 +33,20 @@
 	mongoose.set('debug', config.mongodb.debug);
 	models.init(mongoose);
 
-	var Settings = models.settings();
+	const settingsmodel = models.settings();
 
-	Settings.find().sort({'version': -1}).limit(1).exec(function (err, cfgs) {
+	process.on('error', function(err){
+		logger.error(err);
+	});
+
+	settingsmodel.find().sort({'version': -1}).lean().limit(1).exec(function (err, cfgs) {
 		if (err){
 			throw err;
 		}
 		logger.log('Cargada configuración de forma exitosa');
 
-		var tmpdirectory = path.join(__dirname, config.tmpdir) + path.sep;
-		var cfg = cfgs[0];
+		const tmpdirectory = path.join(__dirname, config.tmpdir) + path.sep;
+		const cfg = cfgs[0];
 		cfg.prefixtmp = tmpdirectory;
 
 		app.disable('x-powered-by');
@@ -58,12 +62,12 @@
 
 		if (process.env.DEBUG_MEMORY && os.platform() === 'linux'){
 			setProgressMessage('Estableciendo rutas: memory');
-			var memwatch = require('memwatch-next');
+			const memwatch = require('memwatch-next');
 			process.nextTick(function(){
-				var previousinvoke = new memwatch.HeapDiff();
+				let previousinvoke = new memwatch.HeapDiff();
 				app.get('/memory', function(req, res){
 					if (global && global.gc){ global.gc(); }
-					var diff = previousinvoke.end();
+					const diff = previousinvoke.end();
 					previousinvoke = new memwatch.HeapDiff();
 					diff.change.details.sort(function(a, b){ return (b.size_bytes - a.size_bytes); });
 					res.json(diff);
@@ -71,8 +75,7 @@
 			});
 		}
 
-
-		var filetipologin = (cfg.logincarm) ? path.join(__dirname, 'public', 'js', 'logincarm.util.js') : path.join(__dirname, 'public', 'js', 'login.util.js');
+		const filetipologin = path.join(__dirname, 'public', 'js', 'login.cas.js');
 		app.get('/tipologin.js', function (req, res) {
 			res.sendFile(filetipologin);
 		});
@@ -83,7 +86,7 @@
 
 		logger.log('Establecidas las rutas.                                                                         ');
 
-		var server = http.createServer(app);
+		const server = http.createServer(app);
 		server.listen(app.get('port'), function () {
 			require('./api/socketioconsole')(server);
 			logger.log('Servidor escuchando en puerto ' + app.get('port'));

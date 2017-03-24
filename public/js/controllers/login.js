@@ -20,8 +20,8 @@
 			$scope.logout = function(){ AuthService.logout(); };
 			$scope.mensaje = '';
 		}
-	]).controller('LoginCtrl', ['$scope', '$rootScope', 'AUTH_EVENTS', 'AuthService', '$window', '$location', '$route',
-		function ($scope, $rootScope, AUTH_EVENTS, AuthService, $window, $location, $route){
+	]).controller('LoginCtrl', ['$scope', '$rootScope', 'AUTH_EVENTS', 'AuthService', '$window', '$location', '$route', '$log',
+		function ($scope, $rootScope, AUTH_EVENTS, AuthService, $window, $location, $route, $log){
 
 			$rootScope.setTitle('Inicio de sesión');
 			$scope.imagen = 'background: transparent url("/imgs/flag.svg")';
@@ -32,17 +32,27 @@
 				if (!$rootScope.loginCarm && (credentials.username.trim() === '' || credentials.password.trim() === '' )){
 					$scope.mensaje = 'Introduzca su nombre de usuario y contraseña para continuar';
 				} else {
-					AuthService.login(credentials).then(function() {
+					if (AuthService.isAuthenticated()){
+						$log.log('Ya autenticado JWT');
 						$rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
 						$scope.mensaje = '';
 						$location.path('/');
 						$rootScope.logeado = true;
 						$route.reload();
-					}, function(){
-						$scope.mensaje = 'Error: Usuario o contraseña incorrectos';
-						$rootScope.$broadcast(AUTH_EVENTS.loginFailed);
-						$scope.credentials.password = '';
-					});
+					} else {
+						$log.log('No autenticado, let\'s test');
+						AuthService.login(credentials).then(function() {
+							$rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+							$scope.mensaje = '';
+							$location.path('/');
+							$rootScope.logeado = true;
+							$route.reload();
+						}, function(){
+							$scope.mensaje = 'Error: Usuario o contraseña incorrectos';
+							$rootScope.$broadcast(AUTH_EVENTS.loginFailed);
+							$scope.credentials.password = '';
+						});
+					}
 				}
 			};
 			$scope.mensaje = '';

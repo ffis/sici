@@ -4,17 +4,35 @@
 	var schemas = {};
 	var mapconstructors = {};
 	var schemasfields = {
-		crawled: {'id': Number, 'jerarquia': [String], 'completo': String, 'oculto': Boolean, 'eliminado': Boolean, 'expires': Date},
-		guiacarm: {'id': Number, 'titulo': String},
-		settings: {'version': Number, 'secret': String, 'secret2': String, 'anyo': String, 'port': Number, 'urlbasedecrypt': String, 'logincarm': Boolean, 'ws_url': String, 'ws_user': String, 'ws_pwd': String, 'downloadhashprefix': String, 'session_time': Number},
-		reglasinconsistencias: {'titulo': String, 'restriccion': String},
-		historico: {},
-		historicoindicador: {},
+		'crawled': {'id': Number, 'jerarquia': [String], 'completo': String, 'oculto': Boolean, 'eliminado': Boolean, 'expires': Date},
+		'guiacarm': {'id': Number, 'titulo': String},
+		'settings': {
+			'version': Number,
+			'secret': String,
+			'secret2': String,
+			'anyo': String,
+			'port': Number,
+			'urlbasedecrypt': String,
+			'logincarm': Boolean,
+			'ws_url': String,
+			'ws_user': String,
+			'ws_pwd': String,
+			'downloadhashprefix': String,
+			'session_time': Number,
+			'cas': {
+				'baseurl': String,
+				'login': String,
+				'service': String
+			}
+		},
+		'reglasinconsistencias': {'titulo': String, 'restriccion': String},
+		'historico': {},
+		'historicoindicador': {},
 		//periodo: { a2013:[Number], a2014:[Number], a2015:[Number], a2016:[Number] },
-		periodo: {},
-		planmejora: {},
-		accionmejora: {},
-		feedback: {
+		'periodo': {},
+		'planmejora': {},
+		'accionmejora': {},
+		'feedback': {
 			'usr': String,
 			'fecha': Date,
 			'url': String,
@@ -25,7 +43,7 @@
 			'tipo': String,
 			'destinatario': String
 		},
-		persona: {
+		'persona': {
 			'codplaza': String,
 			'login': String,
 			'nombre': String,
@@ -41,7 +59,7 @@
 				'comentario': String
 			}]
 		},
-		permiso: {
+		'permiso': {
 			'codplaza': String,
 			'login': String,
 			'jerarquialectura': [Number], /*calculados, cacheados*/
@@ -62,12 +80,12 @@
 			'superuser': Number,
 			'cod_plaza_grantt': String
 		},
-		registroactividad: {
+		'registroactividad': {
 			'usr': String,
 			'fecha': Date,
 			'url': String
 		},
-		expediente: {
+		'expediente': {
 			'idexpediente': String,
 			'procedimiento': String,
 			'fechainicio': Date,
@@ -80,7 +98,7 @@
 			'diashabiles': Number,
 			'diasnaturales': Number
 		},
-		jerarquia: {
+		'jerarquia': {
 			'nombre': String,
 			'nombrelargo': String,
 			'tipo': String,
@@ -93,7 +111,7 @@
 			'numprocedimientos': Number,
 			'numcartas': Number
 		},
-		importacionesprocedimiento: {
+		'importacionesprocedimiento': {
 			'login_importador': String,
 			'fichero': String,
 			'time': Date,
@@ -104,13 +122,13 @@
 			//'avisos': AnyType
 			//'errores': AnyType
 		},
-		etiqueta: {
+		'etiqueta': {
 			'_id': String,
 			'descripcion': String,
 			'familia': String,
 			'color': String
 		},
-		plantillaanualidad: {
+		'plantillaanualidad': {
 			'actualizado': [Number],
 			'plazo_maximo_resolver': Number,
 			'plazo_maximo_responder': Number,
@@ -147,7 +165,7 @@
 				'Posible incumplimiento de compromisos': [Number]
 			}
 		},
-		procedimiento: {
+		'procedimiento': {
 			'codigo': String,
 			'denominacion': String,
 			'idjerarquia': Number,
@@ -187,7 +205,7 @@
 				'a2014': plantillaanualidad
 			}*/
 		}, /* dic-2015 */
-		entidadobjeto: {
+		'entidadobjeto': {
 			'codigo': Number,
 			'denominacion': String,
 			'url': String,
@@ -200,7 +218,7 @@
 			'eliminado': Boolean,
 			'expediente': String
 		},
-		objetivo: {
+		'objetivo': {
 			//'carta': Schema.Types.ObjectId,
 			'codigo': Number,
 			'denominacion': String,
@@ -227,12 +245,12 @@
 				}]
 			}]
 		},
-		indicador: {
+		'indicador': {
 			'id': Number,
 			'nombre': String,
 			'idjerarquia': Number,
 			'resturl': String,
-			'fechaversion': {type: Date, default: Date.now},
+			'fechaversion': {'type': Date, 'default': Date.now},
 			'vinculacion': String,
 			'frecuencia': String,
 			'pendiente': Boolean,
@@ -243,7 +261,7 @@
 			'medidas': 'Mixed',
 			'valoresacumulados': 'Mixed'
 		},
-		operador: {
+		'operador': {
 			'texto': String,
 			'valor': String
 		}

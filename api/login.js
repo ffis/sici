@@ -138,7 +138,7 @@
 
 	module.exports.authenticate = function(req, res){
 
-		const restriccion = {login: req.body.username, habilitado: true};
+		const restriccion = {'login': req.body.username, 'habilitado': true};
 		if (req.body.notcarmuser){
 			const shasum = crypto.createHash('sha256');
 			shasum.update(req.body.password);

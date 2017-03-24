@@ -175,14 +175,14 @@
 			Permiso = models.permiso();
 
 
-		 getPermisosByLoginPlaza(req.params, models, req.user.login, req.user.codplaza).then(function(permisos){
+		getPermisosByLoginPlaza(req.params, models, req.user.login, req.user.codplaza).then(function(permisos){
 			const paux = [];
 			const promesasPermisos = [];
 
 			for (let i = 0; i < permisos.length; i += 1){
 				const p = JSON.parse(JSON.stringify(permisos[i]));
 
-				if (paux.indexOf(p._id) !== -1){
+				if (paux.indexOf(p._id) > -1){
 					continue;
 				} else {
 					paux.push(p._id);

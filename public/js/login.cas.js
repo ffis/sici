@@ -1,18 +1,19 @@
 (function(angular){ 'use strict';
-angular.module('sici.login.util', ['ngResource'])
-	.service('Session', ['$rootScope', '$window', '$log', '$cookieStore',
+angular.module('sici.login.util', ['ngResource']).service('Session',
+	['$rootScope', '$window', '$log', '$cookieStore',
 		function ($rootScope, $window, $log, $cookieStore) {
 			this.userId = false;
-			this.create = function (data) {
-				var attr;
+			this.create = function(data){
+
 				if (data){
 					data.date = new Date().getTime();
-					for(attr in data){
+					for (let attr in data){
 						this[attr] = data[attr];
 					}
 
 					$rootScope.setLogeado(true);
 					$window.localStorage.client_session = JSON.stringify(data);
+
 					return this;
 				} else if ($window.localStorage.client_session){
 					$log.debug('Cargando desde session storage');
@@ -21,9 +22,9 @@ angular.module('sici.login.util', ['ngResource'])
 					if (suser){
 						user = JSON.parse(suser);
 					}
-					var today = new Date().getTime();
+					const today = new Date().getTime();
 					if (user && (today - user.date) < 86400000) { /* 1 day */
-						for(attr in user){
+						for (let attr in user){
 							this[attr] = user[attr];
 						}
 						$rootScope.setLogeado(true);
@@ -35,6 +36,7 @@ angular.module('sici.login.util', ['ngResource'])
 
 					return this;
 				}
+
 				return false;
 			};
 			this.destroy = function () {
@@ -48,6 +50,7 @@ angular.module('sici.login.util', ['ngResource'])
 				$cookieStore.remove('JSESSIONID');
 				document.cookie = 'JSESSIONID=; Path=/SICI_SSO/; HttpOnly; expires=Thu, 01 Jan 1970 00:00:00 UTC';
 			};
+
 			return this;
 		}
 	]).run(['$rootScope', 'AUTH_EVENTS', 'AuthService',
@@ -59,68 +62,96 @@ angular.module('sici.login.util', ['ngResource'])
 				}
 			});
 		}
-	]).run(['$rootScope', '$location', 'AuthService', '$log',
-		function ($rootScope, $location, AuthService, $log) {
-			$rootScope.$on('$routeChangeStart', function (event, next) {
-				if (!AuthService.isAuthenticated() && next && next.templateUrl !== 'partials/login.html'){
-					$log.debug('No autenticado e intentando acceder a otra dirección. Vamos a login');
-					$location.path('/login');
-				} else if (AuthService.isAuthenticated() && next && next.templateUrl === 'partials/login.html') {
-					$log.debug('Autenticado e intentando acceder a login. Vamos a /');
+	]).run(['$rootScope', '$location', 'AuthService', '$log', '$http', '$window',
+		function ($rootScope, $location, AuthService, $log, $http, $window) {
+			if (typeof $location.search().ticket === 'string' && $location.search().ticket.trim() !== ''){
+				$http.get('/api/authenticate', {'params': {'ticket': $location.search().ticket}}).success(function(data){
+					$window.localStorage.token = data.token;
+					$log.info('Contraseña válida');
+					Session.create(data.profile);
 					$location.path('/welcome');
-				} else if (next && next.templateUrl) {
-					//ignorable
-					$log.debug(next.templateUrl);
-				} else {
-					$log.debug(next);
-				}
-			});
+				}).error(function(){
+					$log.info('Contraseña no válida');
+					delete $window.localStorage.token;
+				});
+			} else {
+				$rootScope.$on('$routeChangeStart', function (event, next) {
+					if (!AuthService.isAuthenticated() && next && next.templateUrl !== 'partials/login.html'){
+						$log.debug('No autenticado e intentando acceder a otra dirección. Vamos a login');
+						$location.path('/login');
+					} else if (AuthService.isAuthenticated() && next && next.templateUrl === 'partials/login.html') {
+						$log.debug('Autenticado e intentando acceder a login. Vamos a /');
+						$location.path('/welcome');
+					} else if (next && next.templateUrl) {
+						//ignorable
+						$log.debug(next.templateUrl);
+					} else {
+						$log.debug(next);
+					}
+				});
+			}
 		}
-	]).factory('AuthService',	 ['$http', 'Session', '$rootScope', '$location', '$route', '$window', '$log', '$q',
+	]).factory('AuthService', ['$http', 'Session', '$rootScope', '$location', '$route', '$window', '$log', '$q',
 		function ($http, Session, $rootScope, $location, $route, $window, $log, $q) {
 			return {
 				carmlogin: true,
 				login: function (credentials) {
-					if (!!credentials.notcarmuser){
-						return $http.post('/api/authenticate', credentials)
-							.success(function (data) {
-								$window.localStorage.token = data.token;
-								$log.info('Contraseña válida');
-								Session.create(data.profile);
-							}).error(function(){
-								$log.info('Contraseña no válida');
-								delete $window.localStorage.token;
-							});
+					$log.log('credentials', credentials);
+					if (Boolean(credentials.notcarmuser)){
+
+						return $http.post('/api/authenticate', credentials).success(function(data){
+							$window.localStorage.token = data.token;
+							$log.info('Contraseña válida');
+							Session.create(data.profile);
+						}).error(function(){
+							$log.info('Contraseña no válida');
+							delete $window.localStorage.token;
+						});
 					} else {
-						var urlconsulta = '/SICI_SSO/LoginSSO';
-						var urllogin = '/SICI_SSO/';
-						var deferred = $q.defer();
-						$http.get(urlconsulta).success(
-							function(data){
-								if (typeof data.t === 'undefined'){
-									$log.info('URL sesión no iniciada');
-									var full = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
-									$window.location.href = full + urllogin;
-								} else {
-									/** hacemos un post a la dirección del login. Esperamos respuesta. Si statusCode=401 hay error de autenticación **/
-									$http.post('/api/authenticate', data)
-										.success(function (httpdata) {
-											$window.localStorage.token = httpdata.token;
-											$log.info('Contraseña válida');
-											Session.create(httpdata.profile);
-											deferred.resolve(httpdata.profile);
-										}).error(function(){
-											$log.info('Contraseña no válida');
-											delete $window.localStorage.token;
-											deferred.reject();
-										});
-								}
+
+						if (Session.create() && $rootScope.logeado){
+							const deferred = $q.defer();
+							deferred.resolve();
+
+							return deferred.promise;
+						}
+						
+						const urlconsulta = '/api/authenticate';
+						const deferred = $q.defer();
+						$http.get(urlconsulta).then(function(data){
+							$log.log(data);
+
+							if (typeof data.t === 'undefined'){
+								$log.info('URL sesión no iniciada');
+								var full = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
+								$window.location.href = full + urllogin;
+							} else {
+								/** hacemos un post a la dirección del login. Esperamos respuesta. Si statusCode=401 hay error de autenticación **/
+								$http.post('/api/authenticate', data)
+									.success(function (httpdata) {
+										$window.localStorage.token = httpdata.token;
+										$log.info('Contraseña válida');
+										Session.create(httpdata.profile);
+										deferred.resolve(httpdata.profile);
+									}).error(function(){
+										$log.info('Contraseña no válida');
+										delete $window.localStorage.token;
+										deferred.reject();
+									});
 							}
-						).error(function(data){
-							$log.info('URL sesión no iniciada');
-							$window.alert('He fallado ' + JSON.stringify(data));
+						}, function(res){
+							$log.log('130', res.data);
+							//$log.info('URL sesión no iniciada');
+							//$window.alert('He fallado ' + JSON.stringify(data));
+
+							if (typeof res.data.redirect === 'string'){
+								$log.log('136', res.data.redirect);
+								$window.location.href = res.data.redirect;
+							}
+
 							deferred.reject();
 						});
+
 						return deferred.promise;
 					}
 				},
@@ -149,7 +180,7 @@ angular.module('sici.login.util', ['ngResource'])
 						});
 				},
 				isAuthenticated: function () {
-					return $window.localStorage.token && (!!Session.userId || !!Session.create());
+					return $window.localStorage.token && (Boolean(Session.userId) || Boolean(Session.create()));
 				},
 				isAuthorized: function (authorizedRoles) {
 					return true; // dejamos abierta la puerta a un futuro uso de esto
@@ -165,10 +196,12 @@ angular.module('sici.login.util', ['ngResource'])
 					if ($window.localStorage.token) {
 						config.headers.Authorization = 'Bearer ' + $window.localStorage.token;
 					}
+
 					return config;
 				},
 				response: function (response) {
 					if (response.status === 401) { // handle the case where the user is not authenticated
+
 						return $q.reject(response);
 					}
 

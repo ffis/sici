@@ -2,16 +2,17 @@
 	'use strict';
 
 	const Q = require('q');
-	const attrsOrigenjerarquia = ['jerarquialectura', 'jerarquiaescritura'];
+	const attrprocedimientos = ['procedimientoslectura', 'procedimientosescritura'];
+	const attrprocedimientosDirecto = ['procedimientosdirectalectura', 'procedimientosdirectaescritura'];
+	const attrentidadesobjeto = ['entidadobjetolectura', 'entidadobjetoescritura'];
+	const attrentidadesobjetoDirecto = ['entidadobjetodirectalectura', 'entidadobjetodirectaescritura'];
+	const attrsjerarquia = ['jerarquialectura', 'jerarquiaescritura'];
+	const attrsjerarquiaDirecto = ['jerarquiadirectalectura', 'jerarquiadirectaescritura'];
 
 	function parseStr2Int(str){
-		var valor = parseInt(str, 10);
-		if (isNaN(valor)){
+		const valor = parseInt(str, 10);
 
-			return 0;
-		}
-
-		return valor;
+		return isNaN(valor) ? 0 : valor;
 	}
 
 	function reportError(e){
@@ -19,8 +20,10 @@
 			logger.error(e);
 		}
 	}
-
+/*
 	function habilitaPersonasConPermisos(personamodel, permiso){
+		// TODO: there's a better way to do this
+
 		const restriccionPersona = {};
 		if (permiso.login){
 			restriccionPersona.login = permiso.login;
@@ -32,22 +35,49 @@
 		if (permiso.login || permiso.codplaza){
 			personamodel.update(restriccionPersona, {'$set': {'habilitado': true}}, {'multi': 1}, reportError);
 		}
+		
 	}
-
-	function updatePermisoAttr(defer, attr, idprop, permiso) {
+*/
+	function updatePermisoAttr(defer, attr, idprop, permiso){
 		return function (err, objetos) {
 			if (err) {
 				defer.reject(err);
 			} else {
-
-				objetos.forEach(function(objeto) {
-					if (permiso[attr].indexOf(String(objeto[idprop])) < 0){
-						permiso[attr].push(String(objeto[idprop]));
-					}
+				objetos.forEach(function(objeto){
+					permiso[attr].push(String(objeto[idprop]));
 				});
 				defer.resolve();
 			}
 		};
+	}
+
+	function restauraModeloPermiso(models, permiso){
+		const schemapermiso = models.getSchema('permiso');
+		for (const attr in schemapermiso){
+			if (Array.isArray(schemapermiso[attr])){
+				if (!Array.isArray(permiso[attr])){
+					permiso[attr] = [];
+				}
+
+				/* TODO: GARANTIZAR QUE PARA TODO PERMISO DE ESCRITURA ESTÁ CONTENIDO EN LECTURA */
+				/* parche */
+				if (attr.endsWith('escritura')){
+					const attrlectura = attr.replace('escritura', 'lectura');
+					if (!Array.isArray(permiso[attrlectura])){
+						permiso[attrlectura] = [];
+					}
+					if (permiso[attr].length > 0){
+						permiso[attrlectura] = permiso[attrlectura].concat(permiso[attr]);
+						require('uniq')(permiso[attrlectura]);
+					}
+				}
+				/* fin parche */
+
+				if (permiso[attr].length > 0){
+					require('uniq')(permiso[attr]);
+				}
+			}
+		}
 	}
 
 	/*
@@ -56,18 +86,18 @@
 	'jerarquiadirectaescritura' : [Number],
 	'procedimientosdirectalectura' : [Number],
 	'procedimientosdirectaescritura' : [Number],
+	'entidadobjetodirectalectura' : [Number],
+	'entidadobjetodirectaescritura' : [Number],
 	 */
 	function softCalculatePermiso(models, permiso) {
 		const jerarquiamodel = models.jerarquia();
 		const procedimientomodel = models.procedimiento();
 		const entidadObjetomodel = models.entidadobjeto();
-		const personamodel = models.persona();
-
 
 		const deferred = Q.defer();
-		const deferredProcedimiento = Q.defer();
-		const deferredEntidadObjeto = Q.defer();
-		const defsPEO = [deferredProcedimiento.promise, deferredEntidadObjeto.promise];
+		const recalculosPendientes = [];
+
+		restauraModeloPermiso(models, permiso);
 
 		permiso.jerarquialectura = [];
 		permiso.jerarquiaescritura = [];
@@ -76,195 +106,142 @@
 		permiso.entidadobjetolectura = [];
 		permiso.entidadobjetoescritura = [];
 
-		/**** PARCHE PARA HABILITAR A LAS PERSONAS CON ALGÚN PERMISO ***/
-		habilitaPersonasConPermisos(personamodel, permiso);
-		/**** FIN PARCHE ***/
-
 		// comprobamos que cualquier permiso sobre procedimiento permite leer la jerarquia a que pertenece.
-		let superarray = (Array.isArray(permiso.procedimientosdirectalectura) ? permiso.procedimientosdirectalectura : []);
-		superarray = superarray.concat(Array.isArray(permiso.procedimientosdirectaescritura) ? permiso.procedimientosdirectaescritura : []);
-		let restriccionProc = null;
-		if (superarray.length > 0){
-			restriccionProc = {'$or': [{'codigo': {'$in': superarray}}]};
+		const procedimientospermitidos = [].concat(permiso.procedimientosdirectalectura, permiso.procedimientosdirectaescritura);
+		const entidadesobjetopermitidas = [].concat(permiso.entidadobjetodirectalectura, permiso.entidadobjetodirectaescritura);
+		
+		let restriccionProc = false;
+		let restriccionEo = false;
+
+		if (procedimientospermitidos.length > 0){
+			restriccionProc = {'$or': [{'codigo': {'$in': procedimientospermitidos}}]};
 		}
 
-		//idem para las entidadesobjeto
-		superarray = (Array.isArray(permiso.entidadobjetodirectalectura) ? permiso.entidadobjetodirectalectura : []);
-		superarray = superarray.concat(Array.isArray(permiso.entidadobjetodirectaescritura) ? permiso.entidadobjetodirectaescritura : []);
-		let restriccionEo = null;
-		if (superarray.length > 0){
-			restriccionEo = {'$or': [{'_id': {'$in': superarray}}]};
+		if (entidadesobjetopermitidas.length > 0){
+			restriccionEo = {'$or': [{'_id': {'$in': entidadesobjetopermitidas}}]};
 		}
 
 		// si el permiso es otorgado a un codigo de plaza...
 		if (permiso.codplaza && permiso.codplaza !== '') {
-			if (restriccionProc === null){
-				restriccionProc = {'cod_plaza': permiso.codplaza};
-			} else {
+			if (restriccionProc){
 				restriccionProc.$or.push({'cod_plaza': permiso.codplaza});
-			}
-			if (restriccionEo === null){
-				restriccionEo = {'cod_plaza': permiso.codplaza};
-
 			} else {
-				restriccionEo.$or.push({'cod_plaza': permiso.codplaza});
+				restriccionProc = {'cod_plaza': permiso.codplaza};
+			}
+			if (restriccionEo){
+				restriccionEo.$or.push({'responsable': permiso.codplaza});
+			} else {
+				restriccionEo = {'responsable': permiso.codplaza};
 			}
 		}
 
-
 		if (restriccionProc){
 			//buscamos los procedimientos cuyo responsable sea el del permiso
-			procedimientomodel.find(restriccionProc).select('idjerarquia cod_plaza codigo').exec().then(function(procedimientos) {
+			const deferredProcedimiento = Q.defer();
+			recalculosPendientes.push(deferredProcedimiento.promise);
+			procedimientomodel.find(restriccionProc).select('idjerarquia cod_plaza codigo').lean().exec().then(function(procedimientos) {
 				// para cada procedimiento cuyo responsable sea el del permiso dado, comprobamos que el permiso especifica tal relación, es decir, que
-				// existe permisos explícito, y de no ser así se incluye. Esto significa establecer como permiso calculado de lecutra y escritura.
+				// existe permisos explícito, y de no ser así se incluye. Esto significa establecer como permiso calculado de lectura y escritura.
 				// siendo solo en el calculado, de cambiar el propietario del procedimiento, desaparecerá su permiso explícito en cuanto se alcancen las
 				// labores de mantenimiento
 				procedimientos.forEach(function (procedimiento) {
-					if (permiso.jerarquialectura.indexOf(procedimiento.idjerarquia) < 0){
-						permiso.jerarquialectura.push(procedimiento.idjerarquia);
-					}
-
-					if (procedimiento.cod_plaza === permiso.codplaza) {
-						if (permiso.procedimientoslectura.indexOf(String(procedimiento.codigo)) === -1){
-							permiso.procedimientoslectura.push(String(procedimiento.codigo));
-						}
-						if (permiso.procedimientosescritura.indexOf(String(procedimiento.codigo)) === -1){
-							permiso.procedimientosescritura.push(String(procedimiento.codigo));
-						}
+					permiso.jerarquialectura.push(procedimiento.idjerarquia);
+					permiso.procedimientoslectura.push(String(procedimiento.codigo));
+					
+					if (permiso.procedimientosdirectaescritura.indexOf(String(procedimiento.codigo)) >= 0){
+						permiso.procedimientosescritura.push(String(procedimiento.codigo));
 					}
 				});
 
 				deferredProcedimiento.resolve();
 			}, deferredProcedimiento.reject);
-		} else {
-			deferredProcedimiento.resolve();
 		}
 
 		// idem para entidades objeto
 		if (restriccionEo){
+			const deferredEntidadObjeto = Q.defer();
+			recalculosPendientes.push(deferredEntidadObjeto.promise);
 			//buscamos los procedimientos cuyo responsable sea el del permiso
-			entidadObjetomodel.find(restriccionEo).select('idjerarquia responsable codigo').exec().then(function(entidadesobjeto){
+			entidadObjetomodel.find(restriccionEo).select('idjerarquia responsable _id').lean().exec().then(function(entidadesobjeto){
 				// para cada entidadobjeto cuyo responsable sea el del permiso dado, comprobamos que el permiso especifica tal relación, es decir, que
 				// existe permisos explícito, y de no ser así se incluye. Esto significa establecer como permiso calculado de lecutra y escritura.
 				// siendo solo en el calculado, de cambiar el propietario del procedimiento, desaparecerá su permiso explícito en cuanto se alcancen las
 				// labores de mantenimiento
-				entidadesobjeto.forEach(function(entidadobjeto) {
-					if (permiso.jerarquialectura.indexOf(String(entidadobjeto.idjerarquia)) < 0){
-						permiso.jerarquialectura.push(String(entidadobjeto.idjerarquia));
-					}
+				entidadesobjeto.forEach(function(entidadobjeto){
+					permiso.jerarquialectura.push(entidadobjeto.idjerarquia);
+					permiso.entidadobjetolectura.push(String(entidadobjeto._id));
 
-					if (entidadobjeto.cod_plaza === permiso.codplaza) {
-						if (permiso.entidadobjetolectura.indexOf(String(entidadobjeto._id)) === -1){
-							permiso.entidadobjetolectura.push(String(entidadobjeto._id));
-						}
-						if (permiso.entidadobjetoescritura.indexOf(String(entidadobjeto._id)) === -1){
-							permiso.entidadobjetoescritura.push(String(entidadobjeto._id));
-						}
+					if (permiso.entidadobjetodirectaescritura.indexOf(String(entidadobjeto._id)) >= 0){
+						permiso.entidadobjetoescritura.push(String(entidadobjeto._id));
 					}
 				});
 				deferredEntidadObjeto.resolve();
 			}, deferredEntidadObjeto.reject);
-		} else {
-			deferredEntidadObjeto.resolve();
 		}
 
-		Q.all(defsPEO).then(function(){
-			const attrsjerarquia = ['jerarquialectura', 'jerarquiaescritura'];
-			const defs = [];
+		const defs = [];
 
-			// para cada uno de los arrays de permisos calculados
-			attrsjerarquia.forEach(function (attr, idx) {
-				// obtenemos el array de permisos directos del mismo tipo
-				const idsjerarquia = permiso[attrsOrigenjerarquia[idx]];
-				// si no existe lo creamos
-				if (!idsjerarquia){
-					permiso[attrsOrigenjerarquia[idx]] = [];
-				}
-				if (idsjerarquia && idsjerarquia.length === 0){
-					return;
-				}
-				const def = Q.defer();
-				// buscamos todas las jerarquías indicadas en el mismo
+		// para cada uno de los arrays de permisos calculados
+		attrsjerarquia.forEach(function (attr, idx){
+			// obtenemos el array de permisos directos del mismo tipo
+			const idsjerarquia = permiso[attrsjerarquiaDirecto[idx]];
 
-				// TODO: cachear esta ineficiente consulta, no es necesaria, puede obtenerse de una caché
-				jerarquiamodel.find({id: {'$in': idsjerarquia}}, {id: true, descendientes: true}).exec().then(function(jerarquias) {
+			if (idsjerarquia && idsjerarquia.length === 0){
 
-					// para cada una de las jerarquías indicadas en el permiso, obtenemos los descendientes ya
-					// se tendrán permisos no explícitos sobre dichas jerarquías. Añadimos a los arrays de
-					// permisos calculados.
-					jerarquias.forEach(function(jerarquia){
-						if (permiso[attr].indexOf(parseInt(jerarquia.id, 10)) < 0){
-							permiso[attr].push(parseInt(jerarquia.id, 10));
-						}
-						jerarquia.descendientes.forEach(function(idjerarquia) {
-							if (permiso[attr].indexOf(parseInt(idjerarquia, 10)) < 0){
-								permiso[attr].push(parseInt(idjerarquia, 10));
-							}
-						});
+				return;
+			}
+
+			const def = Q.defer();
+			// buscamos todas las jerarquías indicadas en el mismo
+			// TODO: cachear esta ineficiente consulta, no es necesaria, puede obtenerse de una caché
+			jerarquiamodel.find({'id': {'$in': idsjerarquia}}, {'id': true, 'descendientes': true}).lean().exec().then(function(jerarquias) {
+
+				// para cada una de las jerarquías indicadas en el permiso, obtenemos los descendientes ya
+				// se tendrán permisos no explícitos sobre dichas jerarquías. Añadimos a los arrays de
+				// permisos calculados.
+				jerarquias.forEach(function(jerarquia){
+					permiso[attr].push(jerarquia.id);
+					jerarquia.descendientes.forEach(function(idjerarquia) {
+						permiso[attr].push(idjerarquia);
 					});
-
-					def.resolve();
-				}, def.reject);
-
-				defs.push(def.promise);
-			});
-
-			const defs2 = [];
-			Q.all(defs).then(function () {
-				const attrprocedimientos = ['procedimientoslectura', 'procedimientosescritura'];
-				const attrprocedimientosDirecto = ['procedimientosdirectalectura', 'procedimientosdirectaescritura'];
-				const attrentidadesobjeto = ['entidadobjetolectura', 'entidadobjetoescritura'];
-				const attrentidadesobjetoDirecto = ['entidadobjetodirectalectura', 'entidadobjetodirectaescritura'];
-
-				attrprocedimientos.forEach(function (attr, idx) {
-					// si no existe el atributo de permisos para procedimientos lo creamos. Creamos un array vacio
-					if (!permiso[attrprocedimientosDirecto[idx]]){
-						permiso[attrprocedimientosDirecto[idx]] = [];
-					}
-					// idem para entidades objetos
-					if (!permiso[attrentidadesobjetoDirecto[idx]]){
-						permiso[attrentidadesobjetoDirecto[idx]] = [];
-					}
-
-					// el calculado siempre incluye al directo
-					permiso[attr] = permiso[attr].concat(permiso[attrprocedimientosDirecto[idx]]);
-					require('uniq')(permiso[attr]);
-
-					//idem para entidades objeto
-					const attreo = attrentidadesobjeto[idx];
-					permiso[attreo] = permiso[attreo].concat(permiso[attrentidadesobjetoDirecto[idx]]);
-					require('uniq')(permiso[attreo]);
-
-					const idsjerarquia = permiso[attrsOrigenjerarquia[idx]];
-					if (idsjerarquia && idsjerarquia.length === 0){
-
-						return;
-					}
-
-					const dP = Q.defer();
-					const dE = Q.defer();
-
-					procedimientomodel.find({idjerarquia: {'$in': idsjerarquia}}, {codigo: true}, updatePermisoAttr(dP, attr, 'codigo', permiso));
-					entidadObjetomodel.find({idjerarquia: {'$in': idsjerarquia}}, {_id: true}, updatePermisoAttr(dE, attreo, '_id', permiso));
-					defs2.push(dP.promise);
-					defs2.push(dE.promise);
 				});
 
+				def.resolve();
+			}, def.reject);
 
-				Q.all(defs2).then(function () {
-					attrprocedimientos.forEach(function (attr) {
-						require('uniq')(permiso[attr]);
-					});
-					attrentidadesobjeto.forEach(function(attreo){
-						require('uniq')(permiso[attreo]);
-					});
+			recalculosPendientes.push(def.promise);
+		});
 
-					deferred.resolve(permiso);
-				}, deferred.reject);
+		const defs2 = [];
+		Q.all(defs).then(function(){
 
+			attrsjerarquia.forEach(function (attr, idx) {
+				const idsjerarquia = permiso[attrsjerarquia[idx]];
+				const attrProcedimiento = permiso[attrprocedimientos[idx]];
+				const attrEo = permiso[attrentidadesobjeto[idx]];
+				if (idsjerarquia && idsjerarquia.length === 0){
+
+					return;
+				}
+
+				const dP = Q.defer();
+				const dE = Q.defer();
+
+				/* TODO: cachear esto */
+				procedimientomodel.find({'idjerarquia': {'$in': idsjerarquia}}, {'codigo': true}, updatePermisoAttr(dP, attrProcedimiento, 'codigo', permiso));
+				entidadObjetomodel.find({'idjerarquia': {'$in': idsjerarquia}}, {'_id': true}, updatePermisoAttr(dE, attrEo, '_id', permiso));
+
+				defs2.push(dP.promise);
+				defs2.push(dE.promise);
 			});
 		});
-/* TODO: GARANTIZAR QUE PARA TODO PERMISO DE ESCRITURA ESTÁ CONTENIDO EN LECTURA */
+
+		Q.all(defs2).then(function () {
+			restauraModeloPermiso(models, permiso);
+
+			deferred.resolve(permiso);
+		}, deferred.reject);
+
 		return deferred.promise;
 	}
 
@@ -496,15 +473,20 @@
 	function recalculatePermiso(models){
 		return function(permiso){
 			const deferred = Q.defer();
-			softCalculatePermiso(models, permiso).then(function(perm){
-				perm.save(function(error) {
-					if (error){
-						deferred.reject(error);
-					} else {
-						deferred.resolve({'codigo': perm._id, 'status': 200, 'permiso': perm});
-					}
-				});
-			}, deferred.reject);
+			console.log('recalcul', permiso._id);
+			if (typeof permiso.login === 'string' && permiso.login === '' && typeof permiso.codplaza === 'string' && permiso.codplaza === ''){
+				permiso.remove(deferred.makeNodeResolver());
+			} else {
+				softCalculatePermiso(models, permiso).then(function(perm){
+					perm.save(function(error) {
+						if (error){
+							deferred.reject(error);
+						} else {
+							deferred.resolve({'codigo': perm._id, 'status': 200, 'permiso': perm});
+						}
+					});
+				}).fail(deferred.reject);
+			}
 
 			return deferred.promise;
 		};
@@ -513,11 +495,13 @@
 	function fullSyncpermiso(models) {
 		const deferred = Q.defer(),
 			permisomodel = models.permiso();
-
-		permisomodel.find({}).then(function(permisos){
+		/**** PARCHE PARA HABILITAR A LAS PERSONAS CON ALGÚN PERMISO ***/
+		//habilitaPersonasConPermisos(personamodel, permiso);
+		/**** FIN PARCHE ***/
+		permisomodel.find({}).exec().then(function(permisos){
 			const recPermisoFn = recalculatePermiso(models);
-			Q.all(permisos.map(recPermisoFn)).then(deferred.resolve, deferred.reject);
-		}, deferred.reject);
+			Q.all(permisos.map(recPermisoFn)).then(deferred.resolve).fail(deferred.reject);
+		}).fail(deferred.reject);
 
 		return deferred.promise;
 	}
@@ -542,7 +526,7 @@
 					if (!actualizarancestros){
 						continue;
 					}
-					for (let k = 0, l = mapeadoArray[String(idjerarquia)].ancestros.length; k < l; k++){
+					for (let k = 0, l = mapeadoArray[String(idjerarquia)].ancestros.length; k < l; k += 1){
 						const idancestro = mapeadoArray[String(idjerarquia)].ancestros[k];
 						mapeadoArray[String(idancestro)][campo] += count;
 					}
@@ -750,6 +734,7 @@
 	module.exports.fullSyncpermiso = fullSyncpermiso;
 	module.exports.fullSyncjerarquia = fullSyncjerarquia;
 	module.exports.fullSyncprocedimiento = fullSyncprocedimiento;
+	module.exports.restauraModeloPermiso = restauraModeloPermiso;
 	module.exports.softCalculatePermiso = softCalculatePermiso;
 	module.exports.softCalculateProcedimiento = softCalculateProcedimiento;
 	module.exports.softCalculateProcedimientoCache = softCalculateProcedimientoCache;
