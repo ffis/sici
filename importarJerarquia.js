@@ -2,7 +2,7 @@
 (function(module, require, logger){
 	'use strict';
 
-	var fs = require('fs'),
+	const fs = require('fs'),
 		path = require('path'),
 		assert = require('assert'),
 		csvparse = require('csv-parse'),
@@ -56,7 +56,7 @@
 			}
 		});
 
-		for (let i = 0, j = idsjerarquias; i < j; i++){
+		for (let i = 0, j = idsjerarquias; i < j; i += 1){
 			const jerarquiausadaEnProcedimiento = idsjerarquias[i];
 			assert(typeof registrosXId[jerarquiausadaEnProcedimiento] === 'object', 'La jerarquia con id: ' + jerarquiausadaEnProcedimiento + ' no existe y es necesaria');
 		}
@@ -67,13 +67,13 @@
 	}
 
 	function transformar(){
-		for (var i = 0, j = registros.length; i < j; i++){
+		for (let i = 0, j = registros.length; i < j; i += 1){
 			registros[i].id = parseInt(registros[i].id, 10);
 			registros[i].ancestrodirecto = registros[i].ancestrodirecto ? parseInt(registros[i].ancestrodirecto, 10) : null;
 			registros[i].numprocedimientos = 0;
 			registros[i].descendientes = [];
 			registros[i].ancestros = [];
-			delete registros[i].nivelsici;
+			Reflect.deleteProperty(registros[i], 'nivelsici');
 		}
 	}
 

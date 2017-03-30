@@ -1,4 +1,6 @@
-(function(angular){ 'use strict';
+(function(angular){
+	'use strict';
+
 	angular.module('sici.filters', []).filter('interpolate', ['version', function (version) {
 		return function (text) {
 			return String(text).replace(/\%VERSION\%/mg, version);

@@ -15,7 +15,7 @@
 
 		request(url, function(err, response, txt) {
 			if (err){
-				res.status(401).send({error: err});
+				res.status(401).send({'error': err});
 
 				//next({error: err});
 			} else if (txt){
@@ -30,13 +30,13 @@
 				} catch (exc){
 					logger.error('Error parseando JSON token-sesión ' + txt);
 					logger.error('Wrong token password');
-					res.status(401).send({error: 'Wrong token password'});
+					res.status(401).send({'error': 'Wrong token password'});
 
 					//next({error: 'Wrong token password'});
 				}
 			} else {
 				logger.error('Wrong token password');
-				res.status(401).send({error: 'Wrong token password'});
+				res.status(401).send({'error': 'Wrong token password'});
 
 				//next({error: 'Wrong token password'});
 			}

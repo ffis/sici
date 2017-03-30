@@ -22,15 +22,9 @@
 			$scope.currentPage = 0;
 
 			const fecha = new Date();
-			$scope.anualidad = 'a' + fecha.getFullYear();
 			$scope.mesanterior = fecha.getMonth() - 1;
 			if ($scope.mesanterior < 0){
 				$scope.mesanterior = 11;
-			}
-
-			$scope.anyos = [];
-			for (var anyo = 2013, maxanyo = fecha.getFullYear; anyo <= maxanyo; anyo += 1){
-				$scope.anyos.push({ code: 'a' + anyo, name: String(anyo) });
 			}
 
 			$scope.etiquetas = Etiqueta.query(function(){
@@ -43,12 +37,15 @@
 				});
 			});
 
-			var camposProcedimientos = [
+			const camposProcedimientos = [
 				'codigo', 'denominacion', 'cod_plaza',
-				'ancestros.id', 'ancestros.nombrelargo',
-				'periodos.' + $scope.anualidad + '.totalsolicitudes',
-				'periodos.' + $scope.anualidad + '.solicitados'
+				'ancestros.id', 'ancestros.nombrelargo'
 			];
+
+			$rootScope.anualidades.forEach(function(anualidad){
+				camposProcedimientos.push('periodos.' + anualidad.value + '.totalsolicitudes');
+				camposProcedimientos.push('periodos.' + anualidad.value + '.solicitados');
+			});
 
 			$scope.setJerarquiaById = function(idj){
 				if (!idj){ return; }
@@ -62,7 +59,7 @@
 					
 						return false;
 					}
-					for (var i = 0, j = nodo.nodes.length; i < j; i += 1){
+					for (let i = 0, j = nodo.nodes.length; i < j; i += 1){
 						if (setJ(nodo.nodes[i], idjerarquia)){
 
 							return true;
@@ -71,7 +68,7 @@
 
 					return false;
 				};
-				for (var idx = 0, idxmax = $scope.arbol.length; idx < idxmax; idx++){
+				for (let idx = 0, idxmax = $scope.arbol.length; idx < idxmax; idx += 1){
 					if (setJ($scope.arbol[idx], idj)){
 						break;
 					}
@@ -85,7 +82,7 @@
 			$scope.oculto = false;
 			$scope.procedimientos = [];
 
-			var defjerarquia = $q.defer();
+			const defjerarquia = $q.defer();
 			$scope.pjerarquia = defjerarquia.promise;
 			$rootScope.jerarquialectura().then(function(j){
 				$rootScope.jerarquiaescritura().then(function(j2){
@@ -134,7 +131,7 @@
 			$scope.colorText = $rootScope.colorText;
 
 			$scope.cumplimentado = function(procedimiento){
-				return (typeof procedimiento.periodos[$scope.anualidad].solicitados === 'object' && Math.max.apply(Math, procedimiento.periodos[$scope.anualidad].solicitados) > 0);
+				return (typeof procedimiento.periodos[$rootScope.anualidad].solicitados === 'object' && Math.max.apply(Math, procedimiento.periodos[$rootScope.anualidad].solicitados) > 0);
 			};
 			$scope.isFiltroSelected = function(filtro, key, fa){
 				return (typeof filtro[key] !== 'undefined' && fa.name === filtro[key]);
@@ -144,10 +141,10 @@
 				$.each($('.sparkline'), function(k, v){
 					var obj = '[' + $(v).data('value') + ']';
 					try {
-						$(v).sparkline(JSON.parse(obj), {type: 'bar', barColor: '#a94442'});
+						$(v).sparkline(JSON.parse(obj), {'type': 'bar', 'barColor': '#a94442'});
 					} catch (e) {
 						/*$log.error('sparkline mal formed VALUE WAS:' + t , obj);*/
-						$(v).sparkline( [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], {type: 'bar', barColor: '#a94442'});
+						$(v).sparkline( [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], {'type': 'bar', 'barColor': '#a94442'});
 					}
 				});
 			}
@@ -289,11 +286,11 @@
 			};
 
 			$scope.anyoSelected = '';
-			$scope.actualizando = 0;
-
 			$scope.updateAnyoSelected = function(code) {
 				$scope.anyoSelected = code;
 			};
+			$scope.actualizando = 0;
+
 
 			$scope.descargarExcel = function () {
 				if (typeof $scope.seleccionado === 'undefined') {
@@ -305,7 +302,7 @@
 					return;
 				}
 				$scope.actualizando = 1;
-				ExportarResultadosJerarquia.get({jerarquia: $scope.seleccionado.id}, function (token) {
+				ExportarResultadosJerarquia.get({'jerarquia': $scope.seleccionado.id}, function (token) {
 					$scope.actualizando = 0;
 					if (typeof token === 'object'){
 						$rootScope.cbDownload(token);

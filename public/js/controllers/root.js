@@ -1,7 +1,7 @@
-(function(angular, document, $, Blob, saveAs, Feedback, window){
+(function(angular, $, Blob, saveAs, window){
 	'use strict';
-	angular.module('sici').controller('AppCtrl', ['$window', '$q', '$scope', '$rootScope', '$log', 'Session', '$location', '$http', 'toaster', 'PermisosCalculados', 'AuthService',
-		function ($window, $q, $scope, $rootScope, $log, Session, $location, $http, toaster, PermisosCalculados, AuthService) {
+	angular.module('sici').controller('AppCtrl', ['$window', '$q', '$rootScope', '$log', 'Session', '$location', '$http', 'toaster', 'PermisosCalculados', 'AuthService', '$document', 'Preferencias',
+		function ($window, $q, $rootScope, $log, Session, $location, $http, toaster, PermisosCalculados, AuthService, $document, Preferencias) {
 
 			$rootScope.setTitle = function (title){ $window.document.title = 'SICI - ' + title; };
 			$rootScope.setLogeado = function(t){
@@ -9,9 +9,10 @@
 				if (t && typeof $rootScope.permisoscalculados === 'undefined') {
 					$rootScope.permisoscalculados = PermisosCalculados.query({});
 				} else if (!t) {
-					delete $rootScope.permisoscalculados;
+					Reflect.deleteProperty($rootScope, 'permisoscalculados');
 				}
 			};
+
 			$rootScope.toaster = function(txt, title, type){
 				if (typeof type === 'undefined'){
 					type = 'success';
@@ -20,13 +21,22 @@
 				}
 				toaster.pop(type, title, txt);
 			};
+
+			$rootScope.anualidades = [];
+			const maxanualidad = new Date().getFullYear();
+			for (let i = 2013; i <= maxanualidad; i++){
+				$rootScope.anualidades.push({'value': 'a' + i, 'label': i});
+			}
+			$rootScope.anualidad = 'a' + maxanualidad;
+			$rootScope.getIntAnualidad = function(){ return parseInt($rootScope.anualidad.substring(1, 5), 10); };
+
 			$rootScope.session = Session;
 			$rootScope.nav = '';
 			$rootScope.logeado = false;
 			$rootScope.meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 			$rootScope.inicialesmeses = ['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
-			var IEChecker = /MSIE [6789]+/i;
-			var browser = $window.navigator.userAgent;
+			const IEChecker = /MSIE [6789]+/i;
+			const browser = $window.navigator.userAgent;
 			$rootScope.navegabilidad = [
 				{'id': 'inicio', 'caption': 'Inicio'},
 				{'id': 'actividad', 'caption': 'Actividad'},
@@ -66,7 +76,7 @@
 				if (typeof indicador.valores === 'undefined'){ return false; }
 				if (typeof indicador.valores[anualidad] === 'undefined'){ return false; }
 
-				return  indicador.valores[anualidad][i].some(function(info){ return info; });
+				return indicador.valores[anualidad].some(function(info){ return info; });
 			};
 
 			$rootScope.isInt = function(n){
@@ -77,7 +87,7 @@
 				if (typeof phase === 'undefined'){
 					phase = 0;
 				}
-				var center = 128,
+				const center = 128,
 					width = 127,
 					frequency = Math.PI * 2 / numcolors;
 
@@ -89,14 +99,14 @@
 			};
 
 			$rootScope.colorToHex = function(color){
-				var rgb = color.blue | (color.green << 8) | (color.red << 16),
+				const rgb = color.blue | (color.green << 8) | (color.red << 16),
 					s = rgb.toString(16);
 
 				return '#' + '000000'.substring(0, 6 - s.length) + s;
 			};
 
 			$rootScope.exportXLS = function(idx, nombre){
-				var blob = new Blob(['<meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8"><table width="100%">' + document.getElementById(idx).innerHTML + '</table>'],
+				const blob = new Blob(['<meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8"><table width="100%">' + $document.getElementById(idx).innerHTML + '</table>'],
 					{'type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8'});
 				saveAs(blob, nombre + '.xls');
 			};
@@ -109,10 +119,11 @@
 			};
 
 			$rootScope.R = function (procedimiento) {
-				var def = $q.defer();
+				const def = $q.defer();
 				if ($rootScope.permisoscalculados){
 					$rootScope.permisoscalculados.$promise.then(function(){
 						def.resolve(
+								$rootScope.permisoscalculados.superuser ||
 								$rootScope.permisoscalculados.procedimientoslectura.indexOf(procedimiento.codigo) !== -1 ||
 								$rootScope.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo) !== -1
 								);
@@ -125,10 +136,10 @@
 			};
 
 			$rootScope.W = function (procedimiento) {
-				var def = $q.defer();
+				const def = $q.defer();
 				if ($rootScope.permisoscalculados){
 					$rootScope.permisoscalculados.$promise.then(function () {
-						def.resolve($rootScope.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo) !== -1 );
+						def.resolve($rootScope.permisoscalculados.superuser || $rootScope.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo) !== -1 );
 					}, def.reject);
 				} else {
 					def.reject();
@@ -138,7 +149,7 @@
 			};
 
 			$rootScope.superuser = function () {
-				var def = $q.defer();
+				const def = $q.defer();
 				if ($rootScope.permisoscalculados){
 					$rootScope.permisoscalculados.$promise.then(function () {
 						def.resolve(Boolean($rootScope.permisoscalculados.superuser));
@@ -151,7 +162,7 @@
 			};
 
 			$rootScope.jerarquialectura = function () {
-				var def = $q.defer();
+				const def = $q.defer();
 				if ($rootScope.permisoscalculados){
 					$rootScope.permisoscalculados.$promise.then(function () {
 						def.resolve($rootScope.permisoscalculados.jerarquialectura);
@@ -164,7 +175,7 @@
 			};
 
 			$rootScope.jerarquiaescritura = function () {
-				var def = $q.defer();
+				const def = $q.defer();
 				if ($rootScope.permisoscalculados){
 					$rootScope.permisoscalculados.$promise.then(function () {
 						def.resolve($rootScope.permisoscalculados.jerarquiaescritura);
@@ -177,10 +188,10 @@
 			};
 
 			$rootScope.grantoption = function () {
-				var def = $q.defer();
+				const def = $q.defer();
 				if ($rootScope.permisoscalculados){
-					$rootScope.permisoscalculados.$promise.then(function () {
-						def.resolve($rootScope.permisoscalculados.grantoption);
+					$rootScope.permisoscalculados.$promise.then(function() {
+						def.resolve($rootScope.permisoscalculados.superuser || $rootScope.permisoscalculados.grantoption);
 					}, def.reject);
 				} else {
 					def.reject();
@@ -196,59 +207,63 @@
 			};
 
 			$rootScope.cbDownload = function (token) {
-				var url = '/api/download/' + token.time + '/' + token.hash + (token.extension ? '?extension=' + token.extension : '');
+				const url = '/api/download/' + token.time + '/' + token.hash + (token.extension ? '?extension=' + token.extension : '');
 				$window.location = url;
 			};
 
 			$rootScope.apiFeedback = null;
+			$rootScope.condensed = Preferencias.condensed();
+			$rootScope.$watch('condensed', function(){
+				Preferencias.condensed($rootScope.condensed);
+			});
 
 			$rootScope.report = function(){
 				if (!$rootScope.apiFeedback){
-					var adapter = new window.Feedback.Send();
+					const adapter = new window.Feedback.Send();
 					adapter.send = function(data, callback){
 						$log.log(data);
 						//callback( (xhr.status === 200) );
 						$http.post('/api/v1/public/feedback', data).success(function(answer){
 							callback(true);
 							$log.info(answer);
-						}).error(function(answer){
+						}).catch(function(answer){
 							callback(false);
 							$log.error(answer);
 						});
 					};
 
-					var parameters = {
-						h2cPath: '/js/lib/html2canvas.js',
-						label: 'Enviar comentarios',
-						header: 'Enviar comentarios',
-						url: '/api/v1/public/feedback',
-						nextLabel: 'Continuar',
-						reviewLabel: 'Revisar',
-						sendLabel: 'Enviar',
-						closeLabel: 'Cerrar',
-						messageSuccess: 'Tu comentario ha sido enviado con éxito. Gracias por tu ayuda.',
-						messageError: 'Hubo un error enviando una notificación al servidor',
-						blackoutClass: 'hidden',
-						appendTo: null, // don't add feedback button to page
-						adapter: adapter,
-						pages: null
+					const parameters = {
+						'h2cPath': '/js/lib/html2canvas.js',
+						'label': 'Enviar comentarios',
+						'header': 'Enviar comentarios',
+						'url': '/api/v1/public/feedback',
+						'nextLabel': 'Continuar',
+						'reviewLabel': 'Revisar',
+						'sendLabel': 'Enviar',
+						'closeLabel': 'Cerrar',
+						'messageSuccess': 'Tu comentario ha sido enviado con éxito. Gracias por tu ayuda.',
+						'messageError': 'Hubo un error enviando una notificación al servidor',
+						'blackoutClass': 'hidden',
+						'appendTo': null, // don't add feedback button to page
+						'adapter': adapter,
+						'pages': null
 					};
 					parameters.pages = [
 						new window.Feedback.Form([{
-							type: 'textarea',
-							name: 'Comentario',
-							label: 'Por favor, describa su incidencia',
-							required: true
+							'type': 'textarea',
+							'name': 'Comentario',
+							'label': 'Por favor, describa su incidencia',
+							'required': true
 						}, {
-							type: 'input-text',
-							name: 'Contacto',
-							label: 'Si lo desea, incluya un teléfono o dirección de correo electrónico de contacto',
-							required: false
+							'type': 'input-text',
+							'name': 'Contacto',
+							'label': 'Si lo desea, incluya un teléfono o dirección de correo electrónico de contacto',
+							'required': false
 						}]),
 						new window.Feedback.Screenshot(parameters),
 						new window.Feedback.Review()
 					];
-					$rootScope.apiFeedback = Feedback(parameters);
+					$rootScope.apiFeedback = window.Feedback(parameters);
 				}
 				$rootScope.apiFeedback.open();
 			};
@@ -258,4 +273,4 @@
 			});
 		}
 	]);
-})(angular, document, $, Blob, saveAs, Feedback, window);
+})(angular, $, Blob, saveAs, window);

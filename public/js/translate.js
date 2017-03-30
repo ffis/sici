@@ -51,6 +51,7 @@
 					'ancestro_v_4': 'Nivel 4'
 				});
 				$translateProvider.preferredLanguage('es_ES');
+				$translateProvider.useSanitizeValueStrategy('sanitizeParameters');
 			}
 		]);
 })(angular);

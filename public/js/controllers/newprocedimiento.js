@@ -1,8 +1,8 @@
 (function(angular, $){
 	'use strict';
 	angular.module('sici')
-		.controller('NewProcedimientoCtrl', ['$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', 'ArbolWithEmptyNodes', 'ProcedimientoList', 'DetalleCarmProcedimiento', 'DetalleCarmProcedimiento2', 'PersonasByPuesto', 'Session', 'Etiqueta', 'PersonasByRegexp', 'Procedimiento',
-			function ($rootScope, $scope, $location, $window, $routeParams, $timeout, ArbolWithEmptyNodes, ProcedimientoList, DetalleCarmProcedimiento, DetalleCarmProcedimiento2, PersonasByPuesto, Session, Etiqueta, PersonasByRegexp, Procedimiento) {
+		.controller('NewProcedimientoCtrl', ['$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', 'ArbolWithEmptyNodes', 'ProcedimientoList', 'DetalleCarmProcedimiento', 'DetalleCarmProcedimiento2', 'PersonasByPuesto', 'Etiqueta', 'PersonasByRegexp', 'Procedimiento',
+			function ($rootScope, $scope, $location, $window, $routeParams, $timeout, ArbolWithEmptyNodes, ProcedimientoList, DetalleCarmProcedimiento, DetalleCarmProcedimiento2, PersonasByPuesto, Etiqueta, PersonasByRegexp, Procedimiento) {
 				$rootScope.nav = 'procedimiento';
 				$rootScope.setTitle('Registrar nuevo procedimiento');
 
@@ -16,8 +16,6 @@
 				$scope.procedimiento = new Procedimiento();
 				$scope.responsable = '';
 				$scope.filtrosocultos = false;
-
-				///$scope.oallprocedimientos = ProcedimientoList.query({'idjerarquia':seleccionado.id,'recursivo':false});
 
 				$scope.$watch('seleccionado', function(_new){
 					$scope.oallprocedimientos = ProcedimientoList.query({'idjerarquia': _new.id, 'recursivo': false});
@@ -36,7 +34,6 @@
 				$scope.$watch('padre', function( _new){
 					var value = _new.substring(1, _new.indexOf(']'));
 					$scope.procedimiento.padre = value;
-			//		$scope.procedimiento.responsable = ( typeof _new.codplaza !== 'undefined' ? _new.codplaza : _new.login );
 				});
 
 				$scope.getPersonas = function(viewValue) {
@@ -79,8 +76,6 @@
 					}
 				});
 				$scope.oculto = false;
-
-				//$scope.jerarquia = Session.create().permisoscalculados.jerarquialectura.concat(Session.create().permisoscalculados.jerarquiaescritura);
 
 				$scope.filtrojerarquia = function() {
 					/* function(item) es superusuario, no hace falta filtrar */

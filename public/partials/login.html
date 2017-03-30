@@ -1,44 +1,155 @@
-<div style="background-repeat:no-repeat; background-size:cover; background-position:center center" class="login">
+<div style="position:absolute; bottom:1em;right:1em; width:20em; height:20em;{{imagen}};background-repeat:no-repeat; background-size:contain; background-position:center center"></div>
+<h3>Sistema Integrado de Control de Indicadores 2.0</h3>
+<h4></h4>
+<div class="login">
 	<div id="logincontainer" class="loginContainer">
 		<h2 style="text-align:center">Identificaci&oacute;n</h2>
-		<form name="loginForm" ng-submit="login(credentials)" novalidate="novalidate" ng-If="!$root.loginCarm">
-			<label for="username" class="form-label">
-				<input id="username" autocomplete="on" type="text" name="username" placeholder="Usuario" ng-model="credentials.username" class="topcoat-text-input full"/>
-			</label>
-			<label for="password" class="form-label">
-				<input id="password" autocomplete="off" type="password" name="password" placeholder="Contraseña" ng-model="credentials.password" class="topcoat-text-input full"/>
-			</label>
-			<div>
-				<button style="text-align: center;" class="topcoat-button full text-center">Entrar</button>
+
+		<div class="card card-container">
+			<img id="profile-img" class="profile-img-card" src="/imgs/avatar_2x.png" />
+			<p id="profile-name" class="profile-name-card"></p>
+			<form class="form-signin" ng-hide="$root.loginCarm">
+				<p>Utilice el nombre de usuario y contraseña que le han suministrado. Si tiene algún problema póngase en contacto con la Inspeccion General De Servicios, Consejeria Hacienda y Administración Publica de la Región de Murcia.</p>
+				<input autocomplete="on" type="text" name="username" ng-model="credentials.username" class="form-control" placeholder="Usuario" autofocus>
+				<input autocomplete="off" type="password" id="password" ng-model="credentials.password" class="form-control" placeholder="Contraseña">
+
+				<button class="btn btn-lg btn-primary btn-block btn-signin" type="submit">Entrar</button>
+				<button class="btn btn-lg btn-default btn-block" ng-click="hideForm()">Volver</button>
+			</form>
+			<div ng-show="$root.loginCarm">
+				<p>Es necesario autenticarse vía servicio de autenticación CAS de la CARM. Para ello pulse en el botón de debajo, autentíquese y será redirigido otra vez a esta página. Si hubiera algún problema de autenticación es posible que deba cerrar la sesión usando este <a target="_blank" href="https://sso.carm.es/jsso/logout">enlace</a>.</p>
+				<div class="text-center">
+					<button class="btn btn-default btn-block" ng-click="login(credentials)">Entrar mediante autenticación CARM</button>
+				</div>
+				<p style="margin-top:2em">Si no es un usuario autorizado para autenticarse a través del servicio CAS de la CARM y 
+				dispone de una contraseña para el sistema SICI puede autenticarse utilice este otro mecanismo:</p>
+				<div class="text-center">
+					<button class="btn btn-default btn-block" ng-click="$root.loginCarm=false; credentials.notcarmuser=true;">Entrar mediante usuario/contraseña</button>
+				</div>
 			</div>
-		</form>
-		<div ng-If="$root.loginCarm">
-			<p>Es necesario autenticarse vía servicio de autenticación CAS de la CARM. Para ello pulse en el botón de debajo, autentíquese y será redirigido otra vez a esta página. Pulse de nuevo en el botón y accederá al sistema.</p>
-			<p>
-				Si hubiera algún problema de autenticación es posible que deba cerrar la sesión usando este
-				<a target="_blank" href="https://sso.carm.es/jsso/logout">enlace</a>.
-			</p>
-			<div>
-				<button ng-click="login(credentials)" style="text-align: center" class="topcoat-button full text-center">Entrar</button>
-			</div>
-			<p><br/>
-				Si no es un usuario autorizado para autenticarse a través del servicio CAS de la CARM y 
-				dispone de una contraseña para el sistema SICI puede autenticarse desde 
-				<a href="" ng-click="$root.loginCarm=false; credentials.notcarmuser=true;">aqu&iacute;</a>
-			</p>
+			<p style="text-align:center" ng-if="mensaje" class="alert alert-danger">{{mensaje}}</p>
 		</div>
-		<p style="text-align:center" ng-if="mensaje" class="alert alert-danger">{{mensaje}}</p>
+		
 		<!--[if lt IE 9]>
 		<p style="margin-top:1em;">
 			Esta usted utilizando una versión de Internet Explorer obsoleta con la que podrá introducir datos pero que no permite ciertas funcionalidades de la aplicación.
-  Actualice el navegador a la versión más reciente o instale <a target="_blank" href="https://www.google.es/chrome/browser/index.html">Chrome</a> o <a target="_blank" href="http://getfirefox.com/">Firefox</a>.
+			Actualice el navegador a la versión más reciente o instale <a target="_blank" href="https://www.google.es/chrome/browser/index.html">Chrome</a> o <a target="_blank" href="http://getfirefox.com/">Firefox</a>.
 		</p>
 		<![endif]-->
 	</div>
-	<div style="position:absolute; bottom:1em;right:1em; width:20em; height:20em;{{imagen}};background-repeat:no-repeat; background-size:contain; background-position:center center"></div>
-	<h3>Sistema Integrado de Control de Indicadores 2.0</h3>
-	<h4>Beta - Cartas de Servicio</h4>
+
 </div>
 <div style="clear:both"></div>
 
 
+<style>
+/*
+ * Specific styles of signin component
+ */
+/*
+ * General styles
+ */
+ body{
+	/* background-repeat:no-repeat; background-size:cover; background-position:center center; */
+	height: 100vh;
+	background-repeat: no-repeat;
+	background-image: linear-gradient(rgb(247, 247, 247), rgb(138, 173, 197));
+ }
+
+.card-container.card {
+	max-width: 350px;
+	padding: 30px 30px;
+}
+
+/*
+ * Card component
+ */
+.card {
+	background-color: #F7F7F7;
+	/* just in case there no content*/
+	padding: 20px 25px 30px;
+	margin: 0 auto 25px;
+	margin-top: 50px;
+	/* shadows and rounded borders */
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	border-radius: 2px;
+	-moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+	-webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+	box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+}
+
+.profile-img-card {
+	width: 96px;
+	height: 96px;
+	margin: 0 auto 10px;
+	display: block;
+	-moz-border-radius: 50%;
+	-webkit-border-radius: 50%;
+	border-radius: 50%;
+}
+
+/*
+ * Form styles
+ */
+.profile-name-card {
+	font-size: 16px;
+	font-weight: bold;
+	text-align: center;
+	margin: 10px 0 0;
+	min-height: 1em;
+}
+
+.form-signin #inputEmail,
+.form-signin #inputPassword {
+	direction: ltr;
+	height: 44px;
+	font-size: 16px;
+}
+
+.form-signin input[type=password],
+.form-signin input[type=text],
+.form-signin button {
+	width: 100%;
+	display: block;
+	margin-bottom: 10px;
+	z-index: 1;
+	position: relative;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.form-signin .form-control:focus {
+	border-color: rgb(104, 145, 162);
+	outline: 0;
+	-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgb(104, 145, 162);
+	box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgb(104, 145, 162);
+}
+/*
+.btn.btn-signin {
+	
+	padding: 0px;
+	font-weight: 700;
+	font-size: 14px;
+	height: 36px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	border: none;
+	-o-transition: all 0.218s;
+	-moz-transition: all 0.218s;
+	-webkit-transition: all 0.218s;
+	transition: all 0.218s;
+}
+*/
+.forgot-password {
+	color: rgb(104, 145, 162);
+}
+
+.forgot-password:hover,
+.forgot-password:active,
+.forgot-password:focus{
+	color: rgb(12, 97, 33);
+}
+</style>

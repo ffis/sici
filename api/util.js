@@ -68,6 +68,10 @@
 		return mappingXid[idjerarquia].ancestros.map(function(id){ return mappingXid[id]; });
 	};
 
+	module.exports.getJerarquiaById = function(idjerarquia){
+		return mappingXid[idjerarquia];
+	};
+
 	function calculateArbol(models){
 		const deferred = Q.defer();
 		resetCache();

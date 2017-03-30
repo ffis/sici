@@ -24,11 +24,16 @@
 			cas.validate(ticket, function(err, status, username) {
 				logger.log(35, ticket, err, status, username);
 				if (err) {
-					req.eh.callbackErrorHelper(err);
-				} else {
-					res.json({'status': status, 'username': username});
+					res.status(300).json({'redirect': req.metaenvironment.cfg.cas.login});
+					//req.eh.callbackErrorHelper(err);
+				} else if (status && username && typeof username === 'string' && username.trim() !== ''){ 
+					//res.json({'status': status, 'username': username});
 
-					//next();
+					req.body.username = username;
+					req.body.notcarmuser = false;
+					next();
+				} else {
+					res.status(300).json({'redirect': req.metaenvironment.cfg.cas.login});
 				}
 			});
 		} else {

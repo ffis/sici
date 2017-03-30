@@ -6,7 +6,7 @@
 			</a>
 			<br />
 		</div>
-		<h3>{{cartaservicio.denominacion}} - {{anualidad}}</h3>
+		<h3>{{cartaservicio.denominacion}} - {{$root.getIntAnualidad()}}</h3>
 		<div class="row">
 			<div class="col-xs-2 text-right">
 				<strong>Expediente:</strong>
@@ -27,7 +27,7 @@
 			<div class="col-xs-2 text-right"><strong>Entidad:</strong></div>
 			<div class="col-xs-10 text-left">
 				<ul>
-					<li ng-repeat="o in jerarquia.ancestros | reverse">{{jerarquias[ o ].nombrelargo}}</li>
+					<li ng-repeat="o in jerarquia.ancestros | reverse">{{jerarquias[o].nombrelargo}}</li>
 					<li><em>{{jerarquia.nombrelargo}}</em></li>
 				</ul>
 				<a href="{{cartaservicio.url}}" target="_blank">{{cartaservicio.url}}</a>
@@ -44,7 +44,7 @@
 		<div class="row" style="margin-top:1em">
 			<div class="col-xs-12">
 				<h4>ACCIONES PROGRAMADAS: (EN UN PLAN DE MEJORA DE LAS CARTAS DE SERVICIO)
-					CORRESPONDE AL PLAN DE MEJORA {{anualidad}} DE LA CARTA CÓDIGO {{cartaservicio.expediente}}</h4>
+					CORRESPONDE AL PLAN DE MEJORA {{$root.getIntAnualidad()}} DE LA CARTA CÓDIGO {{cartaservicio.expediente}}</h4>
 				<table class="table table-condensed table-striped table-bordered table-hover" ng-if="acciones.length > 0">
 					<thead>
 						<tr>
@@ -108,20 +108,20 @@
 												</div>
 												<div class="col-md-12" ng-show="accion.promotor">
 													<div class="col-sm-2">
-														<span style="font-style: italic;">[{{personasBy_Id[accion.promotor].login}}]</span>
+														<span style="font-style: italic;">[{{personasById[accion.promotor].login}}]</span>
 													</div>
 													<div class="col-sm-4">
-														{{personasBy_Id[accion.promotor].apellidos}}, {{personasBy_Id[accion.promotor].nombre}}
+														{{personasById[accion.promotor].apellidos}}, {{personasById[accion.promotor].nombre}}
 													</div>
 													<div class="col-sm-3">
-														<span ng-show="personasBy_Id[accion.promotor].codplaza">
+														<span ng-show="personasById[accion.promotor].codplaza">
 														<i class="fa fa-sitemap"></i>
-														({{personasBy_Id[accion.promotor].codplaza}})
+														({{personasById[accion.promotor].codplaza}})
 													</span>
 													</div>
 													<div class="col-sm-2">
-														<span ng-show="personasBy_Id[accion.promotor].telefono">
-														<span class="fa fa-phone"></span> {{personasBy_Id[accion.promotor].telefono}}
+														<span ng-show="personasById[accion.promotor].telefono">
+														<span class="fa fa-phone"></span> {{personasById[accion.promotor].telefono}}
 														</span>
 													</div>
 													<div class="col-sm-1 text-center">
@@ -139,27 +139,27 @@
 														<br style="clear:both" />
 													</div>
 													<div class="col-md-1 col-lg-1">
-														<span class="btn btn-default" ng-class="{disabled: !responsableseleccionado._id }" ng-click="setResponsable(responsableseleccionado)">
+														<span class="btn btn-default" ng-class="{'disabled': !responsableseleccionado._id}" ng-click="setResponsable(responsableseleccionado)">
 														<span class="fa fa-plus" title="establecer responsable"></span>
 														</span>
 													</div>
 												</div>
 												<div class="col-md-12" ng-show="accion.responsable">
 													<div class="col-sm-2">
-														<span style="font-style: italic;">[{{personasBy_Id[accion.responsable].login}}]</span>
+														<span style="font-style: italic;">[{{personasById[accion.responsable].login}}]</span>
 													</div>
 													<div class="col-sm-4">
-														{{personasBy_Id[accion.responsable].apellidos}}, {{personasBy_Id[accion.responsable].nombre}}
+														{{personasById[accion.responsable].apellidos}}, {{personasById[accion.responsable].nombre}}
 													</div>
 													<div class="col-sm-3">
-														<span ng-show="personasBy_Id[accion.responsable].codplaza">
+														<span ng-show="personasById[accion.responsable].codplaza">
 														<i class="fa fa-sitemap"></i>
-														({{personasBy_Id[accion.responsable].codplaza}})
+														({{personasById[accion.responsable].codplaza}})
 													</span>
 													</div>
 													<div class="col-sm-2">
-														<span ng-show="personasBy_Id[accion.responsable].telefono">
-														<span class="fa fa-phone"></span> {{personasBy_Id[accion.responsable].telefono}}
+														<span ng-show="personasById[accion.responsable].telefono">
+														<span class="fa fa-phone"></span> {{personasById[accion.responsable].telefono}}
 														</span>
 													</div>
 													<div class="col-sm-1 text-center">
@@ -176,20 +176,20 @@
 												<ul class="list-group">
 													<li ng-repeat="persona in accion.equipo track by $index" class="list-group-item">
 														<div class="col-sm-2">
-															<span style="font-style: italic;">[{{personasBy_Id[persona].login}}]</span>
+															<span style="font-style: italic;">[{{personasById[persona].login}}]</span>
 														</div>
 														<div class="col-sm-4">
-															{{personasBy_Id[persona].apellidos}}, {{personasBy_Id[persona].nombre}}
+															{{personasById[persona].apellidos}}, {{personasById[persona].nombre}}
 														</div>
 														<div class="col-sm-3">
-															<span ng-show="personasBy_Id[persona].codplaza">
+															<span ng-show="personasById[persona].codplaza">
 															<i class="fa fa-sitemap"></i>
-															({{personasBy_Id[persona].codplaza}})
+															({{personasById[persona].codplaza}})
 														</span>
 														</div>
 														<div class="col-sm-2">
-															<span ng-show="personasBy_Id[persona].telefono">
-															<span class="fa fa-phone"></span> {{personasBy_Id[persona].telefono}}
+															<span ng-show="personasById[persona].telefono">
+															<span class="fa fa-phone"></span> {{personasById[persona].telefono}}
 															</span>
 														</div>
 														<div class="col-sm-1 text-center">
@@ -207,10 +207,10 @@
 													<div class="panel-body">
 														<p class="help-block">Utilice el siguiente formulario para introducir una nueva persona. No olvide pulsar el botón de añadir al final del mismo.</p>
 														<div class="col-md-11 col-lg-11">
-															<input class="form-control" ng-model="usuarioseleccionado" placeholder="Buscar por plaza, login carm o nombre" type="text" typeahead-min-length="3" typeahead="eresp as showPersona(eresp) for eresp in getPersonas($viewValue)" />
+															<input class="form-control" ng-model="usuarioseleccionado" placeholder="Buscar por plaza, login carm o nombre" type="text" typeahead-min-length="3" uib-typeahead="eresp as showPersona(eresp) for eresp in getPersonas($viewValue)" />
 														</div>
 														<div class="col-md-1 col-lg-1">
-															<span class="btn btn-default" ng-class="{disabled: !usuarioseleccionado._id }" ng-click="addPersonaEquipo(usuarioseleccionado)">
+															<span class="btn btn-default" ng-class="{'disabled': !usuarioseleccionado._id }" ng-click="addPersonaEquipo(usuarioseleccionado)">
 															<span class="fa fa-plus" title="añadir nueva persona"></span>
 															</span>
 														</div>

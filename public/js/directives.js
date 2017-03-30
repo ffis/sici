@@ -9,15 +9,19 @@
 				if (!angular.isObject(input)){
 					return input;
 				}
-				var array = [];
-				for (var objectKey in input){
-					array.push(input[objectKey]);
+				const array = false;
+				if (typeof Object.values === 'function'){
+					array = Object.values(input);
+				} else {
+					for (const objectKey in input){
+						array.push(input[objectKey]);
+					}
 				}
 				array.sort(function(a, b){
 					if (typeof a[attribute] === 'string'){
 						return a[attribute].localeCompare(b[attribute]);
 					} else if (Array.isArray(attribute)) {
-						var c = 0;
+						const c = 0;
 						for (let i = 0; i < attribute.length && c === 0; i += 1){
 							var aux = attribute[i];
 							if (typeof a[aux] === 'string'){
@@ -117,7 +121,7 @@
 					};
 
 					$scope.filtrojerarquia = function(item) {
-						var def = $q.defer();
+						const def = $q.defer();
 						$scope.pjerarquia.then(function(){
 							def.resolve($scope.fj(item));
 							$scope.filtrojerarquia = $scope.fj;

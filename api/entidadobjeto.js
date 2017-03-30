@@ -101,30 +101,27 @@
 			jerarquiamodel = models.jerarquia();
 
 		if (req.params.idjerarquia && parseInt(req.params.idjerarquia, 10) > 0){
-			jerarquiamodel.findOne({'id': parseInt(req.params.idjerarquia, 10)}).exec().then(function(jerarquia){
+			jerarquiamodel.findOne({'id': parseInt(req.params.idjerarquia, 10)}).lean().exec().then(function(jerarquia){
 
 				if (jerarquia){
-					jerarquia.descendientes.push(parseInt(req.params.idjerarquia, 10));
+					const restriccion = {'$and': []};
 
-					const restriccion =
-						(typeof req.params.idjerarquia !== 'undefined' && !isNaN(parseInt(req.params.idjerarquia))) ?
-						(typeof req.params.recursivo === 'undefined' || JSON.parse(req.params.recursivo) ?
-							{'$and': [
-									{'idjerarquia': {'$in': jerarquia.descendientes}},
-									{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}
-							]} :
-							{'$and': [
-									{'idjerarquia': parseInt(req.params.idjerarquia)},
-									{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura)}}
-							]}
-						)
-						:
-						{'$and': [
-							{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura}}
-						]};
+					if (typeof req.params.recursivo === 'string' && JSON.parse(req.params.recursivo)){
 
+						restriccion.$and.push({'idjerarquia': {'$in': jerarquia.descendientes.concat(jerarquia.id)}});
+					} else {
+						restriccion.$and.push({'idjerarquia': jerarquia.id});
+					}
 
-					const query = entidadobjetomodel.find(restriccion);
+					if (!req.user.permisoscalculados.superuser){
+						restriccion.$and.push({'idjerarquia': {$in: req.user.permisoscalculados.jerarquialectura}});
+					}
+
+					if (typeof req.query.id === 'string'){
+						restriccion.$and.push({'_id': models.objectId(req.query.id)});
+					}
+
+					const query = entidadobjetomodel.find(restriccion.$and.length > 0 ? restriccion : {});
 					if (typeof req.query.fields === 'string') {
 						query.select(req.query.fields);
 					}

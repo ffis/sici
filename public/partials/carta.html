@@ -26,7 +26,7 @@
 					<a class="btn btn-default" target="_blank" href="{{cartaservicioseleccionada.url}}" title="Ver informaci&oacute;n publicada"><span class="glyphicon glyphicon-info-sign"></span></a>
 					<a class="btn btn-default" target="_blank" href="{{cartaservicioseleccionada.urlprintable}}" title="Ver versi&oacute;n imprimible"><span class="glyphicon glyphicon-print"></span></a>
 					<a class="btn btn-default" href="#" ng-click="downloadxls()" title="Descargar versi&oacute;n XLSX"><span class="glyphicon glyphicon-th"></span></a>
-					<a class="btn btn-default" target="_blank" href="/carta-informe/{{seleccionado.id}}/{{cartaservicioseleccionada._id}}/{{anualidad}}" title="Ver planes de mejora"><span class="glyphicon glyphicon-check"></span></a>
+					<a class="btn btn-default" target="_blank" href="/carta-informe/{{seleccionado.id}}/{{cartaservicioseleccionada._id}}" title="Ver planes de mejora"><span class="glyphicon glyphicon-check"></span></a>
 					<a class="btn btn-default" ng-click="mutexFormulas()" title="Ver f&oacute;rmulas"><span class="fa" ng-class="{'fa-toggle-on': showformulas, 'fa-toggle-off': !showformulas}"></span></a>
 					<div class="btn-group">
 						<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -35,11 +35,10 @@
 						<ul class="dropdown-menu" ng-if="cartasservicio.length > 1">
 							<li ng-repeat="c in cartasservicio"><a href="{{c.urledicion}}">{{c.expediente}} {{c.denominacion}}</a></li>
 						</ul>
-						<select ng-model="anualidad" class="btn btn-default" ng-change="refreshAnualidad(anualidad)" ng-options='o as o for o in anualidades'></select>
 					</div>
 				</div>
 				<p class="visible-print-block">
-					{{cartaservicioseleccionada.expediente}} {{cartaservicioseleccionada.denominacion}} - {{anualidad}}
+					{{cartaservicioseleccionada.expediente}} {{cartaservicioseleccionada.denominacion}} - {{$root.anualidad}}
 				</p>
 				<br style="clear:both" />
 			</p>
@@ -80,26 +79,27 @@
 						<td class="text-left">
 							<div class="formuladetails">
 							<p>{{objetivo.denominacion}}</p>
-							<table class="table table-striped table-bordered table-condensed table-hover">
+							<p ng-if="!objetivo.formulas[0].valores[$root.anualidad]">La anualidad seleccionada no contiene datos.</p>
+							<table class="table table-striped table-bordered table-hover" ng-show="objetivo.formulas[0].valores[$root.anualidad].length">
 								<tbody>
 									<tr ng-repeat="formula in objetivo.formulas track by $index" ng-init="indexformula=$index">
 										<td style="width:85%">
 											<p><strong>{{formula.human}}</strong></p>
-											<table class="table table-striped table-bordered table-condensed" style="width:100%">
+											<table class="table table-striped table-bordered" ng-class="{'table-condensed': $root.condensed}" style="width:100%">
 												<thead>
 													<tr>
 														<th></th>
-														<th class="text-center" ng-repeat="a in [0,1,2,3,4,5,6,7,8,9,10,11]">{{$root.inicialesmeses[a]}}</th>
-														<th>{{anualidad}}</th>
+														<th class="text-center" ng-repeat="a in $root.inicialesmeses track by $index">{{a}}</th>
+														<th>{{$root.getIntAnualidad()}}</th>
 													</tr>
 												</thead>
 												<tfoot>
 													<tr ng-show="showformulas">
-														<th colspan="{{1 + formula.valores[aanualidad].length}}"><p><strong>{{formula.computer}}</strong></p></th>
+														<th colspan="{{1 + formula.valores[$root.anualidad].length}}"><p><strong>{{formula.computer}}</strong></p></th>
 													</tr>
-													<tr ng-if="formula.indicadores.length === 1 && indicadores[formula.indicadores[0] ].acumulador === 'sum' ">
+													<tr ng-if="formula.indicadores.length === 1 && indicadores[formula.indicadores[0]].acumulador === 'sum' ">
 														<th>Meta parcial</th>
-														<td class="text-right" ng-repeat="(v,a) in indicadores[formula.indicadores[0] ].valores[aanualidad] track by $index">
+														<td class="text-right" ng-repeat="(v,a) in indicadores[formula.indicadores[0]].valores[$root.anualidad] track by $index">
 															<span ng-hide="$last">
 															{{ (formula.meta / 12) * ($index + 1) | number:($root.isInt((formula.meta / 12) * $index + 1) ? 0 : 2)}}
 															</span>
@@ -107,15 +107,15 @@
 													</tr>
 													<tr ng-if="formula.indicadores.length === 1 && indicadores[formula.indicadores[0] ].acumulador === 'sum' ">
 														<th>Sumatorio parcial</th>
-														<td ng-hide="$last" class="text-right" ng-repeat="(v,a) in indicadores[formula.indicadores[0] ].valores[aanualidad] track by $index" ng-attr-style="{{bgColorResultadoParcial(sumatorioParcial(indicadores[formula.indicadores[0] ].valores[aanualidad], $index), (formula.meta / 12) * ($index + 1), formula.meta, formula)}}">
+														<td ng-hide="$last" class="text-right" ng-repeat="(v,a) in indicadores[formula.indicadores[0]].valores[$root.anualidad] track by $index" ng-attr-style="{{bgColorResultadoParcial(sumatorioParcial(indicadores[formula.indicadores[0]].valores[$root.anualidad], $index), (formula.meta / 12) * ($index + 1), formula.meta, formula)}}">
 															<span>
-															{{ sumatorioParcial(indicadores[formula.indicadores[0] ].valores[aanualidad], $index) | number:($root.isInt( sumatorioParcial(indicadores[formula.indicadores[0] ].valores[aanualidad], $index) ) ? 0 : 2)}}
+															{{ sumatorioParcial(indicadores[formula.indicadores[0] ].valores[$root.anualidad], $index) | number:($root.isInt(sumatorioParcial(indicadores[formula.indicadores[0]].valores[$root.anualidad], $index)) ? 0 : 2)}}
 															</span>
 														</td>
 													</tr>
 													<tr ng-if="formula.indicadores.length > 1 || indicadores[formula.indicadores[0] ].acumulador !== 'sum' ">
 														<th>Cálculo</th>
-														<td class="text-right" title="{{valor.formula | join:' '}}" ng-attr-style="{{bgColorResultado(valor.resultado, formula)}}" ng-repeat="valor in formula.valores[aanualidad] track by $index">{{valor.resultado | number:($root.isInt(valor.resultado) ? 0 : 2)  }}</td>
+														<td class="text-right" title="{{valor.formula | join:' '}}" ng-attr-style="{{bgColorResultado(valor.resultado, formula)}}" ng-repeat="valor in formula.valores[$root.anualidad] track by $index">{{valor.resultado | number:($root.isInt(valor.resultado) ? 0 : 2)  }}</td>
 													</tr>
 												</tfoot>
 												<tbody>
@@ -124,28 +124,28 @@
 															<div class="pull-right hidden-print">
 																<a ng-If="!!$root.permisoscalculados.superuser" title="Editar" href="/indicador/{{idjerarquia}}/{{indicadorid}}"><i class="fa fa-pencil"></i></a>
 																<!--<a title="Desvincular" href=""><i class="fa fa-unlink text-danger"></i></a>-->
-																<span class="glyphicon glyphicon-comment" ng-click="indicadores[indicadorid].desplegado = !indicadores[indicadorid].desplegado" ng-class="{'color_note': existeComentario(indicadores[indicadorid].observaciones[aanualidad])}"></span>
+																<span class="glyphicon glyphicon-comment" ng-click="indicadores[indicadorid].desplegado = !indicadores[indicadorid].desplegado" ng-class="{'color_note': existeComentario(indicadores[indicadorid].observaciones[$root.anualidad])}"></span>
 															</div>
 															{{indicadores[indicadorid].nombre}}
 														</td>
-														<td ng-repeat="(v,a) in indicadores[indicadorid].valores[aanualidad] track by $index" style="white-space:nowrap" class="text-right">
+														<td ng-repeat="(v,a) in indicadores[indicadorid].valores[$root.anualidad] track by $index" style="white-space:nowrap" class="text-right">
 															<div ng-show="WIndicador">
-																<input ng-hide="$index == indicadores[indicadorid].valores[aanualidad].length - 1" ng-blur="updateIndicador(indicadorid)" type="text" style="width:3em; font-size:smaller; padding:1px; min-width:100%" class="text-right form-control" ng-model="indicadores[indicadorid].valores[aanualidad][v]" />
-																<span ng-if="$index == indicadores[indicadorid].valores[aanualidad].length - 1">
+																<input ng-hide="$index == indicadores[indicadorid].valores[$root.anualidad].length - 1" ng-blur="updateIndicador(indicadorid)" type="text" style="width:3em; font-size:smaller; padding:1px; min-width:100%" class="text-right form-control" ng-model="indicadores[indicadorid].valores[$root.anualidad][v]" />
+																<span ng-if="$index == indicadores[indicadorid].valores[$root.anualidad].length - 1">
 																	<span ng-show="indicadores[indicadorid].acumulador === 'sum' ">∑</span>
 																	<span ng-show="indicadores[indicadorid].acumulador === 'mean' ">x&#772;</span>
 																	<span ng-show="indicadores[indicadorid].acumulador === 'min' ">&#8863;</span>
 																	<span ng-show="indicadores[indicadorid].acumulador === 'max' ">&#8862;</span>
-																	= {{ indicadores[indicadorid].valores[aanualidad][v] | number:($root.isInt(indicadores[indicadorid].valores[aanualidad][v]) ? 0 : 2)   }}
+																	= {{ indicadores[indicadorid].valores[$root.anualidad][v] | number:($root.isInt(indicadores[indicadorid].valores[$root.anualidad][v]) ? 0 : 2)   }}
 																</span>
 															</div>
 															<div class="text-right" ng-show="!WIndicador && RIndicador">
-																<span ng-if="$index == indicadores[indicadorid].valores[aanualidad].length - 1">
+																<span ng-if="$index == indicadores[indicadorid].valores[$root.anualidad].length - 1">
 																	<span ng-show="indicadores[indicadorid].acumulador === 'sum' ">∑</span>
 																	<span ng-show="indicadores[indicadorid].acumulador === 'mean' ">x&#772;</span>
 																	<span ng-show="indicadores[indicadorid].acumulador === 'min' ">&#8863;</span>
 																	<span ng-show="indicadores[indicadorid].acumulador === 'max' ">&#8862;</span>
-																	= {{ indicadores[indicadorid].valores[aanualidad][v] | number:($root.isInt(indicadores[indicadorid].valores[aanualidad][v]) ? 0 : 2)   }}
+																	= {{ indicadores[indicadorid].valores[$root.anualidad][v] | number:($root.isInt(indicadores[indicadorid].valores[$root.anualidad][v]) ? 0 : 2)   }}
 																</span>
 															</div>
 														</td>
@@ -156,7 +156,7 @@
 																<tbody>
 																	<tr ng-repeat="(v,a) in [0,1,2,3,4,5,6,7,8,9,10,11]">
 																		<th style="width:20%;" class="text-right">{{$root.meses[a]}}</th>
-																		<td><input ng-blur="updateIndicador(indicadorid)" ng-model="indicadores[indicadorid].observaciones[aanualidad][v]" type="text" class="form-control" style="width:90%" /></td>
+																		<td><input ng-blur="updateIndicador(indicadorid)" ng-model="indicadores[indicadorid].observaciones[$root.anualidad][v]" type="text" class="form-control" style="width:90%" /></td>
 																	</tr>
 																</tbody>
 															</table>
@@ -164,24 +164,24 @@
 													</tr>
 													<tr ng-repeat="procedimiento in formula.procedimientos">
 														<td>{{procedimientos[procedimiento.procedimiento].denominacion}} [{{procedimiento.campo | translate}}]</td>
-														<td ng-repeat="(v,a) in procedimientos[procedimiento.procedimiento].periodos[aanualidad][procedimiento.campo] track by $index" style="white-space:nowrap" class="text-right">
+														<td ng-repeat="(v,a) in procedimientos[procedimiento.procedimiento].periodos[$root.anualidad][procedimiento.campo] track by $index" style="white-space:nowrap" class="text-right">
 															{{a}}
 														</td>
 														<td class="text-right">
 															<span>∑</span>
-															= {{ procedimientos[procedimiento.procedimiento].periodos[aanualidad][procedimiento.campo] | sum }}
+															= {{ procedimientos[procedimiento.procedimiento].periodos[$root.anualidad][procedimiento.campo] | sum }}
 														</td>
 													</tr>
 												</tbody>
 											</table>
 										</td>
 										<td style="text-align:center" class="gaugecell">
-											<div width="300" style="height:225px" major-graduations="{{formula.uppervalue < 5 ? formula.uppervalue + 1 : 5}}" ng-radial-gauge ranges="formula.intervalos" value="formula.gaugevalue[aanualidad]" value-unit="unit" precision="precision" lower-limit="0" upper-limit="formula.uppervalue" id="img{{indexobjetivo}}_{{indexformula}}"></div>
+											<div width="300" style="height:225px" major-graduations="{{formula.uppervalue < 5 ? formula.uppervalue + 1 : 5}}" ng-radial-gauge ranges="formula.intervalos" value="formula.gaugevalue[$root.anualidad]" value-unit="unit" precision="precision" lower-limit="0" upper-limit="formula.uppervalue" id="img{{indexobjetivo}}_{{indexformula}}"></div>
 											<br />
 											<br />
-											<h4>{{ formula.valores[aanualidad][ formula.valores[aanualidad].length - 1 ].resultado | number:($root.isInt(formula.valores[aanualidad][ formula.valores[aanualidad].length - 1 ].resultado) ? 0 : 2)  }}</h4>
-											<h4 style="color:red" ng-show="showformulas">{{formula.valor[aanualidad] | number:($root.isInt(formula.valor[aanualidad]) ? 0 : 2)  }}</h4>
-											<h5>{{ formula.meta | number:($root.isInt(formula.valor[aanualidad]) ? 0 : 2) }}</h5>
+											<h4>{{ formula.valores[$root.anualidad][ formula.valores[$root.anualidad].length - 1 ].resultado | number:($root.isInt(formula.valores[$root.anualidad][ formula.valores[$root.anualidad].length - 1 ].resultado) ? 0 : 2) }}</h4>
+											<h4 style="color:red" ng-show="showformulas">{{formula.valor[$root.anualidad] | number:($root.isInt(formula.valor[$root.anualidad]) ? 0 : 2)  }}</h4>
+											<h5>{{ formula.meta | number:($root.isInt(formula.valor[$root.anualidad]) ? 0 : 2) }}</h5>
 											<div class="hidden-print text-center">
 												<button class="btn btn-default" svg-download="#img{{indexobjetivo}}_{{indexformula}}" title="{{indexobjetivo}}_{{indexformula}}" type="png">Descargar imagen</button>
 											</div>

@@ -500,10 +500,8 @@
 		const ultimoseparador = Math.max.apply(null, ['=', '≥', '≤'].map(function(s){
 			return str.lastIndexOf(s) + 1;
 		}));
-		if (ultimoseparador > 0){
-			return parseInt(str.substr(ultimoseparador), 10);
-		}
-		return 100;
+
+		return (ultimoseparador > 0) ? parseInt(str.substr(ultimoseparador), 10) : 100;
 	}
 
 	function extraeIntervalos(valormeta){
@@ -736,7 +734,7 @@
 		const indiceformula = parseInt(req.body.indiceformula, 10);
 		const formula = req.body.formula;
 	
-		objetivomodel.findOne({'_id': models.objectId(idobjetivo)}, function(objetivo){
+		objetivomodel.findOne({'_id': models.objectId(idobjetivo)}, {}).exec().then(function(objetivo){
 			if (objetivo){
 				if (req.user.permisoscalculados.superuser || req.user.permisoscalculados.entidadobjetoescritura.indexOf(String(objetivo.carta))){
 					if (typeof objetivo.formulas[indiceformula] === 'object'){
@@ -746,7 +744,6 @@
 					} else {
 						req.eh.notFoundHelper(res);
 					}
-
 				} else {
 					req.eh.unauthorizedHelper(res);
 				}

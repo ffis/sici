@@ -7,15 +7,14 @@
 				$scope.indicadores = {};
 				$scope.jerarquias = {};
 				$scope.seleccionado = {};
-				$scope.anualidad = parseInt($routeParams.anualidad);
 				$scope.persona = {};
 				$scope.usuarioseleccionado = '';
 				$scope.cachepersonas = {};
-				$scope.personasBy_Id = {};
+				$scope.personasById = {};
 				$scope.acciones = [];
 				$scope.cachePerson = function(persona){
 					if (persona){
-						$scope.personasBy_Id[ persona._id ] = persona;
+						$scope.personasById[persona._id] = persona;
 					}
 				};
 
@@ -35,31 +34,31 @@
 				$scope.arbol = Arbol.query();
 				$scope.newAccion = function(){
 					$scope.accion = {
-						eliminado: false,
-						numero: $scope.acciones.length + 1,
-						promotor: false,
-						responsable: false,
-						afectables: {},
-						equipo: [],
-						afecta: false,
-						organica: $routeParams.idjerarquia,
-						procedimientos: '',
-						gruposinteres: '',
-						fortalezas: '',
-						areasmejora: '',
-						contexto: '',
-						alternativas: '',
-						resultadoesperado: '',
-						restricciones: {},
-						rrhhdia: '',
-						presupuesto: '',
-						fechainicio: '',
-						plazo: '',
-						plan: $scope.planmejora._id
+						'eliminado': false,
+						'numero': $scope.acciones.length + 1,
+						'promotor': false,
+						'responsable': false,
+						'afectables': {},
+						'equipo': [],
+						'afecta': false,
+						'organica': $routeParams.idjerarquia,
+						'procedimientos': '',
+						'gruposinteres': '',
+						'fortalezas': '',
+						'areasmejora': '',
+						'contexto': '',
+						'alternativas': '',
+						'resultadoesperado': '',
+						'restricciones': {},
+						'rrhhdia': '',
+						'presupuesto': '',
+						'fechainicio': '',
+						'plazo': '',
+						'plan': $scope.planmejora._id
 					};
 
 					$scope.persona = {};
-					Jerarquia.get({id: 1}, function(dato){
+					Jerarquia.get({'id': 1}, function(dato){
 						$scope.seleccionado = dato;
 					});
 				};
@@ -81,7 +80,7 @@
 					} else {
 						AccionMejora.update($scope.accion).$promise.then(function(){
 							$scope.loadAcciones();
-							delete $scope.accion;
+							Reflect.deleteProperty($scope, 'accion');
 						}, function(e){
 							if (typeof e.data !== 'undefined' && typeof e.data.error !== 'undefined'){
 								$rootScope.toaster('Error durante la carga: ' + e.data.error, 'Error', 'error');
@@ -93,60 +92,50 @@
 				};
 				$scope.cancelar = function(){
 					if ($window.confirm('¿Está seguro/a? Si continúa perderá los cambios realizados sobre esta acción de mejora')){
-						delete $scope.accion;
+						Reflect.deleteProperty($scope, 'accion');
 					}
 				};
 				$scope.setOrganicaCompleta = function(){
 					$scope.setseleccionado({
-						id: 1,
-						title: 'COMUNIDAD AUTONOMA DE MURCIA'
+						'id': 1,
+						'title': 'COMUNIDAD AUTONOMA DE MURCIA'
 					});
 				};
+
 				$scope.planmejora = new PlanMejora();
-				$scope.planesmejora = PlanMejoraList.query({idjerarquia: parseInt($routeParams.idjerarquia), anualidad: $scope.anualidad });
+				$scope.planesmejora = PlanMejoraList.query({'idjerarquia': parseInt($routeParams.idjerarquia), 'anualidad': $rootScope.getIntAnualidad()});
 				$scope.planesmejora.$promise.then(function(planesmejora){
 					if (planesmejora.length === 0){
-						$scope.planmejora.anualidad = $scope.anualidad;
-						$scope.planmejora.idjerarquia = parseInt($routeParams.idjerarquia);
+						$scope.planmejora.anualidad = $rootScope.getIntAnualidad();
+						$scope.planmejora.idjerarquia = parseInt($routeParams.idjerarquia, 10);
 						$scope.planmejora.carta = ($routeParams.idcarta);
 						PlanMejora.save($scope.planmejora, function(a) {
-							$scope.planmejora = new PlanMejora(a);
+							if (a){
+								$scope.planmejora = new PlanMejora(a);
+							}
 						});
 					} else {
 						$scope.planmejora = new PlanMejora(planesmejora[0]);
 						$scope.loadAcciones();
 					}
-				}, function(e){
-					if (typeof e.data !== 'undefined' && typeof e.data.error !== 'undefined'){
-						$rootScope.toaster('Error durante la carga: ' + e.data.error, 'Error', 'error');
-					} else {
-						$rootScope.toaster('Error durante la carga', 'Error', 'error');
-					}
 				});
 				$scope.loadAcciones = function(){
-					if (typeof $scope.planmejora._id !== 'undefined'){
-						$scope.acciones = AccionMejora.query({plan: $scope.planmejora._id });
+					if (typeof $scope.planmejora._id === 'string'){
+						$scope.acciones = AccionMejora.query({'plan': $scope.planmejora._id});
 						$scope.acciones.$promise.then(function(){
-							for (var i = 0, j = $scope.acciones.length; i < j; i++){
-								if ($scope.acciones[i].promotor && $scope.acciones[i].promotor !== ''){
-									Persona.get({ id: $scope.acciones[i].promotor }).$promise.then($scope.cachePerson);
+							$scope.acciones.forEach(function(accion){
+								if (accion.promotor && accion.promotor !== ''){
+									Persona.get({'id': accion.promotor}).$promise.then($scope.cachePerson);
 								}
-								if ($scope.acciones[i].responsable && $scope.acciones[i].responsable !== ''){
-									Persona.get({ id: $scope.acciones[i].responsable }).$promise.then($scope.cachePerson);
+								if (accion.responsable && accion.responsable !== ''){
+									Persona.get({'id': accion.responsable}).$promise.then($scope.cachePerson);
 								}
-								if (typeof $scope.acciones[i].equipo === 'undefined' || $scope.acciones[i].equipo.length === 0){
-									continue;
+								if (typeof accion.equipo && accion.equipo.length > 0){
+									accion.equipo.forEach(function(iniciales){
+										Persona.get({'id': iniciales}).$promise.then($scope.cachePerson);
+									});
 								}
-								for (var k = 0, l = $scope.acciones[i].equipo.length; k < l; k++){
-									Persona.get({ id: $scope.acciones[i].equipo[k] }).$promise.then($scope.cachePerson);
-								}
-							}
-						}, function(e){
-							if (typeof e.data !== 'undefined' && typeof e.data.error !== 'undefined'){
-								$rootScope.toaster('Error durante la carga: ' + e.data.error, 'Error', 'error');
-							} else {
-								$rootScope.toaster('Error durante la carga', 'Error', 'error');
-							}
+							});
 						});
 					}
 				};
@@ -159,8 +148,8 @@
 					$scope.organicamostrada = false;
 					$scope.accion.organica = nodo.id;
 					if (typeof nodo.title !== 'undefined'){
-						$scope.seleccionado = { nombrelargo: nodo.title };
-						Jerarquia.get({id: nodo.id}, function(dato){
+						$scope.seleccionado = {'nombrelargo': nodo.title };
+						Jerarquia.get({'id': nodo.id}, function(dato){
 							$scope.seleccionado = dato;
 						});
 					} else {
@@ -175,7 +164,7 @@
 					if (!persona || typeof persona !== 'object'){
 						return;
 					}
-					if ($scope.accion.equipo.indexOf( persona._id ) < 0){
+					if ($scope.accion.equipo.indexOf(persona._id) < 0){
 						$scope.accion.equipo.push(persona._id);
 					}
 					$scope.usuarioseleccionado = '';
@@ -187,16 +176,13 @@
 					var clon = JSON.parse(JSON.stringify(accion));
 					$scope.accion = clon;
 					$scope.usuarioseleccionado = '';
-					Jerarquia.get({id: accion.organica}, function(dato){
+					Jerarquia.get({'id': accion.organica}, function(dato){
 						$scope.setseleccionado(dato);
 					});
 				};
 				$scope.eliminarAccion = function(accion){
-					if ($window.confirm('¿Está seguro? Esta operación no es reversible.'))
-					{
-						accion.$delete(function(){
-							$scope.loadAcciones();
-						});
+					if ($window.confirm('¿Está seguro? Esta operación no es reversible.')){
+						accion.$delete($scope.loadAcciones);
 					}
 				};
 				$scope.setResponsable = function(persona){
@@ -205,7 +191,7 @@
 					}
 				};
 				$scope.removeResponsable = function(){
-					delete $scope.accion.responsable;
+					Reflect.deleteProperty($scope.accion, 'responsable');
 				};
 				$scope.setPromotor = function(persona){
 					if (persona._id){
@@ -213,8 +199,9 @@
 					}
 				};
 				$scope.removePromotor = function(){
-					delete $scope.accion.promotor;
+					Reflect.deleteProperty($scope.accion, 'promotor');
 				};
+
 				$scope.restricciones = [
 					'Presupuestos',
 					'Personal',
@@ -254,28 +241,22 @@
 				$scope.afectables.sort();
 				$scope.downloadDocx = function(){
 					$scope.descargando = true;
-					$http.get('/api/v2/public/informeCarta/' + $scope.cartaservicio._id + '/' + $scope.anualidad)
-						.then(function (res) {
-							$scope.descargando = false;
-							if (typeof res.data === 'object'){
-								$rootScope.cbDownload(res.data);
-							} else {
-								$rootScope.toaster('Error al descargar el informe', 'Error', 'error');
-							}
-						}, function() {
-							$scope.descargando = false;
+					$http.get('/api/v2/public/informeCarta/' + $scope.cartaservicio._id + '/' + $rootScope.getIntAnualidad()).then(function(res){
+						$scope.descargando = false;
+						if (typeof res.data === 'object'){
+							$rootScope.cbDownload(res.data);
+						} else {
 							$rootScope.toaster('Error al descargar el informe', 'Error', 'error');
-						});
+						}
+					});
 				};
-				//$scope.editar( $scope.acciones[0] );
-				//lógica buscador de personas
 
 				$scope.showPersona = function (persona){
+
 					return (persona && persona.login && persona.codplaza && persona.nombre && persona.apellidos) ?
 						(persona.login + '-' + persona.codplaza + '-' + persona.nombre + ' ' + persona.apellidos) : '';
 				};
-				$scope.getPersonas = function(permiso){
-					var busqueda = permiso;
+				$scope.getPersonas = function(busqueda){
 
 					if (typeof $scope.cachepersonas === 'undefined'){
 						$scope.cachepersonas = [];
@@ -285,15 +266,15 @@
 						return '';
 					}
 
-					if (typeof $scope.cachepersonas[busqueda] !== 'undefined') {
+					if (typeof $scope.cachepersonas[busqueda] === 'object') {
+
 						return $scope.cachepersonas[busqueda];
 					} else {
+
 						return PersonasByRegexp.query({'regex': busqueda}, function(p){
-							if (p !== null && p.length > 0) {
+							if (p && Array.isArray(p) && p.length > 0) {
 								$scope.cachepersonas[busqueda] = p;
-								for (var i = 0, j = p.length; i < j; i++){
-									$scope.cachePerson(p[i]);
-								}
+								p.forEach($scope.cachePerson);
 							}
 						}).$promise;
 					}

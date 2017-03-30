@@ -24,7 +24,6 @@
 	}
 
 	function filterHelper(a, b){
-		console.log(a, b)
 		if (a.slice(-1)[0] !== b){
 			a.push(b);
 		}
@@ -104,36 +103,48 @@
 
 		personamodel.find(restriction).limit(1).exec().then(function(personas){
 			if (personas.length === 0){
-				res.status(401).json({error: 'Wrong user or password'});
+				res.status(401).json({'error': 'Wrong user or password'});
 
 				return;
 			}
-			personas[0].ultimologin = new Date();
-			personas[0].save();
+			const persona = personas[0];
+			persona.ultimologin = new Date();
+			persona.save();
 
-			permisomodel.find({$or: [{login: personas[0].login}, {codplaza: personas[0].codplaza}]},
-				function (erro, permisos){
-					if (erro || permisos.length === 0){
-						res.status(404).json({error: 'Sin permisos'});
-					} else {
-						const o = JSON.parse(JSON.stringify(personas[0]));
-						o.idspermisos = permisos.map(function(permiso){ return permiso._id; });
-						const token = jsonwebtoken.sign(o, secret, {expiresIn: cfg.session_time});
-						/* TODO: check and explain why to delete all these attrs */
-						o.permisos = permisos.map(function(permiso){
-							const attrsfiltrar = ['jerarquialectura', 'jerarquiaescritura', 'procedimientoslectura', 'procedimientosescritura', 'entidadobjetolectura', 'entidadobjetoescritura'];
-							attrsfiltrar.forEach(function(attr){
-								Reflect.deleteProperty(permiso, attr);
-							});
+			const restriccion = {};
+			if (typeof persona.login === 'string' && persona.login !== '' && typeof persona.codplaza === 'string' && persona.codplaza !== ''){
+				restriccion.$or = {'login': persona.login, 'codplaza': persona.codplaza};
+			} else if (typeof persona.login === 'string' && persona.login !== ''){
+				restriccion.login = persona.login;
+			} else if (typeof persona.codplaza === 'string' && persona.codplaza !== ''){
+				restriccion.codplaza = persona.codplaza;
+			} else {
+				res.status(401).json({'error': 'Wrong user or password'});
 
-							return permiso;
+				return;
+			}
+
+			permisomodel.find(restriccion).lean().exec().then(function (permisos){
+				if (permisos.length === 0){
+					res.status(401).json({'error': 'Wrong user or password'});
+				} else {
+					const o = JSON.parse(JSON.stringify(persona));
+					o.idspermisos = permisos.map(function(permiso){ return permiso._id; });
+					const token = jsonwebtoken.sign(o, secret, {'expiresIn': cfg.session_time});
+					/* TODO: check and explain why to delete all these attrs */
+					o.permisos = permisos.map(function(permiso){
+						const attrsfiltrar = ['jerarquialectura', 'jerarquiaescritura', 'procedimientoslectura', 'procedimientosescritura', 'entidadobjetolectura', 'entidadobjetoescritura'];
+						attrsfiltrar.forEach(function(attr){
+							Reflect.deleteProperty(permiso, attr);
 						});
-						Reflect.deleteProperty(o, 'contrasenya');
-						res.json({profile: o, token: token});
-					}
+
+						return permiso;
+					});
+					Reflect.deleteProperty(o, 'contrasenya');
+					res.json({'profile': o, 'token': token});
 				}
-			);
-		}, req.eh.errorHelper(res, 401, 'Wrong user or password'));
+			}).fail(req.eh.errorHelper(res, 401, 'Wrong user or password'));
+		}).fail(req.eh.errorHelper(res, 401, 'Wrong user or password'));
 	}
 
 	module.exports.authenticate = function(req, res){
@@ -150,9 +161,10 @@
 
 	module.exports.pretend = function(req, res){
 		if (!req.user || !req.user.permisoscalculados || !req.user.permisoscalculados.superuser) {
-			res.status(403).json({'error': 'Not allowed'}); /* provoca perdida de sesión */
+			req.eh.unauthorizedHelper(res);
+			res.status(403).json({'error': 'Not allowed'});
 		} else if (typeof req.body.username === 'undefined'){
-			res.status(404).json({'error': 'Fallo de petición'});
+			req.eh.missingParameterHelper(res, 'username');
 		} else {
 			getPersonAndGenerateToken(req, res, {login: req.body.username, habilitado: true});
 		}

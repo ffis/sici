@@ -8,13 +8,8 @@
 			$scope.graphs = [];
 			$scope.campos = ['ancestro_v_2', 'ancestro_v_3', 'ancestro_v_4', 'cod_plaza', 'denominacion', 'codigo'];
 			$scope.campo = $scope.campos[0];
-			$scope.anualidad = new Date().getFullYear();
-			$scope.anualidades = [];
-			for (let anyo = 2014; anyo <= $scope.anualidad; anyo += 1){
-				$scope.anualidades.push(anyo);
-			}
 
-			function aux(campo, titulo){
+			function aux(campo, titulo, anualidad){
 				return function(){
 					var sum = 0,
 						porcumplimentar = 0;
@@ -24,13 +19,13 @@
 						$scope.tmp[i].cumplimentadas = g.count - g.porcumplimentar;
 					});
 					$scope.widthgraph = angular.element(angular.element('.graphid')[0]).width();
-					$scope.graphs.push({'data': $scope.tmp, 'sum': sum, 'porcumplimentar': porcumplimentar, 'campo': campo, 'titulo': titulo});
+					$scope.graphs.push({'data': $scope.tmp, 'sum': sum, 'porcumplimentar': porcumplimentar, 'campo': campo, 'titulo': titulo, 'anualidad': anualidad});
 				};
 			}
 
 			$scope.newGraph = function(){
 				var campo = $scope.campo;
-				$scope.tmp = Aggregate.query({'anualidad': $scope.anualidad, 'campo': campo}, aux(campo, '', null));
+				$scope.tmp = Aggregate.query({'anualidad': $rootScope.anualidad, 'campo': campo}, aux(campo, '', $rootScope.anualidad));
 				var index = $scope.campos.indexOf($scope.campo);
 				if (index < $scope.campos.length - 1){
 					$scope.campo = $scope.campos[index + 1];
@@ -42,11 +37,11 @@
 			};
 
 			$scope.addgraph = function(row, graph){
-				var titulo = row._id,
-				campo = $scope.campo,
-				restriccion = graph.campo + ':' + row._id;
+				const titulo = row._id,
+					campo = $scope.campo,
+					restriccion = graph.campo + ':' + row._id;
 
-				$scope.tmp = Aggregate.query({anualidad: $scope.anualidad, campo: $scope.campo, restriccion: restriccion}, aux(campo, titulo, restriccion));
+				$scope.tmp = Aggregate.query({'anualidad': graph.anualidad, 'campo': $scope.campo, 'restriccion': restriccion}, aux(campo, titulo, graph.anualidad));
 			};
 
 			$scope.orden = 'count';

@@ -18,10 +18,12 @@
 			<h5 class="text-danger text-center">{{graph.titulo}}</h5>
 			<div class="col-sm-12 col-lg-4 col-md-4">
 				<div class="table-resposive">
-					<table id="tabladatos{{$index}}" class="table table-striped table-bordered table-hover table-condensed col-lg-12">
+					<table id="tabladatos{{$index}}" class="table table-striped table-bordered table-hover col-lg-12"  ng-class="{'table-condensed': $root.condensed}">
 						<thead>
 							<tr>
-								<th scope="col">Nombre</th>
+								<th scope="col">Nombre
+									<div class="pull-right">{{graph.anualidad.substring(1, 5)}}</div>
+								</th>
 								<th ng-class="{'text-danger':orden=='count'}" scope="col" ng-click="ascending=!ascending;orden='count'">N&ordm;</th>
 								<th colspan="2" ng-class="{'text-danger':orden=='cumplimentadas'}" scope="col" ng-click="ascending=!ascending;orden='cumplimentadas'">Cumplimentadas</th>
 								<th colspan="2" ng-class="{'text-danger':orden=='porcumplimentar'}" scope="col" ng-click="ascending=!ascending;orden='porcumplimentar'">Por cumplimentar</th>
@@ -40,7 +42,7 @@
 						</tr>
 					</tfoot>
 					<tbody>
-						<tr ng-repeat="row in graph.data |orderBy:orden:ascending" ng-click="addgraph(row,graph)" class="cursor">
+						<tr ng-repeat="row in graph.data |orderBy:orden:ascending" ng-click="addgraph(row, graph)" class="cursor">
 							<td ng-if="graph.campo=='codigo'">
 								<a href="/procedimiento/{{row._id}}">{{row._id}}</a>
 							</td>
@@ -80,14 +82,9 @@
 				<form class="form-horizontal">
 					<div class="form-group">
 						<label class="control-label col-md-3">Clave de agrupación:</label>
-						<div class="col-md-5">
+						<div class="col-md-7">
 							<select ng-model="campo"  class="form-control">
 								<option ng-repeat="o in campos" ng-value="o" ng-selected="o==campo">{{o|translate}}</option>
-							</select>
-						</div>
-						<div class="col-md-2">
-							<select ng-model="anualidad"  class="form-control">
-								<option ng-repeat="a in anualidades" ng-value="a" ng-selected="a==anualidad">{{a}}</option>
 							</select>
 						</div>
 						<div class="col-md-2">

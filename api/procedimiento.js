@@ -20,8 +20,10 @@
 
 			return clon;
 		});
-			
-		return models.historico().insertMany(clones).exec();
+		const defer = Q.defer();
+		models.historico().insertMany(clones, defer.makeNodeResolver());
+		
+		return defer.promise;
 	}
 
 	module.exports.hasChildred = function (req, res) {
@@ -119,6 +121,9 @@
 								recalculate.softCalculateProcedimiento(models, procedimiento).then(function(p) {
 									recalculate.softCalculateProcedimientoCache(models, p).then(function(pr) {
 										procedimiento.save(req.eh.cbWithDefaultValue(res, pr));
+										/* posible aunque improbable condición de carrera */
+										const api = req.metaenvironment.api;
+										api.resetCache();
 									}, req.eh.errorHelper(res, 'Error 102'));
 								}, req.eh.errorHelper(res, 'Error 103'));
 							});
@@ -189,6 +194,8 @@
 								orig.fecha_version = new Date();
 								procedimientomodel.update({'codigo': orig.codigo}, JSON.parse(JSON.stringify(orig)), {multi: false, upsert: false}).exec().then(function(){
 									recalculate.fullSyncjerarquia(models).then(function(){
+										const api = req.metaenvironment.api;
+										api.resetCache();
 										res.json(orig);
 									}, req.eh.errorHelper(res));
 								}, req.eh.errorHelper(res));
@@ -285,7 +292,6 @@
 		return defer.promise;
 	}
 
-
 	module.exports.updateProcedimiento = function (req, res) {
 		const models = req.metaenvironment.models,
 			recalculate = req.metaenvironment.recalculate,
@@ -302,8 +308,8 @@
 
 		if (!req.user.permisoscalculados.superuser){
 			restriccion.$or = [
-				{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquiaescritura.concat(req.user.permisoscalculados.jerarquiadirectaescritura)}},
-				{'codigo': {'$in': req.user.permisoscalculados.procedimientosdirectaescritura.concat(req.user.permisoscalculados.procedimientosescritura)}}
+				{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquiaescritura}},
+				{'codigo': {'$in': req.user.permisoscalculados.procedimientosescritura}}
 			];
 		}
 
@@ -331,13 +337,15 @@
 			if (puedeEscribirSiempre) {
 				if (original.idjerarquia !== procedimiento.idjerarquia) {
 					original.idjerarquia = procedimiento.idjerarquia;
+					const api = req.metaenvironment.api;
+					api.resetCache();
 				}
 				original.padre = procedimiento.padre;
 				// Actualiza estado oculto o eliminado
 				if (original.oculto !== procedimiento.oculto) {
 					hayCambiarOcultoHijos = true;
 					if (!isNaN(parseInt(procedimiento.codigo, 10))){
-						crawledmodel.update({id: parseInt(procedimiento.codigo, 10)}, {'$set': {'oculto': original.oculto}}, {multi: false, upsert: false}, logger.error);
+						crawledmodel.update({id: parseInt(procedimiento.codigo, 10)}, {'$set': {'oculto': original.oculto}}, {'multi': false, 'upsert': false}, logger.error);
 					}
 				}
 				original.oculto = procedimiento.oculto;
@@ -399,7 +407,6 @@
 					recalculate.softCalculateProcedimientoCache(models, origin).then(function(orig){
 						saveVersion(models, orig).then(function(){
 							original.fecha_version = new Date();
-							console.log(orig);
 							procedimientomodel.update({'codigo': orig.codigo}, JSON.parse(JSON.stringify(orig))).then(function(){
 								const promesaProc = Q.defer();
 
@@ -462,7 +469,7 @@
 		}
 
 		if (!req.user.permisoscalculados.superuser){
-			restriccion.$and.push({idjerarquia: {$in: req.user.permisoscalculados.jerarquialectura}});
+			restriccion.$and.push({'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura}});
 		}
 		if (typeof req.query.id === 'string'){
 			restriccion.$and.push({'_id': models.objectId(req.query.id)});

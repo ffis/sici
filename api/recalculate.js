@@ -175,6 +175,7 @@
 						permiso.entidadobjetoescritura.push(String(entidadobjeto._id));
 					}
 				});
+
 				deferredEntidadObjeto.resolve();
 			}, deferredEntidadObjeto.reject);
 		}
@@ -271,20 +272,26 @@
 
 		if (idjerarquia){
 			if (typeof api === 'object'){
-				deferredJerarquia.resolve(api.getAncestros(idjerarquia));
+				const jerarquias = api.getAncestros(idjerarquia);
+				jerarquias.unshift(api.getJerarquiaById(idjerarquia));
+				jerarquias.sort(function (j1, j2) {
+					return j2.ancestros.length - j1.ancestros.length;
+				});
+				deferredJerarquia.resolve(jerarquias);
 			} else {
-				jerarquiamodel.findOne({id: idjerarquia}).exec().then(function(jerarquia){
+				jerarquiamodel.findOne({'id': idjerarquia}).exec().then(function(jerarquia){
 					if (!jerarquia) {
 						deferred.resolve([]);
 
 						return;
 					}
 
-					jerarquiamodel.find({id: {'$in': jerarquia.ancestros}}, function (id, js) {
+					jerarquiamodel.find({'id': {'$in': jerarquia.ancestros}}, function (id, js) {
 						const jerarquias = [idjerarquia].concat(js);
 						jerarquias.sort(function (j1, j2) {
 							return j2.ancestros.length - j1.ancestros.length;
 						});
+
 						deferredJerarquia.resolve(jerarquias);
 					});
 				}, deferred.reject);
@@ -292,8 +299,9 @@
 		} else {
 			deferredJerarquia.resolve([]);
 		}
+
 		if (procedimiento.cod_plaza) {
-			deferredPersona = personamodel.find({codplaza: procedimiento.cod_plaza}).lean().exec();
+			deferredPersona = personamodel.find({'codplaza': procedimiento.cod_plaza}).lean().exec();
 		} else {
 			deferredPersona = Q.all([]);
 		}
@@ -302,7 +310,7 @@
 
 			procedimiento.ancestros = datos[0];//jerarquias;
 			procedimiento.responsables = datos[1];//personas;
-			for (let i = 1; i <= 4; i += 1) {
+			for (let i = 1; i <= 5; i += 1) {
 				procedimiento['ancestro_' + i] = '';
 				procedimiento['ancestro_v_' + i] = '';
 			}
@@ -314,7 +322,7 @@
 				}
 			}
 			deferred.resolve(procedimiento);
-		}, deferred.reject);
+		}).fail(deferred.reject);
 
 		return deferred.promise;
 	}
@@ -420,23 +428,23 @@
 						proced.markModified('periodos');
 						proced.save(function(error){
 							if (error) {
-								informes.push({codigo: proced.codigo, status: 500});
+								informes.push({'codigo': proced.codigo, 'status': 500});
 								promise.reject(error);
 							} else {
-								informes.push({codigo: proced.codigo, status: 200, procedimiento: proced});
+								informes.push({'codigo': proced.codigo, 'status': 200});
 								promise.resolve();
 							}
 						});
 					} else {
-						informes.push({codigo: proced, status: 500});
+						informes.push({'codigo': proced, 'status': 500});
 						promise.reject(proced);
 					}
-				}, function (err) {
-					informes.push({codigo: proc, status: 500});
+				}).fail(function(err){
+					informes.push({'codigo': proc, 'status': 500});
 					promise.reject(err);
 				});
-			}, function (err) {
-				informes.push({codigo: proccodigo, status: 500});
+			}).fail(function(err){
+				informes.push({'codigo': proccodigo, 'status': 500});
 				promise.reject(err);
 			});
 
@@ -457,11 +465,11 @@
 			Q.all(defs).then(function(){
 				procedimientolib.saveVersion(models, versionsToSave).then(function(){
 					deferred.resolve(informes);
-				}, function (erro) {
+				}).fail(function(erro){
 					erro.informes = informes;
 					deferred.reject(erro);
 				});
-			}, function (err) {
+			}).fail(function(err){
 				err.informes = informes;
 				deferred.reject(err);
 			});
@@ -473,7 +481,7 @@
 	function recalculatePermiso(models){
 		return function(permiso){
 			const deferred = Q.defer();
-			console.log('recalcul', permiso._id);
+
 			if (typeof permiso.login === 'string' && permiso.login === '' && typeof permiso.codplaza === 'string' && permiso.codplaza === ''){
 				permiso.remove(deferred.makeNodeResolver());
 			} else {
@@ -526,6 +534,7 @@
 					if (!actualizarancestros){
 						continue;
 					}
+
 					for (let k = 0, l = mapeadoArray[String(idjerarquia)].ancestros.length; k < l; k += 1){
 						const idancestro = mapeadoArray[String(idjerarquia)].ancestros[k];
 						mapeadoArray[String(idancestro)][campo] += count;
@@ -559,6 +568,11 @@
 				const id = ids[i];
 				mapeadoArray[String(id)].ancestros = (mapeadoArray[String(id)].ancestrodirecto) ? [(mapeadoArray[String(id)].ancestrodirecto)] : [];
 				mapeadoArray[String(id)].descendientes = [];
+
+				if (typeof mapeadoArray[String(id)] === 'object' && typeof mapeadoArray[String(id)].numprocedimientos === 'number' ){
+					mapeadoArray[String(id)].numprocedimientos = 0;
+					mapeadoArray[String(id)].numcartas = 0;
+				}
 			}
 
 
@@ -626,15 +640,7 @@
 			}
 
 
-			//primero recorrer el listado de jerarquías que ya existía, asignando el valor 0 a los dos atributos:
-			for (const id in mapeadoArray){
-				if (typeof mapeadoArray[String(id)] === 'object' && typeof mapeadoArray[String(id)].numprocedimientos === 'number' ){
-					mapeadoArray[String(id)].numprocedimientos = 0;
-					mapeadoArray[String(id)].numcartas = 0;
-				}
-			}
-
-			//segundo definir función genérica, que sirva tanto para numprocedimientos como para numcartas
+			//definir función genérica, que sirva tanto para numprocedimientos como para numcartas
 			//campo: ['numprocedimientos', 'numcartas']
 			
 			const deferNumProcedimientos = Q.defer(),
@@ -645,10 +651,10 @@
 				'$and': [
 					{
 						'$or': [
-							{'oculto': {$exists: false}},
+							{'oculto': {'$exists': false}},
 							{
 								'$and': [
-									{'oculto': {$exists: true}},
+									{'oculto': {'$exists': true}},
 									{'oculto': false}
 								]
 							}
@@ -656,10 +662,10 @@
 					},
 					{
 						'$or': [
-							{'eliminado': {$exists: false}},
+							{'eliminado': {'$exists': false}},
 							{
 								'$and': [
-									{'eliminado': {$exists: true}},
+									{'eliminado': {'$exists': true}},
 									{'eliminado': false}
 								]
 							}
@@ -669,8 +675,8 @@
 			};
 
 
-			procedimientomodel.aggregate([{$match: matchProcedimiento}, {$group: {_id: '$idjerarquia', count: {$sum: 1}}}, {$sort: {'_id': 1}}], fnActualizacion('numprocedimientos', deferNumProcedimientos, true, mapeadoArray));
-			cartamodel.aggregate([{$match: {tipoentidad: 'CS'}}, {$group: {_id: '$idjerarquia', count: {$sum: 1}}}, {$sort: {'_id': 1}}], fnActualizacion('numcartas', deferNumCartas, false, mapeadoArray));
+			procedimientomodel.aggregate([{'$match': matchProcedimiento}, {'$group': {'_id': '$idjerarquia', 'count': {'$sum': 1}}}, {'$sort': {'_id': 1}}], fnActualizacion('numprocedimientos', deferNumProcedimientos, true, mapeadoArray));
+			cartamodel.aggregate([{'$match': {'tipoentidad': 'CS'}}, {'$group': {'_id': '$idjerarquia', 'count': {'$sum': 1}}}, {'$sort': {'_id': 1}}], fnActualizacion('numcartas', deferNumCartas, false, mapeadoArray));
 
 			//quinto esperar resultados y devolverlos
 			Q.all([deferNumProcedimientos.promise, deferNumCartas.promise]).then(function(){
@@ -680,7 +686,7 @@
 						mapeadoArray[String(id)].save(reportError); /* posible condición de carrera por no esperar */
 					}
 				}
-				deferred.resolve({});
+				deferred.resolve(mapeadoArray);
 			}, deferred.reject);
 		}, deferred.reject);
 

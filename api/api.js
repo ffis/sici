@@ -53,18 +53,25 @@
 			next();
 		});
 
-		//if (cfg.logincarm){
 		this.app.use('/authenticate', metaenvironment.cas.casLogin, metaenvironment.login.authenticate);
-		//	this.app.use('/authenticate', metaenvironment.logincarm.uncrypt, metaenvironment.login.authenticate);
-		//}
-		/* else {
-			this.app.use('/authenticate', metaenvironment.login.authenticate);
-		}
-		*/
-
 		this.app.use('/download/:token/:hash', metaenvironment.exportador.download);
 
-		this.app.use('/', expressJwt({secret: cfg.secret}));
+		this.app.use('/', function(req, res, next){
+			if (req.headers && req.headers.authorization) {
+				const parts = req.headers.authorization.split(' ');
+				if (parts.length == 2) {
+					const scheme = parts[0];
+					if (/^Bearer$/i.test(scheme)) {
+						next();
+
+						return;
+					}
+				}
+			}
+			req.eh.unauthenticatedHelper(res);
+
+		}, expressJwt({'secret': cfg.secret}));
+
 		this.app.use('/', metaenvironment.login.setpermisoscalculados);
 		this.app.use('/', metaenvironment.api.log);
 
@@ -76,10 +83,8 @@
 		this.app.use('/v2', v2.app);
 		this.app.use('/bot', bot.app);
 
-
 		this.metaenvironment = metaenvironment;
 	}
-
 
 	module.exports = Api;
 

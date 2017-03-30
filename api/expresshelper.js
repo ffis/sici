@@ -6,6 +6,7 @@
 		return function(e){
 			if (e){
 				res.status(500).json(e);
+				logger.trace(e);
 			} else {
 				res.json(defaultvalue);
 			}
@@ -17,6 +18,7 @@
 		return function(e, value){
 			if (e){
 				res.status(500).json(e);
+				logger.trace(e);
 			} else {
 				res.json(value);
 			}
@@ -38,8 +40,9 @@
 			if (Number.isInteger(errCode)){
 				errorCode = errCode;
 			}
-			logger.error(err);
-			res.status(errorCode).json({'error': message, details: err});
+
+			res.status(errorCode).json({'error': message, 'details': err});
+			logger.trace(err);
 		};
 	};
 
@@ -47,7 +50,7 @@
 		
 		return function(data){
 			if (!data && shouldSend400onEmpty){
-				res.status(400).json({'error': 'An error has occurred', details: 'Not found'});
+				res.status(400).json({'error': 'An error has occurred', 'details': 'Not found'});
 			} else {
 				res.json(data);
 			}
@@ -55,19 +58,24 @@
 	};
 
 	module.exports.notFoundHelper = function(res){
-		res.status(400).json({'error': 'An error has occurred', details: 'Not found'});
+		res.status(400).json({'error': 'An error has occurred', 'details': 'Not found'});
+	};
+
+	module.exports.unauthenticatedHelper = function(res, details){
+		res.status(401).json({'error': 'Unauthenticated', 'details': details});
 	};
 
 	module.exports.unauthorizedHelper = function(res, details){
-		res.status(403).json({error: 'Unauthorized', details: details});
+		res.status(403).json({'error': 'Unauthorized', 'details': details});
 	};
 
 	module.exports.callbackErrorHelper = function(res, err){
-		res.status(500).json({'error': 'An error has occurred', details: err});
+		res.status(500).json({'error': 'An error has occurred', 'details': err});
+		logger.trace(err);
 	};
 
 	module.exports.missingParameterHelper = function(res, parametername){
-		res.status(400).json({'error': 'Missing parameter', details: parametername});
+		res.status(400).json({'error': 'Missing parameter', 'details': parametername});
 	};
 
 })(module, console);

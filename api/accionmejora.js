@@ -5,7 +5,7 @@
 	module.exports.create = function(req, res){
 		const accionmejoramodel = req.metaenvironment.models.accionmejora(),
 			content = req.body;
-		accionmejoramodel.create(content, req.metaenvironment.expresshelper.cbDefaultValue(res, content));
+		accionmejoramodel.create(content, req.eh.cbWithDefaultValue(res, content));
 	};
 
 	module.exports.get = function (req, res) {

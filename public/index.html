@@ -7,7 +7,6 @@
 		<link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css" media="all">
 		<link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap-theme.min.css">
 		<link rel="stylesheet" href="/css/app.css">
-		<link rel="stylesheet" href="/css/login.css">
 		<link rel="stylesheet" href="/css/animate.css">
 		<link rel="stylesheet" href="/bower_components/angular-animate-css/build/nga.min.css">
 		<link rel="stylesheet" href="/bower_components/nvd3/build/nv.d3.min.css">
@@ -18,7 +17,8 @@
 	</head>
 	<body>
 		<div role="navigation" ng-controller="AppCtrl" class="navbar navbar-default navbar-fixed-top ng-cloak">
-			<div style="background-color:#9E1B32" class="navbar-header">
+		
+			<div class="navbar-header col-xs-12 col-md-1 col-lg-1 text-center">
 				<button type="button" data-toggle="collapse" data-target=".navbar-ex1-collapse" class="navbar-toggle">
 					<span class="sr-only">Desplegar menú</span>
 					<span class="icon-bar"></span>
@@ -26,12 +26,16 @@
 					<span class="icon-bar"></span>
 				</button>
 				<a href="/welcome" class="navbar-brand">
-					<img style="width:100px;height:42px" src="/imgs/escudo_cab.gif" class="logo" onclick="if ($('.container-fluid').text().trim()==''){ window.localStorage.setItem('client_session',''); window.localStorage.setItem('token',''); }" />
+					<img src="/imgs/escudo_cab.gif" class="logo-sm hidden-md hidden-lg" />
+					<img src="/imgs/escudo_cab.gif" class="hidden-sm logo-md hidden-lg" />
+					<img src="/imgs/escudo_cab.gif" class="hidden-sm hidden-md logo-lg" />
+					
 				</a>
 			</div>
-			<div class="collapse navbar-collapse navbar-ex1-collapse">
-				<ul class="nav navbar-nav"  ng-if="logeado">
-					<li ng-class="{active:$root.nav==navg.id, dropdown: navg.sub.length > 0 }" ng-repeat="navg in $root.navegabilidad">
+			<div class="collapse navbar-collapse navbar-ex1-collapse col-xs-12 col-md-11 col-lg-11" ng-if="logeado" style="width: 91.66666667% !important;">
+			
+				<ul class="nav navbar-nav col-xs-12 col-md-9 col-lg-7">
+					<li ng-class="{active:$root.nav==navg.id, dropdown: navg.sub.length > 0}" ng-repeat="navg in $root.navegabilidad">
 						<!-- /* TODO: remove this crap */ -->
 						<a ng-If="navg.sub.length > 0" ng-class="{'dropdown-toggle': navg.sub.length > 0 }" data-toggle="dropdown">{{navg.caption}}  <span class="caret" ng-If="navg.sub.length > 0"></span></a>
 						<a ng-If="!(navg.sub.length > 0)" href="{{navg.id}}" ng-class="{'dropdown-toggle': navg.sub.length > 0 }" data-toggle="dropdown">{{navg.caption}}  <span class="caret" ng-If="navg.sub.length > 0"></span></a>
@@ -64,9 +68,6 @@
 							</li>
 						</ul>
 					</li>
-					<li class="hidden-xs hidden-sm">
-						<input type="text" class="form-control" ng-blur="$root.irProcedimiento()" ng-model="$root.procedimiento" length="7" placeholder="ID" style="width:4em" />
-					</li>
 					<li ng-class="{active:$root.nav==navg.id, dropdown: navg.sub }" ng-repeat="navg in $root.navegabilidadLast">
 						<a href="{{navg.id}}">{{navg.caption}}  <span class="caret" ng-If="navg.sub.length > 0"></span></a>
 						<ul class="dropdown-menu" role="menu" ng-If="navg.sub.length > 0">
@@ -76,9 +77,26 @@
 						</ul>
 					</li>
 				</ul>
+				<div class="col-xs-12 col-md-3 col-lg-5" style="padding-top:0.7em">
+					<div class="col-xs-5 col-md-6 col-lg-6">
+						<form class="form-inline">
+							<label for="anualidad" class="hidden-md">Anualidad:</label>
+							<select class="form-control" id="anualidad" name="anualidad" ng-options="a.value as a.label for a in $root.anualidades" ng-model="$root.anualidad" title="Permite modificar la anualidad de los datos mostrados"></select>
+						</form>
+					</div>
+					<div class="col-xs-5 col-md-4 col-lg-4 text-right" style="padding-left:0;padding-right:0">
+						<input type="text" class="form-control" ng-blur="$root.irProcedimiento()" ng-model="$root.procedimiento" placeholder="Procedimiento" style="max-width: 100%" title="Permite viajar rápidamente a un procedimiento, para ello escriba su número y salga de esta casilla para viajar hasta él" />
+					</div>
+					<div class="col-xs-2 col-md-2 col-lg-2 text-center">
+						<button class="btn btn-default" ng-click="$root.condensed=!$root.condensed" title="Modificar el tamaño de la fuente">
+							<span class="glyphicon glyphicon-text-size" ng-class="{'fa-flip-horizontal': $root.condensed}" aria-hidden="true"></span>
+						</button>
+					</div>	
+				</div>
 			</div>
 		</div>
 		<div class="container-fluid">
+			<div id="marginontoosmall" class="hidden-lg hidden-print" style="height:100px"></div>
 			<div ng-view></div>
 			<toaster-container></toaster-container>
 		</div>
@@ -128,9 +146,11 @@
 		<script src="/bower_components/allmighty-autocomplete/script/autocomplete.js"></script>
 		<script src="/bower_components/angularjs-toaster/toaster.min.js"></script>
 		<script src="/bower_components/d3/d3.min.js"></script>
-		<script src="/bower_components/nvd3/build/nv.d3.min.js"></script>
 		<script src="/bower_components/ngRadialGauge/src/ng-radial-gauge-dir.js"></script>
 		<script src="/bower_components/angular-downloadsvg-directive/angular-downloadsvg-directive.min.js"></script>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js" integrity="sha256-GcknncGKzlKm69d+sp+k3A2NyQE+jnu43aBl6rrDN2I=" crossorigin="anonymous"></script>
+		<script src="//cdn.jsdelivr.net/angular.chartjs/latest/angular-chart.min.js"></script>
 
 		<script src="/js/lib/feedback.js"></script>
 

@@ -4,7 +4,7 @@
 	</div>
 	<div class="panel-body">
 		<input type="text" ng-model="texto.$" placeholder="Filtro" style="margin-bottom:1em" class="form-control"/>
-		<ul ng-if="arbol.length" style="padding-left:0.3em">
+		<ul ng-if="arbol.length" style="padding-left:0.3em" ng-class="{'small': $root.condensed}">
 			<li ng-repeat="element in arbol | filter:texto | filter:filtrojerarquia" ng-class="{'list-group-item-warning':element.id==seleccionado.id}">
 				<span class="badge pull-right" title="Engloba {{element[attr]}} {{tipoelementos}}">{{element[attr]}}</span>
 				<p ng-class="{'text-muted': element[attr] === 0 }">

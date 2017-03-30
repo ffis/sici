@@ -20,7 +20,7 @@
 
 	function Workbook() {
 		if (!(this instanceof Workbook)){
-			var r = new Workbook();
+			const r = new Workbook();
 			r.SheetNames = [];
 			r.Sheets = [];
 
@@ -30,6 +30,7 @@
 		this.Sheets = {};
 	}
 
+	/* start of code executed on mongodb */
 	function fnMap(){
 		var mes = 0,
 			i2 = 0,
@@ -67,7 +68,7 @@
 				}
 				
 				for (i2 = 0, j2 = this.ancestros.length; i2 < j2; i2 += 1){
-					emit({anualidad: anualidad, idjerarquia: this.ancestros[i2].id}, val);
+					emit({'anualidad': anualidad, 'idjerarquia': this.ancestros[i2].id}, val);
 				}
 			}
 		}
@@ -146,6 +147,7 @@
 
 		return val;
 	}
+	/* end code executed on mongodb */
 
 	function mapReducePeriodos(models, idjerarquia, permisoscalculados){
 		const procedimientomodel = models.procedimiento();
@@ -221,7 +223,7 @@
 			for (let i = 0, j = hijos.length; i < j; i += 1){
 				const h = hijos[i];
 				if (typeof periodos[idshijos[i]] === 'object'){
-					ws[XLSX.utils.encode_cell({'c': ic + k, 'r': rowhead})] = {v: h.nombrelargo, t: 's'};
+					ws[XLSX.utils.encode_cell({'c': ic + k, 'r': rowhead})] = {'v': h.nombrelargo, 't': 's'};
 					k += 1;
 				}
 			}
@@ -233,7 +235,7 @@
 			}
 
 			for (let anualidad = 2014; typeof periodos[jerarquia.id][anualidad] !== 'undefined'; anualidad += 1){
-				ws[XLSX.utils.encode_cell({'c': ic, 'r': ir})] = {v: anualidad, 't': 'n'};
+				ws[XLSX.utils.encode_cell({'c': ic, 'r': ir})] = {'v': anualidad, 't': 'n'};
 				ir += 1;
 				for (let ind = 0, l2 = INDICADORES.length; ind < l2; ind += 1){
 					ws[XLSX.utils.encode_cell({'c': ic, 'r': ir})] = {'v': INDICADORES[ind], 't': 's'};
@@ -256,7 +258,7 @@
 							const valor = periodos[idshijos[i]][anualidad][INDICADORESDATABASE[ind]];
 							const ivalor = valor[0] + valor[1] + valor[2] + valor[3] + valor[4] + valor[5] + valor[6] + valor[7] + valor[8] + valor[9] + valor[10] + valor[11];
 
-							ws[XLSX.utils.encode_cell({'c': ic, 'r': ir})] = {'v': ivalor, t: 'n'};
+							ws[XLSX.utils.encode_cell({'c': ic, 'r': ir})] = {'v': ivalor, 't': 'n'};
 							ir += 1;
 						}
 					}
@@ -349,19 +351,19 @@
 			//coordenadasmerges = [];
 
 		for (let i = 0; i < precabeceras.length; i += 1){
-			ws[XLSX.utils.encode_cell({'c': columna++, 'r': 1})] = {v: precabeceras[i], t: 's'};
+			ws[XLSX.utils.encode_cell({'c': columna++, 'r': 1})] = {'v': precabeceras[i], 't': 's'};
 		}
 
-		ws[XLSX.utils.encode_cell({'c': columna + 6, 'r': 0})] = {v: 'RESUELTOS EN LOS MESES DE ' + lastyear, t: 's'};
+		ws[XLSX.utils.encode_cell({'c': columna + 6, 'r': 0})] = {'v': 'RESUELTOS EN LOS MESES DE ' + lastyear, 't': 's'};
 
 		for (let i = 0; i < MESES.length; i += 1) {
-			ws[XLSX.utils.encode_cell({'c': columna++, 'r': 1})] = {v: MESES[i], t: 's'};
+			ws[XLSX.utils.encode_cell({'c': columna++, 'r': 1})] = {'v': MESES[i], 't': 's'};
 		}
 
 		for (let i = 0; i < MESES.length; i += 1) {
-			ws[XLSX.utils.encode_cell({'c': columna + 6, 'r': 0})] = {v: MESES[i], t: 's'};
+			ws[XLSX.utils.encode_cell({'c': columna + 6, 'r': 0})] = {'v': MESES[i], 't': 's'};
 			for (let j = 0; j < indicadores.length; j += 1) {
-				ws[XLSX.utils.encode_cell({'c': columna++, 'r': 1})] = {v: indicadores[j], t: 's'};
+				ws[XLSX.utils.encode_cell({'c': columna++, 'r': 1})] = {'v': indicadores[j], 't': 's'};
 			}
 		}
 
@@ -370,63 +372,63 @@
 			columna = 1;
 			const procedimiento = procedimientos[i];
 
-			ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {v: procedimiento.codigo, t: 's'};
-			ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {v: procedimiento.denominacion, t: 's'};
+			ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {'v': procedimiento.codigo, 't': 's'};
+			ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {'v': procedimiento.denominacion, 't': 's'};
 
 			if ((typeof procedimiento.ancestros !== 'undefined') && (procedimiento.ancestros.length > 1)) {
 				if (procedimiento.ancestros.length === 4) {
 					for (let j = 0; j < 3; j += 1){
-						ws[XLSX.utils.encode_cell({'c': columna, 'r': i + 2})] = {v: procedimiento.ancestros[j].id, t: 'n'};
-						ws[XLSX.utils.encode_cell({'c': columna + 1, 'r': i + 2})] = {v: procedimiento.ancestros[j].nombrelargo, t: 's'};
+						ws[XLSX.utils.encode_cell({'c': columna, 'r': i + 2})] = {'v': procedimiento.ancestros[j].id, 't': 'n'};
+						ws[XLSX.utils.encode_cell({'c': columna + 1, 'r': i + 2})] = {'v': procedimiento.ancestros[j].nombrelargo, 't': 's'};
 
 						columna += 2;
 					}
 				} else if (procedimiento.ancestros.length === 3){
 
-					ws[XLSX.utils.encode_cell({'c': columna, 'r': i + 2})] = {v: procedimiento.ancestros[0].id, t: 'n'};
-					ws[XLSX.utils.encode_cell({'c': columna + 1, 'r': i + 2})] = {v: procedimiento.ancestros[0].nombrelargo, t: 's'};
-					ws[XLSX.utils.encode_cell({'c': columna + 4, 'r': i + 2})] = {v: procedimiento.ancestros[1].id, t: 'n'};
-					ws[XLSX.utils.encode_cell({'c': columna + 5, 'r': i + 2})] = {v: procedimiento.ancestros[1].nombrelargo, t: 's'};
+					ws[XLSX.utils.encode_cell({'c': columna, 'r': i + 2})] = {'v': procedimiento.ancestros[0].id, 't': 'n'};
+					ws[XLSX.utils.encode_cell({'c': columna + 1, 'r': i + 2})] = {'v': procedimiento.ancestros[0].nombrelargo, 't': 's'};
+					ws[XLSX.utils.encode_cell({'c': columna + 4, 'r': i + 2})] = {'v': procedimiento.ancestros[1].id, 't': 'n'};
+					ws[XLSX.utils.encode_cell({'c': columna + 5, 'r': i + 2})] = {'v': procedimiento.ancestros[1].nombrelargo, 't': 's'};
 
 					columna += 6;
 				} else if (procedimiento.ancestros.length === 2){
 
-					ws[XLSX.utils.encode_cell({'c': columna + 4, 'r': i + 2})] = {v: procedimiento.ancestros[0].id, t: 'n'};
-					ws[XLSX.utils.encode_cell({'c': columna + 5, 'r': i + 2})] = {v: procedimiento.ancestros[0].nombrelargo, t: 's'};
+					ws[XLSX.utils.encode_cell({'c': columna + 4, 'r': i + 2})] = {'v': procedimiento.ancestros[0].id, 't': 'n'};
+					ws[XLSX.utils.encode_cell({'c': columna + 5, 'r': i + 2})] = {'v': procedimiento.ancestros[0].nombrelargo, 't': 's'};
 					columna += 6;
 				}
 			} else {
 				columna += 6;
 			}
 
-			ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {v: procedimiento.cod_plaza, t: 's'};
+			ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {'v': procedimiento.cod_plaza, 't': 's'};
 
 			var persona = procedimiento.cod_plaza !== null && procedimiento.cod_plaza !== '' ? personasByCodPlaza[procedimiento.cod_plaza] : false;
 			if (persona) {
-				ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {v: persona.login, t: 's'};
-				ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {v: persona.apellidos + ', ' + persona.nombre, t: 's'};
-				ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {v: persona.login + '@carm.es', t: 's'};
-				ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {v: persona.telefono, t: 's'};
+				ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {'v': persona.login, 't': 's'};
+				ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {'v': persona.apellidos + ', ' + persona.nombre, 't': 's'};
+				ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {'v': persona.login + '@carm.es', 't': 's'};
+				ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {'v': persona.telefono, 't': 's'};
 			} else {
-				ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {v: 'Persona no encontrada', t: 's'};
+				ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {'v': 'Persona no encontrada', 't': 's'};
 				columna += 3;
 			}
 
-			ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {v: ((typeof procedimiento.periodos[year].plazo_maximo_resolver === 'undefined' || procedimiento.periodos[year].plazo_maximo_resolver === null) ? '' : procedimiento.periodos[year].plazo_maximo_resolver), t: 'n'};
-			ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {v: ((typeof procedimiento.periodos[year].plazo_maximo_responder === 'undefined' || procedimiento.periodos[year].plazo_maximo_responder === null) ? '' : procedimiento.periodos[year].plazo_maximo_responder), t: 'n'};
-			ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {v: ((typeof procedimiento.periodos[year].plazo_CS_ANS_naturales === 'undefined' || procedimiento.periodos[year].plazo_CS_ANS_naturales === null) ? '' : procedimiento.periodos[year].plazo_CS_ANS_naturales), t: 'n'};
-			ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {v: ((typeof procedimiento.periodos[year].plazo_CS_ANS_habiles === 'undefined' || procedimiento.periodos[year].plazo_CS_ANS_habiles === null) ? '' : procedimiento.periodos[year].plazo_CS_ANS_habiles), t: 'n'};
-			ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {v: ((typeof procedimiento.periodos[year].pendientes_iniciales === 'undefined' || procedimiento.periodos[year].pendientes_iniciales === null) ? '' : procedimiento.periodos[year].pendientes_iniciales), t: 'n'};
+			ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {'v': ((typeof procedimiento.periodos[year].plazo_maximo_resolver === 'undefined' || procedimiento.periodos[year].plazo_maximo_resolver === null) ? '' : procedimiento.periodos[year].plazo_maximo_resolver), 't': 'n'};
+			ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {'v': ((typeof procedimiento.periodos[year].plazo_maximo_responder === 'undefined' || procedimiento.periodos[year].plazo_maximo_responder === null) ? '' : procedimiento.periodos[year].plazo_maximo_responder), 't': 'n'};
+			ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {'v': ((typeof procedimiento.periodos[year].plazo_CS_ANS_naturales === 'undefined' || procedimiento.periodos[year].plazo_CS_ANS_naturales === null) ? '' : procedimiento.periodos[year].plazo_CS_ANS_naturales), 't': 'n'};
+			ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {'v': ((typeof procedimiento.periodos[year].plazo_CS_ANS_habiles === 'undefined' || procedimiento.periodos[year].plazo_CS_ANS_habiles === null) ? '' : procedimiento.periodos[year].plazo_CS_ANS_habiles), 't': 'n'};
+			ws[XLSX.utils.encode_cell({'c': columna++, 'r': i + 2})] = {'v': ((typeof procedimiento.periodos[year].pendientes_iniciales === 'undefined' || procedimiento.periodos[year].pendientes_iniciales === null) ? '' : procedimiento.periodos[year].pendientes_iniciales), 't': 'n'};
 			for (let mes = 0; mes < MESES.length; mes += 1) {
 				if (typeof procedimiento.periodos[lastyearstr] !== 'undefined' && typeof procedimiento.periodos[lastyearstr].total_resueltos !== 'undefined') {
-					ws[XLSX.utils.encode_cell({'c': columna, 'r': i + 2})] = {v: ((typeof procedimiento.periodos[lastyearstr].total_resueltos[mes] === 'undefined') ? '' : procedimiento.periodos[lastyearstr].total_resueltos[mes]), t: 'n'};
+					ws[XLSX.utils.encode_cell({'c': columna, 'r': i + 2})] = {'v': ((typeof procedimiento.periodos[lastyearstr].total_resueltos[mes] === 'undefined') ? '' : procedimiento.periodos[lastyearstr].total_resueltos[mes]), 't': 'n'};
 				}
 				columna += 1;
 			}
 			for (let mes = 0; mes < MESES.length; mes += 1) {
 				for (let ind = 0; ind < indicadoresDatabase.length; ind += 1) {
 					if (typeof procedimiento.periodos[year][indicadoresDatabase[ind]] === 'number') {
-						ws[XLSX.utils.encode_cell({'c': columna, 'r': i + 2})] = {v: ((typeof procedimiento.periodos[year][indicadoresDatabase[ind]][mes] === 'undefined') ? '' : procedimiento.periodos[year][indicadoresDatabase[ind]][mes]), t: 'n'};
+						ws[XLSX.utils.encode_cell({'c': columna, 'r': i + 2})] = {'v': ((typeof procedimiento.periodos[year][indicadoresDatabase[ind]][mes] === 'undefined') ? '' : procedimiento.periodos[year][indicadoresDatabase[ind]][mes]), 't': 'n'};
 					}
 					columna += 1;
 				}
@@ -440,12 +442,12 @@
 	}
 
 	module.exports.tablaResultadosProcedimiento = function (req, res) {
-		if (typeof req.params.codigo === 'undefined' || req.params.codigo === null){
+		if (typeof req.params.codigo !== 'string' || req.params.codigo.trim() === ''){
 			req.eh.missingParameterHelper(res, 'codigo');
 
 			return;
 		}
-		if (typeof req.params.year === 'undefined' || req.params.year === null){
+		if (typeof req.params.year !== 'string' || req.params.year.trim() === ''){
 			req.eh.missingParameterHelper(res, 'year');
 
 			return;
@@ -461,9 +463,9 @@
 			datosBasicosAnualidadNombre = ['Pendientes iniciales (a 31-12)', 'Plazo CS/ANS (días hábiles)', 'Plazo CS/ANS (días naturales)', 'Plazo máximo legal para resolver (días naturales)', 'Plazo máximo legal para resolver (días hábiles)'],
 			datosBasicosAnualidad = ['pendientes_iniciales', 'plazo_CS_ANS_habiles', 'plazo_CS_ANS_naturales', 'plazo_maximo_resolver', 'plazo_maximo_responder'];
 
-		procedimientomodel.findOne({codigo: req.params.codigo}, function (err, proc) {
-			if (err) {
-				req.eh.callbackErrorHelper(res, err);
+		procedimientomodel.findOne({'codigo': req.params.codigo.trim()}).lean().exec().then(function (proc) {
+			if (!proc) {
+				req.eh.notFoundHelper(res);
 				
 				return;
 			}
@@ -473,39 +475,39 @@
 			for (let i = 0; i < datosBasicos.length; i += 1) {
 				const value = proc[datosBasicos[i]];
 
-				ws[XLSX.utils.encode_cell({'c': 4, 'r': fila})] = {v: (value === null || typeof value === 'undefined') ? '' : value, t: 's'};
-				ws[XLSX.utils.encode_cell({'c': 3, 'r': fila})] = {v: datosBasicosNombre[i], t: 's'};
+				ws[XLSX.utils.encode_cell({'c': 4, 'r': fila})] = {'v': (value === null || typeof value === 'undefined') ? '' : value, 't': 's'};
+				ws[XLSX.utils.encode_cell({'c': 3, 'r': fila})] = {'v': datosBasicosNombre[i], 't': 's'};
 				fila += 1;
 			}
 			for (let i = 0; i < datosFechas.length; i += 1) {
 				const value = proc[datosFechas[i]];
 
-				ws[XLSX.utils.encode_cell({'c': 4, 'r': fila})] = {v: (value === null || typeof value === 'undefined') ? '' : value, t: 'd'};
-				ws[XLSX.utils.encode_cell({'c': 3, 'r': fila})] = {v: datosFechasNombre[i], t: 's'};
+				ws[XLSX.utils.encode_cell({'c': 4, 'r': fila})] = {'v': (value === null || typeof value === 'undefined') ? '' : value, 't': 'd'};
+				ws[XLSX.utils.encode_cell({'c': 3, 'r': fila})] = {'v': datosFechasNombre[i], 't': 's'};
 				fila += 1;
 			}
 			for (let i = 0; i < datosBasicosAnualidad.length; i += 1) {
 				const value = proc.periodos[req.params.year][datosBasicosAnualidad[i]];
 
-				ws[XLSX.utils.encode_cell({'c': 4, 'r': fila})] = {v: (value === null || typeof value === 'undefined') ? '' : value, t: 'n'};
-				ws[XLSX.utils.encode_cell({'c': 3, 'r': fila})] = {v: datosBasicosAnualidadNombre[i], t: 's'};
+				ws[XLSX.utils.encode_cell({'c': 4, 'r': fila})] = {'v': (value === null || typeof value === 'undefined') ? '' : value, 't': 'n'};
+				ws[XLSX.utils.encode_cell({'c': 3, 'r': fila})] = {'v': datosBasicosAnualidadNombre[i], 't': 's'};
 				fila += 1;
 			}
 			const padreDefer = Q.defer();
-			if (typeof proc.padre !== 'undefined' && proc.padre !== null) {
-				procedimientomodel.findOne({codigo: proc.padre}, {codigo: true, denominacion: true}, padreDefer.makeNodeResolver());
+			if (typeof proc.padre === 'string' && proc.padre.trim() !== '') {
+				procedimientomodel.findOne({'codigo': proc.padre.trim()}, {'codigo': true, 'denominacion': true}, padreDefer.makeNodeResolver());
 			} else {
 				padreDefer.resolve();
 			}
 			completarTabla(proc.periodos[req.params.year], ws);
 			padreDefer.promise.then(function(padre){
 				if (padre){
-					ws[XLSX.utils.encode_cell({'c': 4, 'r': fila})] = {v: '[' + padre.codigo + '] ' + padre.denominacion, t: 's'};
-					ws[XLSX.utils.encode_cell({'c': 3, 'r': fila})] = {v: 'Padre', t: 's'};
+					ws[XLSX.utils.encode_cell({'c': 4, 'r': fila})] = {'v': '[' + padre.codigo + '] ' + padre.denominacion, 't': 's'};
+					ws[XLSX.utils.encode_cell({'c': 3, 'r': fila})] = {'v': 'Padre', 't': 's'};
 					padreDefer.resolve();
 				}
 
-				ws['!ref'] = XLSX.utils.encode_range( {s: {'c': 0, 'r': 0}, e: {'c': 20, 'r': 40}} );
+				ws['!ref'] = XLSX.utils.encode_range({'s': {'c': 0, 'r': 0}, 'e': {'c': 20, 'r': 40}});
 				wb.SheetNames.push('Procedimiento');
 				wb.Sheets.Procedimiento = ws;
 				const time = new Date().getTime();
@@ -519,19 +521,19 @@
 		const defer = Q.defer(),
 			ws = {};
 
-		ws[XLSX.utils.encode_cell({'c': 0, 'r': 0})] = {v: 'Nombre', t: 's'};
-		ws[XLSX.utils.encode_cell({'c': 1, 'r': 0})] = {v: 'Apellidos', t: 's'};
-		ws[XLSX.utils.encode_cell({'c': 2, 'r': 0})] = {v: 'Login', t: 's'};
-		ws[XLSX.utils.encode_cell({'c': 3, 'r': 0})] = {v: 'Código plaza', t: 's'};
-		ws[XLSX.utils.encode_cell({'c': 4, 'r': 0})] = {v: 'Habilitado', t: 's'};
+		ws[XLSX.utils.encode_cell({'c': 0, 'r': 0})] = {'v': 'Nombre', 't': 's'};
+		ws[XLSX.utils.encode_cell({'c': 1, 'r': 0})] = {'v': 'Apellidos', 't': 's'};
+		ws[XLSX.utils.encode_cell({'c': 2, 'r': 0})] = {'v': 'Login', 't': 's'};
+		ws[XLSX.utils.encode_cell({'c': 3, 'r': 0})] = {'v': 'Código plaza', 't': 's'};
+		ws[XLSX.utils.encode_cell({'c': 4, 'r': 0})] = {'v': 'Habilitado', 't': 's'};
 
 		for (let i = 1, j = personas.length; i <= j; i += 1) {
 			const persona = personas[i - 1];
-			ws[XLSX.utils.encode_cell({'c': 0, 'r': i})] = {v: persona.nombre, t: 's'};
-			ws[XLSX.utils.encode_cell({'c': 1, 'r': i})] = {v: persona.apellidos, t: 's'};
-			ws[XLSX.utils.encode_cell({'c': 2, 'r': i})] = {v: persona.login, t: 's'};
-			ws[XLSX.utils.encode_cell({'c': 3, 'r': i})] = {v: persona.codplaza, t: 's'};
-			ws[XLSX.utils.encode_cell({'c': 4, 'r': i})] = {v: persona.habilitado ? 1 : 0, t: 'n'};
+			ws[XLSX.utils.encode_cell({'c': 0, 'r': i})] = {'v': persona.nombre, 't': 's'};
+			ws[XLSX.utils.encode_cell({'c': 1, 'r': i})] = {'v': persona.apellidos, 't': 's'};
+			ws[XLSX.utils.encode_cell({'c': 2, 'r': i})] = {'v': persona.login, 't': 's'};
+			ws[XLSX.utils.encode_cell({'c': 3, 'r': i})] = {'v': persona.codplaza, 't': 's'};
+			ws[XLSX.utils.encode_cell({'c': 4, 'r': i})] = {'v': persona.habilitado ? 1 : 0, 't': 'n'};
 		}
 
 		ws['!ref'] = XLSX.utils.encode_range({s: {'c': 0, 'r': 0}, e: {'c': 5, 'r': personas.length + 1}} );
@@ -545,11 +547,11 @@
 		const restriccionPermisos = {};
 
 		if (!permisoscalculados.superuser){
-			restriccionPermisos['$and'] = [];
-			restriccionPermisos['$and'].push({'jerarquialectura': {'$in': permisoscalculados.jerarquialectura}});
-			var aux = {};
+			restriccionPermisos.$and = [];
+			restriccionPermisos.$and.push({'jerarquialectura': {'$in': permisoscalculados.jerarquialectura}});
+			const aux = {};
 			aux['jerarquialectura.' + permisoscalculados.jerarquialectura.length] = {'$exists': false};
-			restriccionPermisos['$and'].push(aux);
+			restriccionPermisos.$and.push(aux);
 		}
 
 		permisomodel.find(restriccionPermisos, function (err, data) {
@@ -560,29 +562,29 @@
 				let	i = 0,
 					fila = 1;
 
-				ws[XLSX.utils.encode_cell({'c': 0, 'r': 0})] = {v: 'Login', t: 's'};
-				ws[XLSX.utils.encode_cell({'c': 1, 'r': 0})] = {v: 'Código plaza', t: 's'};
-				ws[XLSX.utils.encode_cell({'c': 2, 'r': 0})] = {v: 'Id Jerarquía', t: 's'};
-				ws[XLSX.utils.encode_cell({'c': 3, 'r': 0})] = {v: 'Jerarquía', t: 's'};
-				ws[XLSX.utils.encode_cell({'c': 4, 'r': 0})] = {v: 'Nivel de jerarquía', t: 's'};
-				ws[XLSX.utils.encode_cell({'c': 5, 'r': 0})] = {v: 'Escritura', t: 's'};
-				ws[XLSX.utils.encode_cell({'c': 6, 'r': 0})] = {v: 'Lectura', t: 's'};
-				ws[XLSX.utils.encode_cell({'c': 7, 'r': 0})] = {v: 'Administrador', t: 's'};
-				ws[XLSX.utils.encode_cell({'c': 8, 'r': 0})] = {v: 'Puede dar permisos', t: 's'};
-				ws[XLSX.utils.encode_cell({'c': 9, 'r': 0})] = {v: 'Descripción', t: 's'};
-				ws[XLSX.utils.encode_cell({'c': 10, 'r': 0})] = {v: 'Recibió permisos de', t: 's'};
-				ws[XLSX.utils.encode_cell({'c': 11, 'r': 0})] = {v: 'Habilitado', t: 's'};
-				ws[XLSX.utils.encode_cell({'c': 12, 'r': 0})] = {v: 'Correo', t: 's'};
+				ws[XLSX.utils.encode_cell({'c': 0, 'r': 0})] = {'v': 'Login', 't': 's'};
+				ws[XLSX.utils.encode_cell({'c': 1, 'r': 0})] = {'v': 'Código plaza', 't': 's'};
+				ws[XLSX.utils.encode_cell({'c': 2, 'r': 0})] = {'v': 'Id Jerarquía', 't': 's'};
+				ws[XLSX.utils.encode_cell({'c': 3, 'r': 0})] = {'v': 'Jerarquía', 't': 's'};
+				ws[XLSX.utils.encode_cell({'c': 4, 'r': 0})] = {'v': 'Nivel de jerarquía', 't': 's'};
+				ws[XLSX.utils.encode_cell({'c': 5, 'r': 0})] = {'v': 'Escritura', 't': 's'};
+				ws[XLSX.utils.encode_cell({'c': 6, 'r': 0})] = {'v': 'Lectura', 't': 's'};
+				ws[XLSX.utils.encode_cell({'c': 7, 'r': 0})] = {'v': 'Administrador', 't': 's'};
+				ws[XLSX.utils.encode_cell({'c': 8, 'r': 0})] = {'v': 'Puede dar permisos', 't': 's'};
+				ws[XLSX.utils.encode_cell({'c': 9, 'r': 0})] = {'v': 'Descripción', 't': 's'};
+				ws[XLSX.utils.encode_cell({'c': 10, 'r': 0})] = {'v': 'Recibió permisos de', 't': 's'};
+				ws[XLSX.utils.encode_cell({'c': 11, 'r': 0})] = {'v': 'Habilitado', 't': 's'};
+				ws[XLSX.utils.encode_cell({'c': 12, 'r': 0})] = {'v': 'Correo', 't': 's'};
 
 				while (i < data.length) {
 					const permiso = data[i];
-					const cellLogin = {v: typeof permiso.login === 'undefined' || permiso.login === null ? '-' : permiso.login, t: 's'};
-					const cellPlaza = {v: typeof permiso.codplaza === 'undefined' || permiso.codplaza === null ? '-' : permiso.codplaza, t: 's'};
+					const cellLogin = {'v': typeof permiso.login === 'undefined' || permiso.login === null ? '-' : permiso.login, 't': 's'};
+					const cellPlaza = {'v': typeof permiso.codplaza === 'undefined' || permiso.codplaza === null ? '-' : permiso.codplaza, 't': 's'};
 
-					const cellAdministrador = {v: typeof permiso.superuser === 'undefined' || permiso.superuser < 1 ? 'NO' : 'SÍ', t: 's'};
-					const cellGrantoption = {v: typeof permiso.grantoption === 'undefined' || !permiso.grantoption ? 'NO' : 'SÍ', t: 's'};
-					const cellDescripcion = {v: typeof permiso.descripcion === 'undefined' || permiso.descripcion === null ? '' : permiso.descripcion, t: 's'};
-					const cellcodPlazaGrantt = {v: typeof permiso.cod_plaza_grantt === 'undefined' || permiso.cod_plaza_grantt === null ? '-' : permiso.cod_plaza_grantt, t: 's'};
+					const cellAdministrador = {'v': typeof permiso.superuser === 'undefined' || permiso.superuser < 1 ? 'NO' : 'SÍ', 't': 's'};
+					const cellGrantoption = {'v': typeof permiso.grantoption === 'undefined' || !permiso.grantoption ? 'NO' : 'SÍ', 't': 's'};
+					const cellDescripcion = {'v': typeof permiso.descripcion === 'undefined' || permiso.descripcion === null ? '' : permiso.descripcion, 't': 's'};
+					const cellcodPlazaGrantt = {'v': typeof permiso.cod_plaza_grantt === 'undefined' || permiso.cod_plaza_grantt === null ? '-' : permiso.cod_plaza_grantt, 't': 's'};
 
 					const idsjerarquias = [].concat(permiso.jerarquiadirectaescritura, permiso.jerarquiadirectalectura);
 					require('uniq')(idsjerarquias);
@@ -592,21 +594,21 @@
 
 						ws[XLSX.utils.encode_cell({'c': 0, 'r': fila})] = cellLogin;
 						ws[XLSX.utils.encode_cell({'c': 1, 'r': fila})] = cellPlaza;
-						ws[XLSX.utils.encode_cell({'c': 2, 'r': fila})] = {v: idjerarquia, t: 'n'};
-						ws[XLSX.utils.encode_cell({'c': 3, 'r': fila})] = {v: jerarquiasById[idjerarquia] ? jerarquiasById[idjerarquia].nombrelargo : '', t: 's'};
-						ws[XLSX.utils.encode_cell({'c': 4, 'r': fila})] = {v: jerarquiasById[idjerarquia] ? jerarquiasById[idjerarquia].ancestros.length : '', t: 'n'};
-						ws[XLSX.utils.encode_cell({'c': 5, 'r': fila})] = {v: 'SÍ', t: 's'};
-						ws[XLSX.utils.encode_cell({'c': 6, 'r': fila})] = {v: 'SÍ', t: 's'};
+						ws[XLSX.utils.encode_cell({'c': 2, 'r': fila})] = {'v': idjerarquia, 't': 'n'};
+						ws[XLSX.utils.encode_cell({'c': 3, 'r': fila})] = {'v': jerarquiasById[idjerarquia] ? jerarquiasById[idjerarquia].nombrelargo : '', 't': 's'};
+						ws[XLSX.utils.encode_cell({'c': 4, 'r': fila})] = {'v': jerarquiasById[idjerarquia] ? jerarquiasById[idjerarquia].ancestros.length : '', 't': 'n'};
+						ws[XLSX.utils.encode_cell({'c': 5, 'r': fila})] = {'v': 'SÍ', 't': 's'};
+						ws[XLSX.utils.encode_cell({'c': 6, 'r': fila})] = {'v': 'SÍ', 't': 's'};
 						ws[XLSX.utils.encode_cell({'c': 7, 'r': fila})] = cellAdministrador;
 						ws[XLSX.utils.encode_cell({'c': 8, 'r': fila})] = cellGrantoption;
 						ws[XLSX.utils.encode_cell({'c': 9, 'r': fila})] = cellDescripcion;
 						ws[XLSX.utils.encode_cell({'c': 10, 'r': fila})] = cellcodPlazaGrantt;
 						if (permiso.codplaza){
-							ws[XLSX.utils.encode_cell({'c': 11, 'r': fila})] = {v: personasByCodPlaza[permiso.codplaza] && personasByCodPlaza[permiso.codplaza].habilitado ? 1 : 0, t: 'n'};
-							ws[XLSX.utils.encode_cell({'c': 12, 'r': fila})] = {v: personasByCodPlaza[permiso.codplaza] ? personasByCodPlaza[permiso.codplaza].login + '@carm.es' : (personasByLogin[permiso.login] ? (permiso.login + '@carm.es') : '-'), t: 's'};
+							ws[XLSX.utils.encode_cell({'c': 11, 'r': fila})] = {'v': personasByCodPlaza[permiso.codplaza] && personasByCodPlaza[permiso.codplaza].habilitado ? 1 : 0, 't': 'n'};
+							ws[XLSX.utils.encode_cell({'c': 12, 'r': fila})] = {'v': personasByCodPlaza[permiso.codplaza] ? personasByCodPlaza[permiso.codplaza].login + '@carm.es' : (personasByLogin[permiso.login] ? (permiso.login + '@carm.es') : '-'), 't': 's'};
 						} else if (permiso.login){
-							ws[XLSX.utils.encode_cell({'c': 11, 'r': fila})] = {v: personasByLogin[permiso.login] && personasByLogin[permiso.login].habilitado ? 1 : 0, t: 'n'};
-							ws[XLSX.utils.encode_cell({'c': 12, 'r': fila})] = {v: personasByLogin[permiso.login] ? permiso.login + '@carm.es' : '', t: 's'};
+							ws[XLSX.utils.encode_cell({'c': 11, 'r': fila})] = {'v': personasByLogin[permiso.login] && personasByLogin[permiso.login].habilitado ? 1 : 0, 't': 'n'};
+							ws[XLSX.utils.encode_cell({'c': 12, 'r': fila})] = {'v': personasByLogin[permiso.login] ? permiso.login + '@carm.es' : '', 't': 's'};
 						}
 
 						fila += 1;
@@ -695,20 +697,13 @@
 			if (req.user.permisoscalculados.grantoption || req.user.permisoscalculados.superuser){
 				promesasExcel.push(hojaPermisos(req.user.permisoscalculados, permisomodel, jerarquiasById, personasByCodPlaza, personasByLogin));
 			}
-			let restriccionProcedimientos = {'$or': [{'oculto': {$exists: false}}, {'$and': [{'oculto': {$exists: true}}, {'oculto': false}]}]};
+			let restriccionProcedimientos = {'$or': [{'oculto': {'$exists': false}}, {'$and': [{'oculto': {'$exists': true}}, {'oculto': false}]}]};
 
 			if (!req.user.permisoscalculados.superuser) {
-				const pids = [].concat(
-					Array.isArray(req.user.permisoscalculados.procedimientosdirectalectura) ? req.user.permisoscalculados.procedimientosdirectalectura : [],
-					Array.isArray(req.user.permisoscalculados.procedimientoslectura) ? req.user.permisoscalculados.procedimientoslectura : [],
-					Array.isArray(req.user.permisoscalculados.procedimientosdirectaescritura) ? req.user.permisoscalculados.procedimientosdirectaescritura : [],
-					Array.isArray(req.user.permisoscalculados.procedimientosescritura) ? req.user.permisoscalculados.procedimientosescritura : []
-				);
-				const r = {'$and': [restriccionProcedimientos, {'codigo': {'$in': pids}}]};
-				restriccionProcedimientos = r;
+				restriccionProcedimientos = {'$and': [restriccionProcedimientos, {'codigo': {'$in': req.user.permisoscalculados.procedimientoslectura}}]};
 			}
 			// Genera hoja General (PARA TODOS)
-			procedimientomodel.find(restriccionProcedimientos, {codigo: true, denominacion: true, idjerarquia: true, responsables: true, 'cod_plaza': true, periodos: true, ancestros: true}, function (err, procedimientos) {
+			procedimientomodel.find(restriccionProcedimientos, {'codigo': true, 'denominacion': true, 'idjerarquia': true, 'responsables': true, 'cod_plaza': true, 'periodos': true, 'ancestros': true}, function (err, procedimientos) {
 				if (err) {
 					logger.error(err);
 					deferBD.reject(err);
@@ -725,7 +720,7 @@
 			if (req.user.permisoscalculados.superuser){
 				const deferBDOcultos = Q.defer();
 				promesasExcel.push(deferBDOcultos.promise);
-				procedimientomodel.find({'$and': [{'oculto': {$exists: true}}, {'oculto': true}]}, {codigo: true, denominacion: true, idjerarquia: true, responsables: true, 'cod_plaza': true, periodos: true, ancestros: true}, function (err, procedimientos) {
+				procedimientomodel.find({'$and': [{'oculto': {'$exists': true}}, {'oculto': true}]}, {'codigo': true, 'denominacion': true, 'idjerarquia': true, 'responsables': true, 'cod_plaza': true, 'periodos': true, 'ancestros': true}, function (err, procedimientos) {
 					if (err) {
 						logger.error(err);
 						deferBDOcultos.reject(err);

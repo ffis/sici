@@ -1,4 +1,4 @@
-(function(angular, d3){
+(function(angular, d3, $){
 	'use strict';
 	angular.module('sici')
 		.controller('DetallesCtrl', ['$q', '$rootScope', '$scope', '$routeParams', '$window', '$location', '$timeout', '$http', '$log', 'toaster', 'Procedimiento', 'DetalleCarmProcedimiento', 'DetalleCarmProcedimiento2', 'Raw', 'Aggregate', 'ProcedimientoHasChildren', 'ProcedimientoList', 'ArbolWithEmptyNodes', 'ExportarResultadosProcedimiento',
@@ -14,34 +14,24 @@
 				$scope.padre = '';
 				$scope.mostrarAutocompletePadre = false;
 				$scope.nombrePadre = false;
-				$scope.anualidad = 'a' + (new Date()).getFullYear();
 				$scope.procedimientoSeleccionado = null;
 				$scope.filtrosocultos = false;
 				$scope.seleccionado = null;
 				$scope.mensajeMoviendo = '';
 				$scope.msjBase = 'Moviendo (Esta operación puede tardar un tiempo)...';
 
-				$scope.getIntAnualidad = function(){ return parseInt($scope.anualidad.substring(1, 5), 10); };
-
-				$scope.getNext = function(){ return $scope.getIntAnualidad() + 1; };
-				$scope.getPrev = function () { return $scope.getIntAnualidad() - 1;	};
-
-				$scope.nextYear = function(){
-					const year = $scope.getNext();
-					$scope.anualidad = 'a' + (year);
+				const listener = $rootScope.$watch('anualidad', function(){
 					$scope.updateGraphKeys();
-				};
+				});
 
-				$scope.prevYear = function () {
-					const year = $scope.getPrev();
-					$scope.anualidad = 'a' + (year);
-					$scope.updateGraphKeys();
-				};
+				$scope.$on('$destroy', function() {
+					listener();
+				});
 
 				$scope.exists = function (attr) {
-					return $scope.anualidad && $scope.procedimientoSeleccionado && $scope.procedimientoSeleccionado.periodos &&
-						$scope.procedimientoSeleccionado.periodos[$scope.anualidad] &&
-						typeof $scope.procedimientoSeleccionado.periodos[$scope.anualidad][attr] !== 'undefined';
+					return $rootScope.anualidad && $scope.procedimientoSeleccionado && $scope.procedimientoSeleccionado.periodos &&
+						$scope.procedimientoSeleccionado.periodos[$rootScope.anualidad] &&
+						typeof $scope.procedimientoSeleccionado.periodos[$rootScope.anualidad][attr] !== 'undefined';
 
 				};
 
@@ -113,9 +103,26 @@
 					});
 					$scope.nombrePadre = 'Sin definir';
 				};
+				function sparkline(){
+					$('.sparkline>canvas').remove();
+					$.each($('.sparkline'), function(k, v){
+						const obj = String($(v).attr('data-value'));
+						try {
+							$(v).sparkline(JSON.parse(obj), {'type': 'bar', 'barColor': '#a94442'});
+						} catch (e) {
+							/*$log.error('sparkline mal formed VALUE WAS:' + t , obj);*/
+							$(v).sparkline([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], {'type': 'bar', 'barColor': '#a94442'});
+						}
+					});
+				}
 
-				$scope.updateGraphKeys = function() {
-					const anualidad = $scope.getIntAnualidad();
+				$scope.sparkline = function(){
+					$timeout(sparkline, 100);
+				};
+				$scope.updateGraphKeys = function(){
+					if (!$scope.procedimientoSeleccionado) return;
+					$scope.sparkline();
+					const anualidad = $rootScope.getIntAnualidad();
 					const anualidadAnterior = anualidad - 1;
 					const graphskeys = [
 						{
@@ -153,14 +160,18 @@
 					$scope.graphskeys = graphskeys;
 					$scope.graphs = [];
 					$scope.numgraphs = 0;
+					const labels = $rootScope.inicialesmeses;
 					graphskeys.forEach(function (g, i) {
 						let maxvalue = 0;
 						const data = [];
+						const series = [];
 						const caption = g.caption;
+						
 						g.keys.forEach(function (key, indx) {
 							const values = [];
 							const indexes = key.vals.split('.');
 							let k = $scope.procedimientoSeleccionado;
+							series.push(key.caption);
 
 							for (const j in indexes) {
 								const index = indexes[j];
@@ -171,24 +182,24 @@
 							}
 							if (typeof k !== 'undefined' && k.length) {
 								k.forEach(function (val, idx) {
-									if (((idx <= graphskeys[i].keys[indx].maxx) && (anualidad === $scope.anualidadActual)) || (anualidad !== $scope.anualidadActual)){
-										values.push([idx, val]);
+									if ((idx <= graphskeys[i].keys[indx].maxx && anualidad === $rootScope.anualidad) || (anualidad !== $rootScope.anualidad)){
+										values.push(val);
 										if (maxvalue < val){
 											maxvalue = val;
 										}
 									}
 								});
-								data.push({'key': key.caption, 'values': values});
+								data.push(values);
 							} else {
 								$log.error('Index malo:' + indexes);
 							}
 						});
-						var forcey = [0, Math.ceil(maxvalue * 1.3)];
-						if (maxvalue > 0) {
-							$scope.graphs.push({'data': data, 'forcey': forcey, 'caption': caption});
-							$scope.numgraphs += 1;
+
+						if (maxvalue > 0){
+							$scope.graphs.push({'data': data, 'labels': labels, 'series': series, 'caption': caption});
 						}
 					});
+					$scope.numgraphs = $scope.graphs.length;
 				};
 				Procedimiento.get({'codigo': $routeParams.codigo}, function (procedimiento){
 					if (!procedimiento){
@@ -199,8 +210,7 @@
 					$scope.procedimientoSeleccionado = procedimiento;
 					$rootScope.setTitle($scope.procedimientoSeleccionado.denominacion);
 					$rootScope.procedimiento = $scope.procedimientoSeleccionado.codigo;
-					$scope.anualidad = '000000';
-
+					
 					$scope.procedimientosPadre = [];
 
 					$scope.mostrarAutocompletePadre = false;
@@ -210,13 +220,6 @@
 						});
 					} else {
 						$scope.nombrePadre = 'Sin definir';
-					}
-
-					for (var anualidad in $scope.procedimientoSeleccionado.periodos) {
-						if (parseInt(anualidad.substring(1, 5), 10) > parseInt($scope.anualidad.substring(1, 5), 10)) {
-							$scope.anualidad = anualidad;
-							$scope.anualidadActual = anualidad.substring(1, 5);
-						}
 					}
 
 					if ($scope.procedimientoSeleccionado.ancestros && $scope.procedimientoSeleccionado.ancestros[0].id === 1){
@@ -278,7 +281,7 @@
 							try {
 								var restriccion = JSON.parse(i.restriccion);
 								restriccion.codigo = $scope.procedimientoSeleccionado.codigo;
-								var parametros = {anualidad: $scope.anualidad, campo: JSON.stringify(campo), restriccion: JSON.stringify(restriccion)};
+								var parametros = {'anualidad': $rootScope.anualidad, 'campo': JSON.stringify(campo), 'restriccion': JSON.stringify(restriccion)};
 								$scope.inconsistencias[idx].datos = Aggregate.query(parametros, fnWarning(idx) );
 							} catch (exception) {
 								$log.error(exception);
@@ -291,9 +294,14 @@
 				$scope.inconsistencias = Raw.query({model: 'reglasinconsistencias'}, function () { $scope.checkInconsistencias(); });
 
 				$scope.nextField = function(index) {
-					var periodoscerrados = $scope.procedimientoSeleccionado.periodos[$scope.anualidad].periodoscerrados;
+					if (!$scope.procedimientoSeleccionado.periodos[$rootScope.anualidad] || !$scope.procedimientoSeleccionado.periodos[$rootScope.anualidad].periodoscerrados){
+
+						return index;
+					}
+
+					const periodoscerrados = $scope.procedimientoSeleccionado.periodos[$rootScope.anualidad].periodoscerrados;
 					let newindex = (index + 1) % 12;
-					while (periodoscerrados && periodoscerrados[index] === true && index !== newindex) {
+					while (periodoscerrados[index] === true && index !== newindex) {
 						newindex = (newindex + 1) % 12;
 					}
 
@@ -420,11 +428,11 @@
 								$scope.mensajeMoviendo = $scope.msjBase + ' ¡¡Listo!!';
 								$timeout($scope.cancelChangeOrganica, 1500);
 							} else {
-								$scope.mensajeMoviendo = $scope.mensajeMoviendo + '.';
+								$scope.mensajeMoviendo += '.';
 							}
 						};
 						
-						for (var i = 1; i < cmds.length; i++) {
+						for (let i = 1; i < cmds.length; i += 1) {
 							$scope.execCmd(cmds, i).then(fn, fnMovimiendoOrganicaError);
 						}
 					});
@@ -524,7 +532,7 @@
 
 				$scope.resetData = function(){
 					if ($scope.procedimientoSeleccionado && $scope.W){
-						if ($window.confirm('¿Está seguro de querer borrar los datos introducidos PARA ESTE PROCEDIMIENTO PARA ESTA ANUALIDAD?')){
+						if ($window.confirm('¿Está seguro de querer borrar los datos introducidos PARA ESTE PROCEDIMIENTO PARA ESTA ANUALIDAD ' + $scope.anualidad + '?')){
 							
 							$scope.attrstabla.forEach(function(attr){
 								fnSetZero($scope.procedimientoSeleccionado, $scope.anualidad, attr);
@@ -540,4 +548,4 @@
 			}
 		]
 	);
-})(angular, d3);
+})(angular, d3, $);

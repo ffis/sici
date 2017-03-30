@@ -27,20 +27,28 @@
 			$scope.imagen = 'background: transparent url("/imgs/flag.svg")';
 			$scope.back = function() { $window.history.back(); };
 			$scope.logout = function(){ AuthService.logout(); };
-			$scope.credentials = {'username': '', 'password': ''};
+			$scope.credentials = {'username': '', 'password': '', 'notcarmuser': false};
+			$scope.hideForm = function(){
+				$rootScope.loginCarm = true;
+				$scope.credentials.notcarmuser = false;
+			};
+			$scope.showForm = function(){
+				$rootScope.loginCarm = false;
+				$scope.credentials.notcarmuser = true;
+			};
 			$scope.login = function (credentials){
 				if (!$rootScope.loginCarm && (credentials.username.trim() === '' || credentials.password.trim() === '' )){
 					$scope.mensaje = 'Introduzca su nombre de usuario y contraseña para continuar';
 				} else {
 					if (AuthService.isAuthenticated()){
-						$log.log('Ya autenticado JWT');
+						$log.debug('Ya autenticado JWT');
 						$rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
 						$scope.mensaje = '';
 						$location.path('/');
 						$rootScope.logeado = true;
 						$route.reload();
 					} else {
-						$log.log('No autenticado, let\'s test');
+						$log.debug('No autenticado, let\'s test');
 						AuthService.login(credentials).then(function() {
 							$rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
 							$scope.mensaje = '';

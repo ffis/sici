@@ -1,6 +1,10 @@
 
 <div class="row" >
 	<div class="col-lg-12">
+		<div ng-hide="resumenJerarquiaSeleccionada.periodos">
+			<i class="fa fa-refresh fa-spin fa-3x fa-fw"></i>
+			<span class="sr-only">Cargando...</span>
+		</div>
 		<div ng-if="resumenJerarquiaSeleccionada.periodos" class="details" id="detalles" >
 			<hr/>
 			<h4 class="text-danger">{{jerarquiaSeleccionada.nombre}}</h4>
@@ -22,29 +26,30 @@
 				<button ng-class="{disabled: actualizando > 0}" class="btn btn-default btn-sm" ng-click="descargarExcel()">
 					<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>&nbsp;Descargar excel
 				</button>
-				<p ng-if="actualizando > 0">Generando informe...</p>				
+				<p ng-if="actualizando > 0">
+					<i class="fa fa-refresh fa-spin fa-3x fa-fw"></i>
+					<span class="sr-only">Generando informe...</span>
+				</p>
 				<br/><br/>
 			</div>
-
-			<nav class="nav nav-pills navbar-right">
-				<li ng-repeat="a in anualidades" role="presentation" ng-class="{'active': a.value === anualidad}">
-					<a class="text-danger" ng-click="goToYear(a.str)">{{a.str}}</a>
-				</li>
-			</nav>
 
 			<div style="clear:both; margin-top:2em" class="table-responsive" ng-if="resumenJerarquiaSeleccionada">
 				<table class="table table-striped table-bordered">
 					<thead>
 						<tr>
-							<th></th>
+							<th class="text-right">{{$root.getIntAnualidad()}}</th>
 							<th ng-repeat="mes in meses">{{mes}}</th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr ng-repeat="attr in attrstabla"> 
-							<th>{{attr| translate}}</th>
-							<td ng-repeat="val in resumenJerarquiaSeleccionada.periodos[anualidad][attr] track by $index" class="numberCell">
-								<span>{{ resumenJerarquiaSeleccionada.periodos[anualidad][attr][$index] || 0  |numberFormat}}</span>
+							<th>{{attr| translate}}
+							<div class="pull-right">
+								<span class="sparkline ng-cloak" data-value="{{resumenJerarquiaSeleccionada.periodos[$root.anualidad][attr] | json}}"></span>
+							</div>
+							</th>
+							<td ng-repeat="val in resumenJerarquiaSeleccionada.periodos[$root.anualidad][attr] track by $index" class="numberCell">
+								<span>{{resumenJerarquiaSeleccionada.periodos[$root.anualidad][attr][$index] || 0  |numberFormat}}</span>
 							</td>
 						</tr>                       
 					</tbody>
@@ -78,16 +83,17 @@
 			<div ng-if="graphs[0].data" class="row">
 				<div class="col-md-12">
 					<div class="btn-group pull-right">
-						<div ng-click="graficasgrandes = !graficasgrandes; updateGraphKeys(anualidad.replace('a',''))" class="btn btn-default">
+						<div ng-click="graficasgrandes = !graficasgrandes; updateGraphKeys($root.anualidad.replace('a',''))" class="btn btn-default">
 							<span ng-class="{'glyphicon-resize-full':!graficasgrandes,'glyphicon-resize-small':graficasgrandes}" class="glyphicon"></span>
 						</div>
-						<div ng-click="graficasbarras = !graficasbarras; updateGraphKeys(anualidad.replace('a',''));" ng-class="{active:graficasbarras, 'btn-default':!graficabarras}" class="btn">
+						<div ng-click="graficasbarras = !graficasbarras; updateGraphKeys($root.anualidad.replace('a',''));" ng-class="{active:graficasbarras, 'btn-default':!graficabarras}" class="btn">
 							<span class="glyphicon glyphicon-stats"></span>
 						</div>
 					</div>
 				</div>
 
 				<hr style="clear:both"/>
+
 				<div ng-repeat="graph in graphs" ng-if="graph.data" ng-show="!graficasbarras && graph.data && !graficasgrandes" ng-class="{'col-lg-3':(numgraphs % 4 == 0),'col-lg-3':(numgraphs % 3 == 0)}" class="col-md-12 well">
 					<h5 class="text-danger text-center">{{graph.caption}}</h5>
 					<nvd3-line-chart noData="No hay datos que mostrar" data="graph.data" showXAxis="true" showYAxis="true" showLegend="true" interactive="true" height="350" xAxisTickValues="xAxisTickValuesFunction()" xAxisTickFormat="xAxisTickFormatFunction()" rotateLabels="45" forcey="graph.forcey">
@@ -116,8 +122,8 @@
 				</div>
 			</div>
 			<hr/>
-			<h5 class="text-danger" ng-If="resumenJerarquiaSeleccionada.periodos[anualidad].Incidencias">Incidencias</h5>
-			<div class="table-resposive" ng-If="resumenJerarquiaSeleccionada.periodos[anualidad].Incidencias">
+			<h5 class="text-danger" ng-If="resumenJerarquiaSeleccionada.periodos[$root.anualidad].Incidencias">Incidencias</h5>
+			<div class="table-resposive" ng-If="resumenJerarquiaSeleccionada.periodos[$root.anualidad].Incidencias">
 				<table class="table table-striped table-bordered">
 					<thead>
 						<tr>
@@ -126,7 +132,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr ng-repeat="(incidencia,valores) in resumenJerarquiaSeleccionada.periodos[anualidad].Incidencias"> 
+						<tr ng-repeat="(incidencia,valores) in resumenJerarquiaSeleccionada.periodos[$root.anualidad].Incidencias"> 
 							<th>{{incidencia}}</th>
 							<td ng-repeat="val in valores track by $index" ng-class="{'text-danger': val }" class="numberCell">{{val}}</td>
 						</tr>
@@ -134,7 +140,6 @@
 				</table>
 			</div>
 
-			<hr ng-if="resumenJerarquiaSeleccionada.periodos[anualidad].Incidencias"/>
 		</div>
 	</div>
 </div>

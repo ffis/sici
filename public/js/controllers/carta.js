@@ -10,9 +10,7 @@
 				$scope.procedimientos = {};
 				$scope.showformulas = false;
 				$scope.superuser = $rootScope.superuser();
-				$scope.aanualidad = '';
-				$scope.anualidad = new Date().getFullYear(); //temporalmente */
-				$scope.aanualidad = 'a' + $scope.anualidad;
+				
 				$scope.goToJerarquia = function(selection){
 					$location.path('/carta/' + selection.id);
 				};
@@ -57,7 +55,7 @@
 					}
 					
 
-					for (var idx = 0, idxmax = $scope.arbol.length; idx < idxmax; idx += 1){
+					for (let idx = 0, idxmax = $scope.arbol.length; idx < idxmax; idx += 1){
 						if (setJ($scope.arbol[idx], idj)){
 							break;
 						}
@@ -72,10 +70,6 @@
 				};
 				$scope.claseComentarios = function(indicador){
 					return indicador.i % 2 === 0 ? 'text-danger' : '';
-				};
-				$scope.refreshAnualidad = function(anualidad){
-					$scope.anualidad = anualidad;
-					$scope.aanualidad = 'a' + $scope.anualidad;
 				};
 
 				function loadIndicador(indicador){
@@ -96,19 +90,6 @@
 					}
 				}
 
-				function getAnualidades(){
-					if (Object.keys($scope.anualidadesKeys).length > 0){
-						$scope.anualidades = [];
-						var max = false;
-						for (var a in $scope.anualidadesKeys){
-							$scope.anualidades.push($scope.anualidadesKeys[a]);
-							if (!max || max < a){
-								max = a;
-							}
-						}
-						$scope.anualidades.sort();
-					}
-				}
 				function postLoadObjetivo(objetivo){
 					var maxValuePerFormula = 0;
 					for (var k = 0, l = objetivo.formulas.length; k < l; k += 1) {
@@ -126,7 +107,6 @@
 						}
 						objetivo.formulas[k].valor = {};
 						for (var anu in objetivo.formulas[k].valores){
-							$scope.anualidadesKeys[anu] = parseInt(anu.replace('a', ''), 10);
 							objetivo.formulas[k].valor[anu] = objetivo.formulas[k].valores[anu][objetivo.formulas[k].valores[anu].length - 1].resultado;
 							if (typeof objetivo.formulas[k].gaugevalue === 'undefined'){
 								objetivo.formulas[k].gaugevalue = {};
@@ -137,11 +117,9 @@
 						}
 						objetivo.formulas[k].uppervalue = Math.max(/* objetivo.formulas[k].valor[anu],*/ objetivo.formulas[k].meta, maxValuePerFormula);
 					}
-					getAnualidades();
 				}
 
 				function postLoadObjetivos(){
-					$scope.anualidadesKeys = {};
 					$scope.objetivos.forEach(postLoadObjetivo);
 				}
 
@@ -154,7 +132,7 @@
 						$scope.objetivos = Objetivo.query(restrictions, postLoadObjetivos);
 					} else {
 						$scope.objetivos = [];
-						delete $scope.cartaservicioseleccionada;
+						Reflect.deleteProperty($scope, 'cartaservicioseleccionada');
 					}
 				};
 
@@ -208,8 +186,9 @@
 				};
 
 				$scope.sumatorioParcial = function(valores, $index){
-					var sum = 0;
-					for (var i = 0; i <= $index; i += 1){
+
+					let sum = 0;
+					for (let i = 0; i <= $index; i += 1){
 						if (typeof valores[i] !== 'undefined' && valores[i]){
 							sum += parseFloat(valores[i]);
 						}
@@ -224,9 +203,9 @@
 						return '';
 					}
 
-					var result = '';
-					var coef = meta / metaparcial;
-					for (var i = 0, j = formula.intervalos.length; i < j; i += 1){
+					let result = false;
+					const coef = meta / metaparcial;
+					for (let i = 0, j = formula.intervalos.length; i < j; i += 1){
 						if (sumatorio * coef >= formula.intervalos[i].min && sumatorio * coef <= formula.intervalos[i].max){
 							result = formula.intervalos[i].color;
 						}
@@ -235,7 +214,7 @@
 						result = formula.intervalos[formula.intervalos.length - 1].color;
 					}
 
-					return 'background-color:' + result + '!important';
+					return result ? 'background-color:' + result + '!important' : '';
 				};
 
 				$scope.getPastel = function(i){
@@ -334,7 +313,7 @@
 
 				$scope.downloadxls = function(){
 					$scope.descargando = true;
-					$http.get('/api/v2/public/exportadorCarta/' + $scope.cartaservicioseleccionada._id + '/' + $scope.anualidad).then(function (res) {
+					$http.get('/api/v2/public/exportadorCarta/' + $scope.cartaservicioseleccionada._id + '/' + $rootScope.getIntAnualidad()).then(function (res) {
 						$scope.descargando = false;
 						if (typeof res.data === 'object'){
 							$rootScope.cbDownload(res.data);
@@ -343,7 +322,6 @@
 						}
 					}, function() {
 						$scope.descargando = false;
-						$rootScope.toaster('Error al descargar el informe', 'Error', 'error');
 					});
 				};
 				$scope.mini = function(){

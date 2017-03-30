@@ -1,6 +1,6 @@
 (function(process, logger){
 	'use strict';
-	var os = require('os'),
+	const os = require('os'),
 		express = require('express'),
 		bodyParser = require('body-parser'),
 		http = require('http'),
@@ -8,15 +8,12 @@
 		mongoose = require('mongoose'),
 		serveStatic = require('serve-static'),
 		compress = require('compression'),
-
 		Api = require('./api/api'),
 		models = require('./api/models'),
 		routes = require('./routes'),
-
-		/* config */
 		config = require('./config.json');
-		/* app */
-	var	app = module.exports = express();
+		
+	const app = module.exports = express();
 
 	function setProgressMessage(msg){
 		process.stdout.write('                                                                                                                                            ' + '\u000d');
@@ -43,6 +40,7 @@
 		if (err){
 			throw err;
 		}
+
 		logger.log('Cargada configuración de forma exitosa');
 
 		const tmpdirectory = path.join(__dirname, config.tmpdir) + path.sep;
