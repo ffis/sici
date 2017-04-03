@@ -1,114 +1,36 @@
 
-<div ng-controller="NewProcedimientoCtrl" class="row">
+<div class="row">
 	<div ng-class="{'col-lg-12': !seleccionado, 'col-lg-5': !!seleccionado}" class="left animated">
-		<div class="panel panel-danger">
-			<div class="panel-heading">
-				<h3 class="panel-title">
-					Organismos
-				</h3>
-			</div>
-			<div class="panel-body">			
-				<input type="text" ng-model="texto.$" placeholder="Filtro" style="margin-bottom:1em" class="form-control"/>
-				<ul ng-if="arbol.length" style="padding-left:0.6em">
-					<li ng-repeat="element in arbol |filter:texto| filter:filtrojerarquia" ng-class="{'list-group-item-warning':element.id==seleccionado.id}">
-						<p>
-						<strong>
-							[{{element.id}}] &nbsp;
-						</strong>
-						<span ng-click="setSeleccionado(element)" class="cursor" title="Engloba {{element.numprocedimientos}} procedimientos">
-							{{element.title}} 
-						</span>
-						<span class="badge pull-right">{{element.numprocedimientos}}</span>
-						</p>
-						<ul class="list-group" ng-if="element.nodes" style="clear:both">
-							<li class="list-group-item" ng-repeat="elemen in element.nodes |filter:texto | filter:filtrojerarquia" ng-class="{'list-group-item-danger':elemen.id==seleccionado.id}">
-							<p>
-								<strong>
-									[{{elemen.id}}] &nbsp;
-								</strong>
-								<span ng-class="{'text-muted': elemen.numprocedimientos === 0 }" ng-click="setSeleccionado(elemen)" class="cursor" title="Engloba {{elemen.numprocedimientos}} procedimientos">
-									{{elemen.title}} 
-								</span>
-								<span class="badge pull-right">{{elemen.numprocedimientos}}</span>
-								</p>
-								<ul ng-if="elemen.nodes" style="clear:both">
-									<li ng-repeat="eleme in elemen.nodes |filter:texto |filter:filtrojerarquia"  ng-class="{'list-group-item-danger':eleme.id==seleccionado.id}" >
-									<p>
-										<strong>
-											[{{eleme.id}}] &nbsp;
-										</strong>
-										<span ng-class="{'bg-danger':eleme.id==seleccionado.id, 'text-muted': eleme.numprocedimientos === 0 }" ng-click="setSeleccionado(eleme)" class="cursor" title="Engloba {{eleme.numprocedimientos}} procedimientos">
-											{{eleme.title}} 
-										</span>
-										<span class="badge pull-right">{{eleme.numprocedimientos}}</span>
-										</p>
-										<ul ng-if="eleme.nodes" style="clear:both">
-											<li ng-repeat="elem in eleme.nodes |filter:texto |filter:filtrojerarquia">
-											<p>
-												<strong>
-													[{{elem.id}}] &nbsp;
-												</strong>
-												<span ng-class="{'bg-danger':elem.id==seleccionado.id, 'text-muted': elem.numprocedimientos === 0 }" ng-click="setSeleccionado(elem)" class="cursor"  title="Engloba {{elem.numprocedimientos}} procedimientos">
-													{{elem.title}} 
-												</span>
-												<span class="badge pull-right">{{elem.numprocedimientos}}</span>
-												</p>
-
-												<ul ng-if="elem.nodes" style="clear:both">
-													<li ng-repeat="ele in elem.nodes |filter:texto |filter:filtrojerarquia">
-													<p>
-														<strong>
-															[{{ele.id}}] &nbsp;
-														</strong>
-														<span ng-class="{'bg-danger':ele.id==seleccionado.id, 'text-muted': ele.numprocedimientos === 0 }" ng-click="setSeleccionado(ele)" class="cursor"  title="Engloba {{ele.numprocedimientos}} procedimientos">
-															{{ele.title}}
-														</span>
-														<span class="badge pull-right">{{ele.numprocedimientos}}</span>
-														</p>
-													</li>
-												</ul>
-											</li>
-										</ul>
-									</li>
-								</ul>
-							</li>
-						</ul>
-					</li>
-				</ul>
-			</div>
-		</div>
+		<organismos otitle="'Organismos con procedimientos'" arbol="arbol" tipoelementos="'procedimiento/s'" attr="'numprocedimientos'" setseleccionado="setSeleccionado" seleccionado="seleccionado"></organismos>
 	</div>
+
 	<div ng-class="{'col-lg-7': !!seleccionado, 'hidden': !seleccionado}" class="right animated" id="detallesjerarquiaproc">
 		<div ng-click="oculto=!oculto">
-			<span class="glyphicon glyphicon-fullscreen pull-right">
-			</span>
-			<h2>
-				{{seleccionado.title}}
-			</h2>
-		</div>
-		
+			<span class="glyphicon glyphicon-fullscreen pull-right"></span>
+			<h2>{{seleccionado.title}}</h2>
+		</div>	
 		<div class="panel panel-danger">
 			<div class="panel-heading">
-				<h3 class="panel-title">{{(guardado?'Actualizar':'Crear')}} procedimiento</h3>
+				<h3 class="panel-title">{{(guardado ? 'Actualizar' : 'Crear')}} procedimiento</h3>
 			</div>
 			<div class="panel-body">			
 				<label for="nombre" style="width:100%">
-					<span>Denominaci&oacute;n: </span><input  class="form-control" type="text" ng-model="procedimiento.denominacion" name="nombre" /> 					
+					<span>Denominaci&oacute;n: </span><input class="form-control" type="text" ng-model="procedimiento.denominacion" name="nombre" /> 					
 				</label>
 				<br/>
 				<label for="codigo" style="width:100%">
-					<span>C&oacute;digo: </span><input  class="form-control" type="text" ng-model="procedimiento.codigo" name="codigo" /> 
+					<span>C&oacute;digo: </span><input class="form-control" type="text" ng-model="procedimiento.codigo" name="codigo" /> 
 				</label>
 				<br/>
 				<label for="responsable" style="width:100%"> 
-					<span>Responsable: </span><input  class="form-control" placeholder="Plaza del responsable"  type="text" typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)" ng-model="responsable" name="responsable" /> 
+					<span>Responsable: </span><input class="form-control" placeholder="Plaza del responsable" type="text" typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)" ng-model="responsable" name="responsable" typeahead-wait-ms="200" /> 
 				</label>
 				<label for="cod_plaza" style="width:100%"> 
-					<span>Código plaza: </span><input  class="form-control" readonly placeholder="Plaza o nombre del responsable"  type="text" ng-model="procedimiento.cod_plaza" name="cod_plaza" /> 
+					<span>Código plaza: </span><input class="form-control" readonly placeholder="Plaza o nombre del responsable" type="text" ng-model="procedimiento.cod_plaza" name="cod_plaza" /> 
 				</label>
 				<label for="padre" style="width:100%">
 					<span>Procedimiento padre: </span>
-                                        <input placeholder="Introduce cualquier parte del c&oacute;digo o denominaci&oacute;n" class="form-control" type="text" ng-model="padre" name="padre" typeahead="showProcedimiento(procpadre) for procpadre in oallprocedimientos  | codigoDenominacion:$viewValue | limitTo:10" /> 
+					<input placeholder="Introduce cualquier parte del c&oacute;digo o denominaci&oacute;n" class="form-control" type="text" ng-model="padre" name="padre" uib-typeahead="showProcedimiento(procpadre) for procpadre in oallprocedimientos | codigoDenominacion:$viewValue | limitTo:10" typeahead-wait-ms="200" /> 
 				</label>
 				<br/>
 				<p>Los permisos se establecerán en función del código de plaza, y no sobre la persona concreta, a pesar de ser mostrada como ayuda durante el registro del procedimiento.</p>
@@ -117,9 +39,5 @@
 				</button>				
 			</div>
 		</div>
-			
-
-		</div>
 	</div>
-
-
+</div>

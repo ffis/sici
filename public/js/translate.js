@@ -6,8 +6,11 @@
 			function ($translateProvider) {
 
 				$translateProvider.translations('es_ES', {
+					'id': 'Identificador',
 					'codigo': 'Código',
 					'denominacion': 'Denominación',
+					'nombrelargo': 'Denominación',
+					'numprocedimientos': 'Número de procedimientos',
 					'tipo': 'Tipo',
 					'cod_plaza': 'Código de plaza',
 					'fecha_creacion': 'Fecha de registro',

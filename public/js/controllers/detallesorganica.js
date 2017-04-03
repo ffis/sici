@@ -11,6 +11,14 @@
 				$scope.padre = '';
 				$scope.ancestros = [];
 
+				const listener = $rootScope.$watch('anualidad', function(){
+					$scope.updateGraphKeys();
+				});
+
+				$scope.$on('$destroy', function() {
+					listener();
+				});
+
 				$scope.periodos = Periodo.query(function(){
 					$scope.periodo = $scope.periodos[0];
 				});
@@ -52,7 +60,6 @@
 						try {
 							$(v).sparkline(JSON.parse(obj), {'type': 'bar', 'barColor': '#a94442'});
 						} catch (e) {
-							/*$log.error('sparkline mal formed VALUE WAS:' + t , obj);*/
 							$(v).sparkline([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], {'type': 'bar', 'barColor': '#a94442'});
 						}
 					});
@@ -61,6 +68,7 @@
 				$scope.sparkline = function(){
 					$timeout(sparkline, 100);
 				};
+
 				$scope.updateGraphKeys = function(){
 					$scope.sparkline();
 
@@ -102,14 +110,19 @@
 					$scope.graphskeys = graphskeys;
 					$scope.graphs = [];
 					$scope.numgraphs = 0;
+					const labels = $rootScope.inicialesmeses;
 					graphskeys.forEach(function (g, i) {
 						let maxvalue = 0;
 						const data = [];
+						const series = [];
 						const caption = g.caption;
+						
 						g.keys.forEach(function (key, indx) {
-							let k = $scope.resumenJerarquiaSeleccionada;
 							const values = [];
 							const indexes = key.vals.split('.');
+							let k = $scope.resumenJerarquiaSeleccionada;
+							series.push(key.caption);
+
 							for (const j in indexes) {
 								const index = indexes[j];
 								if (typeof k[index] === 'undefined'){
@@ -117,31 +130,26 @@
 								}
 								k = k[index];
 							}
-							if (typeof k !== 'undefined' && k.length > 0) {
+							if (typeof k !== 'undefined' && k.length) {
 								k.forEach(function (val, idx) {
-									//dibujar meses anteriores al actual
-									if (anualidad < $rootScope.getIntAnualidad() || (idx <= graphskeys[i].keys[indx].maxx && anualidad === $rootScope.getIntAnualidad())) {
-										values.push([idx, val]);
+									if ((idx <= graphskeys[i].keys[indx].maxx && anualidad === $rootScope.anualidad) || (anualidad !== $rootScope.anualidad)){
+										values.push(val);
 										if (maxvalue < val){
 											maxvalue = val;
 										}
 									}
 								});
-								if (values.length > 0){
-									data.push({key: key.caption, values: values});
-								}
+								data.push(values);
 							} else {
-								$log.log('Index malo:' + JSON.stringify(indexes));
-								//$log.log(JSON.stringify($scope.resumenJerarquiaSeleccionada));
+								$log.error('Index malo:' + indexes);
 							}
 						});
-						var forcey = [0, Math.ceil(maxvalue * 1.3)];
-						if (maxvalue > 0 && data.length > 0) {
 
-							$scope.graphs.push({'data': data, 'forcey': forcey, 'caption': caption});
-							$scope.numgraphs += 1;
+						if (maxvalue > 0){
+							$scope.graphs.push({'data': data, 'labels': labels, 'series': series, 'caption': caption});
 						}
 					});
+					$scope.numgraphs = $scope.graphs.length;
 				};
 
 				$scope.resumenJerarquiaSeleccionada = ResumenNodoJerarquia.get({'jerarquia': $routeParams.idjerarquia}, function(){
@@ -156,18 +164,6 @@
 							$scope.ancestros.reverse();//TODO: revisar este parche
 						}
 					});
-
-					$scope.superuser = $rootScope.superuser();
-
-					$scope.filtrosocultos = false;
-
-					$scope.gotoBreadCrumb = function () {
-						//$location.hash('breadcrumb');
-					};
-
-					$scope.gotOkCancel = function () {
-						//$location.hash('ok_cancel_changeOrganica');
-					};
 				});
 
 				$scope.attrspar = [
@@ -191,72 +187,8 @@
 				$scope.colorText = $rootScope.colorText;
 
 				$scope.graficasgrandes = false;
-				$scope.xAxisTickValuesFunction = function () {
-					return function () {
-						return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-					};
-				};
-				$scope.xAxisTickFormatFunction = function () {
-					return function (d) {
-						return $scope.meses[d];
-					};
-				};
-				$scope.colorFunction2 = function () {
-					return function (d, i) {
-						return $rootScope.colorToHex($rootScope.colorText(i, 5, 60));
-					};
-				};
-				var colorCategory = d3.scale.category20b();
-				$scope.colorFunction = function () {
-					return function (d, i) {
-						return colorCategory(i);
-					};
-				};
+
 			}
 		]);
 
 })(angular, d3, $);
-
-/*
-
-			//    $scope.downloadGraphic = function (id) {
-			//        console.log(id);
-			//        var canvas = document.getElementById(id);
-			//        var ctx = canvas.getContext("2d");
-			//        // draw to canvas...
-			//        canvas.toBlob(function (blob) {
-			//            saveAs(blob, "image.png");
-			//        });
-			//    };
-			//
-			//    $scope.guardarImagen = function(id) {
-			////        http://techslides.com/save-svg-as-an-image
-			//      var html = d3.select('#svg'+id)
-			//        .attr("version", 1.1)
-			//        .attr("xmlns", "http://www.w3.org/2000/svg")
-			//        .node().parentNode.innerHTML;
-			//
-			//        console.log(html);
-			//        var imgsrc = 'data:image/svg+xml;base64,'+ btoa(html);
-			//        var img = '<img src="'+imgsrc+'">';
-			//        d3.select("#svgdataurl"+id).html(img);
-			//
-			//
-			//        var canvas = document.querySelector("canvas"),
-			//                context = canvas.getContext("2d");
-			//
-			//        var image = new Image();
-			//        image.src = imgsrc;
-			//        image.onload = function() {
-			//            context.drawImage(image, 0, 0);
-			//            var canvasdata = canvas.toDataURL("image/png");
-			//            var pngimg = '<img src="'+canvasdata+'">';
-			//            d3.select("#pngdataurl"+id).html(pngimg);
-			//
-			//            var a = document.createElement("a");
-			//            a.download = "grafica.png";
-			//            a.href = canvasdata;
-			//            a.click();
-			//        };
-			//    };
-*/

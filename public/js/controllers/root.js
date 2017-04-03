@@ -1,42 +1,16 @@
 (function(angular, $, Blob, saveAs, window){
 	'use strict';
-	angular.module('sici').controller('AppCtrl', ['$window', '$q', '$rootScope', '$log', 'Session', '$location', '$http', 'toaster', 'PermisosCalculados', 'AuthService', '$document', 'Preferencias',
-		function ($window, $q, $rootScope, $log, Session, $location, $http, toaster, PermisosCalculados, AuthService, $document, Preferencias) {
-
-			$rootScope.setTitle = function (title){ $window.document.title = 'SICI - ' + title; };
-			$rootScope.setLogeado = function(t){
-				$rootScope.logeado = t;
-				if (t && typeof $rootScope.permisoscalculados === 'undefined') {
-					$rootScope.permisoscalculados = PermisosCalculados.query({});
-				} else if (!t) {
-					Reflect.deleteProperty($rootScope, 'permisoscalculados');
-				}
-			};
-
-			$rootScope.toaster = function(txt, title, type){
-				if (typeof type === 'undefined'){
-					type = 'success';
-				} else if (typeof title === 'undefined'){
-					title = 'Aviso';
-				}
-				toaster.pop(type, title, txt);
-			};
-
-			$rootScope.anualidades = [];
-			const maxanualidad = new Date().getFullYear();
-			for (let i = 2013; i <= maxanualidad; i++){
-				$rootScope.anualidades.push({'value': 'a' + i, 'label': i});
-			}
-			$rootScope.anualidad = 'a' + maxanualidad;
-			$rootScope.getIntAnualidad = function(){ return parseInt($rootScope.anualidad.substring(1, 5), 10); };
+	angular.module('sici').controller('AppCtrl', ['$window', '$q', '$rootScope', '$log', 'Session', '$location', '$http', 'toaster', 'PermisosCalculados', 'AuthService', 'Preferencias', '$timeout',
+		function ($window, $q, $rootScope, $log, Session, $location, $http, toaster, PermisosCalculados, AuthService, Preferencias, $timeout) {
+			const IEChecker = /MSIE [6789]+/i;
+			const browser = $window.navigator.userAgent;
 
 			$rootScope.session = Session;
 			$rootScope.nav = '';
 			$rootScope.logeado = false;
 			$rootScope.meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 			$rootScope.inicialesmeses = ['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
-			const IEChecker = /MSIE [6789]+/i;
-			const browser = $window.navigator.userAgent;
+
 			$rootScope.navegabilidad = [
 				{'id': 'inicio', 'caption': 'Inicio'},
 				{'id': 'actividad', 'caption': 'Actividad'},
@@ -63,6 +37,33 @@
 			$rootScope.navegabilidadLast = [
 				{'id': 'logout', 'caption': 'Salir'}
 			];
+
+			$rootScope.anualidades = [];
+			const maxanualidad = new Date().getFullYear();
+			for (let i = 2013; i <= maxanualidad; i += 1){
+				$rootScope.anualidades.push({'value': 'a' + i, 'label': i});
+			}
+			$rootScope.anualidad = 'a' + maxanualidad;
+
+			$rootScope.setTitle = function (title){ $window.document.title = 'SICI - ' + title; };
+			$rootScope.setLogeado = function(t){
+				$rootScope.logeado = t;
+				if (t && typeof $rootScope.permisoscalculados === 'undefined') {
+					$rootScope.permisoscalculados = PermisosCalculados.query({});
+				} else if (!t) {
+					Reflect.deleteProperty($rootScope, 'permisoscalculados');
+				}
+			};
+
+			$rootScope.getIntAnualidad = function(){ return parseInt($rootScope.anualidad.substring(1, 5), 10); };
+			$rootScope.toaster = function(txt, title, type){
+				if (typeof type === 'undefined'){
+					type = 'success';
+				} else if (typeof title === 'undefined'){
+					title = 'Aviso';
+				}
+				toaster.pop(type, title, txt);
+			};
 
 			$rootScope.loginCarm = AuthService.carmlogin;
 
@@ -106,98 +107,103 @@
 			};
 
 			$rootScope.exportXLS = function(idx, nombre){
-				const blob = new Blob(['<meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8"><table width="100%">' + $document.getElementById(idx).innerHTML + '</table>'],
+
+				const blob = new Blob(['<meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8"><table width="100%">' + angular.element('#' + idx).html() + '</table>'],
 					{'type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8'});
 				saveAs(blob, nombre + '.xls');
 			};
 
 			$rootScope.exportDOC = function (idx, nombre){
-				$log.log(idx, nombre);
-				$log.error('not supported');
+				$log.error(idx, nombre, 'not supported');
 
 				return false;
 			};
 
 			$rootScope.R = function (procedimiento) {
-				const def = $q.defer();
 				if ($rootScope.permisoscalculados){
+					const def = $q.defer();
 					$rootScope.permisoscalculados.$promise.then(function(){
 						def.resolve(
-								$rootScope.permisoscalculados.superuser ||
-								$rootScope.permisoscalculados.procedimientoslectura.indexOf(procedimiento.codigo) !== -1 ||
-								$rootScope.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo) !== -1
-								);
+							$rootScope.permisoscalculados.superuser ||
+							$rootScope.permisoscalculados.procedimientoslectura.indexOf(procedimiento.codigo) > -1 ||
+							$rootScope.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo) > -1
+						);
 					}, def.reject);
-				} else {
-					def.reject();
+
+					return def.promise;
 				}
 
-				return def.promise;
+				return $q.reject();
 			};
 
 			$rootScope.W = function (procedimiento) {
-				const def = $q.defer();
 				if ($rootScope.permisoscalculados){
+					const def = $q.defer();
+
 					$rootScope.permisoscalculados.$promise.then(function () {
-						def.resolve($rootScope.permisoscalculados.superuser || $rootScope.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo) !== -1 );
+						def.resolve($rootScope.permisoscalculados.superuser || $rootScope.permisoscalculados.procedimientosescritura.indexOf(procedimiento.codigo) > -1);
 					}, def.reject);
-				} else {
-					def.reject();
+
+					return def.promise;
 				}
 
-				return def.promise;
+				return $q.reject();
 			};
 
 			$rootScope.superuser = function () {
-				const def = $q.defer();
 				if ($rootScope.permisoscalculados){
-					$rootScope.permisoscalculados.$promise.then(function () {
+					const def = $q.defer();
+
+					$rootScope.permisoscalculados.$promise.then(function(){
 						def.resolve(Boolean($rootScope.permisoscalculados.superuser));
 					}, def.reject);
-				} else {
-					def.reject();
+
+					return def.promise;
 				}
 
-				return def.promise;
+				return $q.reject();
 			};
 
 			$rootScope.jerarquialectura = function () {
-				const def = $q.defer();
 				if ($rootScope.permisoscalculados){
-					$rootScope.permisoscalculados.$promise.then(function () {
+					const def = $q.defer();
+
+					$rootScope.permisoscalculados.$promise.then(function() {
 						def.resolve($rootScope.permisoscalculados.jerarquialectura);
 					}, def.reject);
-				} else {
-					def.reject();
+
+					return def.promise;
 				}
 
-				return def.promise;
+				return $q.reject();
 			};
 
 			$rootScope.jerarquiaescritura = function () {
-				const def = $q.defer();
 				if ($rootScope.permisoscalculados){
+					const def = $q.defer();
 					$rootScope.permisoscalculados.$promise.then(function () {
 						def.resolve($rootScope.permisoscalculados.jerarquiaescritura);
 					}, def.reject);
-				} else {
-					def.reject();
+
+					return def.promise;
 				}
 
-				return def.promise;
+				return $q.reject();
 			};
 
 			$rootScope.grantoption = function () {
-				const def = $q.defer();
+				
 				if ($rootScope.permisoscalculados){
+					const def = $q.defer();
+
 					$rootScope.permisoscalculados.$promise.then(function() {
 						def.resolve($rootScope.permisoscalculados.superuser || $rootScope.permisoscalculados.grantoption);
 					}, def.reject);
-				} else {
-					def.reject();
+
+					return def.promise;
 				}
 
-				return def.promise;
+				return $q.reject();
 			};
 
 			$rootScope.recalcularpermisos = function(){
@@ -216,6 +222,31 @@
 			$rootScope.$watch('condensed', function(){
 				Preferencias.condensed($rootScope.condensed);
 			});
+			$rootScope.itemsPerPage = Preferencias.itemsPerPage();
+			$rootScope.itemsPerPageOptions = [10, 20, 25, 30, 50, 100, 200, 300, 500, 750, 1000, 2000];
+			if (typeof $rootScope.itemsPerPage !== 'number'){
+				$rootScope.itemsPerPage = 10;
+				Preferencias.itemsPerPage(10);
+			}
+			$rootScope.$watch('itemsPerPage', function(){
+				Preferencias.itemsPerPage($rootScope.itemsPerPage);
+			});
+
+			function sparkline(){
+				$.each($('.sparkline'), function(k, v){
+					const obj = $(v).attr('data-value');
+					try {
+						$(v).sparkline(JSON.parse(obj), {'type': 'bar', 'barColor': '#a94442'});
+					} catch (e) {
+						/*$log.error('sparkline mal formed VALUE WAS:' + t , obj);*/
+						$(v).sparkline( [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], {'type': 'bar', 'barColor': '#a94442'});
+					}
+				});
+			}
+
+			$rootScope.sparkline = function(){
+				$timeout(sparkline, 50);
+			};
 
 			$rootScope.report = function(){
 				if (!$rootScope.apiFeedback){

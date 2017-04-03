@@ -372,7 +372,7 @@
 		const dpermisos = Q.defer();
 		const recursivo = (typeof req.params.recursivo === 'string' && parseInt(req.params.recursivo, 10) === 1);
 		const heredado = (typeof req.params.recursivo === 'string' && parseInt(req.params.recursivo, 10) === 2);
-		const jerarquiaspermitidas = req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura);
+		const jerarquiaspermitidas = req.user.permisoscalculados.jerarquialectura;
 
 		if (typeof req.params.idjerarquia === 'string') {
 			const idj = parseInt(req.params.idjerarquia, 10);
@@ -380,8 +380,8 @@
 			if (isNaN(idj)){
 				dpermisos.reject({'error': 'Error. Id jerarquía no válido'});
 
-			} else if (jerarquiaspermitidas.indexOf(idj) < 0){
-				dpermisos.reject({'error': 'Error. Id jerarquía no permitido'});
+			} else if (!req.user.permisoscalculados.superuser && jerarquiaspermitidas.indexOf(idj) < 0){
+				dpermisos.reject({'error': 'Error. Id jerarquía no permitido', 'permitidos': jerarquiaspermitidas});
 
 			} else if (heredado){
 				permisomodel.find({'jerarquialectura': parseInt(req.params.idjerarquia, 10)}, function(err, permisos){
@@ -423,16 +423,20 @@
 							respuesta.permisos = permisos;
 							respuesta.totallength = procedimientos.length + permisos.length;
 							dpermisos.resolve(respuesta);
-						}, dpermisos.reject);
-					}, dpermisos.reject);
-				}, dpermisos.reject);
+						}).fail(dpermisos.reject);
+					}).fail(dpermisos.reject);
+				}).fail(dpermisos.reject);
 
 			}
 
-			dpermisos.promise.then(res.json, req.eh.errorHelper(res));
+			dpermisos.promise.then(req.eh.okHelper(res)).fail(req.eh.errorHelper(res));
 
 		} else {
-			permisomodel.find({}, req.eh.cb(res));
+			const restricciones = {};
+			if (!req.user.permisoscalculados.superuser){
+				restricciones.jerarquialectura = {'$in': jerarquiaspermitidas};
+			}
+			permisomodel.find(restricciones, req.eh.cb(res));
 		}
 	};
 

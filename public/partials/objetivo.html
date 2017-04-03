@@ -67,7 +67,7 @@
 					<label>Vincular indicador</label>
 					<div class="row">
 						<div class="col-xs-12 col-sm-6 col-md-9">
-							<input placeholder="Introduce el nombre del indicador" class="form-control" type="text" ng-model="nuevoIndicador" uib-typeahead="indicador as indicador.nombre for indicador in indicadoresNodo | filter:$viewValue | limitTo: 8" typeahead-editable="false" />
+							<input placeholder="Introduce el nombre del indicador" class="form-control" type="text" ng-model="nuevoIndicador" uib-typeahead="indicador as indicador.nombre for indicador in indicadoresNodo | filter:$viewValue | limitTo: 8" typeahead-editable="false" typeahead-wait-ms="200" />
 						</div>
 						<div class="col-xs-12 col-sm-6 col-md-3 text-center">
 							<button title="Añadir indicador" class="btn btn-sm btn-primary" ng-click="vincularIndicador(formula, nuevoIndicador)"><i class="fa fa-plus-square"></i> Añadir indicador</button>
@@ -101,7 +101,7 @@
 							<label>Vincular indicador</label>
 							<div class="row">
 								<div class="col-xs-12 col-sm-6">
-									<input placeholder="Introduce el nombre del procedimiento" class="form-control" type="text" ng-model="nuevoProcedimiento" uib-typeahead="procedimiento as procedimiento.denominacion for procedimiento in procedimientos | filter:$viewValue | limitTo: 8" typeahead-editable="false" />
+									<input placeholder="Introduce el nombre del procedimiento" class="form-control" type="text" ng-model="nuevoProcedimiento" uib-typeahead="procedimiento as procedimiento.denominacion for procedimiento in procedimientos | filter:$viewValue | limitTo: 8" typeahead-editable="false" typeahead-wait-ms="200" />
 								</div>
 								<div class="col-xs-12 col-sm-3">
 									<select name="campo" ng-model="campoNuevoProcedimiento" ng-options="o as (o | translate) for o in camposProcedimientos" class="form-control">

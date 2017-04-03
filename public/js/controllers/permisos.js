@@ -54,8 +54,7 @@
 					}
 				};
 
-				$scope.superuser = $rootScope.superuser();
-				$scope.superuser().then(function(superuser){
+				$rootScope.superuser().then(function(superuser){
 					if (!superuser) {
 						var login = $rootScope.session.login || '-';
 						var cod_plaza = $rootScope.session.codplaza || '-';
@@ -709,7 +708,7 @@
 
 						//$scope.procedimientos = ProcedimientoList.query({idjerarquia:seleccionad.id});
 						var filtropermisos = { idjerarquia: seleccionad.id, recursivo: ($scope.is_show_recursive_users ? 1 : ($scope.is_show_inherited_users ? 2 : 0))};
-						$scope.permisostotales = PermisosList.query(filtropermisos, function() {
+						$scope.permisostotales = PermisosList.get(filtropermisos, function() {
 							$scope.permisos = $scope.permisostotales.permisos;
 							$scope.procedimientos = $scope.permisostotales.procedimientos;
 						});

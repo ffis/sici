@@ -44,6 +44,7 @@
 				defer.reject(err);
 			} else {
 				objetos.forEach(function(objeto){
+console.log(47, attr)
 					permiso[attr].push(String(objeto[idprop]));
 				});
 				defer.resolve();
@@ -180,13 +181,11 @@
 			}, deferredEntidadObjeto.reject);
 		}
 
-		const defs = [];
-
 		// para cada uno de los arrays de permisos calculados
 		attrsjerarquia.forEach(function (attr, idx){
 			// obtenemos el array de permisos directos del mismo tipo
 			const idsjerarquia = permiso[attrsjerarquiaDirecto[idx]];
-
+//console.log(idsjerarquia, attrsjerarquiaDirecto[idx])
 			if (idsjerarquia && idsjerarquia.length === 0){
 
 				return;
@@ -213,9 +212,8 @@
 			recalculosPendientes.push(def.promise);
 		});
 
-		const defs2 = [];
-		Q.all(defs).then(function(){
-
+		Q.all(recalculosPendientes).then(function(){
+			const defs2 = [];
 			attrsjerarquia.forEach(function (attr, idx) {
 				const idsjerarquia = permiso[attrsjerarquia[idx]];
 				const attrProcedimiento = permiso[attrprocedimientos[idx]];
@@ -235,9 +233,9 @@
 				defs2.push(dP.promise);
 				defs2.push(dE.promise);
 			});
-		});
 
-		Q.all(defs2).then(function () {
+			return defs2;
+		}).then(function () {
 			restauraModeloPermiso(models, permiso);
 
 			deferred.resolve(permiso);

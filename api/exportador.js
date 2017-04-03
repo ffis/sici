@@ -664,7 +664,7 @@
 		if (req.user.permisoscalculados.superuser){
 			const promesaCachePersonas = Q.defer();
 			promises.push(promesaCachePersonas.promise);
-			personamodel.find({}, {codplaza: true, login: true, nombre: true, apellidos: true, habilitado: true}, function (err, p) {
+			personamodel.find({}, {'codplaza': true, 'login': true, 'nombre': true, 'apellidos': true, 'habilitado': true}, function (err, p) {
 				if (err) {
 					promesaCachePersonas.reject(err);
 				} else {
@@ -708,7 +708,7 @@
 					logger.error(err);
 					deferBD.reject(err);
 				} else {
-					module.exports.rellenarProcedimientos(procedimientos, year, models, personasByCodPlaza).then(function (ws) {
+					rellenarProcedimientos(procedimientos, year, models, personasByCodPlaza).then(function (ws) {
 						deferBD.resolve({'wsName': 'BD', 'sheet': ws});
 					}, function (erro) {
 						logger.error(erro);

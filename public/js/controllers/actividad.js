@@ -18,7 +18,6 @@
 			$scope.procedimientosocultos = false;
 			$scope.meses = $rootScope.meses;
 			$scope.reverse = false;
-			$scope.itemsPerPage = 20;
 			$scope.currentPage = 0;
 
 			const fecha = new Date();
@@ -137,25 +136,9 @@
 				return (typeof filtro[key] !== 'undefined' && fa.name === filtro[key]);
 			};
 
-			function sparkline(){
-				$.each($('.sparkline'), function(k, v){
-					var obj = '[' + $(v).data('value') + ']';
-					try {
-						$(v).sparkline(JSON.parse(obj), {'type': 'bar', 'barColor': '#a94442'});
-					} catch (e) {
-						/*$log.error('sparkline mal formed VALUE WAS:' + t , obj);*/
-						$(v).sparkline( [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], {'type': 'bar', 'barColor': '#a94442'});
-					}
-				});
-			}
-
-			$scope.sparkline = function(){
-				$timeout(sparkline, 5);
-			};
-
 			$scope.filtrotxtprocedimiento = {};
-			$scope.$watch('filtrotxtprocedimiento.$', function(){ $scope.sparkline(); });
-			$scope.$watch('procedimientosocultos', function(){ $scope.sparkline(); });
+			$scope.$watch('filtrotxtprocedimiento.$', function(){ $rootScope.sparkline(); });
+			$scope.$watch('procedimientosocultos', function(){ $rootScope.sparkline(); });
 
 			$scope.procedimientosfiltrados = [];
 			$scope.$watch('filtro', function(){
@@ -174,7 +157,7 @@
 				});
 				$scope.procedimientosfiltrados = result;
 
-				$scope.sparkline();
+				$rootScope.sparkline();
 				$scope.procedimientosocultos = false;
 			}, true);
 
@@ -236,7 +219,7 @@
 							$scope.responsable = $scope.responsables[only];
 						}
 					}
-					$scope.sparkline();
+					$rootScope.sparkline();
 				}
 			});
 
@@ -261,7 +244,7 @@
 			$scope.prevPage = function() {
 				if ($scope.currentPage > 0) {
 					$scope.currentPage--;
-					$scope.sparkline();
+					$rootScope.sparkline();
 				}
 			};
 			$scope.DisablePrevPage = function() {
@@ -272,18 +255,32 @@
 			};
 
 			$scope.pageCount = function() {
-				return Math.ceil($scope.procedimientosfiltrados.length / $scope.itemsPerPage) - 1;
+				return Math.ceil($scope.procedimientosfiltrados.length / $rootScope.itemsPerPage) - 1;
 			};
 			$scope.nextPage = function() {
 				if ($scope.currentPage < $scope.pageCount()) {
 					$scope.currentPage++;
-					$scope.sparkline();
+					$rootScope.sparkline();
 				}
 			};
 			$scope.setPage = function(n) {
 				$scope.currentPage = n;
-				$scope.sparkline();
+				$rootScope.sparkline();
 			};
+
+			const listener = $rootScope.$watch('itemsPerPage', function(){
+				$rootScope.sparkline();
+			});
+			$scope.$on('$destroy', function() {
+				listener();
+			});
+
+			const listener2 = $rootScope.$watch('anualidad', function(){
+				$rootScope.sparkline();
+			});
+			$scope.$on('$destroy', function() {
+				listener2();
+			});
 
 			$scope.anyoSelected = '';
 			$scope.updateAnyoSelected = function(code) {

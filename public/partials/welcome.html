@@ -6,7 +6,7 @@
 					<div class="panel-heading">
 						Ayuda
 					</div>
-					<div class="panel-body">
+					<div class="panel-body minheight300">
 
 						<p>Recuerde que si tiene alguna consulta que realizar puede remitir un correo electrónico a:</p>
 							<ul>
@@ -25,7 +25,7 @@
 					<div class="panel-heading">
 						Preguntas frecuentes
 					</div>
-					<div class="panel-body">
+					<div class="panel-body minheight300">
 						<dl>
 							<dt><strong>¿Por qué puedo ver los detalles de un procedimiento en el apartado Actividad pero no puedo introducir datos en la anualidad actual y sí en anteriores?</strong></dt>
 							<dd>
@@ -42,7 +42,7 @@
 					<div class="panel-heading">
 						Usuario
 					</div>
-					<div class="panel-body">
+					<div class="panel-body minheight300">
 						<ul style="list-style: none">
 						<li><strong>Usuario:</strong> {{$root.session.login}}</li>
 						<li><strong>Nombre:</strong> {{$root.session.nombre}}</li>
@@ -57,7 +57,7 @@
 					<div class="panel-heading">
 						Permisos concedidos
 					</div>
-					<div class="panel-body">
+					<div class="panel-body minheight300">
 						<ul>
 							<li ng-repeat="permiso in $root.session.permisos">
 								<strong>Comentario:</strong> {{permiso.descripcion}}

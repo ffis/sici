@@ -17,7 +17,7 @@
 			<div class="col-lg-12">
 				<ul ng-if="jerarquiaSeleccionada">
 					<li ng-repeat="attr in attrspar" >
-						<strong>{{attr| translate}}</strong>
+						<strong>{{attr | translate}}:</strong>
 						<span>&nbsp;</span>
 						<span >{{jerarquiaSeleccionada[attr]!=null ?jerarquiaSeleccionada[attr]  : '-' }}</span>
 					</li>
@@ -80,45 +80,24 @@
 					</li>
 				</ul>
 			</div>
-			<div ng-if="graphs[0].data" class="row">
+			<div ng-if="graphs.length > 0" class="row">
 				<div class="col-md-12">
 					<div class="btn-group pull-right">
-						<div ng-click="graficasgrandes = !graficasgrandes; updateGraphKeys($root.anualidad.replace('a',''))" class="btn btn-default">
-							<span ng-class="{'glyphicon-resize-full':!graficasgrandes,'glyphicon-resize-small':graficasgrandes}" class="glyphicon"></span>
-						</div>
-						<div ng-click="graficasbarras = !graficasbarras; updateGraphKeys($root.anualidad.replace('a',''));" ng-class="{active:graficasbarras, 'btn-default':!graficabarras}" class="btn">
+						<button ng-click="graficasbarras = !graficasbarras; updateGraphKeys();" ng-class="{'btn-primary':graficasbarras, 'btn-default':!graficabarras}" class="btn">
 							<span class="glyphicon glyphicon-stats"></span>
-						</div>
+						</button>
 					</div>
 				</div>
-
 				<hr style="clear:both"/>
 
-				<div ng-repeat="graph in graphs" ng-if="graph.data" ng-show="!graficasbarras && graph.data && !graficasgrandes" ng-class="{'col-lg-3':(numgraphs % 4 == 0),'col-lg-3':(numgraphs % 3 == 0)}" class="col-md-12 well">
-					<h5 class="text-danger text-center">{{graph.caption}}</h5>
-					<nvd3-line-chart noData="No hay datos que mostrar" data="graph.data" showXAxis="true" showYAxis="true" showLegend="true" interactive="true" height="350" xAxisTickValues="xAxisTickValuesFunction()" xAxisTickFormat="xAxisTickFormatFunction()" rotateLabels="45" forcey="graph.forcey">
-						<svg></svg>
-					</nvd3-line-chart>
-				</div>
-				<div ng-repeat="graph in graphs" ng-if="graph.data" ng-show="graficasbarras && graph.data && !graficasgrandes" ng-class="{'col-lg-3':(numgraphs % 4 == 0),'col-lg-3':(numgraphs % 3 == 0)}" class="col-md-12 well">
-					<h5 class="text-danger text-center">{{graph.caption}}</h5>
-					<nvd3-multi-bar-chart noData="No hay datos que mostrar" data="graph.data" showXAxis="true" showYAxis="true" showLegend="true" interactive="true" height="350" xAxisTickValues="xAxisTickValuesFunction()" xAxisTickFormat="xAxisTickFormatFunction()" rotateLabels="45" forcey="graph.forcey" >
-						<svg></svg>
-					</nvd3-multi-bar-chart>
-				</div>				
-				<div ng-repeat="graph in graphs" ng-if="graph.data" ng-show="!graficasbarras && graph.data && graficasgrandes" style="clear:both" class="col-lg-12 well">
-					<h5 class="text-danger text-center">{{graph.caption}}</h5>
-					<nvd3-line-chart previous="nvd3-multi-bar-chart" noData="No hay datos que mostrar" data="graph.data" showXAxis="true" showYAxis="true" showLegend="true" interactive="true" height="350" xAxisTickValues="xAxisTickValuesFunction()" xAxisTickFormat="xAxisTickFormatFunction()" rotateLabels="45" forcey="graph.forcey">
-						<svg>
-						</svg>
-					</nvd3-line-chart>
-				</div>
-				<div ng-repeat="graph in graphs" ng-if="graph.data" ng-show="graficasbarras && graph.data && graficasgrandes" style="clear:both" class="col-lg-12 well">
-					<h5 class="text-danger text-center">{{graph.caption}}</h5>
-					<nvd3-multi-bar-chart previous="nvd3-multi-bar-chart" noData="No hay datos que mostrar" data="graph.data" showXAxis="true" showYAxis="true" showLegend="true" interactive="true" height="350" xAxisTickValues="xAxisTickValuesFunction()" xAxisTickFormat="xAxisTickFormatFunction()" rotateLabels="45" forcey="graph.forcey">
-						<svg>
-						</svg>
-					</nvd3-multi-bar-chart>
+				<div ng-repeat="graph in graphs" ng-if="graph.data.length > 0" class="col-md-6 col-lg-4">
+					<div class="panel panel-danger">
+						<div class="panel-heading">{{graph.caption}}</div>
+						<div class="panel-body">
+							<canvas class="chart chart-bar" chart-data="graph.data" chart-labels="graph.labels" chart-series="graph.series" style="height:40px"></canvas>
+							<br style="clear:both"/>
+						</div>
+					</div>
 				</div>
 			</div>
 			<hr/>

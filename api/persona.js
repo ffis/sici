@@ -25,19 +25,19 @@
 
 	function infoByPlaza2(req, res) {
 		const cfg = req.metaenvironment.cfg,
-			args = {arg0: {key: 'P_PLAZA', value: req.params.codplaza}};
+			args = {arg0: {'key': 'P_PLAZA', 'value': req.params.codplaza}};
 		callWs(cfg, 'SacaOcupante', args, req.eh.cb(res));
 	}
 
 	function infoByLogin2(req, res) {
 		const cfg = req.metaenvironment.cfg,
-			args = {arg0: {key: 'p_login', value: req.params.login}};
+			args = {arg0: {'key': 'p_login', 'value': req.params.login}};
 		callWs(cfg, 'SacaPlaza', args, req.eh.cb(res));
 	}
 
 	function infoByLogin(login, cfg) {
 		const def = Q.defer(),
-			args = {arg0: {key: 'p_login', value: login}};
+			args = {arg0: {'key': 'p_login', 'value': login}};
 		callWs(cfg, 'SacaPlaza', args, def.makeNodeResolver());
 
 		return def.promise;
@@ -45,7 +45,7 @@
 
 	function infoByPlaza(codplaza, cfg) {
 		const def = Q.defer(),
-			args = {arg0: {key: 'P_PLAZA', value: codplaza}};
+			args = {arg0: {'key': 'P_PLAZA', 'value': codplaza}};
 		callWs(cfg, 'SacaOcupante', args, def.makeNodeResolver());
 
 		return def.promise;
@@ -64,7 +64,7 @@
 	module.exports.personasByPuesto = function (req, res) {
 		const personamodel = req.metaenvironment.models.persona();
 		if (typeof req.params.cod_plaza === 'string' && req.params.cod_plaza !== ''){
-			personamodel.find({codplaza: req.params.cod_plaza}, req.eh.cb(res));
+			personamodel.find({'codplaza': req.params.cod_plaza}, req.eh.cb(res));
 		} else {
 			req.eh.notFoundHelper(res);
 		}
@@ -73,7 +73,7 @@
 	module.exports.personasByLogin = function (req, res) {
 		const personamodel = req.metaenvironment.models.persona();
 		if (typeof req.params.login !== 'undefined' && req.params.cod_plaza !== ''){
-			personamodel.find({login: req.params.login}, req.eh.cb(res));
+			personamodel.find({'login': req.params.login}, req.eh.cb(res));
 		} else {
 			req.eh.notFoundHelper(res);
 		}
@@ -100,7 +100,6 @@
 			content = req.body;
 		personamodel.create(content, req.eh.cbWithDefaultValue(res, content));
 	};
-
 
 	function registroPersonaWS(codplaza, models, cfg) {
 		var deferRegistro = Q.defer();

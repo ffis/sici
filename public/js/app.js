@@ -2,13 +2,12 @@
 	'use strict';
 	const dependencies = [
 		'ngRoute', 'ngAnimate', 'ngSanitize', 'ngCookies', 'angular.filter',
-		'ui.bootstrap',
-		'easypiechart', 'chart.js',
+		'ui.bootstrap', 'chart.js',
 		'xeditable', 'colorpicker.module',
 		'sici.filters', 'sici.services', 'sici.directives', 'sici.login.util', 'sici.translate',
 		'pascalprecht.translate',
 		'autocomplete',
-		'toaster', 'ngRadialGauge', 'ngDraggable', 'hc.downloader'
+		'toaster', 'ngRadialGauge', 'ngDraggable', 'hc.downloader', 'angular-loading-bar'
 	];
 
 	if (angularFileUploadLoaded){

@@ -1,9 +1,14 @@
-<div class="panel panel-danger">
+<div class="panel panel-danger hidden-print">
 	<div class="panel-heading">
-		<h3 class="panel-title">{{title}}</h3>
+		<div class="col-md-8">
+			<h3 class="panel-title">{{title}}</h3>
+		</div>
+		<div class="col-md-4">
+			<input type="text" ng-model="texto.$" placeholder="Filtro" class="form-control input-sm"/>
+		</div>
+		<div style="clear:both"></div>
 	</div>
 	<div class="panel-body">
-		<input type="text" ng-model="texto.$" placeholder="Filtro" style="margin-bottom:1em" class="form-control"/>
 		<ul ng-if="arbol.length" style="padding-left:0.3em" ng-class="{'small': $root.condensed}">
 			<li ng-repeat="element in arbol | filter:texto | filter:filtrojerarquia" ng-class="{'list-group-item-warning':element.id==seleccionado.id}">
 				<span class="badge pull-right" title="Engloba {{element[attr]}} {{tipoelementos}}">{{element[attr]}}</span>

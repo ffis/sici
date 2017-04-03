@@ -5,18 +5,25 @@
 	</div>
 	<div ng-class="{'col-lg-9': !oculto, 'col-md-8': !oculto, 'col-sm-8': !oculto, 'col-lg-12': oculto}" class="right animated" id="detallesjerarquia">
 		<div>
-			<div class="pull-left" ng-click="oculto=!oculto" style="cursor:ew-resize; margin-right:1em" ng-show="seleccionado" title="Pulse para maximizar/restaurar esta vista">
+			<div class="pull-left hidden-print" ng-click="oculto=!oculto" style="cursor:ew-resize; margin-right:1em" ng-show="seleccionado" title="Pulse para maximizar/restaurar esta vista">
 				<div class="btn btn-default">
 					<i class="fa fa-bars"></i>
 				</div>
 			</div>
+			<div class="btn-group pull-right hidden-print" ng-if="seleccionado" style="margin-right: 2em">
+				<button ng-class="{disabled: actualizando > 0}" class="btn btn-default" ng-click="descargarExcel()">
+					<i class="fa fa-file-excel-o" aria-hidden="true"></i> Descargar excel
+				</button>
+				<a class="btn btn-default" role="button" href="/resumenorganica/{{seleccionado.id}}" ng-if="seleccionado && seleccionado.id">
+					<i class="fa fa-table" aria-hidden="true"></i> Ver resumen
+				</a>
+			</div>
 			<h3>{{seleccionado.title}}</h3>
 		</div>
-		<div ng-if="procedimientos.length" class="panel panel-danger" style="clear:both">
+		<div ng-if="procedimientos.length" class="panel panel-danger hidden-print" style="clear:both">
 			<div ng-click="filtrosocultos=!filtrosocultos" class="panel-heading" style="cursor:ns-resize">
-				<span ng-class="{&quot;glyphicon-collapse-down&quot;:!filtrosocultos,&quot;glyphicon-expand&quot;:filtrosocultos}" class="glyphicon pull-right">
-				</span>
-				<div class="progress">
+				<span ng-class="{&quot;glyphicon-collapse-down&quot;:!filtrosocultos,&quot;glyphicon-expand&quot;:filtrosocultos}" class="glyphicon pull-right"></span>
+				<div class="progress" title="Esta barra representa el número de procedimientos cumplimentados respecto a los totales. Un procedimiento se considera cumplimentado si contiene solicitudes en el año seleccionado.">
 					<div role="progressbar" aria-valuenow="{{100*cumplimentados / count}}" aria-valuemin="0" aria-valuemax="100" style="width:{{100*cumplimentados / count}}%" class="progress-bar progress-bar-striped progress-bar-danger">
 						{{(100 * cumplimentados / count)|number : 2 }}% ({{cumplimentados}} / {{count}})
 					</div>
@@ -24,7 +31,7 @@
 			</div>
 			<div ng-class="{'hidden': filtrosocultos}" class="panel-body">
 				<form class="form-horizontal">
-					<div ng-repeat="key in camposfiltros" class="form-groupcol-sm-12">
+					<div ng-repeat="key in camposfiltros" class="form-group col-sm-12 col-md-6">
 						<label class="control-label col-md-3">
 							{{key| translate}}:
 						</label>
@@ -33,7 +40,7 @@
 							</select>
 						</div>
 					</div>
-					<div class="form-groupcol-sm-12">
+					<div class="form-group col-sm-12 col-md-6">
 						<label class="control-label col-md-3">Filtro:</label>
 						<div class="col-md-9">
 							<input ng-model="filtrotxtprocedimiento.$" class="form-control"/>
@@ -59,17 +66,10 @@
 		<div>
 			{{filtrotxtprocedimiento.codigo}}
 		</div>
-		<div>
-			<div class="btn-group">
-				<button ng-class="{disabled: actualizando > 0}" class="btn btn-default" ng-click="descargarExcel()">
-					<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>&nbsp;Descargar excel
-				</button>&nbsp;&nbsp;
-				<a class="btn btn-default" role="button" href="/resumenorganica/{{idjerarquia}}" ng-if="idjerarquia && !seleccionado">Ver resumen</a>
-				<a class="btn btn-default" role="button" href="/resumenorganica/{{seleccionado.id}}" ng-if="seleccionado && seleccionado.id">Ver resumen</a>
-				<p ng-if="actualizando > 0">Generando informe...</p>
-			</div>
-			<div class="alert {{respuesta.clase}}" role="alert">{{respuesta.mensaje}}</div>
-		</div>
+
+		<div class="alert {{respuesta.clase}} hidden-print" ng-if="respuesta.mensaje" role="alert">{{respuesta.mensaje}}</div>
+		<p ng-if="actualizando > 0">Generando informe...</p>
+
 		<div ng-if="procedimientosfiltrados.length" class="table-responsive">
 			<table class="table table-striped table-bordered table-hover" id="procedimientostable" ng-class="{'table-condensed': $root.condensed}">
 				<thead>
@@ -98,14 +98,26 @@
 				<tfoot>
 					<tr>
 						<td colspan="7">
-							<strong>Nº de procedimientos listados:</strong>
+							<strong>Procedimientos listados:</strong>
+							{{currentPage * $root.itemsPerPage + 1}} -
+							{{(currentPage + 1) * $root.itemsPerPage < procedimientosfiltrados.length ?(currentPage + 1) * $root.itemsPerPage : procedimientosfiltrados.length}} de
 							{{procedimientosfiltrados.length}}
-							<span ng-click="$root.exportXLS('procedimientostable','procedimientos')" class="pull-right glyphicon glyphicon-floppy-disk"></span>
+							<div class="pull-right hidden-print" style="margin-left: 2em">
+								<select class="form-control input-sm" name="itemsPerPage" ng-model="$root.itemsPerPage" ng-options="a as a for a in $root.itemsPerPageOptions"></select>
+							</div>
+							<div class="btn-group pull-right hidden-print">
+								<button ng-class="{disabled: actualizando > 0}" class="btn btn-default btn-xs" ng-click="descargarExcel()">
+									<i class="fa fa-file-excel-o" aria-hidden="true"></i> Descargar excel
+								</button>
+								<a class="btn btn-default btn-xs" role="button" href="/resumenorganica/{{seleccionado.id}}" ng-if="seleccionado && seleccionado.id">
+									<i class="fa fa-table" aria-hidden="true"></i> Ver resumen
+								</a>
+							</div>
 						</td>
 					</tr>
 				</tfoot>
 				<tbody>
-					<tr ng-repeat="proc in procedimientosfiltrados |filter:filtrotxtprocedimiento | orderBy : orderby : reverse | pagination : currentPage*itemsPerPage | limitTo: itemsPerPage">
+					<tr ng-repeat="proc in procedimientosfiltrados |filter:filtrotxtprocedimiento | orderBy : orderby : reverse | pagination : currentPage*$root.itemsPerPage | limitTo: $root.itemsPerPage">
 						<td class="text-center"><span class="sparkline ng-cloak" data-value="{{proc.periodos[$root.anualidad].solicitados | json}}"></span></td>
 						<th class="text-center">{{proc.codigo}}</th>
 						<td><a href="/procedimiento/{{proc.codigo}}">{{proc.denominacion}}</a></td>
@@ -117,7 +129,7 @@
 				</tbody>
 			</table>
 
-			<div class="col-md-12 text-center" ng-If="pageCount()>0">
+			<div class="col-md-12 text-center hidden-print" ng-if="pageCount() > 0">
 				<div class="pagination-div">
 					<ul class="pagination">
 						<li ng-class="DisablePrevPage()">

@@ -11,15 +11,7 @@
 			$scope.actualizando = 0;
 			$scope.respuestas = [];
 			$scope.tienePermisoVar = false;
-			$scope.anyos = [];
-			const maxAnyo = new Date().getFullYear();
 
-			for (let anyo = 2014; anyo <= maxAnyo; anyo += 1){
-				$scope.anyos.push({'code': 'a' + anyo, 'name': String(anyo), 'value': anyo});
-			}
-
-			$scope.anyoSelected = $scope.anyos[$scope.anyos.length - 1];
-			$scope.anualidad = parseInt($scope.anyos[$scope.anyos.length - 2].name, 10);
 			$scope.clasefuncionalidades = 'col-md-' + (12 / $scope.funcionalidades.length).toFixed(0);
 			$scope.oculto = false;
 			$scope.columnasocultas = true;
@@ -30,7 +22,7 @@
 				'quejas', 'recursos'
 			];
 
-			$scope.invoke = function (cmd, anyoSelected) {
+			$scope.invoke = function (cmd) {
 				if ($scope.actualizando) {
 					$rootScope.toaster('Espere a que termine la actualización previa', 'Error', 'error');
 
@@ -38,13 +30,8 @@
 				}
 				switch (cmd) {
 					case 'descargarexcel':
-						if (!anyoSelected || !anyoSelected.code || anyoSelected.code === '') {
-							$rootScope.toaster('Debe seleccionar un año', 'Error', 'error');
-
-							return;
-						}
 						$scope.actualizando += 1;
-						ExportarInforme.get({'year': anyoSelected.code}, function (token) {
+						ExportarInforme.get({'year': $rootScope.anualidad}, function (token) {
 							$scope.actualizando -= 1;
 							if (typeof token === 'object'){
 								$rootScope.cbDownload(token);

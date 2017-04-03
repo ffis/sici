@@ -201,6 +201,7 @@
 					});
 					$scope.numgraphs = $scope.graphs.length;
 				};
+
 				Procedimiento.get({'codigo': $routeParams.codigo}, function (procedimiento){
 					if (!procedimiento){
 						$rootScope.toaster('Procedimiento no encontrado', 'Alerta', 'warning');

@@ -6,7 +6,7 @@
 				<div class="panel-heading">
 					<div class="input-group">
 					  <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
-						<input  class="form-control" ng-model="usuariosbuscado" typeahead-on-select="on_usuariobuscado_selected($item,$model,$label)" placeholder="Buscar por plaza, login carm o nombre"  type="text" typeahead-min-length="3" uib-typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)" />
+						<input  class="form-control" ng-model="usuariosbuscado" typeahead-on-select="on_usuariobuscado_selected($item,$model,$label)" placeholder="Buscar por plaza, login carm o nombre"  type="text" typeahead-min-length="3" uib-typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)" typeahead-wait-ms="200" />
 					</div>
 				</div>
 			</div>
@@ -167,7 +167,7 @@
 
 						<td colspan="{{ !is_show_recursive_users && !procedimientos.length? 8 : 9 }}" class="form-container">
 							<form name="nuevousuario-form" id="nuevousuario-form" ng-init="usuarioseleccionado=''">
-									<input  class="form-control" ng-model="usuarioseleccionado" placeholder="Buscar por plaza, login carm o nombre"  type="text" uib-typeahead-min-length="3" uib-typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)"  />
+									<input class="form-control" ng-model="usuarioseleccionado" placeholder="Buscar por plaza, login carm o nombre" type="text" uib-typeahead-min-length="3" uib-typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)" typeahead-wait-ms="200" />
 								<!--<br/>
 								<button type="button" class="btn btn-default" ng-click="crearnuevousuario()" ng-if="!is_nuevousuario">
 								  <span class="glyphicon glyphicon-search"></span> Nuevo usuario
@@ -367,5 +367,4 @@
 			</table>
 		</div>
 	</div>
-
 </div>

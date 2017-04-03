@@ -97,7 +97,7 @@
 												<p class="help-block">La más alta autoridad responsable del tema que tiene interés y apoya la acción; puede ser considerada como el usuario final.</p>
 												<div class="col-md-12" ng-hide="accion.promotor">
 													<div class="col-md-11 col-lg-11">
-														<input class="form-control" ng-model="promotorseleccionado" placeholder="Buscar por plaza, login carm o nombre" type="text" typeahead-min-length="3" uib-typeahead="eresp as showPersona(eresp) for eresp in getPersonas($viewValue)" />
+														<input class="form-control" ng-model="promotorseleccionado" placeholder="Buscar por plaza, login carm o nombre" type="text" typeahead-min-length="3" uib-typeahead="eresp as showPersona(eresp) for eresp in getPersonas($viewValue)" typeahead-wait-ms="200" />
 														<br style="clear:both" />
 													</div>
 													<div class="col-md-1 col-lg-1">
@@ -135,7 +135,7 @@
 												<p class="help-block">La persona o unidad encargada de la acción.</p>
 												<div class="col-md-12" ng-hide="accion.responsable">
 													<div class="col-md-11 col-lg-11">
-														<input class="form-control" ng-model="responsableseleccionado" placeholder="Buscar por plaza, login carm o nombre" type="text" typeahead-min-length="3" uib-typeahead="eresp as showPersona(eresp) for eresp in getPersonas($viewValue)" />
+														<input class="form-control" ng-model="responsableseleccionado" placeholder="Buscar por plaza, login carm o nombre" type="text" typeahead-min-length="3" uib-typeahead="eresp as showPersona(eresp) for eresp in getPersonas($viewValue)" typeahead-wait-ms="200" />
 														<br style="clear:both" />
 													</div>
 													<div class="col-md-1 col-lg-1">
@@ -207,7 +207,7 @@
 													<div class="panel-body">
 														<p class="help-block">Utilice el siguiente formulario para introducir una nueva persona. No olvide pulsar el botón de añadir al final del mismo.</p>
 														<div class="col-md-11 col-lg-11">
-															<input class="form-control" ng-model="usuarioseleccionado" placeholder="Buscar por plaza, login carm o nombre" type="text" typeahead-min-length="3" uib-typeahead="eresp as showPersona(eresp) for eresp in getPersonas($viewValue)" />
+															<input class="form-control" ng-model="usuarioseleccionado" placeholder="Buscar por plaza, login carm o nombre" type="text" typeahead-min-length="3" uib-typeahead="eresp as showPersona(eresp) for eresp in getPersonas($viewValue)" typeahead-wait-ms="200" />
 														</div>
 														<div class="col-md-1 col-lg-1">
 															<span class="btn btn-default" ng-class="{'disabled': !usuarioseleccionado._id }" ng-click="addPersonaEquipo(usuarioseleccionado)">

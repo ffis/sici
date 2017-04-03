@@ -95,15 +95,27 @@
 		}, next);
 	};
 
-	function getPersonAndGenerateToken(req, res, restriction){
+	function getErrorHandler(req, res, modoconsulta){
+
+		return function(err){
+			if (modoconsulta){
+				req.eh.notFoundHelper(res);
+			} else {
+				req.eh.unauthenticatedHelper(res);
+			}
+		};
+	}
+
+	function getPersonAndGenerateToken(req, res, restriction, modoconsulta){
 		const secret = req.metaenvironment.cfg.secret,
 			cfg = req.metaenvironment.cfg,
 			personamodel = req.metaenvironment.models.persona(),
 			permisomodel = req.metaenvironment.models.permiso();
 
+
 		personamodel.find(restriction).limit(1).exec().then(function(personas){
 			if (personas.length === 0){
-				res.status(401).json({'error': 'Wrong user or password'});
+				getErrorHandler(req, res, modoconsulta)();
 
 				return;
 			}
@@ -119,14 +131,14 @@
 			} else if (typeof persona.codplaza === 'string' && persona.codplaza !== ''){
 				restriccion.codplaza = persona.codplaza;
 			} else {
-				res.status(401).json({'error': 'Wrong user or password'});
+				getErrorHandler(req, res, modoconsulta)();
 
 				return;
 			}
 
 			permisomodel.find(restriccion).lean().exec().then(function (permisos){
 				if (permisos.length === 0){
-					res.status(401).json({'error': 'Wrong user or password'});
+					getErrorHandler(req, res, modoconsulta)();
 				} else {
 					const o = JSON.parse(JSON.stringify(persona));
 					o.idspermisos = permisos.map(function(permiso){ return permiso._id; });
@@ -143,8 +155,8 @@
 					Reflect.deleteProperty(o, 'contrasenya');
 					res.json({'profile': o, 'token': token});
 				}
-			}).fail(req.eh.errorHelper(res, 401, 'Wrong user or password'));
-		}).fail(req.eh.errorHelper(res, 401, 'Wrong user or password'));
+			}).fail(getErrorHandler(req, res, modoconsulta));
+		}).fail(getErrorHandler(req, res, modoconsulta));
 	}
 
 	module.exports.authenticate = function(req, res){
@@ -156,17 +168,17 @@
 			restriccion.contrasenya = shasum.digest('hex');
 		}
 
-		getPersonAndGenerateToken(req, res, restriccion);
+		getPersonAndGenerateToken(req, res, restriccion, false);
 	};
 
 	module.exports.pretend = function(req, res){
-		if (!req.user || !req.user.permisoscalculados || !req.user.permisoscalculados.superuser) {
+		console.log(req.user, req.user.permisoscalculados, req.user.permisoscalculados.superuser)
+		if (!req.user.permisoscalculados.superuser) {
 			req.eh.unauthorizedHelper(res);
-			res.status(403).json({'error': 'Not allowed'});
-		} else if (typeof req.body.username === 'undefined'){
+		} else if (typeof req.body.username !== 'string' || req.body.username.trim() === ''){
 			req.eh.missingParameterHelper(res, 'username');
 		} else {
-			getPersonAndGenerateToken(req, res, {login: req.body.username, habilitado: true});
+			getPersonAndGenerateToken(req, res, {'login': req.body.username.trim(), 'habilitado': true}, true);
 		}
 	};
 

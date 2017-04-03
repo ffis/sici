@@ -10,23 +10,27 @@
 			$scope.campo = $scope.campos[0];
 
 			function aux(campo, titulo, anualidad){
-				return function(){
-					var sum = 0,
-						porcumplimentar = 0;
-					$scope.tmp.forEach(function(g, i){
-						sum += g.count;
-						porcumplimentar += g.porcumplimentar;
-						$scope.tmp[i].cumplimentadas = g.count - g.porcumplimentar;
+
+				return function(datoscargados){
+					const labels = datoscargados.map($scope.label);
+					const data1 = datoscargados.map(function(g){ return g.count; });
+					const data2 = datoscargados.map(function(g){ return g.porcumplimentar; });
+					const data3 = datoscargados.map(function(g){ return g.count - g.porcumplimentar; });
+					
+					const sum = data1.reduce(function(p, v){ return p + v; }, 0);
+					const porcumplimentar = data2.reduce(function(p, v){ return p + v; }, 0);
+					datoscargados.forEach(function(g){
+						g.cumplimentadas = g.count - g.porcumplimentar;
 					});
-					$scope.widthgraph = angular.element(angular.element('.graphid')[0]).width();
-					$scope.graphs.push({'data': $scope.tmp, 'sum': sum, 'porcumplimentar': porcumplimentar, 'campo': campo, 'titulo': titulo, 'anualidad': anualidad});
+					//$scope.widthgraph = angular.element(angular.element('.graphid')[0]).width();
+					$scope.graphs.push({'data': datoscargados, 'data1': data1, 'data2': data2, 'data3': data3, 'labels': labels, 'sum': sum, 'porcumplimentar': porcumplimentar, 'campo': campo, 'titulo': titulo, 'anualidad': anualidad});
 				};
 			}
 
 			$scope.newGraph = function(){
-				var campo = $scope.campo;
-				$scope.tmp = Aggregate.query({'anualidad': $rootScope.anualidad, 'campo': campo}, aux(campo, '', $rootScope.anualidad));
-				var index = $scope.campos.indexOf($scope.campo);
+				const campo = $scope.campo;
+				Aggregate.query({'anualidad': $rootScope.getIntAnualidad(), 'campo': campo}, aux(campo, '', $rootScope.getIntAnualidad()));
+				const index = $scope.campos.indexOf($scope.campo);
 				if (index < $scope.campos.length - 1){
 					$scope.campo = $scope.campos[index + 1];
 				}
@@ -41,28 +45,25 @@
 					campo = $scope.campo,
 					restriccion = graph.campo + ':' + row._id;
 
-				$scope.tmp = Aggregate.query({'anualidad': graph.anualidad, 'campo': $scope.campo, 'restriccion': restriccion}, aux(campo, titulo, graph.anualidad));
+				Aggregate.query({'anualidad': graph.anualidad, 'campo': $scope.campo, 'restriccion': restriccion}, aux(campo, titulo, graph.anualidad));
 			};
 
 			$scope.orden = 'count';
 			$scope.ascending = true;
 
-			$scope.xFunction = function () {
-				return function (d) {
-					var id = d._id ? d._id : '';
-					var a = id.replace('CONSEJERIA', 'CONSJ.').replace('ORGANISMO', 'ORG.');
-					if (a.length > 20){
-						a = a.substring(0, 18) + '…';
-					}
+			$scope.label = function (d) {
+				const id = d._id ? d._id.replace('CONSEJERIA', 'CONSJ.').replace('ORGANISMO', 'ORG.') : '';
 
-					return a;
-				};
+				return (id.length > 20) ? id.substring(0, 18) + '…' : id;
 			};
-			$scope.yFunction = function () { return function (d) { return d.count; }; };
-			$scope.yFunction2 = function () { return function (d) { return d.porcumplimentar; }; };
-			$scope.yFunction3 = function () { return function (d) { return d.cumplimentadas; }; };
-			$scope.toolTipContentFunction = function(){ return function(key, x, y) { return '<p>' + y.point._id + ' : ' + parseInt(x, 10) + '</p>'; }; };
-			$scope.widthgraph = 0;
+
+
+			$scope.options = {
+				'legend': {
+					'display': true
+				}
+			};
+
 		}
 	]);
 })(angular);

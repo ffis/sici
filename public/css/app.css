@@ -6,7 +6,15 @@
 @media screen{
     body {
        padding-top:70px;
+       background-color:#eee;
     }
+
+}
+
+
+@media screen and (min-width: 1200px) {
+	.minheight300 { min-height: 210px }
+	.minheight300 ul { padding-left: 10px; }
 }
 
 body {
@@ -1520,8 +1528,6 @@ organismos .list-group{
 }
 
 .panel {
-	color: #666666;
-	background-color: #ffffff;
 	border: none;
 	border-radius: 5px;
 	position: relative;
@@ -1533,28 +1539,46 @@ organismos .list-group{
 	padding: 15px 22px;
 	height: 100%;
 }
-.panel-danger>.panel-heading {
-	background-color: #ed7878;
-	border-color: #ed7878;
-}
+
 .panel>.panel-heading {
 	color: #666666;
 	border-bottom-left-radius: 0;
 	border-bottom-right-radius: 0;
 }
-.panel-danger > .panel-heading {
-	color: #a94442;
-	background-color: #f2dede;
-	border-color: #ebccd1;
-}
+
 .panel-heading, .panel-footer {
 	box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.12);
-	height: 44px;
-	font-size: 16px;
-	padding: 14px 22px;
 }
 .panel-heading {
 	border-bottom: 1px solid transparent;
 	border-top-left-radius: 3px;
 	border-top-right-radius: 3px;
+}
+
+
+#loading-bar .bar {
+  background: #d22;
+}
+
+#loading-bar .peg {
+  -moz-box-shadow: #d22 1px 0 6px 1px;
+  -ms-box-shadow: #d22 1px 0 6px 1px;
+  -webkit-box-shadow: #d22 1px 0 6px 1px;
+  box-shadow: #d22 1px 0 6px 1px;
+}
+
+#loading-bar-spinner .spinner-icon {
+  border-top-color:  #d22;
+  border-left-color: #d22;
+}
+
+#loading-bar-spinner {
+  right: 10px !important;
+  left: auto !important;
+}
+
+
+organismos .panel-body {
+	max-height: calc(100vh - 175px);
+    overflow: auto;
 }

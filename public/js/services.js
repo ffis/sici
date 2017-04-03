@@ -181,7 +181,14 @@
 					this.sync();
 				}
 				return configuracion.condensed;
-			}
+			},
+			'itemsPerPage': function(value){
+				if (typeof value !== 'undefined'){
+					configuracion.itemsPerPage = value;
+					this.sync();
+				}
+				return configuracion.itemsPerPage;
+			},
 		};
 	}])
 	.value('version', '2.0');

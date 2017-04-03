@@ -1,5 +1,5 @@
 <div class="row hidden-print">
-	<div class="col-lg-12">
+	<div class="col-md-12">
 		<h3>Informes</h3>
 		<div class="{{clasefuncionalidades}}" ng-repeat="funcionalidad in funcionalidades">
 			<div class="panel panel-danger">
@@ -17,7 +17,7 @@
 			</div>
 		</div>
 		<div class="clear"></div>
-		<p ng-If="actualizando > 0">Generando informe...</p>
+		<p ng-if="actualizando > 0">Generando informe...</p>
 		<div class="alert {{respuesta.clase}}" role="alert" ng-repeat="respuesta in respuestas">{{respuesta.mensaje}}</div>
 	</div>
 </div>

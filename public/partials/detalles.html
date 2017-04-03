@@ -69,7 +69,7 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
 							</a>
 						</div>
 						<div ng-if="mostrarAutocompletePadre">
-							<input  placeholder="Introduce cualquier parte del c&oacute;digo o denominaci&oacute;n" class="col-lg-9 col-xs-12" type="text" ng-model="padre" typeahead-on-select="updatePadre($item)" name="padre" uib-typeahead="showProcedimiento(procpadre) for procpadre in procedimientosPadre | codigoDenominacion:$viewValue | limitTo:10" typeahead-editable="false" />
+							<input  placeholder="Introduce cualquier parte del c&oacute;digo o denominaci&oacute;n" class="col-lg-9 col-xs-12" type="text" ng-model="padre" typeahead-on-select="updatePadre($item)" name="padre" uib-typeahead="showProcedimiento(procpadre) for procpadre in procedimientosPadre | codigoDenominacion:$viewValue | limitTo:10" typeahead-editable="false" typeahead-wait-ms="200" />
 							<a style="text-decoration: none;" ng-if="$root.permisoscalculados.superuser" href="" ng-click="ocultarEditarPadre()">&nbsp;
 								<span class="glyphicon glyphicon-remove"></span>
 							</a>
@@ -101,7 +101,7 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
 			</div>
 
 			<div class="col-md-6 col-lg-6">
-				<div class="panel panel-danger" ng-if="$root.permisoscalculados.superuser" style="margin-bottom: 2em">
+				<div class="panel panel-danger" style="margin-bottom: 2em">
 					<div class="panel-heading">
 						<h3 class="panel-title">Operaciones</h3>
 					</div>
@@ -110,26 +110,26 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
 							<button type="button" class="btn btn-default" aria-label="Left Align" ng-click="descargarExcel()">
 								<span class="glyphicon glyphicon-stats" aria-hidden="true"></span> Exportar a excel
 							</button>
-							<button class="btn btn-default" ng-click="setShowArbol()">
+							<button class="btn btn-default" ng-click="setShowArbol()" ng-if="$root.permisoscalculados.superuser">
 								<i class="fa fa-arrows" aria-hidden="true"></i> Mover
 							</button>
-							<button ng-if="!procedimientoSeleccionado.oculto" class="btn btn-warning" aria-label="Ocultar" ng-click="ocultarProcedimiento(procedimientoSeleccionado)">
+							<button ng-if="$root.permisoscalculados.superuser && !procedimientoSeleccionado.oculto" class="btn btn-warning" aria-label="Ocultar" ng-click="ocultarProcedimiento(procedimientoSeleccionado)">
 								<span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span> Ocultar
 							</button>
-							<button ng-if="procedimientoSeleccionado.oculto" class="btn btn-default" aria-label="Anular Oculto" ng-click="ocultarProcedimiento(procedimientoSeleccionado)">
+							<button ng-if="$root.permisoscalculados.superuser && procedimientoSeleccionado.oculto" class="btn btn-default" aria-label="Anular Oculto" ng-click="ocultarProcedimiento(procedimientoSeleccionado)">
 								<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Anular Oculto
 							</button>
-							<button ng-if="!procedimientoSeleccionado.eliminado" class="btn btn-danger" aria-label="Resetear procedimiento" ng-disabled="tieneHijos > 0 || procedimientoSeleccionado.oculto"  ng-click="resetData()">
+							<button ng-if="$root.permisoscalculados.superuser && !procedimientoSeleccionado.eliminado" class="btn btn-danger" aria-label="Resetear procedimiento" ng-disabled="tieneHijos > 0 || procedimientoSeleccionado.oculto"  ng-click="resetData()">
 								<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Resetear
 							</button>
-							<button ng-if="!procedimientoSeleccionado.eliminado" class="btn btn-danger" aria-label="Eliminar procedimiento" ng-disabled="tieneHijos > 0 || procedimientoSeleccionado.oculto"  ng-click="eliminarProcedimiento(procedimientoSeleccionado)">
+							<button ng-if="$root.permisoscalculados.superuser && !procedimientoSeleccionado.eliminado" class="btn btn-danger" aria-label="Eliminar procedimiento" ng-disabled="tieneHijos > 0 || procedimientoSeleccionado.oculto"  ng-click="eliminarProcedimiento(procedimientoSeleccionado)">
 								<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Eliminar
 							</button>
 						</div>
-						<span ng-if="tieneHijos > 0 && !procedimientoSeleccionado.oculto"><br/>
+						<span ng-if="$root.permisoscalculados.superuser && tieneHijos > 0 && !procedimientoSeleccionado.oculto"><br/>
 							No puede eliminar el procedimiento porque tiene hijos. Elimine los hijos antes de eliminar este procedimiento.
 						</span>
-						<div ng-show="respuesta" class="alert" ng-class="respuesta.clase" role="alert">{{respuesta.mensaje}}</div>
+						<div ng-show="$root.permisoscalculados.superuser && respuesta" class="alert" ng-class="respuesta.clase" role="alert">{{respuesta.mensaje}}</div>
 					</div>
 				</div>
 
