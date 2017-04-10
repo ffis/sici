@@ -33,6 +33,8 @@
 		return $resource('/api/v1/public/jerarquia/:id', {}, standardCrud);
 	}]).factory('JerarquiaAncestros', ['$resource', function($resource) {
 		return $resource('/api/v1/public/jerarquiaancestros/:idjerarquia', {}, standardQuery);
+	}]).factory('jerarquiaDescendientes', ['$resource', function($resource) {
+		return $resource('/api/v1/public/jerarquiadescendientes/:idjerarquia', {}, standardQuery);
 	}]).factory('PermisosCalculados', ['$resource', function($resource) {
 		return $resource('/api/v1/public/permisoscalculados', {}, {'query': {'method': 'GET', isArray: false}});
 	}]).factory('PorcentajeTramitesResultos', ['$resource', function($resource) {
@@ -68,7 +70,7 @@
 	}]).factory('PeriodosStats', ['$resource', function($resource) {
 		return $resource('/api/v1/public/mapReducePeriodos');
 	}]).factory('PlanMejoraList', ['$resource', function($resource) {
-		return $resource('/api/v2/public/planmejora/list/:idjerarquia', {}, standardQuery);
+		return $resource('/api/v2/public/planmejora/list/:idjerarquia/:recursivo', {}, standardQuery);
 	}]).factory('PlanMejora', ['$resource', function($resource) {
 		return $resource('/api/v2/public/planmejora/:id', {'id': '@_id'}, standardCrud);
 	}]).factory('AccionMejora', ['$resource', function($resource) {
@@ -119,6 +121,8 @@
 		return $resource('/api/v2/public/indicador/:id', {'id': '@_id'}, standardCrud);
 	}]).factory('ImportarObjetivo', ['$resource', function($resource) {
 		return $resource('/api/v2/public/importarobjetivo/:idjerarquia', {'idjerarquia': '@idjerarquia'}, standardQuery);
+	}]).factory('StatsCartas', ['$resource', function($resource) {
+		return $resource('/api/v2/public/statsCartas', {}, standardQuery);
 	}]).factory('InformeCarta', ['$resource', function($resource) {
 		return $resource('/api/v2/public/informeCarta/:id', {'id': '@_id', 'idjerarquia': '@idjerarquia'}, standardQuery);
 	}]).factory('EntidadObjeto', ['$resource', function($resource) {
@@ -144,6 +148,23 @@
 		{'name': 'Suma', 'value': 'sum'},
 		{'name': 'Máximo', 'value': 'max'},
 		{'name': 'Mínimo', 'value': 'min'}
+	]).constant('COLORES_OBJETIVOS', [
+		{'name': 'Peligro', 'value': '#C50200'},
+		{'name': 'Aviso', 'value': '#FF7700'},
+		{'name': 'Normal', 'value': '#FDC702'},
+		{'name': 'Éxito', 'value': '#8DCA2F'},
+		{'name': 'Superado éxito', 'value': '#C6E497'}
+	]).constant('UNIDADESINDICADOR', [
+		{'nombre': 'Segundos', 'tipo': 'Tiempo'},
+		{'nombre': 'Minutos', 'tipo': 'Tiempo'},
+		{'nombre': 'Horas', 'tipo': 'Tiempo'},
+		{'nombre': 'Días', 'tipo': 'Tiempo'},
+		{'nombre': 'Días naturales', 'tipo': 'Tiempo'},
+		{'nombre': 'Días laborales', 'tipo': 'Tiempo'},
+		{'nombre': 'Meses', 'tipo': 'Tiempo'},
+		{'nombre': 'Años', 'tipo': 'Tiempo'},
+		{'nombre': 'Documentos', 'tipo': 'Expedientes'},
+		{'nombre': 'Miles de documentos', 'tipo': 'Expedientes'}
 	]).factory('Util', function() {
 		return {
 			subirOrden: function(array, pos) {

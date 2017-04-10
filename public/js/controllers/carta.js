@@ -1,8 +1,8 @@
 (function(angular, $, Math){
 	'use strict';
 	angular.module('sici').controller('CartaCtrl',
-			['$q', '$rootScope', '$scope', '$location', '$window', '$routeParams', '$timeout', '$log', '$http', 'Arbol', 'Objetivo', 'EntidadObjeto', 'PastelColor', 'ImportarObjetivo', 'Indicador', 'ProcedimientoList', 'Jerarquia',
-			function ($q, $rootScope, $scope, $location, $window, $routeParams, $timeout, $log, $http, Arbol, Objetivo, EntidadObjeto, PastelColor, ImportarObjetivo, Indicador, ProcedimientoList, Jerarquia) {
+			['$q', '$rootScope', '$scope', '$location', '$window', '$routeParams', '$log', '$http', 'Arbol', 'Objetivo', 'EntidadObjeto', 'PastelColor', 'Indicador', 'ProcedimientoList', 'Jerarquia',
+			function ($q, $rootScope, $scope, $location, $window, $routeParams, $log, $http, Arbol, Objetivo, EntidadObjeto, PastelColor, Indicador, ProcedimientoList, Jerarquia) {
 				$rootScope.nav = 'carta';
 				$scope.idjerarquia = ($routeParams.idjerarquia) ? parseInt($routeParams.idjerarquia, 10) : false;
 				$scope.arbol = Arbol.query(function(){ $scope.setJerarquiaById($scope.idjerarquia); });
@@ -177,11 +177,6 @@
 						});
 
 						$scope.seleccionado = selection;
-
-						$timeout(function(){
-							$('body').animate({'scrollTop': $('#detallesjerarquia').offset().top}, 'slow');
-							$scope.oculto = true;
-						}, 20);
 					}
 				};
 

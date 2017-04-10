@@ -1,6 +1,6 @@
 
 <div class="table-responsive" ng-class="{'col-lg-6': detalles, 'col-md-12': detalles}">
-	<table class="table table-striped table-bordered table-condensed table-hover">
+	<table class="table table-striped table-bordered table-hover" ng-class="{'table-condensed': $root.condensed}">
 		<thead>
 			<tr>
 				<th ng-class="{danger:orderby=='usr' }" ng-click="reverse=!reverse;orderby='usr'">Usuario</th>
@@ -18,14 +18,14 @@
 				</td>
 			</tr>
 			<tr>
-				<td><input ng-model="usr" placeholder="Usuario" ng-blur="reload()" /></td>
-				<td><input ng-model="fecha" placeholder="Fecha" ng-blur="reload()"/></td>
-				<td><input ng-model="url" placeholder="URL" ng-blur="reload()" /></td>
+				<td><input class="form-control" ng-model="usr" placeholder="Usuario" ng-blur="reload()" /></td>
+				<td><input class="form-control" ng-model="fecha" placeholder="Fecha" ng-blur="reload()"/></td>
+				<td><input class="form-control" ng-model="url" placeholder="URL" ng-blur="reload()" /></td>
 				<td colspan="2" class="text-center">
-					<span class="cursor glyphicon glyphicon-fast-backward" ng-hide="start === 0" ng-click="firstPage()"></span>
-					<span class="cursor glyphicon glyphicon-arrow-left" ng-hide="start === 0" ng-click="previousPage()"></span>
-					<input ng-model="limit" placeholder="Número de registros" ng-blur="reload()" />
-					<span class="cursor glyphicon glyphicon-arrow-right" ng-hide="registros.length < limit" ng-click="nextPage()"></span>
+					<button class="btn btn-default pull-left" ng-hide="start === 0" ng-click="firstPage()"><span class="glyphicon glyphicon-fast-backward"></span></button>
+					<button class="btn btn-default pull-left" ng-hide="start === 0" ng-click="previousPage()"><span class="glyphicon glyphicon-arrow-left"></span></button>
+					<button class="btn btn-default pull-right" ng-hide="registros.length < limit" ng-click="nextPage()"><span class="glyphicon glyphicon-arrow-right"></span></button>
+					<input class="form-control" style="width: auto" ng-model="limit" placeholder="Número de registros" ng-blur="reload()" />
 				</td>
 		</tfoot>
 		<tbody>

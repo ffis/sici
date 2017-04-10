@@ -105,30 +105,42 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
 					<div class="panel-heading">
 						<h3 class="panel-title">Operaciones</h3>
 					</div>
-					<div class="panel-body text-center">
-						<div class="btn-group">
-							<button type="button" class="btn btn-default" aria-label="Left Align" ng-click="descargarExcel()">
+					<div class="panel-body">
+
+						<div class="btn-group" ng-if="$root.permisoscalculados.superuser">
+							<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								Modificar <span class="caret"></span>
+							</button>
+							<button type="button" class="btn btn-default" aria-label="Exportar excel" ng-click="descargarExcel()">
 								<span class="glyphicon glyphicon-stats" aria-hidden="true"></span> Exportar a excel
 							</button>
-							<button class="btn btn-default" ng-click="setShowArbol()" ng-if="$root.permisoscalculados.superuser">
-								<i class="fa fa-arrows" aria-hidden="true"></i> Mover
-							</button>
-							<button ng-if="$root.permisoscalculados.superuser && !procedimientoSeleccionado.oculto" class="btn btn-warning" aria-label="Ocultar" ng-click="ocultarProcedimiento(procedimientoSeleccionado)">
-								<span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span> Ocultar
-							</button>
-							<button ng-if="$root.permisoscalculados.superuser && procedimientoSeleccionado.oculto" class="btn btn-default" aria-label="Anular Oculto" ng-click="ocultarProcedimiento(procedimientoSeleccionado)">
-								<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Anular Oculto
-							</button>
-							<button ng-if="$root.permisoscalculados.superuser && !procedimientoSeleccionado.eliminado" class="btn btn-danger" aria-label="Resetear procedimiento" ng-disabled="tieneHijos > 0 || procedimientoSeleccionado.oculto"  ng-click="resetData()">
-								<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Resetear
-							</button>
-							<button ng-if="$root.permisoscalculados.superuser && !procedimientoSeleccionado.eliminado" class="btn btn-danger" aria-label="Eliminar procedimiento" ng-disabled="tieneHijos > 0 || procedimientoSeleccionado.oculto"  ng-click="eliminarProcedimiento(procedimientoSeleccionado)">
-								<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Eliminar
-							</button>
+					
+							<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+								<li>
+									<a href="#" ng-click="setShowArbol()"><i class="fa fa-arrows" aria-hidden="true"></i> Mover</a>
+								</li>
+								<li ng-if="!procedimientoSeleccionado.oculto">
+									<a href="#" ng-click="ocultarProcedimiento(procedimientoSeleccionado)"><span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span> Ocultar</a></li>
+								<li ng-if="procedimientoSeleccionado.oculto">
+									<a href="#" ng-click="ocultarProcedimiento(procedimientoSeleccionado)"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Anular Oculto</a></li>
+								</li>
+								<li role="separator" class="divider"></li>
+								<li ng-if="!procedimientoSeleccionado.eliminado">
+									<a href="#" aria-label="Resetear procedimiento" ng-disabled="tieneHijos > 0 || procedimientoSeleccionado.oculto" ng-click="resetData()" style="color: #8a6d3b !important;">
+										<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Resetear
+									</a>
+								</li>
+								<li ng-if="!procedimientoSeleccionado.eliminado">
+									<a href="#" aria-label="Eliminar procedimiento" ng-disabled="tieneHijos > 0 || procedimientoSeleccionado.oculto" ng-click="eliminarProcedimiento(procedimientoSeleccionado)" style="color: #a94442 !important;">
+										<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Eliminar
+									</a>
+								</li>
+							</ul>
 						</div>
-						<span ng-if="$root.permisoscalculados.superuser && tieneHijos > 0 && !procedimientoSeleccionado.oculto"><br/>
+					
+						<p ng-if="$root.permisoscalculados.superuser && tieneHijos > 0 && !procedimientoSeleccionado.oculto">
 							No puede eliminar el procedimiento porque tiene hijos. Elimine los hijos antes de eliminar este procedimiento.
-						</span>
+						</p>
 						<div ng-show="$root.permisoscalculados.superuser && respuesta" class="alert" ng-class="respuesta.clase" role="alert">{{respuesta.mensaje}}</div>
 					</div>
 				</div>

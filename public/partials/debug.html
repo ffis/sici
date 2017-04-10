@@ -1,87 +1,87 @@
 	<div class="table-responsive" >
-        <table class="table table-striped table-bordered table-condensed table-hover">
-            <thead>
-                <tr>
-                    <th style="width:3em" class="cursor center" ng-click="reverse=!reverse;orderby='id'" scope="col">#
-                        <i class="fa" ng-class="{'fa-sort':orderby!='id', 'fa-sort-asc':orderby=='id' && reverse, 'fa-sort-desc':orderby=='id' && !reverse }"></i></th>
-                    <th style="width:4em" class="cursor center" ng-click="reverse=!reverse;orderby='type'" scope="col">Tipo
-                        <i class="fa" ng-class="{'fa-sort':orderby!='type', 'fa-sort-asc':orderby=='time' && reverse, 'fa-sort-desc':orderby=='type' && !reverse }"></i></th>
-                    <th style="width:8em" colspan="2" class="cursor center" ng-click="reverse=!reverse;orderby='time'" scope="col">Marca de tiempo
-                        <i class="fa" ng-class="{'fa-sort':orderby!='time', 'fa-sort-asc':orderby=='time' && reverse, 'fa-sort-desc':orderby=='time' && !reverse }"></i></th>
-					<th class="cursor center" ng-click="reverse=!reverse;orderby='file'" scope="col">Fichero
-                        <i class="fa" ng-class="{'fa-sort':orderby!='file', 'fa-sort-asc':orderby=='file' && reverse, 'fa-sort-desc':orderby=='file' && !reverse }"></i></th>
-					<th class="cursor center" ng-click="reverse=!reverse;orderby='line'" scope="col">Línea
-                        <i class="fa" ng-class="{'fa-sort':orderby!='line', 'fa-sort-asc':orderby=='line' && reverse, 'fa-sort-desc':orderby=='line' && !reverse }"></i></th>
-					<th class="cursor center" ng-click="reverse=!reverse;orderby='functionname'" scope="col">Función
-                        <i class="fa" ng-class="{'fa-sort':orderby!='functionname', 'fa-sort-asc':orderby=='functionname' && reverse, 'fa-sort-desc':orderby=='functionname' && !reverse }"></i></th>
-                    <th class="cursor center" ng-click="reverse=!reverse;orderby='message'" scope="col">Mensaje
-                        <i class="fa" ng-class="{'fa-sort':orderby!='time', 'fa-sort-asc':orderby=='time' && reverse, 'fa-sort-desc':orderby=='message' && !reverse }"></i></th>
-                </tr>
-            </thead>
-            <tfoot>
-                <tr>
-                    <td class="center"><input type="text" style="width:90%" ng-model="filtro.id" /></td>
-                    <td class="center"><input type="text" style="width:90%" ng-model="filtro.type" /></td>
-                    <td class="center"><input type="text" style="width:90%" ng-model="filtro.date" /></td>
-                    <td class="center"><input type="text" style="width:90%" ng-model="filtro.time" /></td>
-                    <td class="center"><input type="text" style="width:90%" ng-model="filtro.file" /></td>
-                    <td class="center"><input type="text" style="width:90%" ng-model="filtro.line" /></td>
-                    <td class="center"><input type="text" style="width:90%" ng-model="filtro.functionname" /></td>
-                    <td class="center"><input type="text" style="width:90%" ng-model="filtro.message" /></td>
-                </tr>
-                <tr>
-                    <td colspan="7" class="center" style="text-align:center">
-                        {{(mensajesdebug | filter:filtro ).length }} Mensajes
-                    </td>
-                    <td class="center">
-                        <select name="itemsPerPage" ng-model="itemsPerPage">
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="15">15</option>
-                            <option value="25">25</option>
-                            <option value="30">30</option>
-                            <option value="35">35</option>
-                            <option value="40">40</option>
-                            <option value="45">45</option>
-                            <option value="50">50</option>
-                        </select>
-                    </td>
-                </tr>
-            </tfoot>
-            <tbody>
-                <tr ng-class="mensaje.clase" ng-repeat="mensaje in mensajesdebug | filter:filtro  | orderBy : orderby : reverse | pagination : currentPage*itemsPerPage | limitTo: itemsPerPage track by $index ">
-                    <th scope="row" style="text-align:center">{{mensaje.id}}</th>
-                    <td class="center" style="text-align:center">{{mensaje.type}}</td>
-                    <td class="center" style="text-align:center">{{mensaje.date}}</td>
-                    <td class="center" style="text-align:center">{{mensaje.time}}</td>
-                    <td class="center" style="text-align:center">{{mensaje.file}}</td>
-                    <td class="center" style="text-align:center">{{mensaje.line}}</td>
-                    <td class="center" style="text-align:center">{{mensaje.functionname}}</td>
-                    <td class="center">{{mensaje.message}}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+		<table class="table table-striped table-bordered table-condensed table-hover">
+			<thead>
+				<tr>
+					<th style="width:3em" class="cursor" ng-click="reverse=!reverse;orderby='id'" scope="col">#
+						<i class="fa" ng-class="{'fa-sort':orderby!='id', 'fa-sort-asc':orderby=='id' && reverse, 'fa-sort-desc':orderby=='id' && !reverse }"></i></th>
+					<th style="width:4em" class="cursor" ng-click="reverse=!reverse;orderby='type'" scope="col">Tipo
+						<i class="fa" ng-class="{'fa-sort':orderby!='type', 'fa-sort-asc':orderby=='time' && reverse, 'fa-sort-desc':orderby=='type' && !reverse }"></i></th>
+					<th style="width:8em" colspan="2" class="cursor" ng-click="reverse=!reverse;orderby='time'" scope="col">Marca de tiempo
+						<i class="fa" ng-class="{'fa-sort':orderby!='time', 'fa-sort-asc':orderby=='time' && reverse, 'fa-sort-desc':orderby=='time' && !reverse }"></i></th>
+					<th class="cursor" ng-click="reverse=!reverse;orderby='file'" scope="col">Fichero
+						<i class="fa" ng-class="{'fa-sort':orderby!='file', 'fa-sort-asc':orderby=='file' && reverse, 'fa-sort-desc':orderby=='file' && !reverse }"></i></th>
+					<th class="cursor" ng-click="reverse=!reverse;orderby='line'" scope="col">Línea
+						<i class="fa" ng-class="{'fa-sort':orderby!='line', 'fa-sort-asc':orderby=='line' && reverse, 'fa-sort-desc':orderby=='line' && !reverse }"></i></th>
+					<th class="cursor" ng-click="reverse=!reverse;orderby='functionname'" scope="col">Función
+						<i class="fa" ng-class="{'fa-sort':orderby!='functionname', 'fa-sort-asc':orderby=='functionname' && reverse, 'fa-sort-desc':orderby=='functionname' && !reverse }"></i></th>
+					<th class="cursor" ng-click="reverse=!reverse;orderby='message'" scope="col">Mensaje
+						<i class="fa" ng-class="{'fa-sort':orderby!='time', 'fa-sort-asc':orderby=='time' && reverse, 'fa-sort-desc':orderby=='message' && !reverse }"></i></th>
+				</tr>
+			</thead>
+			<tfoot>
+				<tr>
+					<td><input type="text" class="form-control" ng-model="filtro.id" /></td>
+					<td><input type="text" class="form-control" ng-model="filtro.type" /></td>
+					<td><input type="text" class="form-control" ng-model="filtro.date" /></td>
+					<td><input type="text" class="form-control" ng-model="filtro.time" /></td>
+					<td><input type="text" class="form-control" ng-model="filtro.file" /></td>
+					<td><input type="text" class="form-control" ng-model="filtro.line" /></td>
+					<td><input type="text" class="form-control" ng-model="filtro.functionname" /></td>
+					<td><input type="text" class="form-control" ng-model="filtro.message" /></td>
+				</tr>
+				<tr>
+					<td colspan="7" class="center text-center">
+						{{(mensajesdebug | filter:filtro ).length }} Mensajes
+					</td>
+					<td>
+						<select name="itemsPerPage" ng-model="itemsPerPage">
+							<option value="5">5</option>
+							<option value="10">10</option>
+							<option value="15">15</option>
+							<option value="25">25</option>
+							<option value="30">30</option>
+							<option value="35">35</option>
+							<option value="40">40</option>
+							<option value="45">45</option>
+							<option value="50">50</option>
+						</select>
+					</td>
+				</tr>
+			</tfoot>
+			<tbody>
+				<tr ng-class="mensaje.clase" ng-repeat="mensaje in mensajesdebug | filter:filtro  | orderBy : orderby : reverse | pagination : currentPage * itemsPerPage | limitTo: itemsPerPage track by $index ">
+					<th scope="row" class="text-center">{{mensaje.id}}</th>
+					<td class="text-center">{{mensaje.type}}</td>
+					<td class="text-center">{{mensaje.date}}</td>
+					<td class="text-center">{{mensaje.time}}</td>
+					<td class="text-center">{{mensaje.file}}</td>
+					<td class="text-center">{{mensaje.line}}</td>
+					<td class="text-center">{{mensaje.functionname}}</td>
+					<td>{{mensaje.message}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 
 
-    <div class="col-md-12 center" ng-If="pageCount()>0">
-        <div class="pagination-div">
-         <ul class="pagination">
-         <li ng-class="DisablePrevPage()">
-              <span  ng-click="setPage(0)" class="cursor">Primera página</span>
-          </li>
-          <li ng-class="DisablePrevPage()">
-              <span  ng-click="prevPage()" class="cursor">Anteriores</span>
-          </li>
-          <li ng-repeat="n in range()" ng-class="{active: n == currentPage}" ng-click="setPage(n)" class="cursor">
-              <span >{{n+1}}</span>
-          </li>
-          <li ng-class="DisableNextPage()" >
-              <span ng-click="nextPage()" class="cursor">Siguientes</span>
-          </li>
-          <li ng-class="DisableNextPage()" >
-              <span ng-click="setPage(pageCount())" class="cursor">Última página</span>
-          </li>
-         </ul>
-        </div>
-    </div>
+	<div class="col-md-12 text-center" ng-if="pageCount() > 0">
+		<div class="pagination-div">
+			<ul class="pagination">
+				<li ng-class="DisablePrevPage()">
+					<span ng-click="setPage(0)" class="cursor">Primera página</span>
+				</li>
+				<li ng-class="DisablePrevPage()">
+					<span ng-click="prevPage()" class="cursor">Anteriores</span>
+				</li>
+				<li ng-repeat="n in range()" ng-class="{'active': n == currentPage}" ng-click="setPage(n)" class="cursor">
+					<span>{{n+1}}</span>
+				</li>
+				<li ng-class="DisableNextPage()" >
+					<span ng-click="nextPage()" class="cursor">Siguientes</span>
+				</li>
+				<li ng-class="DisableNextPage()" >
+					<span ng-click="setPage(pageCount())" class="cursor">Última página</span>
+				</li>
+			</ul>
+		</div>
+	</div>

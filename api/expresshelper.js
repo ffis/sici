@@ -50,7 +50,7 @@
 		
 		return function(data){
 			if (!data && shouldSend400onEmpty){
-				res.status(400).json({'error': 'An error has occurred', 'details': 'Not found'});
+				res.status(404).json({'error': 'An error has occurred', 'details': 'Not found'});
 			} else {
 				res.json(data);
 			}
@@ -58,7 +58,8 @@
 	};
 
 	module.exports.notFoundHelper = function(res){
-		res.status(400).json({'error': 'An error has occurred', 'details': 'Not found'});
+		res.status(404).json({'error': 'An error has occurred', 'details': 'Not found'});
+		logger.trace(err);
 	};
 
 	module.exports.unauthenticatedHelper = function(res, details){

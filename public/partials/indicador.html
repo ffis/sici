@@ -9,7 +9,7 @@
 					<tr>
 						<th style="width: 10%">ID</th>
 						<th>Nombre</th>
-						<th style="width: 10%">REST URL</th>
+						<th style="width: 10%">Unidad</th>
 						<th>Frecuencia</th>
 						<th>Acumulador</th>
 						<th>Tipo</th>
@@ -40,7 +40,8 @@
 							<input ng-model="indicador.nombre" class="form-control small" />
 						</td>
 						<td>
-							<input ng-model="indicador.resturl" class="form-control" />
+							<select ng-model="indicador.unidad" ng-options="unidad.nombre as unidad.nombre group by unidad.tipo for unidad in unidades" class="form-control"></select>
+							{{indicador.unidad}}
 						</td>
 						<td>
 							<select ng-model="indicador.frecuencia" ng-options="o as o for o in frecuenciasIndicadores" class="form-control"></select>
@@ -55,7 +56,7 @@
 							<span>{{usosIndicadores[ indicador._id] }}</span>
 						</td>
 						<td class="text-center">
-							<h5><span ng-repeat="c in cumplimentaciones[ indicador._id ]" class="label" ng-class="{'label-success': c.cumplimentado, 'label-danger':!c.cumplimentado}" style="margin-right:1em">{{c.anualidad}}</span></h5>
+							<h5><span ng-repeat="c in cumplimentaciones[indicador._id]" class="label" ng-class="{'label-success': c.cumplimentado, 'label-danger':!c.cumplimentado}" style="margin-right:1em">{{c.anualidad}}</span></h5>
 						</td>
 						<td>
 							<button ng-click="actualizar(indicador)" class="btn btn-sm btn-primary" title="Actualizar">

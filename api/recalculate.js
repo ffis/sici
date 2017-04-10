@@ -44,7 +44,6 @@
 				defer.reject(err);
 			} else {
 				objetos.forEach(function(objeto){
-console.log(47, attr)
 					permiso[attr].push(String(objeto[idprop]));
 				});
 				defer.resolve();
@@ -182,7 +181,7 @@ console.log(47, attr)
 		}
 
 		// para cada uno de los arrays de permisos calculados
-		attrsjerarquia.forEach(function (attr, idx){
+		attrsjerarquia.forEach(function(attr, idx){
 			// obtenemos el array de permisos directos del mismo tipo
 			const idsjerarquia = permiso[attrsjerarquiaDirecto[idx]];
 //console.log(idsjerarquia, attrsjerarquiaDirecto[idx])
@@ -214,10 +213,10 @@ console.log(47, attr)
 
 		Q.all(recalculosPendientes).then(function(){
 			const defs2 = [];
-			attrsjerarquia.forEach(function (attr, idx) {
+			attrsjerarquia.forEach(function (attr, idx){
 				const idsjerarquia = permiso[attrsjerarquia[idx]];
-				const attrProcedimiento = permiso[attrprocedimientos[idx]];
-				const attrEo = permiso[attrentidadesobjeto[idx]];
+				const attrProcedimiento = attrprocedimientos[idx];
+				const attrEo = attrentidadesobjeto[idx];
 				if (idsjerarquia && idsjerarquia.length === 0){
 
 					return;
@@ -225,6 +224,8 @@ console.log(47, attr)
 
 				const dP = Q.defer();
 				const dE = Q.defer();
+
+				require('uniq')(idsjerarquia);
 
 				/* TODO: cachear esto */
 				procedimientomodel.find({'idjerarquia': {'$in': idsjerarquia}}, {'codigo': true}, updatePermisoAttr(dP, attrProcedimiento, 'codigo', permiso));
@@ -234,12 +235,12 @@ console.log(47, attr)
 				defs2.push(dE.promise);
 			});
 
-			return defs2;
-		}).then(function () {
-			restauraModeloPermiso(models, permiso);
+			Q.all(defs2).then(function(){
+				restauraModeloPermiso(models, permiso);
+				deferred.resolve(permiso);
+			}).fail(deferred.reject);
 
-			deferred.resolve(permiso);
-		}, deferred.reject);
+		}).fail(deferred.reject);
 
 		return deferred.promise;
 	}
@@ -285,7 +286,10 @@ console.log(47, attr)
 					}
 
 					jerarquiamodel.find({'id': {'$in': jerarquia.ancestros}}, function (id, js) {
-						const jerarquias = [idjerarquia].concat(js);
+						let jerarquias = [jerarquia];
+						if (js.length > 0){
+							jerarquias = jerarquias.concat(js);
+						}
 						jerarquias.sort(function (j1, j2) {
 							return j2.ancestros.length - j1.ancestros.length;
 						});

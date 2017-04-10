@@ -193,12 +193,12 @@
 		
 		const jerarquiamodel = models.jerarquia(),
 			defer = Q.defer(),
-			loadDescendientes = jerarquiamodel.find({ancestrodirecto: jerarquia.id}, {id: true, _id: false, nombre: true, numProcedimientos: true, nombrelargo: true}).exec();
+			loadDescendientes = jerarquiamodel.find({'ancestrodirecto': jerarquia.id}, {'id': true, '_id': false, 'nombre': true, 'numProcedimientos': true, 'nombrelargo': true}).lean().exec();
 
 		Q.all([loadDescendientes, mapReducePeriodos(models, null, permisoscalculados)]).then(function(allData) {
 			const hijos = allData[0],
 				results = allData[1];
-			hijos.unshift({nombrelargo: jerarquia.nombrelargo, nombre: jerarquia.nombre, id: jerarquia.id});
+			hijos.unshift({'nombrelargo': jerarquia.nombrelargo, 'nombre': jerarquia.nombre, 'id': jerarquia.id});
 
 			const idshijos = hijos.map(function(hijo){ return hijo.id; });
 			const periodos = {};
@@ -208,7 +208,7 @@
 					if (typeof periodos[idjerarquia] === 'undefined'){
 						periodos[idjerarquia] = {};
 					}
-					periodos[idjerarquia][parseInt(result._id.anualidad, 10)] = result.value;
+					periodos[String(idjerarquia)][String(result._id.anualidad)] = result.value;
 				}
 			});
 
@@ -222,7 +222,7 @@
 			let k = 0;
 			for (let i = 0, j = hijos.length; i < j; i += 1){
 				const h = hijos[i];
-				if (typeof periodos[idshijos[i]] === 'object'){
+				if (typeof periodos[String(idshijos[i])] === 'object'){
 					ws[XLSX.utils.encode_cell({'c': ic + k, 'r': rowhead})] = {'v': h.nombrelargo, 't': 's'};
 					k += 1;
 				}
@@ -230,11 +230,11 @@
 
 			maxColumn = ic + k;
 			ic = columnhead;
-			if (typeof periodos[jerarquia.id] === 'undefined'){
-				periodos[jerarquia.id] = {};
+			if (typeof periodos[String(jerarquia.id)] === 'undefined'){
+				periodos[String(jerarquia.id)] = {};
 			}
 
-			for (let anualidad = 2014; typeof periodos[jerarquia.id][anualidad] !== 'undefined'; anualidad += 1){
+			for (let anualidad = 2014; typeof periodos[String(jerarquia.id)][String(anualidad)] !== 'undefined'; anualidad += 1){
 				ws[XLSX.utils.encode_cell({'c': ic, 'r': ir})] = {'v': anualidad, 't': 'n'};
 				ir += 1;
 				for (let ind = 0, l2 = INDICADORES.length; ind < l2; ind += 1){
@@ -251,11 +251,12 @@
 			// PARA CADA HIJO UNA COLUMNA
 			for (let i = 0, l = idshijos.length; i < l; i += 1){
 				ir = rowhead + 1;
-				if (periodos[idshijos[i]] === 'object'){
-					for (let anualidad = 2014; typeof periodos[idshijos[i]][anualidad] !== 'undefined'; anualidad += 1){
+				if (typeof periodos[String(idshijos[i])] === 'object'){
+
+					for (let anualidad = 2014; typeof periodos[String(idshijos[i])][String(anualidad)] !== 'undefined'; anualidad += 1){
 						ir += 1;
 						for (let ind = 0, l2 = INDICADORESDATABASE.length; ind < l2; ind += 1){
-							const valor = periodos[idshijos[i]][anualidad][INDICADORESDATABASE[ind]];
+							const valor = periodos[String(idshijos[i])][String(anualidad)][INDICADORESDATABASE[ind]];
 							const ivalor = valor[0] + valor[1] + valor[2] + valor[3] + valor[4] + valor[5] + valor[6] + valor[7] + valor[8] + valor[9] + valor[10] + valor[11];
 
 							ws[XLSX.utils.encode_cell({'c': ic, 'r': ir})] = {'v': ivalor, 't': 'n'};
@@ -268,7 +269,7 @@
 
 			ws['!ref'] = XLSX.utils.encode_range({'s': {'c': 0, 'r': 0}, 'e': {'c': maxColumn, 'r': maxRow}});
 			defer.resolve(ws);
-		}, defer.reject);
+		}).fail(defer.reject);
 
 		return defer.promise;
 	}

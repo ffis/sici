@@ -9,24 +9,22 @@
 			$rootScope.setLogeado(false);
 
 			if ($rootScope.loginCarm){
-				$http.get('/SICI_SSO/Logout').success(function(){
-					$rootScope.toaster('Sesión cerrada');
-				}, function(err){
-					$rootScope.toaster('Sesión cerrada');
-				});
+				$rootScope.toaster('Sesión cerrada');
 			}
 
 			$scope.back = function(){ $window.history.back(); };
 			$scope.logout = function(){ AuthService.logout(); };
 			$scope.mensaje = '';
 		}
-	]).controller('LoginCtrl', ['$scope', '$rootScope', 'AUTH_EVENTS', 'AuthService', '$window', '$location', '$route', '$log',
-		function ($scope, $rootScope, AUTH_EVENTS, AuthService, $window, $location, $route, $log){
+	]).controller('LoginCtrl', ['$scope', '$rootScope', 'AUTH_EVENTS', 'AuthService', '$window', '$location', '$route', '$log', '$timeout',
+		function ($scope, $rootScope, AUTH_EVENTS, AuthService, $window, $location, $route, $log, $timeout){
+
+			if (AuthService.isAuthenticated()){
+				$location.path('/welcome');
+			}
 
 			$rootScope.setTitle('Inicio de sesión');
 			$scope.imagen = 'background: transparent url("/imgs/flag.svg")';
-			$scope.back = function() { $window.history.back(); };
-			$scope.logout = function(){ AuthService.logout(); };
 			$scope.credentials = {'username': '', 'password': '', 'notcarmuser': false};
 			$scope.hideForm = function(){
 				$rootScope.loginCarm = true;
@@ -44,7 +42,7 @@
 						$log.debug('Ya autenticado JWT');
 						$rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
 						$scope.mensaje = '';
-						$location.path('/');
+						$location.path('/welcome');
 						$rootScope.logeado = true;
 						$route.reload();
 					} else {
@@ -52,11 +50,13 @@
 						AuthService.login(credentials).then(function() {
 							$rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
 							$scope.mensaje = '';
-							$location.path('/');
-							$rootScope.logeado = true;
+							$location.path('/welcome');
+							$rootScope.setLogeado(true);
 							$route.reload();
 						}, function(){
-							$scope.mensaje = 'Error: Usuario o contraseña incorrectos';
+							$timeout(function(){
+								$scope.mensaje = 'Error: Usuario o contraseña incorrectos';
+							}, 100);
 							$rootScope.$broadcast(AUTH_EVENTS.loginFailed);
 							$scope.credentials.password = '';
 						});

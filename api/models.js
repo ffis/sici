@@ -258,6 +258,7 @@
 			'pendiente': Boolean,
 			'acumulador': String,
 			'tipo': String,
+			'unidad': String,
 			'valores': 'Mixed',
 			'observaciones': 'Mixed',
 			'medidas': 'Mixed',

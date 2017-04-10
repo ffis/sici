@@ -96,6 +96,7 @@
 					$rootScope.$on('$routeChangeStart', function (event, next) {
 						if (!AuthService.isAuthenticated() && next && next.templateUrl !== 'partials/login.html'){
 							$log.debug('No autenticado e intentando acceder a otra dirección. Vamos a login');
+							Session.destroy();
 							$location.path('/login');
 						} else if (AuthService.isAuthenticated() && next && next.templateUrl === 'partials/login.html') {
 							$log.debug('Autenticado e intentando acceder a login. Vamos a /');

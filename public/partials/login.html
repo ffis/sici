@@ -1,52 +1,45 @@
-<div style="position:absolute; bottom:1em;right:1em; width:20em; height:20em;{{imagen}};background-repeat:no-repeat; background-size:contain; background-position:center center"></div>
 <h3>Sistema Integrado de Control de Indicadores 2.0</h3>
-<h4></h4>
-<div class="login">
-	<div id="logincontainer" class="loginContainer">
-		<h2 style="text-align:center">Identificaci&oacute;n</h2>
+<h4>Identificaci&oacute;n</h4>
 
-		<div class="card card-container">
-			<div class="text-center profile-img-card fa-3x">
-				<i class="fa fa-user-circle fa-3x" aria-hidden="true"></i>
-			</div>
-			<p id="profile-name" class="profile-name-card"></p>
-			<form class="form-signin" ng-hide="$root.loginCarm">
-				<p>Utilice el nombre de usuario y contraseña que le han suministrado. Si tiene algún problema póngase en contacto con la Inspeccion General De Servicios, Consejeria Hacienda y Administración Publica de la Región de Murcia.</p>
-				<input autocomplete="on" type="text" name="username" ng-model="credentials.username" class="form-control" placeholder="Usuario" autofocus>
-				<input autocomplete="off" type="password" id="password" ng-model="credentials.password" class="form-control" placeholder="Contraseña">
+<div class="card card-container">
+	<div class="text-center profile-img-card fa-3x">
+		<i class="fa fa-user-circle fa-2x" aria-hidden="true"></i>
+	</div>
+	<p id="profile-name" class="profile-name-card"></p>
+	<form class="form-signin" ng-hide="$root.loginCarm">
+		<p>Utilice el nombre de usuario y contraseña que le han suministrado. Si tiene algún problema póngase en contacto con la Inspeccion General De Servicios, Consejeria Hacienda y Administración Publica de la Región de Murcia.</p>
+		<input autocomplete="on" type="text" name="username" ng-model="credentials.username" class="form-control" placeholder="Usuario" autofocus>
+		<input autocomplete="off" type="password" id="password" ng-model="credentials.password" class="form-control" placeholder="Contraseña">
 
-				<button class="btn btn-lg btn-primary btn-block btn-signin" type="submit" ng-click="login(credentials)">Entrar</button>
-				<button class="btn btn-lg btn-default btn-block" ng-click="hideForm()">Volver</button>
-			</form>
-			<div ng-show="$root.loginCarm">
-				<p>Es necesario autenticarse vía servicio de autenticación CAS de la CARM. Para ello pulse en el botón de debajo, autentíquese y será redirigido otra vez a esta página. Si hubiera algún problema de autenticación es posible que deba cerrar la sesión usando este <a target="_blank" href="https://sso.carm.es/jsso/logout">enlace</a>.</p>
-				<div class="text-center">
-					<button class="btn btn-default btn-block" ng-click="login(credentials)">Entrar mediante autenticación CARM</button>
-				</div>
-				<p style="margin-top:2em">Si no es un usuario autorizado para autenticarse a través del servicio CAS de la CARM y 
-				dispone de una contraseña para el sistema SICI puede autenticarse utilice este otro mecanismo:</p>
-				<div class="text-center">
-					<button class="btn btn-default btn-block" ng-click="$root.loginCarm=false; credentials.notcarmuser=true;">Entrar mediante usuario/contraseña</button>
-				</div>
-			</div>
-			<p style="text-align:center" ng-if="mensaje" class="alert alert-danger">{{mensaje}}</p>
+		<button class="btn btn-lg btn-primary btn-block btn-signin" type="submit" ng-click="login(credentials)">Entrar</button>
+		<button class="btn btn-lg btn-default btn-block" ng-click="hideForm()">Volver</button>
+	</form>
+	<div ng-show="$root.loginCarm">
+		<p>Es necesario autenticarse vía servicio de autenticación CAS de la CARM. Para ello pulse en el botón de debajo, autentíquese y será redirigido otra vez a esta página. Si hubiera algún problema de autenticación es posible que deba cerrar la sesión usando este <a target="_blank" href="https://sso.carm.es/jsso/logout">enlace</a>.</p>
+		<div class="text-center">
+			<button class="btn btn-default btn-block" ng-click="login(credentials)">Entrar mediante autenticación CARM</button>
 		</div>
-		
-		<!--[if lt IE 9]>
+		<p style="margin-top:2em">Si no es un usuario autorizado para autenticarse a través del servicio CAS de la CARM y 
+		dispone de una contraseña para el sistema SICI puede autenticarse utilice este otro mecanismo:</p>
+		<div class="text-center">
+			<button class="btn btn-default btn-block" ng-click="$root.loginCarm=false; credentials.notcarmuser=true;">Entrar mediante usuario/contraseña</button>
+		</div>
+	</div>
+	<p style="text-align:center" ng-if="mensaje" class="alert alert-danger">{{mensaje}}</p>
+
+	<!--[if lt IE 9]>
 		<p style="margin-top:1em;">
 			Esta usted utilizando una versión de Internet Explorer obsoleta con la que podrá introducir datos pero que no permite ciertas funcionalidades de la aplicación.
 			Actualice el navegador a la versión más reciente o instale <a target="_blank" href="https://www.google.es/chrome/browser/index.html">Chrome</a> o <a target="_blank" href="http://getfirefox.com/">Firefox</a>.
 		</p>
 		<![endif]-->
-	</div>
-
 </div>
-<div style="clear:both"></div>
-
 
 <style>
+ html{ min-height: 100%; }
  body{
-	height: 100vh;
+	min-height: 100%;
+
 	background-repeat: no-repeat;
 	background-image: linear-gradient(rgb(247, 247, 247), rgb(138, 173, 197));
  }
@@ -102,4 +95,5 @@
 	-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgb(104, 145, 162);
 	box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgb(104, 145, 162);
 }
+
 </style>

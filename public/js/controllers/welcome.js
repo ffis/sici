@@ -3,7 +3,7 @@
 	angular.module('sici').controller('WelcomeCtrl', ['$rootScope', '$scope', '$window', 'Aggregate', 'ProcedimientoCount', 'TramitesCount', 'PorcentajeTramitesResultos', 'ProcedimientosSinExpedientes',
 		function ($rootScope, $scope, $window, Aggregate, ProcedimientoCount, TramitesCount, PorcentajeTramitesResultos, ProcedimientosSinExpedientes){
 
-			$rootScope.nav = 'inicio';
+			$rootScope.nav = 'welcome';
 			$rootScope.setTitle('Portada');
 
 			$scope.indicadores = [];
@@ -24,7 +24,7 @@
 				});
 			}
 
-			var date = new Date();
+			const date = new Date();
 			$scope.mesActual = date.getMonth();
 			$scope.anyoActual = date.getFullYear();
 
@@ -32,14 +32,14 @@
 			$scope.anyoPeriodoAnterior = $scope.mesActual === 0 ? $scope.anyoActual - 1 : $scope.anyoActual;
 
 			$scope.pendientes = Aggregate.query({
-				anualidad: $scope.anyoActual,
-				campo: JSON.stringify({'codigo': '$codigo', 'denominacion': '$denominacion'}),
-				restriccion: '{"periodos.a' + $scope.anyoPeriodoAnterior + '.actualizado.' + $scope.mesPeriodoAnterior + '" : {"$lt":1}}'
+				'anualidad': $scope.getIntAnualidad(),
+				'campo': JSON.stringify({'codigo': '$codigo', 'denominacion': '$denominacion'}),
+				'restriccion': '{"periodos.a' + $scope.anyoPeriodoAnterior + '.actualizado.' + $scope.mesPeriodoAnterior + '" : {"$lt":1}}'
 			});
 			$scope.inconsistencias = Aggregate.query({
-				anualidad: $scope.anyoActual,
-				campo: JSON.stringify({'codigo': '$codigo', 'denominacion': '$denominacion'}),
-				restriccion: '{"periodos.a' + $scope.anyoActual + '.pendientes":{"$lt":0}}'
+				'anualidad': $scope.anyoActual,
+				'campo': JSON.stringify({'codigo': '$codigo', 'denominacion': '$denominacion'}),
+				'restriccion': '{"periodos.a' + $scope.anyoActual + '.pendientes":{"$lt":0}}'
 			});
 		}
 	]);

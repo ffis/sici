@@ -1,36 +1,30 @@
 (function (angular) {
 	'use strict';
 
-	angular.module('sici').controller('ObjetivoCtrl', ['$rootScope', '$scope', '$routeParams', '$window', 'Objetivo', 'Indicador', 'EntidadObjeto', 'Util', 'ProcedimientoList', '$log',
-		function ($rootScope, $scope, $routeParams, $window, Objetivo, Indicador, EntidadObjeto, Util, ProcedimientoList, $log) {
+	angular.module('sici').controller('ObjetivoCtrl', ['$rootScope', '$scope', '$routeParams', '$window', 'Objetivo', 'Indicador', 'EntidadObjeto', 'Util', 'ProcedimientoList', 'COLORES_OBJETIVOS', '$log',
+		function ($rootScope, $scope, $routeParams, $window, Objetivo, Indicador, EntidadObjeto, Util, ProcedimientoList, COLORES_OBJETIVOS, $log) {
 			$rootScope.nav = 'objetivo';
 			$rootScope.setTitle('Objetivos');
 			$scope.procedimientosById = {};
 			$scope.indicadores = [];
 
-			$scope.colores = [
-				{name: 'Peligro', value: '#C50200'},
-				{name: 'Aviso', value: '#FF7700'},
-				{name: 'Normal', value: '#FDC702'},
-				{name: 'Éxito', value: '#8DCA2F'},
-				{name: 'Superado éxito', value: '#C6E497'}
-			];
+			$scope.colores = COLORES_OBJETIVOS;
 			$scope.camposProcedimientos = ['total_resueltos', 'solicitados', 'iniciados'];
 			$scope.campoNuevoProcedimiento = $scope.camposProcedimientos[0];
-			$scope.procedimientos = ProcedimientoList.query({idjerarquia: 1, fields: ['codigo', 'denominacion'].join(' ')});
+			$scope.procedimientos = ProcedimientoList.query({'idjerarquia': 1, 'fields': ['codigo', 'denominacion'].join(' ')});
 			$scope.procedimientos.$promise.then(function(procedimientos){
-				for (var i = 0, j = procedimientos.length; i < j; i += 1){
+				for (let i = 0, j = procedimientos.length; i < j; i += 1){
 					$scope.procedimientosById[procedimientos[i]._id] = procedimientos[i];
 				}
 			});
 			$scope.idobjetivo = ($routeParams.idobjetivo) ? $routeParams.idobjetivo : false;
 			$scope.objetivo = Objetivo.get({id: $scope.idobjetivo}, function () {
 				$scope.carta = EntidadObjeto.get({id: $scope.objetivo.carta}, function () {
-					$scope.indicadoresNodo = Indicador.query({idjerarquia: $scope.carta.idjerarquia});
+					$scope.indicadoresNodo = Indicador.query({'idjerarquia': $scope.carta.idjerarquia});
 				});
-				for (var k = 0, l = $scope.objetivo.formulas.length; k < l; k += 1) {
-					for (var i = 0, j = $scope.objetivo.formulas[k].indicadores.length; i < j; i += 1) {
-						var indicador = $scope.objetivo.formulas[k].indicadores[i];
+				for (let k = 0, l = $scope.objetivo.formulas.length; k < l; k += 1) {
+					for (let i = 0, j = $scope.objetivo.formulas[k].indicadores.length; i < j; i += 1) {
+						let indicador = $scope.objetivo.formulas[k].indicadores[i];
 						if (typeof $scope.objetivo.formulas[k].indicadores[indicador] === 'undefined') {
 							$scope.indicadores[indicador] = Indicador.get({id: indicador});
 						}
@@ -48,7 +42,7 @@
 				if (typeof formula.procedimientos === 'undefined'){
 					formula.procedimientos = [];
 				}
-				for (var i = 0, j = formula.procedimientos.length; i < j; i++){
+				for (let i = 0, j = formula.procedimientos.length; i < j; i++){
 					if (formula.procedimientos[i].procedimiento === nuevoProcedimiento._id && formula.procedimientos[i].campo === campoNuevoProcedimiento){
 						$rootScope.toaster('No se puede añadir dos veces el mismo procedimiento con el mismo campo');
 						$log.error('No se puede añadir dos veces el mismo procedimiento');

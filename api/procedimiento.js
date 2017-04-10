@@ -22,7 +22,7 @@
 		});
 		const defer = Q.defer();
 		models.historico().insertMany(clones, defer.makeNodeResolver());
-		
+
 		return defer.promise;
 	}
 
@@ -72,26 +72,27 @@
 			}
 
 			//check jerarquia $exists
-			jerarquiamodel.findOne({id: idjerarquia}).then(function(jerarquia){
+			jerarquiamodel.findOne({'id': idjerarquia}).then(function(jerarquia){
 				if (jerarquia){
 					//check codigo $exists:0
-					procedimientomodel.count({codigo: procedimiento.codigo}, function (err, count) {
+					procedimientomodel.count({'codigo': procedimiento.codigo}, function (err, count) {
 						if (err){
 							req.eh.callbackErrorHelper(res, err);
 
 							return;
 						} else if (count > 0) {
-							req.eh.callbackErrorHelper(res, {error: 'Ya existe un procedimiento con el mismo codigo'});
+							req.eh.callbackErrorHelper(res, {'error': 'Ya existe un procedimiento con el mismo codigo, quizás esté eliminado'});
 
 							return;
 						}
 
-						const deferPeriodos = periodomodel.findOne().exec();
-						const deferPlantilla = plantillaanualidadmodel.findOne().exec();
+						const deferPeriodos = periodomodel.find().limit(1).lean().exec();
+						const deferPlantilla = plantillaanualidadmodel.find().limit(1).lean().exec();
 
-						Q.all([deferPeriodos.promise, deferPlantilla.promise]).then(function(data){
-							const periodos = JSON.parse(JSON.stringify(data[0]));
-							const plantilla = JSON.parse(JSON.stringify(data[1]));
+						Q.all([deferPeriodos, deferPlantilla]).then(function(data){
+							console.log(data[0], data[1]);
+							const periodos = JSON.parse(JSON.stringify(data[0][0]));
+							const plantilla = JSON.parse(JSON.stringify(data[1][0]));
 
 							Reflect.deleteProperty(periodos, '_id');
 							Reflect.deleteProperty(plantilla, '_id');
@@ -127,7 +128,7 @@
 									}, req.eh.errorHelper(res, 'Error 102'));
 								}, req.eh.errorHelper(res, 'Error 103'));
 							});
-						}, req.eh.errorHelper(res, 'Error 147 guardando'));
+						}).fail(req.eh.errorHelper(res, 'Error 147 guardando'));
 					});
 				} else {
 					req.eh.callbackErrorHelper(res, {error: 'No se ha encontrado la jerarquia asociada'});
@@ -192,7 +193,7 @@
 						recalculate.softCalculateProcedimientoCache(models, origin).then(function (orig) {
 							saveVersion(models, orig).then(function(){
 								orig.fecha_version = new Date();
-								procedimientomodel.update({'codigo': orig.codigo}, JSON.parse(JSON.stringify(orig)), {multi: false, upsert: false}).exec().then(function(){
+								procedimientomodel.update({'codigo': orig.codigo}, JSON.parse(JSON.stringify(orig)), {'multi': false, 'upsert': false}).exec().then(function(){
 									recalculate.fullSyncjerarquia(models).then(function(){
 										const api = req.metaenvironment.api;
 										api.resetCache();
@@ -457,14 +458,14 @@
 	module.exports.procedimientoList = function(req, res) {
 		const models = req.metaenvironment.models;
 		const procedimientomodel = models.procedimiento();
-		const fields = req.query.fields;
 		const restriccion = {'$and': [{'oculto': {'$ne': true}}, {'eliminado': {'$ne': true}}]};
 
-		if (typeof req.params.idjerarquia === 'string' && !isNaN(parseInt(req.params.idjerarquia, 10))){
+		if (typeof req.params.idjerarquia === 'string' && parseInt(req.params.idjerarquia, 10) > 0){
+			const idjerarquia = parseInt(req.params.idjerarquia, 10);
 			if (typeof req.params.recursivo === 'string' && JSON.parse(req.params.recursivo)){
-				restriccion.$and.push({'$or': [{'ancestros.id': {'$in': [parseInt(req.params.idjerarquia, 10)]}}, {'idjerarquia': parseInt(req.params.idjerarquia, 10)}]});
+				restriccion.$and.push({'$or': [{'ancestros.id': idjerarquia}, {'idjerarquia': idjerarquia}]});
 			} else {
-				restriccion.$and.push({'idjerarquia': parseInt(req.params.idjerarquia, 10)});
+				restriccion.$and.push({'idjerarquia': idjerarquia});
 			}
 		}
 
@@ -476,8 +477,8 @@
 		}
 
 		const query = procedimientomodel.find(restriccion);
-		if (typeof fields === 'string') {
-			query.select(fields);
+		if (typeof req.query.fields === 'string' && req.query.fields.trim() !== ''){
+			query.select(req.query.fields.trim());
 		}
 		query.exec(req.eh.cb(res));
 	};

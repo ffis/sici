@@ -1,5 +1,6 @@
 (function(module){
 	'use strict';
+	const Q = require('q');
 
 	module.exports.create = function(req, res){
 		const planmejoramodel = req.metaenvironment.models.planmejora(),
@@ -35,13 +36,13 @@
 			}
 			if (!req.user.permisoscalculados.superuser){
 				if (restricciones.idjerarquia){
-					if (!req.user.permisoscalculados.jerarquiaescritura.indexOf(content.idjerarquia) < 0){
+					if (!req.user.permisoscalculados.jerarquialectura.indexOf(restricciones.idjerarquia) < 0){
 						req.eh.unauthorizedHelper(res);
 
 						return;
 					}
 				} else {
-					restricciones.idjerarquia = {'$in': req.user.permisoscalculados.jerarquialectura};
+					restricciones.idjerarquia = {'$in': req.user.permisoscalculados.restricciones};
 				}
 			}
 			planmejoramodel.find(restricciones, req.eh.cb(res));
@@ -80,6 +81,14 @@
 		}
 	};
 
+	function getAccionesMejoraCount(models){
+		const defer = Q.defer();
+		const accionmejoramodel = models.accionmejora();
+		accionmejoramodel.aggregate([{'$match': {'eliminado': false}}, {'$group': {'_id': '$plan', 'count': {'$sum': 1}}}], defer.makeNodeResolver());
+
+		return defer.promise;
+	}
+
 	module.exports.list = function (req, res) {
 		const planmejoramodel = req.metaenvironment.models.planmejora(),
 			fields = req.query.fields,
@@ -106,7 +115,24 @@
 				if (typeof fields !== 'undefined') {
 					query.select(fields);
 				}
-				query.exec().then(req.eh.okHelper(res), req.eh.errorHelper(res));
+				query.lean().exec().then(function(values){
+					if (values.length > 0){
+						getAccionesMejoraCount(req.metaenvironment.models).then(function(stats){
+							for (let i = 0, j = values.length; i < j; i += 1){
+								values[i].numeroacciones = 0;
+								for (let k = 0, l = stats.length; k < l; k += 1){
+									if (String(values[i]._id) === String(stats[k]._id)){
+										values[i].numeroacciones = stats[k].count;
+										break;
+									}
+								}
+							}
+							res.json(values);
+						});
+					} else {
+						res.json([]);
+					}
+				}).fail(req.eh.errorHelper(res));
 
 			} else {
 				const jerarquiamodel = req.metaenvironment.models.jerarquia();
@@ -125,16 +151,36 @@
 						if (typeof fields !== 'undefined') {
 							query2.select(fields);
 						}
-						query2.exec().then(req.eh.okHelper(res), req.eh.errorHelper(res));
+						query2.lean().exec().then(function(values){
+							if (values.length > 0){
+								getAccionesMejoraCount(req.metaenvironment.models).then(function(stats){
+									for (let i = 0, j = values.length; i < j; i += 1){
+										values[i].numeroacciones = 0;
+										for (let k = 0, l = stats.length; k < l; k += 1){
+											if (String(values[i]._id) === String(stats[k]._id)){
+												values[i].numeroacciones = stats[k].count;
+												break;
+											}
+										}
+									}
+									res.json(values);
+								});
+							} else {
+								res.json([]);
+							}
+						}).fail(req.eh.errorHelper(res));
 					} else {
 						req.eh.notFoundHelper(res);
 					}
 
-				}, req.eh.errorHelper(res));
+				}).fail(req.eh.errorHelper(res));
 			}
-		} else { 
+		} else {
 			req.eh.unauthorizedHelper(res);
 		}
 	};
+
+
+	module.exports.getAccionesMejoraCount = getAccionesMejoraCount;
 
 })(module);

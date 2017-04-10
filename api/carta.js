@@ -146,7 +146,13 @@
 					{'responsable': req.user.login}
 				];
 			}
-			indicadormodel.findOne(restriccion, req.eh.cb(res));
+
+			const query = indicadormodel.findOne(restriccion);
+			if (typeof req.query.fields === 'string' && req.query.fields !== ''){
+				query.select(req.query.fields);
+			}
+			query.exec().then(req.eh.okHelper(res), req.eh.errorHelper);
+			
 		} else {
 			let restriccion = {};
 			if (!req.user.permisoscalculados.superuser) {
@@ -167,7 +173,12 @@
 					restriccion.idjerarquia = parseInt(req.query.idjerarquia, 10);
 				}
 			}
-			indicadormodel.find(restriccion, req.eh.cb(res));
+
+			const query = indicadormodel.find(restriccion);
+			if (typeof req.query.fields === 'string' && req.query.fields !== ''){
+				query.select(req.query.fields);
+			}
+			query.exec().then(req.eh.okHelper(res), req.eh.errorHelper);
 		}
 	};
 
@@ -449,7 +460,18 @@
 
 			return;
 		} else if (typeof req.query.carta === 'undefined'){
-			req.eh.missingParameterHelper(res, 'carta');
+
+			const restriccion = {};
+			if (!req.user.permisoscalculados.superuser){
+				restriccion.carta = {'$in': req.user.permisoscalculados.entidadobjetolectura};
+			}
+
+			const query = objetivomodel.find(restriccion);
+			if (typeof req.query.fields !== 'undefined' && req.query.fields.trim() !== ''){
+				query.select(req.query.fields)
+			}
+
+			query.lean().exec().then(req.eh.okHelper(res, true), req.eh.errorHelper(res));
 
 			return;
 		}
@@ -486,7 +508,7 @@
 			'fechaversion': new Date(),
 			'medidas': {},
 			'vinculacion': null,
-			'unidad': null,
+			'unidad': '',
 			'frecuencia': 'mensual',
 			'tipo': 'Servicio',
 			'pendiente': false,
@@ -823,6 +845,17 @@
 		} else {
 			req.eh.unauthorizedHelper(res);
 		}
+	};
+
+	module.exports.statsCartas = function(req, res){
+		const models = req.metaenvironment.models,
+			entidadobjeto = models.entidadobjeto()
+			indicadormodel = models.indicador(),
+			objetivomodel = models.objetivo();
+
+		//indicadormodel.aggregate([{'$group': { '_id': "$idjerarquia", count: }}])
+
+		req.eh.notFoundHelper(res);
 	};
 
 	module.exports.downloadCarta = downloadCarta;

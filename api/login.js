@@ -125,7 +125,7 @@
 
 			const restriccion = {};
 			if (typeof persona.login === 'string' && persona.login !== '' && typeof persona.codplaza === 'string' && persona.codplaza !== ''){
-				restriccion.$or = {'login': persona.login, 'codplaza': persona.codplaza};
+				restriccion.$or = [{'login': persona.login}, {'codplaza': persona.codplaza}];
 			} else if (typeof persona.login === 'string' && persona.login !== ''){
 				restriccion.login = persona.login;
 			} else if (typeof persona.codplaza === 'string' && persona.codplaza !== ''){

@@ -43,8 +43,8 @@
 			$routeProvider.when('/resumenorganica/:idjerarquia', {'templateUrl': '/partials/detallesorganica.html', 'controller': 'DetallesOrganicaCtrl'});
 			$routeProvider.when('/debug', {'templateUrl': '/partials/debug.html', 'controller': 'DebugCtrl'});
 			$routeProvider.when('/feedback', {'templateUrl': '/partials/feedback.html', 'controller': 'FeedbackCtrl'});
-			$routeProvider.when('/carta', {'templateUrl': '/partials/carta.html', 'controller': 'CartaCtrl'});
-			$routeProvider.when('/carta/:idjerarquia', {'templateUrl': '/partials/carta.html', 'controller': 'CartaCtrl'});
+			$routeProvider.when('/carta', {'templateUrl': '/partials/actividadcarta.html', 'controller': 'ActividadCartaCtrl'});
+			$routeProvider.when('/carta/:idjerarquia', {'templateUrl': '/partials/actividadcarta.html', 'controller': 'ActividadCartaCtrl'});
 			$routeProvider.when('/carta/:idjerarquia/:idcarta', {'templateUrl': '/partials/carta.html', 'controller': 'CartaCtrl'});
 			$routeProvider.when('/carta-printable/:idjerarquia/:idcarta', {'templateUrl': '/partials/carta-printable.html', 'controller': 'CartaPrintableCtrl'});
 			$routeProvider.when('/carta-informe/:idjerarquia/:idcarta', {'templateUrl': '/partials/carta-informeanual.html', 'controller': 'CartaInformeCtrl'});
@@ -55,7 +55,7 @@
 			$routeProvider.when('/formula/:idobjetivo/:index', {'templateUrl': '/partials/formula.html', 'controller': 'FormulaCtrl'});
 			$routeProvider.when('/registroactividad', {'templateUrl': '/partials/registroactividad.html', 'controller': 'RegistroActividadCtrl'});
 
-			$routeProvider.otherwise({redirectTo: '/welcome'});
+			$routeProvider.otherwise({redirectTo: '/login'});
 			$locationProvider.html5Mode(true);
 		}
 	]).run(function(editableOptions) {

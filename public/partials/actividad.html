@@ -1,76 +1,82 @@
 
 <div class="row">
-	<div ng-class="{'col-lg-3': !oculto, 'col-md-4': !oculto, 'col-sm-4': !oculto, 'hidden': oculto}" class="left animated">
+	<div ng-class="{'col-lg-4': !oculto, 'col-md-4': !oculto, 'col-sm-4': !oculto, 'hidden': oculto, 'fadeOutLeft': oculto}" class="left animated">
 		<organismos otitle="'Organismos con procedimientos'" arbol="arbol" tipoelementos="'procedimiento/s'" attr="'numprocedimientos'" setseleccionado="goToJerarquia" seleccionado="seleccionado"></organismos>
 	</div>
-	<div ng-class="{'col-lg-9': !oculto, 'col-md-8': !oculto, 'col-sm-8': !oculto, 'col-lg-12': oculto}" class="right animated" id="detallesjerarquia">
-		<div>
-			<div class="pull-left hidden-print" ng-click="oculto=!oculto" style="cursor:ew-resize; margin-right:1em" ng-show="seleccionado" title="Pulse para maximizar/restaurar esta vista">
+	<div ng-class="{'col-lg-8': !oculto, 'col-md-8': !oculto, 'col-sm-8': !oculto, 'col-lg-12': oculto}" class="right animated" id="detallesjerarquia">
+		<div class="col-sm-12 clearfix" ng-show="seleccionado">
+			<div class="pull-left hidden-print" ng-click="oculto=!oculto" style="cursor:ew-resize; margin-right:1em" title="Pulse para maximizar/restaurar esta vista">
 				<div class="btn btn-default">
 					<i class="fa fa-bars"></i>
 				</div>
 			</div>
-			<div class="btn-group pull-right hidden-print" ng-if="seleccionado" style="margin-right: 2em">
+			<div class="btn-group pull-right hidden-print">
 				<button ng-class="{disabled: actualizando > 0}" class="btn btn-default" ng-click="descargarExcel()">
 					<i class="fa fa-file-excel-o" aria-hidden="true"></i> Descargar excel
 				</button>
-				<a class="btn btn-default" role="button" href="/resumenorganica/{{seleccionado.id}}" ng-if="seleccionado && seleccionado.id">
+				<a class="btn btn-default" role="button" href="/resumenorganica/{{seleccionado.id}}">
 					<i class="fa fa-table" aria-hidden="true"></i> Ver resumen
 				</a>
 			</div>
-			<h3>{{seleccionado.title}}</h3>
+			<h5 ng-class="{'fontlarge': oculto}">{{seleccionado.title}}</h5>
 		</div>
-		<div ng-if="procedimientos.length" class="panel panel-danger hidden-print" style="clear:both">
-			<div ng-click="filtrosocultos=!filtrosocultos" class="panel-heading" style="cursor:ns-resize">
-				<span ng-class="{&quot;glyphicon-collapse-down&quot;:!filtrosocultos,&quot;glyphicon-expand&quot;:filtrosocultos}" class="glyphicon pull-right"></span>
-				<div class="progress" title="Esta barra representa el número de procedimientos cumplimentados respecto a los totales. Un procedimiento se considera cumplimentado si contiene solicitudes en el año seleccionado.">
-					<div role="progressbar" aria-valuenow="{{100*cumplimentados / count}}" aria-valuemin="0" aria-valuemax="100" style="width:{{100*cumplimentados / count}}%" class="progress-bar progress-bar-striped progress-bar-danger">
-						{{(100 * cumplimentados / count)|number : 2 }}% ({{cumplimentados}} / {{count}})
-					</div>
-				</div>
-			</div>
-			<div ng-class="{'hidden': filtrosocultos}" class="panel-body">
-				<form class="form-horizontal">
-					<div ng-repeat="key in camposfiltros" class="form-group col-sm-12 col-md-6">
-						<label class="control-label col-md-3">
-							{{key| translate}}:
-						</label>
-						<div class="col-md-9">
-							<select ng-model="filtro[key]" ng-options="fa.value as fa.name for (ky,fa) in filtros[key]" class="form-control">
-							</select>
-						</div>
-					</div>
-					<div class="form-group col-sm-12 col-md-6">
-						<label class="control-label col-md-3">Filtro:</label>
-						<div class="col-md-9">
-							<input ng-model="filtrotxtprocedimiento.$" class="form-control"/>
-						</div>
-					</div>
-
-					<div class="form-group col-sm-12 hidden"  ng-repeat="(familia,etiquetas) in etiquetasPorTipo track by $index" >
-						<label class="control-label col-sm-3">{{familia}}:</label>
-						<div class="col-sm-9">
-							<div ng-repeat="etiqueta in etiquetas track by $index" class="col-sm-6">
-								<label class="control-label col-sm-3">
-									<input type="checkbox" name="" id="et{{$index}}" value="{{etiqueta._id}}" />
-								</label>
-								<div class="col-sm-9">
-									<label for="et{{$index}}"><span class="label label-danger" title="{{etiqueta.descripcion}}" >{{etiqueta._id}}</span></label>
-								</div>
+		<div class="col-sm-12 clearfix" ng-show="seleccionado && procedimientos.length">
+			<div class="panel panel-danger hidden-print">
+				<div  class="panel-heading">
+					<div class="col-sm-11">
+						<div class="progress" title="Esta barra representa el número de procedimientos cumplimentados respecto a los totales. Un procedimiento se considera cumplimentado si contiene solicitudes en el año seleccionado.">
+							<div role="progressbar" aria-valuenow="{{100*cumplimentados / count}}" aria-valuemin="0" aria-valuemax="100" style="width:{{100*cumplimentados / count}}%" class="progress-bar progress-bar-striped progress-bar-danger">
+								{{(100 * cumplimentados / count)|number : 2 }}% ({{cumplimentados}} / {{count}})
 							</div>
 						</div>
 					</div>
-				</form>
+					<div class="col-sm-1">
+						<button class="btn btn-default" ng-click="filtrosocultos=!filtrosocultos">
+							<span class="glyphicon glyphicon-search"></span>
+						</button>
+					</div>
+					<div style="clear:both"></div>
+				</div>
+				<div ng-class="{'hidden': filtrosocultos}" class="panel-body">
+					<form class="">
+						<div ng-repeat="key in camposfiltros" class="form-group col-sm-12 col-md-12 col-lg-6">
+							<label class="control-label col-md-3">
+								{{key| translate}}:
+							</label>
+							<div class="col-md-9">
+								<select ng-model="filtro[key]" ng-options="fa.value as fa.name for (ky,fa) in filtros[key]" class="form-control">
+								</select>
+							</div>
+						</div>
+						<div class="form-group col-sm-12 col-md-12 col-lg-6">
+							<label class="control-label col-md-3">Filtro:</label>
+							<div class="col-md-9">
+								<input ng-model="filtrotxtprocedimiento.$" class="form-control"/>
+							</div>
+						</div>
+
+						<div class="form-group col-sm-12 hidden" ng-repeat="(familia,etiquetas) in etiquetasPorTipo track by $index" >
+							<label class="control-label col-sm-2">{{familia}}:</label>
+							<div class="col-sm-10">
+								<div ng-repeat="etiqueta in etiquetas track by $index" class="col-sm-3">
+									<label class="control-label col-sm-12 text-left">
+										<input type="checkbox" name="" id="et{{$index}}" value="{{etiqueta._id}}" />
+										<span class="label label-danger" title="{{etiqueta.descripcion}}" >{{etiqueta._id}}</span>
+									</label>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
 			</div>
 		</div>
-		<div>
-			{{filtrotxtprocedimiento.codigo}}
+			
+		<div class="col-sm-12">
+			<p ng-show="filtrotxtprocedimiento">{{filtrotxtprocedimiento.codigo}}</p>
+			<div class="alert {{respuesta.clase}} hidden-print" ng-if="respuesta.mensaje" role="alert">{{respuesta.mensaje}}</div>
 		</div>
 
-		<div class="alert {{respuesta.clase}} hidden-print" ng-if="respuesta.mensaje" role="alert">{{respuesta.mensaje}}</div>
-		<p ng-if="actualizando > 0">Generando informe...</p>
-
-		<div ng-if="procedimientosfiltrados.length" class="table-responsive">
+		<div ng-show="procedimientosfiltrados.length > 0" class="table-responsive col-sm-12">
 			<table class="table table-striped table-bordered table-hover" id="procedimientostable" ng-class="{'table-condensed': $root.condensed}">
 				<thead>
 					<tr>
@@ -87,12 +93,8 @@
 						<th ng-class="{'danger':orderby=='ancestro' }" ng-click="reverse=!reverse;orderby='ancestro'">{{'A cargo de'|translate}}
 							<span aria-hidden ng-show="orderby==='ancestro'" class="glyphicon" ng-class="{'glyphicon-sort-by-attributes': !reverse, 'glyphicon-sort-by-attributes-alt': reverse}"></span>
 						</th>
-						<th ng-class="{'danger':orderby=='periodos[$root.anualidad].totalsolicitudes'}" ng-click="reverse=!reverse;orderby='periodos[$root.anualidad].totalsolicitudes'">Solicitudes {{$root.anualidad.substring(1,5)}}
-							<span aria-hidden ng-show="orderby==='periodos[$root.anualidad].totalsolicitudes'" class="glyphicon" ng-class="{'glyphicon-sort-by-attributes': !reverse, 'glyphicon-sort-by-attributes-alt': reverse}"></span>
-						</th>
-						<th ng-class="{'danger':orderby=='periodos[$root.anualidad].solicitados[mesanterior]' }" ng-click="reverse=!reverse;orderby='periodos[$root.anualidad].solicitados[mesanterior]'">Solicitudes {{meses[mesanterior]}} {{$root.anualidad.substring(1,5)}}
-							<span aria-hidden ng-show="orderby==='periodos[$root.anualidad].solicitados[mesanterior]'" class="glyphicon" ng-class="{'glyphicon-sort-by-attributes': !reverse, 'glyphicon-sort-by-attributes-alt': reverse}"></span>
-						</th>
+						<th>Solicitudes {{$root.anualidad.substring(1,5)}}</th>
+						<th>Solicitudes {{meses[mesanterior]}} {{$root.anualidad.substring(1,5)}}</th>
 					</tr>
 				</thead>
 				<tfoot>
@@ -117,7 +119,7 @@
 					</tr>
 				</tfoot>
 				<tbody>
-					<tr ng-repeat="proc in procedimientosfiltrados |filter:filtrotxtprocedimiento | orderBy : orderby : reverse | pagination : currentPage*$root.itemsPerPage | limitTo: $root.itemsPerPage">
+					<tr ng-animate="'animate'" ng-repeat="proc in procedimientosfiltrados |filter:filtrotxtprocedimiento | orderBy : orderby : reverse | pagination : currentPage*$root.itemsPerPage | limitTo: $root.itemsPerPage">
 						<td class="text-center"><span class="sparkline ng-cloak" data-value="{{proc.periodos[$root.anualidad].solicitados | json}}"></span></td>
 						<th class="text-center">{{proc.codigo}}</th>
 						<td><a href="/procedimiento/{{proc.codigo}}">{{proc.denominacion}}</a></td>

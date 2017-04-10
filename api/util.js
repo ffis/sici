@@ -54,12 +54,12 @@
 
 		return collection.map(function(nodo){
 			return ({
-				_id: nodo._id,
-				id: nodo.id,
-				title: nodo.nombrelargo,
-				nodes: getHijos(nodo.id, filterfn),
-				numprocedimientos: nodo.numprocedimientos,
-				numcartas: nodo.numcartas
+				'_id': nodo._id,
+				'id': nodo.id,
+				'title': nodo.nombrelargo,
+				'nodes': getHijos(nodo.id, filterfn),
+				'numprocedimientos': nodo.numprocedimientos,
+				'numcartas': nodo.numcartas
 			});
 		});
 	}
@@ -108,12 +108,12 @@
 			return mappingXid[idraiz];
 		}).filter(fn).map(function(nodo){
 			return {
-				_id: nodo._id,
-				id: nodo.id,
-				title: nodo.nombrelargo,
-				nodes: getHijos(nodo.id, filterfn),
-				numprocedimientos: nodo.numprocedimientos,
-				numcartas: nodo.numcartas
+				'_id': nodo._id,
+				'id': nodo.id,
+				'title': nodo.nombrelargo,
+				'nodes': getHijos(nodo.id, filterfn),
+				'numprocedimientos': nodo.numprocedimientos,
+				'numcartas': nodo.numcartas
 			};
 		});
 		res.json(cachedArbol[cachedkey]);
@@ -172,8 +172,8 @@
 			'oculto': {'$ne': true},
 			'eliminado': {'$ne': true}
 		};
-		if (modelname === 'crawled'){
-			restricciones.id = {'$in': req.user.permisoscalculados.procedimientoslectura.concat(req.user.permisoscalculados.procedimientosescritura)};
+		if (modelname === 'crawled' && !req.user.permisoscalculados.superuser){
+			restricciones.id = {'$in': req.user.permisoscalculados.procedimientoslectura};
 		}
 
 		const query = loader.find(restricciones);

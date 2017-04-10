@@ -7,11 +7,10 @@
 		<link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css" media="all">
 		<link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap-theme.min.css">
 		<link rel="stylesheet" href="/bower_components/angular-animate-css/build/nga.min.css">
-		<link rel="stylesheet" href="/bower_components/nvd3/build/nv.d3.min.css">
 		<link rel="stylesheet" href="/bower_components/angular-xeditable/dist/css/xeditable.css">
 		<link rel="stylesheet" href="/bower_components/angularjs-toaster/toaster.min.css">
 		<link rel="stylesheet" href="/bower_components/font-awesome/css/font-awesome.min.css">
-		<link rel="stylesheet" href="bower_components/angular-loading-bar/build/loading-bar.min.css">
+		<link rel="stylesheet" href="/bower_components/angular-loading-bar/build/loading-bar.min.css">
 		<link rel="stylesheet" href="/css/app.css">
 		<link rel="stylesheet" href="/css/animate.css">
 		<link rel="stylesheet" href="/js/lib/feedback.css">
@@ -28,14 +27,13 @@
 				</button>
 				<a href="/welcome" class="navbar-brand">
 					<img src="/imgs/escudo_cab.gif" class="logo-sm hidden-md hidden-lg" />
-					<img src="/imgs/escudo_cab.gif" class="hidden-sm logo-md hidden-lg" />
-					<img src="/imgs/escudo_cab.gif" class="hidden-sm hidden-md logo-lg" />
-					
+					<img src="/imgs/escudo_cab.gif" class="hidden-xs hidden-sm logo-md hidden-lg" />
+					<img src="/imgs/escudo_cab.gif" class="hidden-xs hidden-sm hidden-md logo-lg" />
 				</a>
 			</div>
-			<div class="collapse navbar-collapse navbar-ex1-collapse col-xs-12 col-md-11 col-lg-11" ng-if="logeado" style="width: 91.66666667% !important;">
+			<div class="collapse navbar-collapse navbar-ex1-collapse col-xs-12 col-md-11 col-lg-11" ng-if="logeado">
 			
-				<ul class="nav navbar-nav col-xs-12 col-md-9 col-lg-7">
+				<ul class="nav navbar-nav col-xs-12 col-md-8 col-lg-7">
 					<li ng-class="{active:$root.nav==navg.id, dropdown: navg.sub.length > 0}" ng-repeat="navg in $root.navegabilidad">
 						<!-- /* TODO: remove this crap */ -->
 						<a ng-If="navg.sub.length > 0" ng-class="{'dropdown-toggle': navg.sub.length > 0 }" data-toggle="dropdown">{{navg.caption}}  <span class="caret" ng-If="navg.sub.length > 0"></span></a>
@@ -78,11 +76,11 @@
 						</ul>
 					</li>
 				</ul>
-				<div class="col-xs-12 col-md-3 col-lg-5" style="padding-top:0.7em">
+				<div class="col-xs-12 col-md-4 col-lg-5" style="padding-top:0.7em">
 					<div class="col-xs-5 col-md-6 col-lg-6">
 						<form class="form-inline">
 							<label for="anualidad" class="hidden-md">Anualidad:</label>
-							<select class="form-control" id="anualidad" name="anualidad" ng-options="a.value as a.label for a in $root.anualidades" ng-model="$root.anualidad" title="Permite modificar la anualidad de los datos mostrados"></select>
+							<select class="form-control animated flash" id="anualidad" name="anualidad" ng-options="a.value as a.label for a in $root.anualidades" ng-model="$root.anualidad" title="Permite modificar la anualidad de los datos mostrados"></select>
 						</form>
 					</div>
 					<div class="col-xs-5 col-md-4 col-lg-4 text-right" style="padding-left:0;padding-right:0">
@@ -184,6 +182,7 @@
 		<script src="/js/controllers/detallesorganica.js"></script>
 		<script src="/js/controllers/debug.js"></script>
 		<script src="/js/controllers/feedback.js"></script>
+		<script src="/js/controllers/actividadcarta.js"></script>
 		<script src="/js/controllers/carta.js"></script>
 		<script src="/js/controllers/cartaprintable.js"></script>
 		<script src="/js/controllers/cartainforme.js"></script>

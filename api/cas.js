@@ -22,7 +22,6 @@
 				init(req.metaenvironment.cfg.cas);
 			}
 			cas.validate(ticket, function(err, status, username) {
-				logger.log(35, ticket, err, status, username);
 				if (err) {
 					res.status(300).json({'redirect': req.metaenvironment.cfg.cas.login});
 					//req.eh.callbackErrorHelper(err);
@@ -37,7 +36,6 @@
 				}
 			});
 		} else {
-			logger.log(req.metaenvironment.cfg);
 			res.status(300).json({'redirect': req.metaenvironment.cfg.cas.login});
 		}
 	};

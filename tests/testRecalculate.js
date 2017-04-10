@@ -15,6 +15,7 @@ usage: mocha testRecalculate.js
 		mongoose = require('mongoose'),
 		models = require('../api/models'),
 		recalculate = require('../api/recalculate'),
+		api = require('../api/util'),
 		config = require('../config.json');
 
 	if (typeof describe === 'function'){
@@ -70,8 +71,31 @@ usage: mocha testRecalculate.js
 					logger.error(err);
 				});
 			});
-
-
+			it('softCalculateProcedimientoCache should give the same response with or without cache', function(done){
+				const Procedimientomodel = models.procedimiento();
+				let procedimiento = new Procedimientomodel();
+				procedimiento.idjerarquia = 24;
+				procedimiento = procedimiento.toJSON();
+				let procedimiento2 = new Procedimientomodel();
+				procedimiento2.idjerarquia = 24;
+				procedimiento2 = procedimiento2.toJSON();
+				api.calculateArbol(models).then(function(){
+					recalculate.softCalculateProcedimientoCache(models, procedimiento, api).then(function(s){
+						recalculate.softCalculateProcedimientoCache(models, procedimiento2).then(function(s2){
+							Reflect.deleteProperty(s, '_id');
+							Reflect.deleteProperty(s2, '_id');
+							expect(s).to.deep.equal(s2);
+							done();
+						}).fail(function(err){
+							logger.error(err);
+						});
+					}).fail(function(err){
+						logger.error(err);
+					});
+				}).fail(function(err){
+					logger.error(err);
+				});
+			});
 
 
 			after(function(){

@@ -110,7 +110,7 @@
 				return def.promise;
 			};
 
-			$scope.filtrosocultos = false;
+			$scope.filtrosocultos = true;
 			$scope.setSeleccionado = function(selection){
 				if (selection) {
 					$scope.seleccionado = selection;
@@ -118,9 +118,11 @@
 					$scope.procedimientos = ProcedimientoList.query({'idjerarquia': selection.id, 'recursivo': 1, 'fields': camposProcedimientos.join(' ')});
 					$scope.cumplimentados = 0;
 					$scope.count = 1;
+					/*
 					$timeout(function(){
 						$('body').animate({scrollTop: $('#detallesjerarquia').offset().top}, 'slow');
 					}, 20);
+					*/
 				}
 			};
 			$scope.goToJerarquia = function(selection){
@@ -130,7 +132,7 @@
 			$scope.colorText = $rootScope.colorText;
 
 			$scope.cumplimentado = function(procedimiento){
-				return (typeof procedimiento.periodos[$rootScope.anualidad].solicitados === 'object' && Math.max.apply(Math, procedimiento.periodos[$rootScope.anualidad].solicitados) > 0);
+				return (typeof procedimiento.periodos[$rootScope.anualidad] === 'object' && typeof procedimiento.periodos[$rootScope.anualidad].solicitados === 'object' && Math.max.apply(Math, procedimiento.periodos[$rootScope.anualidad].solicitados) > 0);
 			};
 			$scope.isFiltroSelected = function(filtro, key, fa){
 				return (typeof filtro[key] !== 'undefined' && fa.name === filtro[key]);
@@ -164,7 +166,8 @@
 
 			$scope.cumplimentados = 0;
 			$scope.count = 1;
-			$scope.$watch('procedimientos.$resolved', function() {
+
+			function recalculate() {
 
 				$scope.procedimientosfiltrados = $scope.procedimientos;
 				if ($scope.procedimientos.length > 0){
@@ -221,7 +224,9 @@
 					}
 					$rootScope.sparkline();
 				}
-			});
+			}
+
+			$scope.$watch('procedimientos.$resolved', recalculate);
 
 			$scope.range = function() {
 				var rangeSize = 5;
@@ -268,18 +273,21 @@
 				$rootScope.sparkline();
 			};
 
-			const listener = $rootScope.$watch('itemsPerPage', function(){
-				$rootScope.sparkline();
-			});
-			$scope.$on('$destroy', function() {
-				listener();
+			const listeners = ['itemsPerPage', 'anualidad'].map(function(vari){
+				return $rootScope.$watch(vari, function(){
+					$rootScope.sparkline();
+				});
 			});
 
-			const listener2 = $rootScope.$watch('anualidad', function(){
-				$rootScope.sparkline();
+			['currentPage', 'reverse', 'orderby'].map(function(vari){
+				return $scope.$watch(vari, function(){
+					$rootScope.sparkline();
+				});
 			});
-			$scope.$on('$destroy', function() {
-				listener2();
+
+
+			$scope.$on('$destroy', function(){
+				listeners.forEach(function(o){ o(); });
 			});
 
 			$scope.anyoSelected = '';

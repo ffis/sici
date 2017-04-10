@@ -1582,3 +1582,67 @@ organismos .panel-body {
 	max-height: calc(100vh - 175px);
     overflow: auto;
 }
+
+organismos .panel-body > ul{ clear:both;padding-left:0.3em }
+.portlet-body > ul {max-height:300px; overflow-y:auto; overflow-x:hidden}
+
+.full  { width:100%;}
+
+
+@media screen and (min-width: 992px){
+	body > div.navbar.navbar-default.navbar-fixed-top.ng-scope > div.collapse.navbar-collapse.navbar-ex1-collapse.col-xs-12.col-md-11.col-lg-11.ng-scope {
+		width: 91.66666667% !important;
+	}
+}
+
+@media screen and (min-width: 768px){
+	body > div.navbar.navbar-default.navbar-fixed-top.ng-scope > div.collapse.navbar-collapse.navbar-ex1-collapse.col-xs-12.col-md-11.col-lg-11.ng-scope {
+		width: 91.66666667% !important;
+	}
+}
+
+
+@media screen and (min-width: 1200px){
+	body > div.navbar.navbar-default.navbar-fixed-top.ng-scope > div.collapse.navbar-collapse.navbar-ex1-collapse.col-xs-12.col-md-11.col-lg-11.ng-scope {
+		width: 91.66666667% !important;
+	}
+}
+
+@media print{
+	a[href]:after {
+    	content: '' !important;
+    }
+}
+
+
+.fontlarge{
+	font-size: large;
+}
+
+
+organismos > div > div.panel-body > ul > li > ul > li {
+  line-height:24px;
+  list-style:none;
+  box-sizing:border-box;
+}
+
+organismos > div > div.panel-body > ul > li > ul > li.ng-move,
+organismos > div > div.panel-body > ul > li > ul > li.ng-enter,
+organismos > div > div.panel-body > ul > li > ul > li.ng-leave {
+  transition:all linear 0.2s;
+}
+
+organismos > div > div.panel-body > ul > li > ul > li.ng-leave.ng-leave-active,
+organismos > div > div.panel-body > ul > li > ul > li.ng-move,
+organismos > div > div.panel-body > ul > li > ul > li.ng-enter {
+  opacity:0;
+  max-height:0;
+}
+
+organismos > div > div.panel-body > ul > li > ul > li.ng-leave,
+organismos > div > div.panel-body > ul > li > ul > li.ng-move.ng-move-active,
+organismos > div > div.panel-body > ul > li > ul > li.ng-enter.ng-enter-active {
+  opacity:1;
+  max-height:24px;
+}
+

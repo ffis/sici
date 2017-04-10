@@ -1,19 +1,8 @@
 
 <div class="row">
-	<div
-		class="left hidden-print nga-default nga-slide-left col-lg-5 col-md-5 col-sm-5 col-xs-12" ng-hide="oculto"
-		>
-		<organismos otitle="'Organismos con cartas de compromisos'" arbol="arbol" tipoelementos="'carta de compromisos'" attr="'numcartas'" setseleccionado="goToJerarquia" seleccionado="seleccionado" filtro="filtro"></organismos>
-	</div>
-	<div ng-class="{'col-lg-7': !oculto, 'col-md-7': !oculto, 'col-sm-7': !oculto, 'col-md-12': oculto}" class="right col-xs-12" id="detallesjerarquia">
-		<div class="pull-left" ng-click="oculto=!oculto" style="cursor:ew-resize; margin-right:1em" ng-show="seleccionado" title="Pulse para maximizar/restaurar esta vista">
-			<br />
-			<div class="btn btn-default hidden-print">
-				<i class="fa fa-bars"></i>
-			</div>
-		</div>
+	<div class="col-xs-12" id="detallesjerarquia">
 		<ol class="breadcrumb" id="breadcrumb" style="margin-top: 1.7em;" ng-if="jerarquia">
-			<li ng-repeat="o in jerarquia.ancestros | reverse">{{jerarquias[ o ].nombrelargo}} <a target="_blank" title="Ver procedimientos de este nodo" href="/actividad/{{o}}" class="btn btn-default btn-xs"><i class="fa fa-bar-chart"></i></a> <a title="Ver las cartas de este nodo" href="/carta/{{o}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-scale"></span></a></li>
+			<li ng-repeat="o in jerarquia.ancestros | reverse"><a title="Ver las cartas de este nodo" href="/carta/{{o}}">{{jerarquias[ o ].nombrelargo}}</a> <a target="_blank" title="Ver procedimientos de este nodo" href="/actividad/{{o}}" class="btn btn-default btn-xs"><i class="fa fa-bar-chart"></i></a> <a title="Ver las cartas de este nodo" href="/carta/{{o}}" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-scale"></span></a></li>
 			<li class="active"><em>{{jerarquia.nombrelargo}}</em> <a target="_blank" title="Ver procedimientos de este nodo" href="/actividad/{{o}}" class="btn btn-default btn-xs"><i class="fa fa-bar-chart"></i></a></li>
 		</ol>
 

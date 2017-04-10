@@ -28,9 +28,11 @@
 		app.get('/exportador/procedimiento/:codigo/:year', metaenvironment.exportador.tablaResultadosProcedimiento);
 		app.get('/gs/:id', metaenvironment.importador.parseGS);
 		app.get('/importacion', metaenvironment.importador.importacionesprocedimiento);
+		app.get('/jerarquia', metaenvironment.jerarquia.list);
 		app.get('/jerarquia/:idjerarquia', metaenvironment.jerarquia.getNodoJerarquia);
 		app.get('/jerarquia/resumen/:idjerarquia', metaenvironment.jerarquia.getResumenJerarquia);
 		app.get('/jerarquiaancestros/:idjerarquia', metaenvironment.jerarquia.getAncestros);
+		app.get('/jerarquiadescendientes/:idjerarquia', metaenvironment.jerarquia.getDescendientes);
 		app.get('/mapReducePeriodos', metaenvironment.exportador.mapReducePeriodosExpress);
 		app.get('/operador', metaenvironment.operador.getOperador);
 		app.get('/operador/:id', metaenvironment.operador.getOperador);
@@ -45,6 +47,7 @@
 		app.get('/procedimientosByResponsable/:codplaza', metaenvironment.procedimiento.procedimientosByResponsable);
 		app.get('/procedimientosSinExpedientes', metaenvironment.procedimiento.procedimientosSinExpedientes);
 		app.get('/procedimientosSinExpedientes/:anualidad', metaenvironment.procedimiento.procedimientosSinExpedientes);
+		app.get('/statsCartas', metaenvironment.carta.statsCartas);
 		app.get('/ratioResueltos', metaenvironment.procedimiento.ratioResueltos);
 		app.get('/ratioResueltos/:anualidad', metaenvironment.procedimiento.ratioResueltos);
 		app.get('/raw/:modelname', metaenvironment.api.raw);

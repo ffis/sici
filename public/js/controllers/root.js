@@ -12,7 +12,7 @@
 			$rootScope.inicialesmeses = ['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
 
 			$rootScope.navegabilidad = [
-				{'id': 'inicio', 'caption': 'Inicio'},
+				{'id': 'welcome', 'caption': 'Inicio'},
 				{'id': 'actividad', 'caption': 'Actividad'},
 				{'id': 'carta', 'caption': 'Carta'},
 				{'id': '#', 'caption': 'Reportes', 'sub': [
@@ -56,6 +56,10 @@
 			};
 
 			$rootScope.getIntAnualidad = function(){ return parseInt($rootScope.anualidad.substring(1, 5), 10); };
+			$rootScope.getNextAnualidad = function(count){
+				return 'a' + ($rootScope.getIntAnualidad() + count);
+			};
+
 			$rootScope.toaster = function(txt, title, type){
 				if (typeof type === 'undefined'){
 					type = 'success';
@@ -107,8 +111,11 @@
 			};
 
 			$rootScope.exportXLS = function(idx, nombre){
-
-				const blob = new Blob(['<meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8"><table width="100%">' + angular.element('#' + idx).html() + '</table>'],
+				let html = angular.element('#' + idx).html();
+				if (html.startsWith('<table')){
+					html = '<table width="100%">' + html + '</table>';
+				}
+				const blob = new Blob(['<meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8">' + html],
 					{'type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8'});
 				saveAs(blob, nombre + '.xls');
 			};
@@ -223,10 +230,10 @@
 				Preferencias.condensed($rootScope.condensed);
 			});
 			$rootScope.itemsPerPage = Preferencias.itemsPerPage();
-			$rootScope.itemsPerPageOptions = [10, 20, 25, 30, 50, 100, 200, 300, 500, 750, 1000, 2000];
+			$rootScope.itemsPerPageOptions = [5, 10, 15, 20, 25, 30, 50, 100, 200, 300, 500, 750, 1000, 1500, 2000];
 			if (typeof $rootScope.itemsPerPage !== 'number'){
-				$rootScope.itemsPerPage = 10;
-				Preferencias.itemsPerPage(10);
+				$rootScope.itemsPerPage = 5;
+				Preferencias.itemsPerPage(5);
 			}
 			$rootScope.$watch('itemsPerPage', function(){
 				Preferencias.itemsPerPage($rootScope.itemsPerPage);
