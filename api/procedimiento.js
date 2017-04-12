@@ -314,12 +314,12 @@
 			];
 		}
 
-		const deferPeriodos = periodomodel.findOne();
+		const deferPeriodos = periodomodel.findOne().lean().exec();
 
 		procedimientomodel.findOne(restriccion).exec().then(function(original){
 
 			if (!original || typeof original !== 'object') {
-				req.eh.callbackErrorHelper(res, {error: 'Error en updateProcedimiento (Procedimiento.findOne, original === null)', restriccion: restriccion});
+				req.eh.callbackErrorHelper(res, {'error': 'Error en updateProcedimiento (Procedimiento.findOne, original === null)', 'restriccion': restriccion});
 			
 				return;
 			}
@@ -346,7 +346,7 @@
 				if (original.oculto !== procedimiento.oculto) {
 					hayCambiarOcultoHijos = true;
 					if (!isNaN(parseInt(procedimiento.codigo, 10))){
-						crawledmodel.update({id: parseInt(procedimiento.codigo, 10)}, {'$set': {'oculto': original.oculto}}, {'multi': false, 'upsert': false}, logger.error);
+						crawledmodel.update({'id': parseInt(procedimiento.codigo, 10)}, {'$set': {'oculto': original.oculto}}, {'multi': false, 'upsert': false}, logger.error);
 					}
 				}
 				original.oculto = procedimiento.oculto;
@@ -356,7 +356,7 @@
 			//TODO: IMPEDIR EDICION DE ANUALIDADES MUY PRETÉRITAS
 			const schema = models.getSchema('plantillaanualidad');
 			let codplazaChanged = false;
-			deferPeriodos.promise.then(function(periodos){
+			deferPeriodos.then(function(periodos){
 				const periodosclon = JSON.parse(JSON.stringify(periodos));
 				for (const anualidad in periodosclon) {
 					if (parseInt(anualidad.replace('a', ''), 10) > 2013){
@@ -429,13 +429,13 @@
 									} else {
 										res.json(orig);
 									}
-								}, req.eh.errorHelper(res, 500, 'Error en softCalculateProcedimiento 7'));
-							}, req.eh.errorHelper(res, 500, 'Error en softCalculateProcedimiento 6'));
-						}, req.eh.errorHelper(res, 500, 'Error en softCalculateProcedimiento 5'));
-					}, req.eh.errorHelper(res, 500, 'Error en softCalculateProcedimiento 4'));
-				}, req.eh.errorHelper(res, 500, 'Error en softCalculateProcedimiento 3'));
-			}, req.eh.errorHelper(res, 500, 'Error en softCalculateProcedimiento 2'));
-		}, req.eh.errorHelper(res, 500, 'Error en softCalculateProcedimiento 1'));
+								}).fail(req.eh.errorHelper(res, 500, 'Error en softCalculateProcedimiento 7'));
+							}).fail(req.eh.errorHelper(res, 500, 'Error en softCalculateProcedimiento 6'));
+						}).fail(req.eh.errorHelper(res, 500, 'Error en softCalculateProcedimiento 5'));
+					}).fail(req.eh.errorHelper(res, 500, 'Error en softCalculateProcedimiento 4'));
+				}).fail(req.eh.errorHelper(res, 500, 'Error en softCalculateProcedimiento 3'));
+			}).fail(req.eh.errorHelper(res, 500, 'Error en softCalculateProcedimiento 2'));
+		}).fail(req.eh.errorHelper(res, 500, 'Error en softCalculateProcedimiento 1'));
 	};
 
 
