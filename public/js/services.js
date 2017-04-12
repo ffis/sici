@@ -82,7 +82,7 @@
 	}]).factory('Periodo', ['$resource', function($resource) {
 		return $resource('/api/v1/restricted/periodos/:id', {'id': '@_id'}, {'update': {'method': 'PUT'}});
 	}]).factory('Persona', ['$resource', function($resource) {
-		return $resource('/api/v1/restricted/persona/:id', {'id': '@id'}, {'create': {'method': 'POST'}, 'update': {'method': 'PUT'}});
+		return $resource('/api/v1/restricted/persona/:id', {'id': '@id'}, standardCrud);
 	}]).factory('Feedback', ['$resource', function($resource) {
 		return $resource('/api/v1/restricted/feedback/:id', {'id': '@id'}, {'update': {'method': 'PUT'}});
 	}]).factory('RegistroActividad', ['$resource', function($resource) {
@@ -152,8 +152,8 @@
 		{'name': 'Peligro', 'value': '#C50200'},
 		{'name': 'Aviso', 'value': '#FF7700'},
 		{'name': 'Normal', 'value': '#FDC702'},
-		{'name': 'Éxito', 'value': '#8DCA2F'},
-		{'name': 'Superado éxito', 'value': '#C6E497'}
+		{'name': 'Éxito', 'value': '#C6E497'},
+		{'name': 'Superado éxito', 'value': '#8DCA2F'}
 	]).constant('UNIDADESINDICADOR', [
 		{'nombre': 'Segundos', 'tipo': 'Tiempo'},
 		{'nombre': 'Minutos', 'tipo': 'Tiempo'},

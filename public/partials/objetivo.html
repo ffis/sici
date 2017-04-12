@@ -3,7 +3,6 @@
 	<li class="active"><a href="/objetivo/{{objetivo._id}}">{{objetivo.denominacion}}</a></li>
 </ol>
 
-
 <div class="panel panel-default">
 	<div class="panel-heading">
 		<span class="pull-right label label-primary" style="font-size: 10pt;">{{objetivo.estado}}</span>
@@ -141,7 +140,7 @@
 									<option ng-repeat="level in [0, 1, 2, 3, 4]" value="{{level}}">{{level}}</option>
 								</select>
 							</td>
-							<td><input style="width: 100%;" ng-model="formula.intervalos[$index].mensaje" class="form-control"></td>
+							<td><input ng-model="formula.intervalos[$index].mensaje" class="form-control"></td>
 							<td class="text-center"><button class="btn btn-sm btn-danger" ng-click="borrarIntervalo(objetivo.formulas[indiceExterno], $index)"><i class="fa fa-trash"></i></button></td>
 						</tr>
 					</tbody>

@@ -51,8 +51,8 @@
 					}
 				}
 				formula.procedimientos.push({
-					procedimiento: nuevoProcedimiento._id,
-					campo: campoNuevoProcedimiento
+					'procedimiento': nuevoProcedimiento._id,
+					'campo': campoNuevoProcedimiento
 				});
 				$scope.nuevoProcedimiento = '';
 			};

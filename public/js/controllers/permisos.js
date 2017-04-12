@@ -278,16 +278,17 @@
 				});
 
 				$scope.crearnuevousuario = function(){
-					$scope.usuarioencontrado = false;
+					$scope.usuarioencontrado = !$scope.usuarioencontrado;
 					delete $scope.usuarioseleccionado;
-					$scope.is_nuevousuario = true;
+					$scope.is_nuevousuario = !$scope.is_nuevousuario;
 				};
 
 				$scope._crearnuevousuario = function(){
 					if ( ($scope.nuevousuario.login || $scope.nuevousuario.plaza) && $scope.is_nuevousuario) {
-						Persona.save($scope.nuevousuario, function() {
+						Persona.create($scope.nuevousuario, function() {
 							$scope.usuarioseleccionado = $scope.nuevousuario;
 							$scope.nuevousuario = {};
+							$rootScope.toaster('Usuario creado');
 						});
 						$scope.usuarioseleccionado = $scope.showPersona($scope.nuevousuario);
 						$scope.nuevousuario = {};

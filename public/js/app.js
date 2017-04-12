@@ -50,6 +50,7 @@
 			$routeProvider.when('/carta-informe/:idjerarquia/:idcarta', {'templateUrl': '/partials/carta-informeanual.html', 'controller': 'CartaInformeCtrl'});
 			$routeProvider.when('/entidadobjeto', {'templateUrl': '/partials/entidadobjeto.html', 'controller': 'EntidadObjetoCtrl'});
 			$routeProvider.when('/objetivo/:idobjetivo', {'templateUrl': '/partials/objetivo.html', 'controller': 'ObjetivoCtrl'});
+			$routeProvider.when('/compromiso', {'templateUrl': '/partials/compromiso.html', 'controller': 'CompromisoCtrl'});
 			$routeProvider.when('/indicador/:idjerarquia/:idindicador', {'templateUrl': '/partials/indicador.html', 'controller': 'IndicadorCtrl'});
 			$routeProvider.when('/indicador/:idjerarquia', {'templateUrl': '/partials/indicador.html', 'controller': 'IndicadorCtrl'});
 			$routeProvider.when('/formula/:idobjetivo/:index', {'templateUrl': '/partials/formula.html', 'controller': 'FormulaCtrl'});

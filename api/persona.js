@@ -3,6 +3,7 @@
 	process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 	const Q = require('q'),
+		crypto = require('crypto'),
 		soap = require('../lib/soap');
 
 	const WS_USUARIO_EN_GESPER = '00';
@@ -64,7 +65,7 @@
 	module.exports.personasByPuesto = function (req, res) {
 		const personamodel = req.metaenvironment.models.persona();
 		if (typeof req.params.cod_plaza === 'string' && req.params.cod_plaza !== ''){
-			personamodel.find({'codplaza': req.params.cod_plaza}, req.eh.cb(res));
+			personamodel.find({'codplaza': req.params.cod_plaza}, {'contrasenya': 0}, req.eh.cb(res));
 		} else {
 			req.eh.notFoundHelper(res);
 		}
@@ -73,7 +74,7 @@
 	module.exports.personasByLogin = function (req, res) {
 		const personamodel = req.metaenvironment.models.persona();
 		if (typeof req.params.login !== 'undefined' && req.params.cod_plaza !== ''){
-			personamodel.find({'login': req.params.login}, req.eh.cb(res));
+			personamodel.find({'login': req.params.login}, {'contrasenya': 0}, req.eh.cb(res));
 		} else {
 			req.eh.notFoundHelper(res);
 		}
@@ -85,20 +86,43 @@
 			id = req.params.id,
 			content = req.body,
 			habilitado = content.habilitado ? content.habilitado === 'true' || content.habilitado === true : false;
-		personamodel.update({'_id': models.objectId(id)}, {'$set': {habilitado: habilitado}}, req.eh.cbWithDefaultValue(res, {habilitado: habilitado, id: id}));
+		personamodel.update({'_id': models.objectId(id)}, {'$set': {'habilitado': habilitado}}, req.eh.cbWithDefaultValue(res, {'habilitado': habilitado, 'id': id}));
 	};
 
 	module.exports.updatePersona = function (req, res) {
 		const personamodel = req.metaenvironment.models.persona(),
 			id = req.params.id,
 			content = req.body;
-		personamodel.update({'_id': id}, content, {upsert: true}, req.eh.cb(res));
+		personamodel.update({'_id': id}, content, {'upsert': false}, req.eh.cb(res));
 	};
 
 	module.exports.newPersona = function (req, res) {
 		const personamodel = req.metaenvironment.models.persona(),
-			content = req.body;
-		personamodel.create(content, req.eh.cbWithDefaultValue(res, content));
+			content = req.body,
+			login = content.login;
+
+		if (typeof login === 'string' && login.trim() !== ''){
+			personamodel.findOne({'login': login.trim()}, function(err, user){
+				if (err){
+					req.eh.callbackErrorHelper(err);
+				} else if (user){
+					req.eh.notFoundHelper(res);
+				} else {
+					if (typeof content.contrasenya !== 'undefined'){
+						if (typeof content.contrasenya === 'string'){
+							const shasum = crypto.createHash('sha256');
+							shasum.update(content.contrasenya.trim());
+							content.contrasenya = shasum.digest('hex');
+						} else {
+							Reflect.deleteProperty(content, 'contrasenya');
+						}
+					}
+					personamodel.create(content, req.eh.cbWithDefaultValue(res, content));
+				}
+			});
+		} else {
+			req.eh.missingParameterHelper(res, 'login');
+		}
 	};
 
 	function registroPersonaWS(codplaza, models, cfg) {
@@ -116,12 +140,12 @@
 							if (valores[1] === '00') {
 
 								const nuevaPersona = {
-									codplaza: codplaza,
-									login: result.return[0].value,
-									nombre: result.return[1].value, /* TODO: revisar incoherencia con infoByLogin */
-									apellidos: (result.return[6].value + ' ' + result.return[5].value).trim(),
-									telefono: result.return[7].value,
-									habilitado: false
+									'codplaza': codplaza,
+									'login': result.return[0].value,
+									'nombre': result.return[1].value, /* TODO: revisar incoherencia con infoByLogin */
+									'apellidos': (result.return[6].value + ' ' + result.return[5].value).trim(),
+									'telefono': result.return[7].value,
+									'habilitado': false
 								};
 								const output = [{'login': nuevaPersona.login, 'codplaza': nuevaPersona.codplaza, 'nombre': nuevaPersona.nombre, 'apellidos': nuevaPersona.apellidos}];
 										
@@ -184,7 +208,7 @@
 					}
 				]
 			};
-			personamodel.find(restriccion).lean().exec().then(function(data){
+			personamodel.find(restriccion, {'contrasenya': 0}).lean().exec().then(function(data){
 				if (data){
 					res.json(data);
 				} else if (EXPRESSION_REGULAR_LOGIN_CARM.test(req.params.regex)) {
@@ -247,7 +271,7 @@
 		if (typeof req.params.login === 'string'){
 			restriccion.login = req.params.login;
 		}
-		personamodel.find(restriccion).sort({ultimoupdate: 1}).limit(1).exec().then(function(personas){
+		personamodel.find(restriccion).sort({'ultimoupdate': 1}).limit(1).exec().then(function(personas){
 			if (personas.length === 0){
 				req.eh.notFoundHelper(res);
 

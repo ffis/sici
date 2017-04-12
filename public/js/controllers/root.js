@@ -32,7 +32,8 @@
 				{'id': 'crearprocedimiento', 'caption': 'Crear procedimiento', 'icon': 'fa-table'},
 				{'id': 'loginas', 'caption': 'Cambiar de usuario', 'icon': 'fa-user-secret'},
 				{'id': 'feedback', 'caption': 'Incidencias', 'icon': 'fa-bug'},
-				{'id': 'registroactividad', 'caption': 'Registro de actividad', 'icon': 'fa-hourglass-half'}
+				{'id': 'registroactividad', 'caption': 'Registro de actividad', 'icon': 'fa-hourglass-half'},
+				{'id': 'compromiso', 'caption': 'Listado de compromisos', 'icon': 'fa-gavel'}
 			];
 			$rootScope.navegabilidadLast = [
 				{'id': 'logout', 'caption': 'Salir'}

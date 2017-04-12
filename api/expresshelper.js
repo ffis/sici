@@ -59,7 +59,7 @@
 
 	module.exports.notFoundHelper = function(res){
 		res.status(404).json({'error': 'An error has occurred', 'details': 'Not found'});
-		logger.trace(err);
+		logger.trace('Not found');
 	};
 
 	module.exports.unauthenticatedHelper = function(res, details){

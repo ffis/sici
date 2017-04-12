@@ -573,7 +573,7 @@
 				recalculate = req.metaenvironment.recalculate;
 
 		recalculate.softCalculatePermiso(models, permiso).then(function(permis){
-			models.permiso().create(permis, req.eh.cbWithDefaultValue(permis));
+			models.permiso().create(permis, req.eh.cbWithDefaultValue(res, permis));
 		}, req.eh.errorHelper(res));
 	}
 
