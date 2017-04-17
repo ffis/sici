@@ -175,7 +175,8 @@
 		return procedimientomodel.mapReduce({query: restriccion, map: fnMap, reduce: fnReduce, finalize: fnFinalize});
 	}
 
-	function completarTabla(periodo, ws){
+	function completarTabla(anualidad, periodo, ws){
+		ws[XLSX.utils.encode_cell({'c': 3, 'r': 16})] = {'v': anualidad.substring(1, 4), 't': 's'};
 		for (let mes = 0; mes < 12; mes += 1) {
 			ws[XLSX.utils.encode_cell({'c': 4 + mes, 'r': 16})] = {'v': MESES[mes], 't': 's'};
 		}
@@ -304,7 +305,7 @@
 						/* TODO: revisar ese rango */
 						const datosPeriodo = datosRelacionados.filter(function(results){ return results._id.anualidad === anualidad; });
 						if (datosPeriodo.length > 0){
-							completarTabla(datosPeriodo[0].value, ws);
+							completarTabla('a' + anualidad, datosPeriodo[0].value, ws);
 						}
 
 						wb.Sheets[wsName] = ws;
@@ -500,7 +501,7 @@
 			} else {
 				padreDefer.resolve();
 			}
-			completarTabla(proc.periodos[req.params.year], ws);
+			completarTabla(req.params.year, proc.periodos[req.params.year], ws);
 			padreDefer.promise.then(function(padre){
 				if (padre){
 					ws[XLSX.utils.encode_cell({'c': 4, 'r': fila})] = {'v': '[' + padre.codigo + '] ' + padre.denominacion, 't': 's'};
@@ -509,7 +510,7 @@
 				}
 
 				ws['!ref'] = XLSX.utils.encode_range({'s': {'c': 0, 'r': 0}, 'e': {'c': 20, 'r': 40}});
-				wb.SheetNames.push('Procedimiento');
+				wb.SheetNames.push('Procedimiento ' + proc.codigo);
 				wb.Sheets.Procedimiento = ws;
 				const time = new Date().getTime();
 				XLSX.writeFile(wb, cfg.prefixtmp + time + '.xlsx');

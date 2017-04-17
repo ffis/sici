@@ -1,5 +1,6 @@
 <ol class="breadcrumb">
-	<li><a href="/carta/{{carta.idjerarquia}}">{{carta.denominacion}}</a></li>
+	<li><a href="/carta/{{carta.idjerarquia}}">Jerarquía: {{carta.idjerarquia}}</a></li>
+	<li><a href="/carta/{{carta.idjerarquia}}/{{carta._id}}">{{carta.denominacion}}</a></li>
 	<li class="active"><a href="/objetivo/{{objetivo._id}}">{{objetivo.denominacion}}</a></li>
 </ol>
 
@@ -148,8 +149,11 @@
 				<button class="btn btn-xs btn-danger" ng-click="crearNuevoIntervalo(objetivo.formulas[indiceExterno])"><i class="fa fa-plus"></i> Añadir intervalo</button>
 			</div>
 		</div>
-		<div class="col-xs-12">
+		<div class="col-xs-6">
 			<button title="Guardar" class="btn btn-danger btn-sm" ng-click="actualizar()"><i class="fa fa-save"></i> Guardar</button>
+		</div>
+		<div class="col-xs-6">
+			<button title="Registrar nueva fórmula, tenga en cuenta que perderá cualquier otro cambio que haya hecho en esta página" class="btn btn-danger btn-sm" ng-click="newFormula()"><i class="fa fa-plus-circle"></i> Registrar nueva formula</button>
 		</div>
 	</div>
 </div>

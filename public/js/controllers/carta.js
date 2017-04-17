@@ -330,6 +330,33 @@
 					return minval;
 				};
 
+				$scope.crearObjetivo = function(){
+
+					let contador = 1;
+
+					for (contador = 1; contador < $scope.objetivos.length + 1; contador += 1){
+						let found = false;
+						for (let j = 0; j < $scope.objetivos.length; j += 1){
+							if ($scope.objetivos[j].index === contador){
+								found = true;
+								break;
+							}
+						}
+						if (!found){
+							break;
+						}
+					}
+
+					const nuevoObjetivo = new Objetivo();
+					nuevoObjetivo.carta = $scope.cartaservicioseleccionada._id;
+					nuevoObjetivo.denominacion = 'Compromiso ' + contador;
+					nuevoObjetivo.index = contador;
+					nuevoObjetivo.$save(function(){
+						$rootScope.toaster('Nuevo compromiso creado con contador: ' + contador);
+						$scope.setCartaServicio($scope.cartaservicioseleccionada);
+					});
+				};
+
 				$scope.unit = '';
 				$scope.precision = 2;
 			}

@@ -206,7 +206,7 @@
 				objetivomodel.find({'formulas.indicadores': models.objectId(id)}).exec().then(function(objetivos){
 					if (objetivos && objetivos.length > 0){
 						const vinculos = objetivos.map(function(o){ return o.denominacion; }).join(' | ');
-						res.status(403).json({'error': 'No se permite eliminar un indicador vinculado a un objetivo', details: vinculos});
+						res.status(403).json({'error': 'No se permite eliminar un indicador vinculado a un objetivo', 'details': vinculos});
 					} else {
 						indicadormodel.remove({'_id': models.objectId(id)}, req.eh.cbWithDefaultValue(res, content));
 					}
@@ -643,7 +643,7 @@
 			return deferred.promise;
 		}
 		
-		const settCraw = {'maxConnections': 10, 'callback': cbDownloadCarta(deferred, carta._id), userAgent: settings.userAgent};
+		const settCraw = {'maxConnections': 10, 'callback': cbDownloadCarta(deferred, carta._id), 'userAgent': settings.userAgent};
 		const c = new Crawler(settCraw);
 		c.queue(carta.url);
 
@@ -762,7 +762,7 @@
 					if (typeof objetivo.formulas[indiceformula] === 'object'){
 						objetivo.formulas[indiceformula].computer = formula;
 						objetivo.markModified('formulas');
-						objetivomodel.update({'_id': models.objectId(objetivo._id)}, objetivo).exec().then(req.eh.cbWithDefaultValue(res, objetivo), req.eh.errorHelper(res));
+						objetivo.save(req.eh.cbWithDefaultValue(res, objetivo));
 					} else {
 						req.eh.notFoundHelper(res);
 					}
@@ -789,8 +789,8 @@
 						const defer = Q.defer(),
 							defer2 = Q.defer();
 
-						indicadormodel.remove({idjerarquia: carta.idjerarquia}, defer.makeNodeResolver());
-						objetivomodel.remove({carta: carta._id}, defer2.makeNodeResolver());
+						indicadormodel.remove({'idjerarquia': carta.idjerarquia}, defer.makeNodeResolver());
+						objetivomodel.remove({'carta': carta._id}, defer2.makeNodeResolver());
 						Q.all([defer, defer2]).then(function(){ res.json('OK');	}, req.eh.errorHelper(res));
 					} else {
 						req.eh.notFoundHelper(res);
@@ -838,7 +838,7 @@
 					} else {
 						req.eh.notFoundHelper(res);
 					}
-				}, req.eh.errorHelper(res));
+				}).fail(req.eh.errorHelper(res));
 			} else {
 				req.eh.missingParameterHelper(res, 'id');
 			}
@@ -847,15 +847,122 @@
 		}
 	};
 
+	module.exports.newFormula = function(req, res){
+		if (req.user.permisoscalculados.superuser){
+			if (typeof req.params.id === 'string' && req.params.id.trim() !== ''){
+				const models = req.metaenvironment.models,
+					objetivomodel = models.objetivo();
+
+				objetivomodel.findOne({'_id': models.objectId(req.params.id)}).exec().then(function(objetivo){
+					if (typeof objetivo === 'object'){
+						const meta = extraeMeta('');
+						const intervalos = extraeIntervalos(100);
+						const formula = {
+							'human': '',
+							'computer': '',
+							'frecuencia': 'mensual',
+							'indicadores': [],
+							'meta': meta,
+							'direccion': '',
+							'intervalos': intervalos,
+							'valores': {
+								'a2015': [
+									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
+									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}],
+								'a2016': [
+									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
+									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}],
+								'a2017': [
+									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
+									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}]
+							}
+						};
+
+						objetivo.formulas.push(formula);
+						objetivo.markModified('formulas');
+						objetivo.save(req.eh.cbWithDefaultValue(res, objetivo));
+					} else {
+						req.eh.notFoundHelper(res);
+					}
+				}).fail(req.eh.errorHelper(res));
+
+			} else {
+				req.eh.missingParameterHelper(res, 'id');
+			}
+		} else {
+			req.eh.unauthorizedHelper(res);
+		}
+	};
+
+	module.exports.newObjetivo = function(req, res){
+		if (req.user.permisoscalculados.superuser){
+			if (typeof req.body.carta === 'string' && req.body.carta.trim() !== ''){
+				const models = req.metaenvironment.models,
+					entidadobjeto = models.entidadobjeto(),
+					objetivomodel = models.objetivo();
+				entidadobjeto.findOne({'_id': models.objectId(req.body.carta.trim())}).lean().exec().then(function(carta){
+					if (typeof carta === 'object'){
+						/* TODO: this is TOO naive */
+						const compromiso = {
+							'denominacion': req.body.denominacion.trim(),
+							'formulas': [],
+							'carta': models.objectId(req.body.carta.trim()),
+							'index': parseInt(req.body.index, 10),
+							'estado': 'Publicado',
+							'objetivoestrategico': 1,
+							'procedimientos': []
+						};
+
+						const meta = extraeMeta('');
+						const intervalos = extraeIntervalos(100);
+						const formula = {
+							'human': '',
+							'computer': '',
+							'frecuencia': 'mensual',
+							'indicadores': [],
+							'meta': meta,
+							'direccion': '',
+							'intervalos': intervalos,
+							'valores': {
+								'a2015': [
+									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
+									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}],
+								'a2016': [
+									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
+									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}],
+								'a2017': [
+									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
+									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}]
+							}
+						};
+
+						compromiso.formulas.push(formula);
+
+						objetivomodel.create(compromiso, req.eh.cbWithDefaultValue(res, compromiso));
+					} else {
+						req.eh.notFoundHelper(res);
+					}
+
+				}).fail(req.eh.errorHelper(res));
+
+			}
+		} else {
+			req.eh.unauthorizedHelper(res);
+		}
+	};
+
 	module.exports.statsCartas = function(req, res){
+		req.eh.notImplementedHelper(res);
+		/*
 		const models = req.metaenvironment.models,
-			entidadobjeto = models.entidadobjeto()
+			entidadobjeto = models.entidadobjeto(),
 			indicadormodel = models.indicador(),
 			objetivomodel = models.objetivo();
 
 		//indicadormodel.aggregate([{'$group': { '_id': "$idjerarquia", count: }}])
 
 		req.eh.notFoundHelper(res);
+		*/
 	};
 
 	module.exports.downloadCarta = downloadCarta;

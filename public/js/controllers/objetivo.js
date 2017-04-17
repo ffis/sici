@@ -1,8 +1,8 @@
 (function (angular) {
 	'use strict';
 
-	angular.module('sici').controller('ObjetivoCtrl', ['$rootScope', '$scope', '$routeParams', '$window', 'Objetivo', 'Indicador', 'EntidadObjeto', 'Util', 'ProcedimientoList', 'COLORES_OBJETIVOS', '$log',
-		function ($rootScope, $scope, $routeParams, $window, Objetivo, Indicador, EntidadObjeto, Util, ProcedimientoList, COLORES_OBJETIVOS, $log) {
+	angular.module('sici').controller('ObjetivoCtrl', ['$rootScope', '$scope', '$routeParams', '$window', 'Objetivo', 'Indicador', 'EntidadObjeto', 'Util', 'ProcedimientoList', 'COLORES_OBJETIVOS', '$log', '$location',
+		function ($rootScope, $scope, $routeParams, $window, Objetivo, Indicador, EntidadObjeto, Util, ProcedimientoList, COLORES_OBJETIVOS, $log, $location) {
 			$rootScope.nav = 'objetivo';
 			$rootScope.setTitle('Objetivos');
 			$scope.procedimientosById = {};
@@ -18,7 +18,7 @@
 				}
 			});
 			$scope.idobjetivo = ($routeParams.idobjetivo) ? $routeParams.idobjetivo : false;
-			$scope.objetivo = Objetivo.get({id: $scope.idobjetivo}, function () {
+			$scope.objetivo = Objetivo.get({'id': $scope.idobjetivo}, function () {
 				$scope.carta = EntidadObjeto.get({id: $scope.objetivo.carta}, function () {
 					$scope.indicadoresNodo = Indicador.query({'idjerarquia': $scope.carta.idjerarquia});
 				});
@@ -85,6 +85,15 @@
 					$rootScope.toaster('Objetivo actualizado correctamente', 'Éxito');
 				}, function(err){
 					$rootScope.toaster(err, 'Error', 'warning');
+				});
+			};
+
+			$scope.newFormula = function(){
+				const o = new Objetivo();
+				o._id = $scope.objetivo._id;
+				o.newFormula = 'newFormula';
+				o.$update(function(){
+					$window.location.href = '/objetivo/' + $scope.objetivo._id;
 				});
 			};
 

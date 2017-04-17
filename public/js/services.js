@@ -114,7 +114,7 @@
 	}]).factory('PersonasByRegexp', ['$resource', function($resource) {
 		return $resource('/api/v1/private/personasByRegexp/:regex', {}, standardQuery);
 	}]).factory('Objetivo', ['$resource', function($resource) {
-		return $resource('/api/v2/public/objetivo/:id', {'id': '@_id'}, standardCrud);
+		return $resource('/api/v2/public/objetivo/:newFormula/:id', {'id': '@_id', 'newFormula': '@newFormula'}, standardCrud);
 	}]).factory('ObjetivoStats', ['$resource', function($resource) {
 		return $resource('/api/v2/public/objetivosStats/:id', {'id': '@_id'}, standardQuery);
 	}]).factory('Indicador', ['$resource', function($resource) {

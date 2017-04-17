@@ -32,15 +32,18 @@
 		app.post('/public/dropCarta/:id', metaenvironment.carta.dropCarta);
 		app.post('/public/entidadobjeto', metaenvironment.entidadobjeto.create);
 		app.post('/public/indicador', metaenvironment.carta.newIndicador);
+		app.post('/public/objetivo', metaenvironment.carta.newObjetivo);
 		app.post('/public/planmejora/', metaenvironment.planmejora.create);
 		app.post('/public/testDownloadCarta/:id', metaenvironment.carta.testDownloadCarta);
 
 		app.put('/public/accionmejora/:id', metaenvironment.accionmejora.update);
 		app.put('/public/entidadobjeto/:id', metaenvironment.entidadobjeto.update);
 		app.put('/public/indicador/:id', metaenvironment.carta.actualizaindicador);
+		app.put('/public/objetivo/newFormula/:id', metaenvironment.carta.newFormula);
 		app.put('/public/objetivo/:id', metaenvironment.carta.actualizaobjetivo);
 		app.put('/public/planmejora/:id', metaenvironment.planmejora.update);
 		app.put('/public/updateformula', metaenvironment.carta.updateFormula);
+
 
 		this.app = app;
 	}

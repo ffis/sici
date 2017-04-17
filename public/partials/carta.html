@@ -9,7 +9,7 @@
 		<div ng-if="cartasservicio.length" class="table-responsive">
 			<p>
 				<div class="btn-group hidden-print">
-					<a class="btn btn-danger" ng-click="importarObjetivos()" ng-if="superuser && objetivos.$resolved && objetivos.length == 0">
+					<a class="btn btn-danger" ng-click="importarObjetivos()" ng-if="superuser && objetivos.$resolved && objetivos.length == 0" title="Descargar carta desde la publicada">
 						<span class="glyphicon glyphicon-download"></span>
 					</a>
 					<a class="btn btn-default" target="_blank" href="{{cartaservicioseleccionada.url}}" title="Ver informaci&oacute;n publicada"><span class="glyphicon glyphicon-info-sign"></span></a>
@@ -17,14 +17,17 @@
 					<a class="btn btn-default" href="#" ng-click="downloadxls()" title="Descargar versi&oacute;n XLSX"><span class="glyphicon glyphicon-th"></span></a>
 					<a class="btn btn-default" target="_blank" href="/carta-informe/{{seleccionado.id}}/{{cartaservicioseleccionada._id}}" title="Ver planes de mejora"><span class="glyphicon glyphicon-check"></span></a>
 					<a class="btn btn-default" ng-click="mutexFormulas()" title="Ver f&oacute;rmulas"><span class="fa" ng-class="{'fa-toggle-on': showformulas, 'fa-toggle-off': !showformulas}"></span></a>
-					<div class="btn-group">
-						<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						{{cartaservicioseleccionada.expediente}} {{cartaservicioseleccionada.denominacion}} <span class="caret" ng-if="cartasservicio.length > 1"></span>
-						</button>
-						<ul class="dropdown-menu" ng-if="cartasservicio.length > 1">
-							<li ng-repeat="c in cartasservicio"><a href="{{c.urledicion}}">{{c.expediente}} {{c.denominacion}}</a></li>
-						</ul>
-					</div>
+					<a class="btn btn-danger" ng-click="crearObjetivo()" ng-if="superuser && objetivos.$resolved && objetivos.length > 0" title="Dar de alta objetivo vacío">
+						<span class="glyphicon glyphicon-duplicate"></span>
+					</a>
+				</div>
+				<div class="btn-group">
+					<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					{{cartaservicioseleccionada.expediente}} {{cartaservicioseleccionada.denominacion}} <span class="caret" ng-if="cartasservicio.length > 1"></span>
+					</button>
+					<ul class="dropdown-menu" ng-if="cartasservicio.length > 1">
+						<li ng-repeat="c in cartasservicio"><a href="{{c.urledicion}}">{{c.expediente}} {{c.denominacion}}</a></li>
+					</ul>
 				</div>
 				<p class="visible-print-block">
 					{{cartaservicioseleccionada.expediente}} {{cartaservicioseleccionada.denominacion}} - {{$root.anualidad}}

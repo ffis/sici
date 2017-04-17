@@ -29,12 +29,6 @@
 			</div>
 			<!-- FIN ARBOL PARA CAMBIO DE JERARQUÍA -->
 
-			<nav>
-				<ul class="pager" ng-if="procedimientoSeleccionado.periodos[$root.anualidad]" >
-					<li ng-if="!!procedimientoSeleccionado.periodos['a' + getPrev()]" class="previous" ><a ng-click="prevYear()" href="" ><span aria-hidden="true">&larr;</span> {{getPrev()}}</a></li>
-					<li ng-if="!!procedimientoSeleccionado.periodos['a' + getNext()]" class="next" ><a ng-click="nextYear()" href="" >{{getNext()}} <span aria-hidden="true">&rarr;</span></a></li>
-				</ul>
-			</nav>
 			<!--[if lt IE 9]>
 			<p style="margin-top:1em;">
 					<div class="alert alert-warning" role="alert">Esta usted utilizando una versión de Internet Explorer obsoleta con la que podrá introducir datos pero que no permite ciertas funcionalidades de la aplicación.
@@ -107,8 +101,8 @@ Actualice el navegador a la versión más reciente o instale <a target="_blank" 
 					</div>
 					<div class="panel-body">
 
-						<div class="btn-group" ng-if="$root.permisoscalculados.superuser">
-							<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<div class="btn-group">
+							<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-if="$root.permisoscalculados.superuser">
 								Modificar <span class="caret"></span>
 							</button>
 							<button type="button" class="btn btn-default" aria-label="Exportar excel" ng-click="descargarExcel()">

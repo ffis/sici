@@ -79,6 +79,10 @@
 		res.status(409).json({'error': 'Missing parameter', 'details': parametername});
 	};
 
+	module.exports.notImplementedHelper = function(res){
+		res.status(501).json({'error': 'Not implemented'});
+	};
+
 })(module, console);
 
 /*
