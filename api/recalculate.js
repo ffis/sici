@@ -308,7 +308,7 @@
 			deferredPersona = Q.all([]);
 		}
 
-		Q.all([deferredJerarquia.promise, deferredPersona.promise]).then(function(datos){
+		Q.all([deferredJerarquia.promise, deferredPersona]).then(function(datos){
 
 			procedimiento.ancestros = datos[0];//jerarquias;
 			procedimiento.responsables = datos[1];//personas;
