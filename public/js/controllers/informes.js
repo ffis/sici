@@ -115,9 +115,8 @@
 							let color = '';
 							for (let i = 0, j = intervalos.length; i < j; i += 1){
 								const intervalo = intervalos[i];
-								if (intervalo.min <= resultado && resultado < intervalo.max){
+								if (intervalo.min <= resultado && resultado <= intervalo.max){
 									color = intervalo.color.toUpperCase();
-									break;
 								}
 							}
 							formula.valores[anualidad][12].color = color;
