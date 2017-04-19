@@ -450,13 +450,13 @@
 					(min / max).toFixed(2)
 				];
 
-				return 'rgba(' + components.join(',') + ')';
+				return 'rgba(' + components.join(', ') + ')';
 			}
 
 			$scope.getCellStyle = function(colorEnabled, colorbase, min, max){
 				if (colorEnabled && typeof colorbase === 'string' && colorbase.length === 7 && typeof min !== 'undefined' && typeof max === 'number' && max !== 0){
-
-					return {'background-color': toRGBA(colorbase, min, max)};
+					console.log('background-color:' + toRGBA(colorbase, min, max) + ' !important')
+					return 'background-color:' + toRGBA(colorbase, min, max) + ' !important';
 				}
 
 				return '';

@@ -51,7 +51,7 @@
 				<th scope="col" ng-if="informedetalladocarta" ng-click="setOrderBy('expediente')">Expediente</th>
 				<th scope="col">Compromisos</th>
 				<th scope="col" colspan="2">Fórmulas</th>
-				<th scope="col" ng-repeat="color in colores" ng-style="getCellStyle(colorEnabled,color.value,1,1)">{{color.name}}</th>
+				<th scope="col" ng-repeat="color in colores" style="{{getCellStyle(colorEnabled,color.value,1,1)}}">{{color.name}}</th>
 				<th scope="col" colspan="2">Indicadores</th>
 				<th scope="col" title="Plan de mejora">Planes</th>
 				<th scope="col">Acciones</th>
@@ -68,7 +68,7 @@
 				<td class="text-right porcentaje bar{{colorEnabled ? (getPorcentajeFormulasJerarquiaCumplimentadas('' + (nodo.id), $root.anualidad) * 10|number:0) : ''}}">
 					<span style="white-space:nowrap">{{getPorcentajeFormulasJerarquiaCumplimentadas('' + (nodo.id), $root.anualidad) * 100|number:2}}</span>
 				</td>
-				<td class="text-right" scope="col" ng-style="getCellStyle(colorEnabled, color.value, coloresFormulasPorJerarquia['' + (nodo.id)][$root.anualidad][color.value], formulasByJerarquia['' + (nodo.id)].length)" ng-repeat="color in colores">{{coloresFormulasPorJerarquia['' + (nodo.id)][$root.anualidad][color.value]}}</td>
+				<td class="text-right" scope="col" style="{{getCellStyle(colorEnabled, color.value, coloresFormulasPorJerarquia['' + (nodo.id)][$root.anualidad][color.value], formulasByJerarquia['' + (nodo.id)].length)}}" ng-repeat="color in colores">{{coloresFormulasPorJerarquia['' + (nodo.id)][$root.anualidad][color.value]}}</td>
 				<td class="text-right">{{indicadoresByIdJerarquiaRecursivo['' + nodo.id].length}}</td>
 				<td class="text-right porcentaje bar{{colorEnabled ? (getPorcentajeIndicadoresRecursivoCumplimentados('' + nodo.id, $root.anualidad) * 10| number:0) : ''}}">
 					<span style="white-space:nowrap">{{getPorcentajeIndicadoresRecursivoCumplimentados('' + nodo.id, $root.anualidad)*100| number:2}}</span>
@@ -97,7 +97,7 @@
 				<td class="text-right porcentaje bar{{colorEnabled ? (getPorcentajeFormulasCumplimentadas(carta._id, $root.anualidad)*10|number:0) : ''}}">
 					<span style="white-space:nowrap">{{getPorcentajeFormulasCumplimentadas(carta._id, $root.anualidad)*100|number:2}}</span>
 				</td>
-				<td class="text-right" scope="col" ng-style="getCellStyle(colorEnabled, color.value, coloresFormulasPorCarta[carta._id][$root.anualidad][color.value], formulasByCarta[carta._id].length)" ng-repeat="color in colores">{{coloresFormulasPorCarta[carta._id][$root.anualidad][color.value]}}</td>
+				<td class="text-right" scope="col" style="{{getCellStyle(colorEnabled, color.value, coloresFormulasPorCarta[carta._id][$root.anualidad][color.value], formulasByCarta[carta._id].length)}}" ng-repeat="color in colores">{{coloresFormulasPorCarta[carta._id][$root.anualidad][color.value]}}</td>
 				<td class="text-right">{{indicadoresByIdJerarquia['' + carta.idjerarquia].length}}</td>
 				<td class="text-right porcentaje bar{{colorEnabled ? (getPorcentajeIndicadoresCumplimentados(carta.idjerarquia, $root.anualidad)*10| number:0) : ''}}">
 					<span style="white-space:nowrap">{{getPorcentajeIndicadoresCumplimentados(carta.idjerarquia, $root.anualidad)*100| number:2}}</span>
@@ -311,52 +311,72 @@
 }
 
 .bar1 {
-	background-image: -webkit-gradient(linear, left top, right top, from(#c50200), to(white), color-stop(0.10, #c50200), color-stop(0.10, white));
-	background-image: -moz-linear-gradient(0, #c50200 0%, #c50200 10%, white 10%, white 100%);
+	background-image: -webkit-gradient(linear, left top, right top, from(#c50200), to(white), color-stop(0.10, #c50200), color-stop(0.10, white)) !important;
+	background-image: -moz-linear-gradient(0, #c50200 0%, #c50200 10%, white 10%, white 100%) !important;
+	-webkit-print-color-adjust: exact;
+	color-adjust: exact;
 }
 
 .bar2 {
-	background-image: -webkit-gradient(linear, left top, right top, from(#c50200), to(white), color-stop(0.20, #c50200), color-stop(0.20, white));
-	background-image: -moz-linear-gradient(0, #c50200 0%, #c50200 20%, white 20%, white 100%);
+	background-image: -webkit-gradient(linear, left top, right top, from(#c50200), to(white), color-stop(0.20, #c50200), color-stop(0.20, white)) !important;
+	background-image: -moz-linear-gradient(0, #c50200 0%, #c50200 20%, white 20%, white 100%) !important;
+	-webkit-print-color-adjust: exact;
+	color-adjust: exact;
 }
 
 .bar3 {
-	background-image: -webkit-gradient(linear, left top, right top, from(#ff7700), to(white), color-stop(0.30, #ff7700), color-stop(0.30, white));
-	background-image: -moz-linear-gradient(0, #ff7700 0%, #ff7700 30%, white 30%, white 100%);
+	background-image: -webkit-gradient(linear, left top, right top, from(#ff7700), to(white), color-stop(0.30, #ff7700), color-stop(0.30, white)) !important;
+	background-image: -moz-linear-gradient(0, #ff7700 0%, #ff7700 30%, white 30%, white 100%) !important;
+	-webkit-print-color-adjust: exact;
+	color-adjust: exact;
 }
 
 .bar4 {
-	background-image: -webkit-gradient(linear, left top, right top, from(#ff7700), to(white), color-stop(0.40, #ff7700), color-stop(0.40, white));
-	background-image: -moz-linear-gradient(0, #ff7700 0%, #ff7700 40%, white 40%, white 100%);
+	background-image: -webkit-gradient(linear, left top, right top, from(#ff7700), to(white), color-stop(0.40, #ff7700), color-stop(0.40, white)) !important;
+	background-image: -moz-linear-gradient(0, #ff7700 0%, #ff7700 40%, white 40%, white 100%) !important;
+	-webkit-print-color-adjust: exact;
+	color-adjust: exact;
 }
 
 .bar5 {
-	background-image: -webkit-gradient(linear, left top, right top, from(#fdc702), to(white), color-stop(0.50, #fdc702), color-stop(0.50, white));
-	background-image: -moz-linear-gradient(0, #fdc702 0%, #fdc702 50%, white 50%, white 100%);
+	background-image: -webkit-gradient(linear, left top, right top, from(#fdc702), to(white), color-stop(0.50, #fdc702), color-stop(0.50, white)) !important;
+	background-image: -moz-linear-gradient(0, #fdc702 0%, #fdc702 50%, white 50%, white 100%) !important;
+	-webkit-print-color-adjust: exact;
+	color-adjust: exact;
 }
 
 .bar6 {
-	background-image: -webkit-gradient(linear, left top, right top, from(#fdc702), to(white), color-stop(0.60, #fdc702), color-stop(0.60, white));
-	background-image: -moz-linear-gradient(0, #fdc702 0%, #fdc702 60%, white 60%, white 100%);
+	background-image: -webkit-gradient(linear, left top, right top, from(#fdc702), to(white), color-stop(0.60, #fdc702), color-stop(0.60, white)) !important;
+	background-image: -moz-linear-gradient(0, #fdc702 0%, #fdc702 60%, white 60%, white 100%) !important;
+	-webkit-print-color-adjust: exact;
+	color-adjust: exact;
 }
 
 .bar7 {
-	background-image: -webkit-gradient(linear, left top, right top, from(#c6e497), to(white), color-stop(0.70, #c6e497), color-stop(0.70, white));
-	background-image: -moz-linear-gradient(0, #c6e497 0%, #c6e497 70%, white 70%, white 100%);
+	background-image: -webkit-gradient(linear, left top, right top, from(#c6e497), to(white), color-stop(0.70, #c6e497), color-stop(0.70, white)) !important;
+	background-image: -moz-linear-gradient(0, #c6e497 0%, #c6e497 70%, white 70%, white 100%) !important;
+	-webkit-print-color-adjust: exact;
+	color-adjust: exact;
 }
 
 .bar8 {
-	background-image: -webkit-gradient(linear, left top, right top, from(#c6e497), to(white), color-stop(0.80, #c6e497), color-stop(0.80, white));
-	background-image: -moz-linear-gradient(0, #c6e497 0%, #c6e497 80%, white 80%, white 100%);
+	background-image: -webkit-gradient(linear, left top, right top, from(#c6e497), to(white), color-stop(0.80, #c6e497), color-stop(0.80, white)) !important;
+	background-image: -moz-linear-gradient(0, #c6e497 0%, #c6e497 80%, white 80%, white 100%) !important;
+	-webkit-print-color-adjust: exact;
+	color-adjust: exact;
 }
 
 .bar9 {
-	background-image: -webkit-gradient(linear, left top, right top, from(#8dca2f), to(white), color-stop(0.90, #8dca2f), color-stop(0.90, #8dca2f));
-	background-image: -moz-linear-gradient(0, #8dca2f 0%, #8dca2f 90%, white 90%, white 100%);
+	background-image: -webkit-gradient(linear, left top, right top, from(#8dca2f), to(white), color-stop(0.90, #8dca2f), color-stop(0.90, #8dca2f)) !important;
+	background-image: -moz-linear-gradient(0, #8dca2f 0%, #8dca2f 90%, white 90%, white 100%) !important;
+	-webkit-print-color-adjust: exact;
+	color-adjust: exact;
 }
 
 .bar10 {
 	background-color: #8dca2f;
+	-webkit-print-color-adjust: exact;
+	color-adjust: exact;
 }
 
 td.porcentaje > span::after {
