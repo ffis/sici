@@ -1646,3 +1646,10 @@ organismos > div > div.panel-body > ul > li > ul > li.ng-enter.ng-enter-active {
   max-height:24px;
 }
 
+.borderedparagraph{
+    border-radius: 1px;
+    box-shadow: 0 5px 5px 0 rgba(0, 0, 0, 0.25);
+    background-color: white;
+    width: 98%;
+    padding: 0.5em;
+}

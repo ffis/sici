@@ -1,4 +1,4 @@
-(function(angular){
+(function(angular, d3){
 	'use strict';
 
 	/* Services */
@@ -132,12 +132,17 @@
 	}]).factory('PermisosEntidadObjetoList', ['$resource', function($resource) {
 		return $resource('/api/v1/private/permisosEntidadObjetoList/:codigoentidadobjeto', {}, standardQuery);
 	}]).factory('PastelColor', function(){
+		const colorsfn = d3.scale.category20();
 		const colors = [];
 
 		return function(i){
 			if (typeof colors[i] === 'undefined'){
-				const hue = Math.floor(Math.random() * 360);
-				colors[i] = 'hsl(' + hue + ', 100%, 87.5%)';
+				if (i < 19){
+					colors[i] = colorsfn(i + 2);
+				} else {
+					const hue = Math.floor(Math.random() * 360);
+					colors[i] = 'hsl(' + hue + ', 100%, 87.5%)';
+				}
 			}
 
 			return colors[i];
@@ -214,4 +219,4 @@
 	}])
 	.value('version', '2.0');
 
-})(angular);
+})(angular, d3);

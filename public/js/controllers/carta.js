@@ -53,7 +53,6 @@
 
 						return;
 					}
-					
 
 					for (let idx = 0, idxmax = $scope.arbol.length; idx < idxmax; idx += 1){
 						if (setJ($scope.arbol[idx], idj)){
@@ -229,23 +228,24 @@
 					});
 				};
 
-				$scope.recargarObjetivo = function(counter){
-					var loadAndSetValores = function(obj){
-						return function(loaded){
-							postLoadObjetivo(loaded);
-							if (typeof loaded.formulas !== 'undefined'){
-								for (var i = 0, j = loaded.formulas.length; i < j; i += 1){
-									obj.formulas[i].valores = loaded.formulas[i].valores;
-									if (typeof loaded.formulas[i].gaugevalue !== 'undefined'){
-										for (var anu in loaded.formulas[i].gaugevalue){
-											obj.formulas[i].gaugevalue[anu] = loaded.formulas[i].gaugevalue[anu];
-										}
+				function loadAndSetValores(obj){
+					return function(loaded){
+						postLoadObjetivo(loaded);
+						if (typeof loaded.formulas !== 'undefined'){
+							for (var i = 0, j = loaded.formulas.length; i < j; i += 1){
+								obj.formulas[i].valores = loaded.formulas[i].valores;
+								if (typeof loaded.formulas[i].gaugevalue !== 'undefined'){
+									for (var anu in loaded.formulas[i].gaugevalue){
+										obj.formulas[i].gaugevalue[anu] = loaded.formulas[i].gaugevalue[anu];
 									}
-									obj.formulas[i].uppervalue = loaded.formulas[i].uppervalue;
 								}
+								obj.formulas[i].uppervalue = loaded.formulas[i].uppervalue;
 							}
-						};
+						}
 					};
+				}
+
+				$scope.recargarObjetivo = function(counter){
 					Objetivo.get({'id': $scope.objetivos[counter]._id}, loadAndSetValores($scope.objetivos[counter]));
 				};
 

@@ -122,6 +122,7 @@
 				$scope.updateGraphKeys = function(){
 					if (!$scope.procedimientoSeleccionado) return;
 					$scope.sparkline();
+					const defaultOptions = {'legend': {'display': true}};
 					const anualidad = $rootScope.getIntAnualidad();
 					const anualidadAnterior = anualidad - 1;
 					const graphskeys = [
@@ -196,7 +197,7 @@
 						});
 
 						if (maxvalue > 0){
-							$scope.graphs.push({'data': data, 'labels': labels, 'series': series, 'caption': caption});
+							$scope.graphs.push({'data': data, 'labels': labels, 'series': series, 'caption': caption, 'options': defaultOptions});
 						}
 					});
 					$scope.numgraphs = $scope.graphs.length;
