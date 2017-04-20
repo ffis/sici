@@ -88,7 +88,7 @@
 	ExportadorCartas.prototype.loadIndicadores = function(jerarquiaid){
 
 		const defer = Q.defer();
-		this.models.indicadormodel.find({'idjerarquia': parseInt(jerarquiaid, 10)}).then(function(indicadores){
+		this.models.indicadormodel.find({'idjerarquia': parseInt(jerarquiaid, 10)}).lean().exec().then(function(indicadores){
 			defer.resolve(indicadores.reduce(function(prev, indicador){
 				prev[String(indicador._id)] = indicador;
 
@@ -102,7 +102,7 @@
 	ExportadorCartas.prototype.loadProcedimientos = function(ids){
 		
 		const defer = Q.defer();
-		this.models.procedimientomodel.find({'_id': {$in: ids}}).then(function(o){
+		this.models.procedimientomodel.find({'_id': {'$in': ids}}).lean().exec().then(function(o){
 			defer.resolve(o.reduce(function(prev, procedimiento){
 				prev[String(procedimiento._id)] = procedimiento;
 
@@ -171,6 +171,7 @@
 				return 'FF' + formula.intervalos[i].color.replace('#', '');
 			}
 		}
+
 		return '';
 	}
 
@@ -187,7 +188,7 @@
 	}
 
 	function array_sum(arr){
-		return arr.reduce(function(a, b){ return a + b; });
+		return arr.reduce(function(a, b){ return a + b; }, 0);
 	}
 
 	function valueRowProcedimiento(worksheet, fila, anualidad, procedimiento, campo){
@@ -201,7 +202,7 @@
 		});
 		getCell(worksheet, 'O' + fila, 'n').value = array_sum(datos);
 
-		for (var i = 3; i < 16; i++){
+		for (var i = 3; i < 16; i += 1){
 			row.getCell(i).border = BORDERED;
 		}
 	}
@@ -221,7 +222,7 @@
 				}
 				const bg = bgColorResultado(datos[i].resultado, formula);
 				if (bg !== ''){
-					celda.fill = {type: 'pattern', pattern: 'darkVertical', fgColor:{argb: bg}};
+					celda.fill = {type: 'pattern', pattern: 'darkVertical', fgColor: {'argb': bg}};
 				}
 			}
 		}

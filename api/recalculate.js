@@ -278,7 +278,7 @@
 				});
 				deferredJerarquia.resolve(jerarquias);
 			} else {
-				jerarquiamodel.findOne({'id': idjerarquia}).exec().then(function(jerarquia){
+				jerarquiamodel.findOne({'id': idjerarquia}).lean().exec().then(function(jerarquia){
 					if (!jerarquia) {
 						deferred.resolve([]);
 

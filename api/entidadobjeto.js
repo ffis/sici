@@ -8,10 +8,19 @@
 			entidadobjetomodel.findOne({'_id': models.objectId(req.params.id)}).lean().exec().then(req.eh.okHelper(res), req.eh.errorHelper(res));
 		} else {
 			const restricciones = JSON.parse(JSON.stringify(req.query));
+			let fields = false;
+			if (typeof restricciones.fields === 'string'){
+				fields = restricciones.fields;
+				Reflect.deleteProperty(restricciones, 'fields');
+			}
 			if (typeof restricciones.idjerarquia === 'string'){
 				restricciones.idjerarquia = parseInt(restricciones.idjerarquia, 10);
 			}
-			entidadobjetomodel.find(restricciones).lean().exec().then(req.eh.okHelper(res), req.eh.errorHelper(res));
+			const query = entidadobjetomodel.find(restricciones).lean();
+			if (fields){
+				query.select(fields);
+			}
+			query.exec().then(req.eh.okHelper(res), req.eh.errorHelper(res));
 		}
 	};
 

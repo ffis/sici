@@ -1,6 +1,7 @@
 <div class="row">
 	<div class="col-md-12">
 		<div style="clear:both" class="table-responsive">
+		<!--
 			<table class="table table-striped table-condensed">
 				<thead>
 					<tr>
@@ -30,6 +31,46 @@
 						<td class="text-right" ng-repeat-end ng-style="{'background-color':intervalo.color}">{{intervalo.max}}</td>
 					</tr>
 					<tr ng-if="false" ng-repeat-end></tr>
+				</tbody>
+			</table>
+		-->
+		</div>
+	</div>
+</div>
+
+<button class="btn btn-default" ng-click="$root.exportXLS('compromisos', 'compromisos')">
+	<i class="fa fa-file-excel-o" aria-hidden="true"></i> Descargar excel
+</button>
+
+<div class="row" style="clear:both">
+	<div class="col-md-12">
+		<div style="clear:both" class="table-responsive" id="compromisos">
+			<table class="table table-striped table-condensed">
+				<thead>
+					<tr>
+						<th scope="col">Carta</th>
+						<th scope="col">Nº C.</th>
+						<th scope="col">Comp.</th>
+						<th scope="col">Fórmula</th>
+						<th scope="col">Frecuencia</th>
+						<th scope="col">Meta</th>
+						<th scope="col" class="text-center" ng-repeat="color in colores" colspan="3" style="background-color: {{color.value}}">{{color.name}}</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat-start="compromiso in compromisos" ng-if="false">
+					</tr>
+					<tr ng-repeat="formula in compromiso.formulas" ng-repeat-end>
+						<td>{{cartasById[compromiso.carta].denominacion}}</td>
+						<td class="text-right">{{compromiso.index}}</td>
+						<td>{{compromiso.denominacion}}</td>
+						<td><a href="/objetivo/{{compromiso._id}}" target="_blank">{{formula.human}}</a></td>
+						<td>{{formula.frecuencia}}</td>
+						<td class="text-right">{{formula.meta}}</td>
+						<td scope="col" ng-repeat-start="color in colores" ng-style="{'background-color': color.value}">{{getIntervalo(color, formula.intervalos).mensaje}}</td>
+						<td scope="col" class="text-right" ng-style="{'background-color': color.value}">{{getIntervalo(color, formula.intervalos).min}}</td>
+						<td scope="col" class="text-right" ng-repeat-end ng-style="{'background-color': color.value}">{{getIntervalo(color, formula.intervalos).max}}</td>
+					</tr>
 				</tbody>
 			</table>
 		</div>
