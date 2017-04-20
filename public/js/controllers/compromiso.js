@@ -4,7 +4,12 @@
 			['$rootScope', '$scope', 'Objetivo', 'EntidadObjeto', 'COLORES_OBJETIVOS',
 			function ($rootScope, $scope, Objetivo, EntidadObjeto, COLORES_OBJETIVOS) {
 				$rootScope.nav = 'compromiso';
-				$scope.compromisos = Objetivo.query();
+				Objetivo.query(function(compromisos){
+					compromisos.sort(function(a, b){
+						return (a.carta === b.carta) ? a.index - b.index : a.carta - b.carta;
+					});
+					$scope.compromisos = compromisos;
+				});
 				EntidadObjeto.query({'tipoentidad': 'CS', 'fields': 'denominacion'}, function(cartas){
 					$scope.cartasById = cartas.reduce(function(prev, carta){
 						prev[carta._id] = carta;

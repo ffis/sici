@@ -112,10 +112,10 @@
 							formula.valores[anualidad][12].color = '';
 						} else {
 							const intervalos = formula.intervalos;
-							let color = '';
+							let color = COLORES_OBJETIVOS[0].value;
 							for (let i = 0, j = intervalos.length; i < j; i += 1){
 								const intervalo = intervalos[i];
-								if (intervalo.min <= resultado && resultado <= intervalo.max){
+								if (intervalo.min < resultado && resultado <= intervalo.max){
 									color = intervalo.color.toUpperCase();
 								}
 							}

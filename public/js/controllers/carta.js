@@ -200,7 +200,7 @@
 					let result = false;
 					const coef = meta / metaparcial;
 					for (let i = 0, j = formula.intervalos.length; i < j; i += 1){
-						if (sumatorio * coef >= formula.intervalos[i].min && sumatorio * coef <= formula.intervalos[i].max){
+						if (sumatorio * coef > formula.intervalos[i].min && sumatorio * coef <= formula.intervalos[i].max){
 							result = formula.intervalos[i].color;
 						}
 					}
@@ -297,7 +297,7 @@
 
 					let result = '';
 					for (let i = 0, j = formula.intervalos.length; i < j; i += 1){
-						if (resultado >= formula.intervalos[i].min && resultado <= formula.intervalos[i].max){
+						if (resultado > formula.intervalos[i].min && resultado <= formula.intervalos[i].max){
 							result = formula.intervalos[i].color;
 							break;
 						}
