@@ -6,7 +6,7 @@
 				$rootScope.nav = 'compromiso';
 				Objetivo.query(function(compromisos){
 					compromisos.sort(function(a, b){
-						return (a.carta === b.carta) ? a.index - b.index : a.carta - b.carta;
+						return (a.carta === b.carta) ? a.index - b.index : a.carta.localeCompare(b.carta);
 					});
 					$scope.compromisos = compromisos;
 				});
