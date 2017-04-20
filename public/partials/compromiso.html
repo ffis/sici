@@ -38,12 +38,27 @@
 	</div>
 </div>
 
-<button class="btn btn-default" ng-click="$root.exportXLS('compromisos', 'compromisos')">
-	<i class="fa fa-file-excel-o" aria-hidden="true"></i> Descargar excel
-</button>
 
-<div class="row" style="clear:both">
+
+
+
+
+<div class="row" style="clear:both;">
 	<div class="col-md-12">
+		<div class="col-md-9 hidden-print">
+			<p class="borderedparagraph">Las operaciones de copiar y pegar intervalos sólo están disponibles para compromisos que comparten <em>meta</em>, es decir, que por ejemplo, ambos tienen 100 como valor en el campo <em>meta</em>. Sólo se copian los intervalos, el resto de campos permanecen intactos. Es posible que sea necesario visitar la carta a la que pertenece para que se recalculen los colores en las estadísticas.</p>
+		</div>
+		<div class="col-md-3 text-right hidden-print">
+			<div class="btn-group" style="margin-bottom: 2em">
+				<button class="btn btn-default" ng-click="$root.exportXLS('compromisos', 'compromisos')" ng-disabled="editable">
+					<i class="fa fa-file-excel-o" aria-hidden="true"></i> Descargar excel
+				</button>
+				<button class="btn btn-default" ng-click="setEditable()">
+					<i class="fa fa-edit" aria-hidden="true"></i> Editar intervalos
+				</button>
+			</div>
+		</div>
+
 		<div style="clear:both" class="table-responsive" id="compromisos">
 			<table class="table table-striped table-condensed">
 				<thead>
@@ -55,12 +70,13 @@
 						<th scope="col">Frecuencia</th>
 						<th scope="col">Meta</th>
 						<th scope="col" class="text-center" ng-repeat="color in colores" colspan="3" style="background-color: {{color.value}}">{{color.name}}</th>
+						<th scope="col" ng-if="editable">Operaciones</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr ng-repeat-start="compromiso in compromisos" ng-if="false">
 					</tr>
-					<tr ng-repeat="formula in compromiso.formulas" ng-repeat-end>
+					<tr ng-repeat="formula in compromiso.formulas" ng-repeat-end ng-class="{'info': selected === formula}">
 						<td>{{cartasById[compromiso.carta].denominacion}}</td>
 						<td class="text-right">{{compromiso.index}}</td>
 						<td>{{compromiso.denominacion}}</td>
@@ -70,6 +86,14 @@
 						<td scope="col" ng-repeat-start="color in colores" ng-style="{'background-color': color.value}">{{getIntervalo(color, formula.intervalos).mensaje}}</td>
 						<td scope="col" class="text-right" ng-style="{'background-color': color.value}">{{getIntervalo(color, formula.intervalos).min}}</td>
 						<td scope="col" class="text-right" ng-repeat-end ng-style="{'background-color': color.value}">{{getIntervalo(color, formula.intervalos).max}}</td>
+						<td class="text-center" ng-if="editable">
+							<button class="btn btn-xs btn-default" title="Copiar plantilla" ng-click="setSelected(formula, compromiso, $index)">
+								<i class="fa fa-copy" aria-hidden="true"></i>
+							</button>
+							<button class="btn btn-xs btn-default" title="Pegar plantilla" ng-click="paste(formula, compromiso, $index)" ng-disabled="!selected || selected === formula || selected.meta !== formula.meta">
+								<i class="fa fa-paste" aria-hidden="true"></i>
+							</button>
+						</td>
 					</tr>
 				</tbody>
 			</table>

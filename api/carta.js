@@ -374,7 +374,7 @@
 			if (typeof req.params.id === 'string' && req.params.id.trim() !== ''){
 				const models = req.metaenvironment.models;
 				const objetivomodel = models.objetivo();
-				objetivomodel.findOne({'_id': req.metaenvironment.models.objectId(req.params.id)}).lean().exec().then(function(objetivo){
+				objetivomodel.findOne({'_id': req.metaenvironment.models.objectId(req.params.id)}).exec().then(function(objetivo){
 					if (objetivo){
 						if (req.user.permisoscalculados.superuser || req.user.permisoscalculados.entidadobjetoescritura.indexOf(String(objetivo.carta)) !== -1){
 							for (const attr in req.body){
@@ -383,7 +383,11 @@
 									objetivo[attr] = req.body[attr];
 								}
 							}
-							objetivomodel.update({'_id': models.objectId(objetivo._id)}, objetivo, req.eh.cbWithDefaultValue(res, objetivo));
+							if (typeof req.body.denominacion === 'string'){
+								objetivo.denominacion = req.body.denominacion.trim();
+							}
+							objetivo.save(req.eh.cbWithDefaultValue(res, objetivo));
+							//objetivomodel.update({'_id': models.objectId(objetivo._id)}, objetivo, req.eh.cbWithDefaultValue(res, objetivo));
 						} else {
 							req.eh.unauthorizedHelper(res);
 						}
@@ -428,37 +432,41 @@
 
 		if (typeof req.params.id === 'string'){
 			const restriccion = {'_id': models.objectId(req.params.id)};
-			objetivomodel.findOne(restriccion).lean().exec().then(function(objetivo){
+			objetivomodel.findOne(restriccion).exec().then(function(objetivo){
 
-				if (req.user.permisoscalculados.superuser || req.user.permisoscalculados.entidadobjetolectura.indexOf(String(objetivo.carta)) > -1){
-					if (typeof objetivo !== 'object'){
-						res.json(null);
-					
-						return;
-					}
-					const expresion = new Expression(models);
-					const promises = [];
-					
-					for (let i = 0, j = objetivo.formulas.length; i < j; i += 1){
-						if (objetivo.formulas[i].computer.trim() !== ''){
-							const defer = Q.defer();
-							expresion.evalFormula(objetivo.formulas[i].computer, fnPostEvalFormula(defer, objetivo, i));
-							promises.push(defer.promise);
+				if (objetivo && typeof objetivo === 'object'){
+
+					if (req.user.permisoscalculados.superuser || req.user.permisoscalculados.entidadobjetolectura.indexOf(String(objetivo.carta)) > -1){
+
+						const expresion = new Expression(models);
+						const promises = [];
+						
+						if (!Array.isArray(objetivo.formulas)){
+							objetivo.formulas = [];
 						}
+						for (let i = 0, j = objetivo.formulas.length; i < j; i += 1){
+							if (objetivo.formulas[i].computer.trim() !== ''){
+								const defer = Q.defer();
+								expresion.evalFormula(objetivo.formulas[i].computer, fnPostEvalFormula(defer, objetivo, i));
+								promises.push(defer.promise);
+							}
+						}
+						Q.all(promises).then(function(){
+							objetivo.save(req.eh.cbWithDefaultValue(res, objetivo));
+							//objetivomodel.update({'_id': models.objectId(objetivo._id)}, JSON.parse(JSON.stringify(objetivo)), );
+						}).fail(function(error){
+							//fallo con la formula
+							logger.error(error);
+							res.json(objetivo);
+						});
+					} else {
+						req.eh.unauthorizedHelper(res);
 					}
-					Q.all(promises).then(function(){
-						objetivomodel.update({'_id': models.objectId(objetivo._id)}, objetivo, req.eh.cbWithDefaultValue(res, objetivo));
-					}, function(error){
-						//fallo con la formula
-						logger.error(error);
-						res.json(objetivo);
-					});
 				} else {
-					req.eh.unauthorizedHelper(res);
+					req.eh.notFoundHelper(res);
 				}
-			}, req.eh.errorHelper(res));
+			}).fail(req.eh.errorHelper(res));
 
-			return;
 		} else if (typeof req.query.carta === 'undefined'){
 
 			const restriccion = {};
@@ -468,15 +476,12 @@
 
 			const query = objetivomodel.find(restriccion);
 			if (typeof req.query.fields !== 'undefined' && req.query.fields.trim() !== ''){
-				query.select(req.query.fields)
+				query.select(req.query.fields);
 			}
 
 			query.lean().exec().then(req.eh.okHelper(res, true), req.eh.errorHelper(res));
 
-			return;
-		}
-
-		if (req.user.permisoscalculados.superuser || req.user.permisoscalculados.entidadobjetolectura.indexOf(carta) > -1){
+		} else if (req.user.permisoscalculados.superuser || req.user.permisoscalculados.entidadobjetolectura.indexOf(carta) > -1){
 			objetivomodel.find({'carta': models.objectId(carta)}).sort({'index': 1}).exec().then(req.eh.okHelper(res, true), req.eh.errorHelper(res));
 		} else {
 			req.eh.unauthorizedHelper(res);

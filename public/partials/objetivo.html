@@ -122,6 +122,9 @@
 					<thead>
 						<tr>
 							<th>Mínimo</th>
+							<th></th>
+							<th></th>
+							<th></th>
 							<th>Máximo</th>
 							<th>Color</th>
 							<th>Nivel de alerta</th>
@@ -132,6 +135,9 @@
 					<tbody ng-init="indiceExterno = $index">
 						<tr ng-repeat="intervalo in formula.intervalos track by $index" style="background-color: {{formula.intervalos[$index].color}}">
 							<td><input ng-model="formula.intervalos[$index].min" type="number" class="form-control"></td>
+							<td class="text-center">&lt;</td>
+							<td class="text-center">valor</td>
+							<td class="text-center">&lt;=</td>
 							<td><input ng-model="formula.intervalos[$index].max" type="number" class="form-control"></td>
 							<td>
 								<select ng-model="formula.intervalos[$index].color" ng-options="color.value as color.name for color in colores" class="form-control"></select>
