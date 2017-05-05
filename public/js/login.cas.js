@@ -117,19 +117,25 @@
 					'carmlogin': true,
 					login: function (credentials) {
 						const urlconsulta = '/api/authenticate';
+						const deferred = $q.defer();
 						$log.log('credentials', credentials);
 						if (credentials.notcarmuser){
 
-							return $http.post(urlconsulta, credentials).then(function(res){
+							$http.post(urlconsulta, credentials).then(function(res){
 								const data = res.data;
-								$log.log('Contraseña válida');
+								$log.debug('Contraseña válida');
 								Session.create(data.profile, data.token);
+								deferred.resolve(data.profile);
 							}, function(res){
-								$log.log('Contraseña no válida', res);
+								$log.debug('Contraseña no válida', res);
 								Reflect.deleteProperty($window.localStorage, 'token');
+								Session.destroy();
+								deferred.reject();
 							});
+
+							return deferred.promise;
 						}
-						const deferred = $q.defer();
+						
 						if (Session.create() && $rootScope.logeado){
 							deferred.resolve();
 
@@ -205,7 +211,11 @@
 						switch (response.status){
 
 							case 401:
-								txt = 'Error';
+								if (typeof response.config === 'object' && response.config.url === '/api/authenticate'){
+									txt = '';
+								} else {
+									txt = 'Error';
+								}
 								title = 'La sesión ha caducado o es inválida. Debe iniciar sesión para continuar.';
 								Session.destroy();
 								$location.path('/login');

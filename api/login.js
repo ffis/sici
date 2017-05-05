@@ -101,7 +101,7 @@
 			if (modoconsulta){
 				req.eh.notFoundHelper(res);
 			} else {
-				req.eh.unauthenticatedHelper(res);
+				req.eh.unauthenticatedHelper(res, err);
 			}
 		};
 	}
@@ -115,7 +115,7 @@
 
 		personamodel.find(restriction).limit(1).exec().then(function(personas){
 			if (personas.length === 0){
-				getErrorHandler(req, res, modoconsulta)();
+				getErrorHandler(req, res, modoconsulta)({'err': 'user with these restrictions not exists'});
 
 				return;
 			}

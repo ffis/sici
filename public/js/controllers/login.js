@@ -23,6 +23,7 @@
 				$location.path('/welcome');
 			}
 
+			$rootScope.loginCarm = true;
 			$rootScope.setTitle('Inicio de sesión');
 			$scope.imagen = 'background: transparent url("/imgs/flag.svg")';
 			$scope.credentials = {'username': '', 'password': '', 'notcarmuser': false};
@@ -48,12 +49,14 @@
 					} else {
 						$log.debug('No autenticado, let\'s test');
 						AuthService.login(credentials).then(function() {
+							$log.debug('Login success');
 							$rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
 							$scope.mensaje = '';
 							$location.path('/welcome');
 							$rootScope.setLogeado(true);
 							$route.reload();
 						}, function(){
+							$log.debug('Failure');
 							$timeout(function(){
 								$scope.mensaje = 'Error: Usuario o contraseña incorrectos';
 							}, 100);
