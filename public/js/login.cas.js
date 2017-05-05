@@ -97,12 +97,13 @@
 						if (!AuthService.isAuthenticated() && next && next.templateUrl !== 'partials/login.html'){
 							$log.debug('No autenticado e intentando acceder a otra dirección. Vamos a login');
 							Session.destroy();
+							event.preventDefault();
 							$location.path('/login');
 						} else if (AuthService.isAuthenticated() && next && next.templateUrl === 'partials/login.html') {
 							$log.debug('Autenticado e intentando acceder a login. Vamos a /');
+							event.preventDefault();
 							$location.path('/welcome');
 						} else if (next && next.templateUrl) {
-							//ignorable
 							$log.debug(next.templateUrl);
 						} else {
 							$log.debug(next);
