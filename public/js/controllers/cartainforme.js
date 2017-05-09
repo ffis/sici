@@ -20,13 +20,13 @@
 
 				var loadJerarquia = function(idjerarquia){
 					if (typeof $scope.jerarquias[idjerarquia] === 'undefined'){
-						$scope.jerarquias[idjerarquia] = Jerarquia.get({id: idjerarquia});
+						$scope.jerarquias[idjerarquia] = Jerarquia.get({'id': idjerarquia});
 					}
 				};
 				$scope.cartaservicio = EntidadObjeto.get({'id': $routeParams.idcarta}, function(){
 					$rootScope.setTitle($scope.cartaservicio.denominacion);
 
-					$scope.jerarquia = Jerarquia.get({id: $scope.cartaservicio.idjerarquia}, function(){
+					$scope.jerarquia = Jerarquia.get({'id': $scope.cartaservicio.idjerarquia}, function(){
 						$scope.jerarquias[$scope.cartaservicio.idjerarquia] = $scope.jerarquia;
 						$scope.jerarquia.ancestros.forEach(loadJerarquia);
 					});
@@ -102,23 +102,36 @@
 					});
 				};
 
-				$scope.planmejora = new PlanMejora();
-				$scope.planesmejora = PlanMejoraList.query({'idjerarquia': parseInt($routeParams.idjerarquia), 'anualidad': $rootScope.getIntAnualidad()});
-				$scope.planesmejora.$promise.then(function(planesmejora){
-					if (planesmejora.length === 0){
-						$scope.planmejora.anualidad = $rootScope.getIntAnualidad();
-						$scope.planmejora.idjerarquia = parseInt($routeParams.idjerarquia, 10);
-						$scope.planmejora.carta = ($routeParams.idcarta);
-						PlanMejora.save($scope.planmejora, function(a) {
-							if (a){
-								$scope.planmejora = new PlanMejora(a);
-							}
-						});
-					} else {
-						$scope.planmejora = new PlanMejora(planesmejora[0]);
-						$scope.loadAcciones();
-					}
+				function reloadAll(anualidad){
+					$scope.planmejora = new PlanMejora();
+					$scope.planesmejora = PlanMejoraList.query({'idjerarquia': parseInt($routeParams.idjerarquia, 10), 'anualidad': anualidad});
+					$scope.planesmejora.$promise.then(function(planesmejora){
+						if (planesmejora.length === 0){
+							$scope.planmejora.anualidad = anualidad;
+							$scope.planmejora.idjerarquia = parseInt($routeParams.idjerarquia, 10);
+							$scope.planmejora.carta = ($routeParams.idcarta);
+							PlanMejora.save($scope.planmejora, function(a) {
+								if (a){
+									$scope.planmejora = new PlanMejora(a);
+								}
+							});
+						} else {
+							$scope.planmejora = new PlanMejora(planesmejora[0]);
+							$scope.loadAcciones();
+						}
+					});
+				}
+
+				const listener = $rootScope.$watch('anualidad', function(){
+					reloadAll($rootScope.getIntAnualidad());
 				});
+
+				reloadAll($rootScope.getIntAnualidad());
+
+				$scope.$on('$destroy', function() {
+					listener();
+				});
+
 				$scope.loadAcciones = function(){
 					if (typeof $scope.planmejora._id === 'string'){
 						$scope.acciones = AccionMejora.query({'plan': $scope.planmejora._id});
@@ -148,7 +161,7 @@
 					$scope.organicamostrada = false;
 					$scope.accion.organica = nodo.id;
 					if (typeof nodo.title !== 'undefined'){
-						$scope.seleccionado = {'nombrelargo': nodo.title };
+						$scope.seleccionado = {'nombrelargo': nodo.title};
 						Jerarquia.get({'id': nodo.id}, function(dato){
 							$scope.seleccionado = dato;
 						});
@@ -269,15 +282,15 @@
 					if (typeof $scope.cachepersonas[busqueda] === 'object') {
 
 						return $scope.cachepersonas[busqueda];
-					} else {
-
-						return PersonasByRegexp.query({'regex': busqueda}, function(p){
-							if (p && Array.isArray(p) && p.length > 0) {
-								$scope.cachepersonas[busqueda] = p;
-								p.forEach($scope.cachePerson);
-							}
-						}).$promise;
 					}
+
+					return PersonasByRegexp.query({'regex': busqueda}, function(p){
+						if (p && Array.isArray(p) && p.length > 0) {
+							$scope.cachepersonas[busqueda] = p;
+							p.forEach($scope.cachePerson);
+						}
+					}).$promise;
+
 				};
 			}]
 		);
