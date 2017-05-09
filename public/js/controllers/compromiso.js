@@ -56,8 +56,6 @@
 				};
 
 				$scope.paste = function(dest, compromiso, index){
-					console.log($scope.selected, $scope.compromisoSelected, $scope.indexSelected);
-					console.log(dest, compromiso, index);
 
 					compromiso.formulas[index].intervalos = $scope.compromisoSelected.formulas[$scope.indexSelected].intervalos;
 					compromiso.$update(function () {
