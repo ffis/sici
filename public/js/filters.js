@@ -9,6 +9,10 @@
 		return function (state) {
 			return state;
 		};
+	}).filter('fromJSON', function(){
+		return function(o){
+			return JSON.parse(o);
+		}
 	}).filter('extractFromPath', function () {
 		return function(value, fieldpath) {
 			if (value[fieldpath]){

@@ -1,4 +1,4 @@
-(function(angular, $, Math){
+(function(angular, $, Math, d3){
 	'use strict';
 	angular.module('sici').controller('CartaCtrl',
 			['$q', '$rootScope', '$scope', '$location', '$window', '$routeParams', '$log', '$http', 'Arbol', 'Objetivo', 'EntidadObjeto', 'PastelColor', 'Indicador', 'ProcedimientoList', 'Jerarquia',
@@ -306,6 +306,34 @@
 					return 'background-color:' + result + ' !important';
 				};
 
+
+				var colorsOfIndicador = {};
+				var lastColor = 0;
+				var colors = d3.scale.category10();
+				$scope.getColorIndicador = function(id, nocreate){
+					if (typeof colorsOfIndicador[id] !== 'undefined'){
+						return colorsOfIndicador[id];
+					}
+
+					if (nocreate){
+						if (id.indexOf('/') >= 0){
+							var parts = id.split('/');
+
+							if (parts.length > 2){
+								return $scope.getColorIndicador(parts[2], true);
+							}
+						}
+
+						console.log(id)
+						return '';
+					}
+
+					colorsOfIndicador[id] = colors(lastColor);
+					lastColor = (lastColor + 1) % 10;
+
+					return colorsOfIndicador[id];
+				};
+
 				$scope.downloadxls = function(){
 					$scope.descargando = true;
 					$http.get('/api/v2/public/exportadorCarta/' + $scope.cartaservicioseleccionada._id + '/' + $rootScope.getIntAnualidad()).then(function (res) {
@@ -363,4 +391,4 @@
 			}
 		]
 	);
-})(angular, $, Math);
+})(angular, $, Math, d3);

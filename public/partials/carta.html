@@ -87,7 +87,11 @@
 													</thead>
 													<tfoot>
 														<tr ng-show="showformulas">
-															<th colspan="{{1 + formula.valores[$root.anualidad].length}}"><p><strong>{{formula.computer}}</strong></p></th>
+															<td colspan="{{1 + formula.valores[$root.anualidad].length}}" class="text-left">
+																<p>
+																	<span ng-repeat="c in formula.computer|fromJSON" style="color:{{getColorIndicador(c, true)}}">{{c}} </span>
+																</p>
+															</td>
 														</tr>
 														<tr ng-if="formula.indicadores.length === 1 && indicadores[formula.indicadores[0]].acumulador === 'sum' ">
 															<th>Meta parcial</th>
@@ -119,6 +123,7 @@
 																	<span class="glyphicon glyphicon-comment" ng-click="indicadores[indicadorid].desplegado = !indicadores[indicadorid].desplegado" ng-class="{'color_note': existeComentario(indicadores[indicadorid].observaciones[$root.anualidad])}"></span>
 																</div>
 																{{indicadores[indicadorid].nombre}}
+																<span ng-show="showformulas" style="color:{{getColorIndicador(indicadorid)}}"><br />{{indicadorid}}</span>
 															</td>
 															<td ng-repeat="(v,a) in indicadores[indicadorid].valores[$root.anualidad] track by $index" style="white-space:nowrap" class="text-right">
 																<div ng-show="WIndicador">
