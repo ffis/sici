@@ -273,7 +273,7 @@
 				for (let i = 0, j = indicador.valores[attr].length; i < j - 1; i += 1){
 					if (!isNaN(actualizacion.valores[attr][i])){
 						suma += indicador.valores[attr][i];
-						if (!actualizacion.valores[attr][i] !== null && !isNaN(actualizacion.valores[attr][i])){
+						if (actualizacion.valores[attr][i] !== null && !isNaN(actualizacion.valores[attr][i])){
 							nindicadoresdistintosde0++;
 						}
 					}
