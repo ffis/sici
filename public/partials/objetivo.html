@@ -31,7 +31,7 @@
 						<label>Fórmula Computada</label>
 						<!-- <h6>{{formula.computer}}</h6> -->
 						<p>
-							<span ng-repeat="c in formula.computer|fromJSON" style="color:{{getColorIndicador(c, true)}}">{{c}} </span>
+							<span ng-repeat="c in formula.computer|fromJSON track by $index" style="color:{{getColorIndicador(c, true)}}">{{c}} </span>
 						</p>
 						<a href="/formula/{{objetivo._id}}/{{$index}}" class="btn btn-xs btn-primary"><i class="fa fa-pencil"></i> Editar fórmula</a>
 						<!--<button title="Pegar indicador" class="btn btn-primary btn-sm" ng-click="pasteFromClipboard(formula)"><i class="fa fa-paste"></i> Pegar indicador</button>-->

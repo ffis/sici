@@ -89,7 +89,7 @@
 														<tr ng-show="showformulas">
 															<td colspan="{{1 + formula.valores[$root.anualidad].length}}" class="text-left">
 																<p>
-																	<span ng-repeat="c in formula.computer|fromJSON" style="color:{{getColorIndicador(c, true)}}">{{c}} </span>
+																	<span ng-repeat="c in formula.computer|fromJSON track by $index" style="color:{{getColorIndicador(c, true)}}">{{c}} </span>
 																</p>
 															</td>
 														</tr>
