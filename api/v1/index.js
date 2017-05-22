@@ -1,8 +1,6 @@
 (function(module){
 	'use strict';
 	const express = require('express'),
-		multer = require('multer'),
-		path = require('path'),
 		Publiclib = require('./public'),
 		Privatelib = require('./private'),
 		Restrictedlib = require('./restricted');
@@ -12,8 +10,6 @@
 		const publiclib = new Publiclib(metaenvironment);
 		const privatelib = new Privatelib(metaenvironment);
 		const restrictedlib = new Restrictedlib(metaenvironment);
-
-		app.use('/updateByFile', multer({dest: path.join( __dirname, 'tmp') + path.sep}));
 
 		app.use('/restricted/', function(req, res, next){
 			if (req.user.permisoscalculados.superuser){
@@ -38,7 +34,6 @@
 		app.use('/private', privatelib.app);
 		app.use('/restricted', restrictedlib.app);
 		
-
 		this.app = app;
 	}
 

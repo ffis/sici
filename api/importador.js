@@ -44,8 +44,18 @@
 				recalculate = req.metaenvironment.recalculate,
 				procedimientolib = req.metaenvironment.procedimiento;
 
+			const restriccion = {'_id': models.objectId(id), 'mostrable': true};
 
-			const restriccion = {'_id': models.objectId(id), 'mostrable': true, 'output.proceso': {'$in': req.user.permisoscalculados.procedimientosescritura}};
+			if (!req.user.permisoscalculados.superuser) {
+				restriccion.output = {'proceso': {'$in': req.user.permisoscalculados.procedimientosescritura}};
+			}
+
+			var fn = function(defer, val){
+				return function(err){
+					if (err){ defer.reject(err); } else { defer.resolve(val); }
+				};
+			};
+
 			importacionesmodel.findOne(restriccion).exec().then(function(registro){
 
 				if (!registro){
@@ -68,11 +78,12 @@
 						if (req.user.permisoscalculados.procedimientosescritura.indexOf(codigo) >= 0){
 							const def = Q.defer();
 							actualizaciones.push(def.promise);
+
 							const campo = 'periodos.a' + anualidad + '.' + indicador + '.' + mes;
 							const r = {'$set': {}};
 							r.$set[campo] = valor;
 
-							procedimientomodel.update({codigo: codigo}, r, def.makeNodeResolver());
+							procedimientomodel.update({'codigo': String(codigo)}, r, fn(def, codigo));
 						}
 					} catch (exc) {
 						logger.error(exc);
@@ -84,10 +95,10 @@
 					require('uniq')(valores);
 					
 					function fun(codigo, def){
-						procedimientomodel.findOne({codigo: codigo}, function(erro, procedimiento){
+						procedimientomodel.findOne({'codigo': String(codigo)}, function(erro, procedimiento){
 							if (erro){
 								def.reject(erro);
-							} else {
+							} else if (procedimiento){
 								recalculate.softCalculateProcedimiento(models, procedimiento).then(function(procedimient){
 									recalculate.softCalculateProcedimientoCache(models, procedimient).then(function(proced){
 										procedimientolib.saveVersion(models, proced).then(function(){
@@ -96,6 +107,8 @@
 										});
 									});
 								});
+							} else {
+								def.resolve();
 							}
 						});
 					}
@@ -107,10 +120,10 @@
 						fun(codigo, def);
 					});
 					Q.all(defers).then(function(){
-						importacionesmodel.update(restriccion, {$set: {mostrable: false}}, req.eh.cb(res));
-					});
+						importacionesmodel.update(restriccion, {'$set': {'mostrable': false}}, req.eh.cb(res));
+					}).fail(req.eh.errorHelper(res));
 				});
-			}, req.eh.errorHelper(res));
+			}).fail(req.eh.errorHelper(res));
 		} else {
 			req.eh.missingParameterHelper(res, 'id');
 		}

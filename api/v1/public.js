@@ -1,9 +1,13 @@
 (function(module){
 	'use strict';
-	const express = require('express');
+	const path = require('path'),
+		multer = require('multer'),
+		express = require('express');
 
 	function Api(metaenvironment){
 		const app = new express.Router();
+
+		app.use('/updateByFile', multer({'dest': path.join( __dirname, '..', 'tmp') + path.sep}));
 
 		app.post('/feedback', metaenvironment.feedback.log);
 
