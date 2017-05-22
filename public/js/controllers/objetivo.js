@@ -1,4 +1,4 @@
-(function (angular) {
+(function (angular, d3) {
 	'use strict';
 
 	angular.module('sici').controller('ObjetivoCtrl', ['$rootScope', '$scope', '$routeParams', '$window', 'Objetivo', 'Indicador', 'EntidadObjeto', 'Util', 'ProcedimientoList', 'COLORES_OBJETIVOS', '$log', '$location',
@@ -123,6 +123,32 @@
 			$scope.insertarIndicador = function (formula, text) {
 				formula.computer += '/indicador/' + text + '/valores/[anualidad]/[mes]';
 			};
+
+			const colorsOfIndicador = {};
+			let lastColor = 0;
+			const colors = d3.scale.category10();
+			$scope.getColorIndicador = function(id, nocreate){
+				if (typeof colorsOfIndicador[id] !== 'undefined'){
+					return colorsOfIndicador[id];
+				}
+
+				if (nocreate){
+					if (id.indexOf('/') >= 0){
+						const parts = id.split('/');
+
+						if (parts.length > 2){
+							return $scope.getColorIndicador(parts[2], true);
+						}
+					}
+
+					return '';
+				}
+
+				colorsOfIndicador[id] = colors(lastColor);
+				lastColor = (lastColor + 1) % 10;
+
+				return colorsOfIndicador[id];
+			};
 		}
 	]);
-})(angular);
+})(angular, d3);

@@ -29,7 +29,11 @@
 					</div>
 					<div class="form-group">
 						<label>Fórmula Computada</label>
-						<h6>{{formula.computer}}</h6> <a href="/formula/{{objetivo._id}}/{{$index}}" class="btn btn-xs btn-primary"><i class="fa fa-pencil"></i> Editar fórmula</a>
+						<!-- <h6>{{formula.computer}}</h6> -->
+						<p>
+							<span ng-repeat="c in formula.computer|fromJSON" style="color:{{getColorIndicador(c, true)}}">{{c}} </span>
+						</p>
+						<a href="/formula/{{objetivo._id}}/{{$index}}" class="btn btn-xs btn-primary"><i class="fa fa-pencil"></i> Editar fórmula</a>
 						<!--<button title="Pegar indicador" class="btn btn-primary btn-sm" ng-click="pasteFromClipboard(formula)"><i class="fa fa-paste"></i> Pegar indicador</button>-->
 					</div>
 					<div class="form-group" style="width: 80px;">
@@ -51,7 +55,7 @@
 					</thead>
 					<tbody ng-init="indiceExterno = $index">
 						<tr ng-repeat="indicador in formula.indicadores track by $index">
-							<td>{{indicadores[indicador]._id}}</td>
+							<td style="color:{{getColorIndicador(indicadores[indicador]._id)}}">{{indicadores[indicador]._id}}</td>
 							<td>{{indicadores[indicador].nombre}}</td>
 							<td class="text-center">
 								<button title="Desvincular" class="btn btn-primary btn-sm" ng-click="desvincular(indiceExterno, $index)"><i class="fa fa-unlink"></i></button>

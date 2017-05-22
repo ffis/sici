@@ -11,7 +11,11 @@
 		};
 	}).filter('fromJSON', function(){
 		return function(o){
-			return JSON.parse(o);
+			try{
+				return JSON.parse(o);
+			} catch (e) {
+				return [];
+			}
 		}
 	}).filter('extractFromPath', function () {
 		return function(value, fieldpath) {
