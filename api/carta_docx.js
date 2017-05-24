@@ -89,15 +89,16 @@
 	}
 
 	function addMonthInfo(obj, arr, prefix){
-		for (let i = 0, j = MONTHS.length; i < j; i += 1){
+		const months = MONTHS.concat(['total']);
+		for (let i = 0, j = months.length; i < j; i += 1){
 			if (!arr[i]) {
-				obj[prefix + MONTHS[i]] = '';
+				obj[prefix + months[i]] = '';
 			} else if (arr[i] && typeof arr[i] === 'object') {
-				obj[prefix + MONTHS[i]] = arr[i].resultado ? toFixedIfNeeds2(arr[i].resultado) : '';
+				obj[prefix + months[i]] = arr[i].resultado ? toFixedIfNeeds2(arr[i].resultado) : '';
 			} else if (arr[i]) {
-				obj[prefix + MONTHS[i]] = toFixedIfNeeds2(arr[i]);
+				obj[prefix + months[i]] = toFixedIfNeeds2(arr[i]);
 			} else {
-				obj[prefix + MONTHS[i]] = '';
+				obj[prefix + months[i]] = '';
 			}
 		}
 
