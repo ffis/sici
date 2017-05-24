@@ -51,6 +51,7 @@
 				<th scope="col" ng-if="informedetalladocarta" ng-click="setOrderBy('expediente')">Expediente</th>
 				<th scope="col">Compromisos</th>
 				<th scope="col" colspan="2">Fórmulas</th>
+				<th scope="col"><span class="glyphicon glyphicon-unchecked" /></th>
 				<th scope="col" ng-repeat="color in colores" style="{{getCellStyle(colorEnabled,color.value,1,1)}}">{{color.name}}</th>
 				<th scope="col" colspan="2">Indicadores</th>
 				<th scope="col" title="Plan de mejora">Planes</th>
@@ -68,6 +69,7 @@
 				<td class="text-right porcentaje bar{{colorEnabled ? (getPorcentajeFormulasJerarquiaCumplimentadas('' + (nodo.id), $root.anualidad) * 10|number:0) : ''}}">
 					<span style="white-space:nowrap">{{getPorcentajeFormulasJerarquiaCumplimentadas('' + (nodo.id), $root.anualidad) * 100|number:2}}</span>
 				</td>
+				<td class="text-right active">{{coloresFormulasPorJerarquia['' + (nodo.id)][$root.anualidad]['_']}}</td>
 				<td class="text-right" scope="col" style="{{getCellStyle(colorEnabled, color.value, coloresFormulasPorJerarquia['' + (nodo.id)][$root.anualidad][color.value], formulasByJerarquia['' + (nodo.id)].length)}}" ng-repeat="color in colores">{{coloresFormulasPorJerarquia['' + (nodo.id)][$root.anualidad][color.value]}}</td>
 				<td class="text-right">{{indicadoresByIdJerarquiaRecursivo['' + nodo.id].length}}</td>
 				<td class="text-right porcentaje bar{{colorEnabled ? (getPorcentajeIndicadoresRecursivoCumplimentados('' + nodo.id, $root.anualidad) * 10| number:0) : ''}}">
@@ -97,6 +99,7 @@
 				<td class="text-right porcentaje bar{{colorEnabled ? (getPorcentajeFormulasCumplimentadas(carta._id, $root.anualidad)*10|number:0) : ''}}">
 					<span style="white-space:nowrap">{{getPorcentajeFormulasCumplimentadas(carta._id, $root.anualidad)*100|number:2}}</span>
 				</td>
+				<td class="text-right active">{{coloresFormulasPorCarta[carta._id][$root.anualidad]['_']}}</td>
 				<td class="text-right" scope="col" style="{{getCellStyle(colorEnabled, color.value, coloresFormulasPorCarta[carta._id][$root.anualidad][color.value], formulasByCarta[carta._id].length)}}" ng-repeat="color in colores">{{coloresFormulasPorCarta[carta._id][$root.anualidad][color.value]}}</td>
 				<td class="text-right">{{indicadoresByIdJerarquia['' + carta.idjerarquia].length}}</td>
 				<td class="text-right porcentaje bar{{colorEnabled ? (getPorcentajeIndicadoresCumplimentados(carta.idjerarquia, $root.anualidad)*10| number:0) : ''}}">

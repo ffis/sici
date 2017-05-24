@@ -105,11 +105,12 @@
 					if (!Array.isArray(formula.valores[anualidad]) || !formula.valores[anualidad].length === 13){
 						
 						formula.valores[anualidad] = [];
-						formula.valores[anualidad][12] = {'color': ''};
+						formula.valores[anualidad][12] = {'color': '_'};
 					} else {
 						const resultado = formula.valores[anualidad][12].resultado;
-						if (isNaN(resultado)){
-							formula.valores[anualidad][12].color = '';
+						if (!resultado || isNaN(resultado)){
+							formula.valores[anualidad][12].color = '_';
+							console.log(113)
 						} else {
 							const intervalos = formula.intervalos;
 							let color = COLORES_OBJETIVOS[0].value;
@@ -454,7 +455,6 @@
 
 			$scope.getCellStyle = function(colorEnabled, colorbase, min, max){
 				if (colorEnabled && typeof colorbase === 'string' && colorbase.length === 7 && typeof min !== 'undefined' && typeof max === 'number' && max !== 0){
-					console.log('background-color:' + toRGBA(colorbase, min, max) + ' !important')
 					return 'background-color:' + toRGBA(colorbase, min, max) + ' !important';
 				}
 
