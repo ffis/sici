@@ -47,10 +47,10 @@
 	const FILE = 'FILE',
 		BUFFER = 'BUFFER';
 
-	function generateDocx(app, params, outputtype, outputparams, cb){
+	function generateDocx(cfg, params, outputtype, outputparams, cb){
 		const content = fs.readFileSync(path.join(__dirname, '..', 'data', 'carta-template.docx'), 'binary'),
 			doc = new Docxtemplater(),
-			pathdir = app.get('prefixtmp');
+			pathdir = cfg.prefixtmp;
 		//set the templateVariables
 		//params.imagen  = './data/gauge.png';
 			//.attachModule(imagedocx)
@@ -349,8 +349,7 @@
 		}
 
 		const models = req.metaenvironment.models,
-			cfg = req.metaenvironment.cfg,
-			app = req.metaenvironment.app;
+			cfg = req.metaenvironment.cfg;
 
 		const entidadobjetomodel = models.entidadobjeto(),
 			objetivomodel = models.objetivo(),
@@ -400,12 +399,12 @@
 							const time = new Date().getTime();
 							const value = {'time': time, 'hash': md5(cfg.downloadhashprefix + time), 'extension': '.docx'};
 
-							generateDocx(app, params, FILE, time + '.docx', req.eh.cbWithDefaultValue(res, value));
-						}, req.eh.errorHelper(res));
-					}, req.eh.errorHelper(res));
-				}, req.eh.errorHelper(res));
-			}, req.eh.errorHelper(res));
-		}, req.eh.errorHelper(res));
+							generateDocx(cfg, params, FILE, time + '.docx', req.eh.cbWithDefaultValue(res, value));
+						}).fail(req.eh.errorHelper(res));
+					}).fail(req.eh.errorHelper(res));
+				}).fail(req.eh.errorHelper(res));
+			}).fail(req.eh.errorHelper(res));
+		}).fail(req.eh.errorHelper(res));
 	};
 
 })(module, console);

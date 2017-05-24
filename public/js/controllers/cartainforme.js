@@ -67,9 +67,9 @@
 				};
 				$scope.guardar = function(){
 					if (typeof $scope.accion._id === 'undefined'){
-						AccionMejora.save( $scope.accion).$promise.then(function(){
+						AccionMejora.save($scope.accion).$promise.then(function(){
 							$scope.loadAcciones();
-							delete $scope.accion;
+							Reflect.deleteProperty($scope, 'accion');
 						}, function(e){
 							if (typeof e.data !== 'undefined' && typeof e.data.error !== 'undefined'){
 								$rootScope.toaster('Error durante la carga: ' + e.data.error, 'Error', 'error');
@@ -261,6 +261,9 @@
 						} else {
 							$rootScope.toaster('Error al descargar el informe', 'Error', 'error');
 						}
+					}, function(){
+						$scope.descargando = false;
+						$rootScope.toaster('Error al descargar el informe', 'Error', 'error');
 					});
 				};
 
