@@ -113,7 +113,7 @@
 
 			$rootScope.exportXLS = function(idx, nombre){
 				let html = angular.element('#' + idx).html();
-				if (html.startsWith('<table')){
+				if (!html.startsWith('<table')){
 					html = '<table width="100%">' + html + '</table>';
 				}
 				const blob = new Blob(['<meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8">' + html],
