@@ -342,7 +342,7 @@
 
 	module.exports.generate = function(req, res){
 
-		if (typeof req.params.id !== 'undefined' || req.params.id.trim() === ''){
+		if (typeof req.params.id === 'undefined' || req.params.id.trim() === ''){
 			req.eh.missingParameterHelper(res, 'id');
 
 			return;
