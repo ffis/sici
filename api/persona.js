@@ -26,19 +26,19 @@
 
 	function infoByPlaza2(req, res) {
 		const cfg = req.metaenvironment.cfg,
-			args = {arg0: {'key': 'P_PLAZA', 'value': req.params.codplaza}};
+			args = {'arg0': {'key': 'P_PLAZA', 'value': req.params.codplaza}};
 		callWs(cfg, 'SacaOcupante', args, req.eh.cb(res));
 	}
 
 	function infoByLogin2(req, res) {
 		const cfg = req.metaenvironment.cfg,
-			args = {arg0: {'key': 'p_login', 'value': req.params.login}};
+			args = {'arg0': {'key': 'p_login', 'value': req.params.login}};
 		callWs(cfg, 'SacaPlaza', args, req.eh.cb(res));
 	}
 
 	function infoByLogin(login, cfg) {
 		const def = Q.defer(),
-			args = {arg0: {'key': 'p_login', 'value': login}};
+			args = {'arg0': {'key': 'p_login', 'value': login}};
 		callWs(cfg, 'SacaPlaza', args, def.makeNodeResolver());
 
 		return def.promise;
@@ -46,7 +46,7 @@
 
 	function infoByPlaza(codplaza, cfg) {
 		const def = Q.defer(),
-			args = {arg0: {'key': 'P_PLAZA', 'value': codplaza}};
+			args = {'arg0': {'key': 'P_PLAZA', 'value': codplaza}};
 		callWs(cfg, 'SacaOcupante', args, def.makeNodeResolver());
 
 		return def.promise;
@@ -133,7 +133,8 @@
 				deferRegistro.reject(err);
 			} else if (count === 0) {
 				infoByPlaza(codplaza, cfg).then(function (result) {
-					if ((result !== null) && (typeof result.return !== 'undefined') && (result.return.length > 0) && (result.return[2].key === 'ERR_MSG')) {
+					if ((result !== null) && result.length > 0 && (typeof result[0].return !== 'undefined') && (result[0].return.length > 0) && (result[0].return[2].key === 'ERR_MSG')) {
+						result = result[0];
 						var msg = result.return[2].value;
 						var valores = EXPRESSION_REGULAR_RESPUESTA_WS.exec(msg);
 						if (Array.isArray(valores)) {
@@ -149,7 +150,7 @@
 								};
 								const output = [{'login': nuevaPersona.login, 'codplaza': nuevaPersona.codplaza, 'nombre': nuevaPersona.nombre, 'apellidos': nuevaPersona.apellidos}];
 										
-								nuevaPersona.create(nuevaPersona, function(erro) {
+								personamodel.create(nuevaPersona, function(erro) {
 									if (erro) {
 										deferRegistro.reject(erro);
 									} else {
@@ -160,12 +161,12 @@
 								deferRegistro.reject(valores);
 							}
 						} else {
-							deferRegistro.reject(err);
+							deferRegistro.reject({err: 'El mensaje de error no cumple el patrón esperado', 'details': valores});
 						}
 					} else {
-						deferRegistro.reject('Error inespecificado del servicio web.');
+						deferRegistro.reject({err: 'Error inespecificado del servicio web.', details: result[0].return});
 					}
-				}, deferRegistro.reject);
+				}).fail(deferRegistro.reject);
 			} else {
 				deferRegistro.reject('Ya existe una persona registrada con ese codplaza.');
 			}
@@ -175,10 +176,50 @@
 	}
 
 	module.exports.personasByRegex = function (req, res) {
+
 		if (typeof req.params.regex === 'string'){
 			const models = req.metaenvironment.models,
-				cfg = req.metaenvironment.settings,
+				cfg = req.metaenvironment.cfg,
 				personamodel = models.persona();
+			const defer = Q.defer();
+
+			if (EXPRESSION_REGULAR_LOGIN_CARM.test(req.params.regex)){
+				infoByLogin(req.params.regex, cfg).then(function(result) {
+					
+					if (result !== null && result.length > 0 &&  (typeof result[0].return !== 'undefined') && (result[0].return.length > 0) && (result[0].return[2].key === 'ERR_MSG')) {
+						result = result[0];
+						const msg = result.return[2].value;
+						const valores = EXPRESSION_REGULAR_RESPUESTA_WS.exec(msg);
+						if (valores !== null) {
+							if (valores[1] !== '00') {
+								logger.error(valores[2]);
+								defer.resolve();
+
+								return;
+							}
+
+							const nuevaPersona = {
+								codplaza: result.return[1].value,
+								login: req.params.regex,
+								nombre: result.return[0].value,
+								apellidos: result.return[6].value + ' ' + result.return[5].value,
+								telefono: result.return[7].value,
+								habilitado: false
+							};
+							personamodel.findOneAndUpdate({'login': nuevaPersona.login}, nuevaPersona, {'upsert': true, 'new': true}, function(){
+								defer.resolve();
+							});
+
+						} else {
+							defer.resolve();
+						}
+					}
+				}).fail(defer.resolve);
+			} else if (EXPRESSION_REGULAR_CODIGO_PLAZA2.test(req.params.regex)){
+				registroPersonaWS(req.params.regex, models, cfg).then(defer.resolve).fail(defer.resolve);
+			} else {
+				defer.resolve();
+			}
 
 			const restriccion = {
 				'$or': [
@@ -208,53 +249,16 @@
 					}
 				]
 			};
-			personamodel.find(restriccion, {'contrasenya': 0}).lean().exec().then(function(data){
-				if (data){
-					res.json(data);
-				} else if (EXPRESSION_REGULAR_LOGIN_CARM.test(req.params.regex)) {
-					infoByLogin(req.params.regex, cfg).then(function(result) {
-						if ((result !== null) && (typeof result.return !== 'undefined') && (result.return.length > 0) && (result.return[2].key === 'ERR_MSG')) {
-							const msg = result.return[2].value;
 
-							const valores = EXPRESSION_REGULAR_RESPUESTA_WS.exec(msg);
-							if (valores !== null) {
-								if (valores[1] !== '00') {
-									logger.error(valores[2]);
-									res.json(data);
-
-									return;
-								}
-								const nuevaPersona = {
-									codplaza: result.return[1].value,
-									login: req.params.regex,
-									nombre: result.return[0].value,
-									apellidos: result.return[6].value + ' ' + result.return[5].value,
-									telefono: result.return[7].value,
-									habilitado: false
-								};
-								const defaultOutput = [{'login': nuevaPersona.login, 'codplaza': nuevaPersona.codplaza, 'nombre': nuevaPersona.nombre, 'apellidos': nuevaPersona.apellidos}];
-								personamodel.create(nuevaPersona, req.eh.cbWithDefaultValue(res, defaultOutput));
-
-							} else if (result){
-								res.json(data);
-							} else {
-								req.eh.notFoundHelper(res);
-							}
-						}
-					}, req.eh.errorHelper(res));
-
-					return;
-				} else if (EXPRESSION_REGULAR_CODIGO_PLAZA2.test(req.params.regex)) {
-					registroPersonaWS(req.params.regex, models, cfg).then(res.json, function(erro) {
-						logger.error(erro);
-						/* TODO revisar esto, debería devolver un 500? */
+			defer.promise.then(function(){
+				personamodel.find(restriccion, {'contrasenya': 0}).lean().exec().then(function(data){
+					if (Array.isArray(data) && data.length > 0){
 						res.json(data);
-					});
-				} else {
-					res.json([]);
-				}
-
-			}, req.eh.errorHelper(res));
+					} else {
+						req.eh.notFoundHelper(res);
+					}
+				}).fail(req.eh.errorHelper(res));
+			}).fail(req.eh.errorHelper(res));
 		} else {
 			req.eh.missingParameterHelper(res, 'regex');
 		}

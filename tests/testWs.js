@@ -64,6 +64,30 @@ usage: env TESTUSER=carmuser mocha testWs.js
 						logger.error(err);
 					});
 			});
+			it('should be able to retrieve information using the login name', function(done){
+				expect(login).to.not.equal('');
+
+				persona
+					.infoByPlaza(login, cfg)
+					.then(function(data){
+
+						logger.dir('Answer from WS: ');
+						logger.dir(data);
+						expect(data).to.exist;
+						expect(data.return).to.exist;
+						expect(data.return.length).to.be.above(0);
+						if (data.return.length > 0){
+							for (var i = 0, j = data.return.length; i < j; i++){
+								if (data.return[i].key === 'ERR_MSG'){
+									expect(data.return[i].value).not.to.exist;
+								}
+							}
+						}
+						done();
+					}, function(err){
+						logger.error(err);
+					});
+			});
 			after(function(){
 				mongoose.connection.close();
 			});
