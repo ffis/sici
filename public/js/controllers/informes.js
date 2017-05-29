@@ -134,13 +134,12 @@
 							if (sonVacios(formula.indicadores, anualidad)){
 								const color = COLORES_OBJETIVOS[0].value;
 								formula.valores[anualidad][12].color = color;
-								console.log('Son vacios', formula.indicadores, anualidad);
+								//console.log('Son vacios', formula.indicadores, anualidad);
 							} else {
 								formula.valores[anualidad] = [];
 								formula.valores[anualidad][12] = {'color': '_'};
 							}
 
-							formula.valores[anualidad][12].color = '_';
 						} else {
 							const intervalos = formula.intervalos;
 							let color = COLORES_OBJETIVOS[0].value;
