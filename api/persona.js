@@ -24,6 +24,15 @@
 		});
 	}
 
+	function wsresponseToObj(response){
+
+		return response.reduce(function(prev, row){
+			prev[row.key] = row.value;
+
+			return prev;
+		}, {});
+	}
+
 	function infoByPlaza2(req, res) {
 		const cfg = req.metaenvironment.cfg,
 			args = {'arg0': {'key': 'P_PLAZA', 'value': req.params.codplaza}};
@@ -133,42 +142,39 @@
 				deferRegistro.reject(err);
 			} else if (count === 0) {
 				infoByPlaza(codplaza, cfg).then(function (result) {
-					if ((result !== null) && result.length > 0 && (typeof result[0].return !== 'undefined') && (result[0].return.length > 0) && (result[0].return[2].key === 'ERR_MSG')) {
-						result = result[0];
-						var msg = result.return[2].value;
-						var valores = EXPRESSION_REGULAR_RESPUESTA_WS.exec(msg);
-						if (Array.isArray(valores)) {
-							if (valores[1] === '00') {
+					if (result !== null && result.length > 0 && typeof result[0].return !== 'undefined'){
+						const resultobj = wsresponseToObj(result[0].return);
+						const msg = resultobj.ERR_MSG;
+						
+						if (msg.indexOf(WS_USUARIO_EN_GESPER) === 0) {
+							const nuevaPersona = {
+								'codplaza': codplaza,
+								'login': resultobj.P_LOGIN,
+								'nombre': resultobj.P_NOMBRE, /* TODO: revisar incoherencia con infoByLogin */
+								'apellidos': (resultobj.P_APEL1 + ' ' + resultobj.P_APEL2).trim(),
+								'telefono': resultobj.P_TELEF,
+								'habilitado': false
+							};
+							const output = [{'login': nuevaPersona.login, 'codplaza': nuevaPersona.codplaza, 'nombre': nuevaPersona.nombre, 'apellidos': nuevaPersona.apellidos}];
+								
+							personamodel.findOneAndUpdate({'login': nuevaPersona.login}, nuevaPersona, {'upsert': true, 'new': true}, function(erro){
+								if (erro) {
+									deferRegistro.reject(erro);
+								} else {
+									deferRegistro.resolve(output);
+								}
+							});
 
-								const nuevaPersona = {
-									'codplaza': codplaza,
-									'login': result.return[0].value,
-									'nombre': result.return[1].value, /* TODO: revisar incoherencia con infoByLogin */
-									'apellidos': (result.return[6].value + ' ' + result.return[5].value).trim(),
-									'telefono': result.return[7].value,
-									'habilitado': false
-								};
-								const output = [{'login': nuevaPersona.login, 'codplaza': nuevaPersona.codplaza, 'nombre': nuevaPersona.nombre, 'apellidos': nuevaPersona.apellidos}];
-										
-								personamodel.create(nuevaPersona, function(erro) {
-									if (erro) {
-										deferRegistro.reject(erro);
-									} else {
-										deferRegistro.resolve(output);
-									}
-								});
-							} else {
-								deferRegistro.reject(valores);
-							}
 						} else {
-							deferRegistro.reject({err: 'El mensaje de error no cumple el patrón esperado', 'details': valores});
+							deferRegistro.reject({'err': 'El mensaje de error no cumple el patrón esperado', 'details': resultobj});
 						}
+
 					} else {
-						deferRegistro.reject({err: 'Error inespecificado del servicio web.', details: result[0].return});
+						deferRegistro.reject({'err': 'Error inespecificado del servicio web.', details: result[0].return});
 					}
 				}).fail(deferRegistro.reject);
 			} else {
-				deferRegistro.reject('Ya existe una persona registrada con ese codplaza.');
+				deferRegistro.reject({'err': 'Ya existe una persona registrada con ese codplaza.'});
 			}
 		});
 
@@ -186,31 +192,27 @@
 			if (EXPRESSION_REGULAR_LOGIN_CARM.test(req.params.regex)){
 				infoByLogin(req.params.regex, cfg).then(function(result) {
 					
-					if (result !== null && result.length > 0 &&  (typeof result[0].return !== 'undefined') && (result[0].return.length > 0) && (result[0].return[2].key === 'ERR_MSG')) {
-						result = result[0];
-						const msg = result.return[2].value;
-						const valores = EXPRESSION_REGULAR_RESPUESTA_WS.exec(msg);
-						if (valores !== null) {
-							if (valores[1] !== '00') {
-								logger.error(valores[2]);
-								defer.resolve();
-
-								return;
-							}
+					if (result !== null && result.length > 0){
+						
+						const resultobj = wsresponseToObj(result[0].return);
+						const msg = resultobj.ERR_MSG;
+						if (msg.indexOf(WS_USUARIO_EN_GESPER) === 0) {
 
 							const nuevaPersona = {
-								codplaza: result.return[1].value,
+								codplaza: resultobj.P_PLAZA,
 								login: req.params.regex,
-								nombre: result.return[0].value,
-								apellidos: result.return[6].value + ' ' + result.return[5].value,
-								telefono: result.return[7].value,
-								habilitado: false
+								nombre: resultobj.P_NOMBRE,
+								apellidos: resultobj.P_APEL1 + ' ' + resultobj.P_APEL2,
+								telefono: resultobj.P_TELEF,
+								habilitado: false,
+								ultimoupdate: new Date()
 							};
 							personamodel.findOneAndUpdate({'login': nuevaPersona.login}, nuevaPersona, {'upsert': true, 'new': true}, function(){
 								defer.resolve();
 							});
 
 						} else {
+							logger.error(msg);
 							defer.resolve();
 						}
 					}
@@ -271,7 +273,7 @@
 			personamodel = models.persona();
 		const filas = [];
 		const promesasActualizacion = [];
-		const restriccion = {habilitado: true};
+		const restriccion = {'habilitado': true};
 		if (typeof req.params.login === 'string'){
 			restriccion.login = req.params.login;
 		}
@@ -284,21 +286,22 @@
 			const persona = personas.shift();
 			const promesaUpdate = Q.defer();
 			promesasActualizacion.push(promesaUpdate.promise);
-			infoByLogin(persona.login, cfg).then(function(result){
-				if (result === null || typeof result.return === 'undefined' || result.return.length === 0) {
-					req.eh.notFoundHelper(res);
 
-					return;
-				}
-			
-				let actualizacion = false;
-				let codplaza = '';
-				const msg = result.return[2].value;
-				const valores = EXPRESSION_REGULAR_RESPUESTA_WS.exec(msg);
-				if (Array.isArray(valores)) {
-					if (valores[1] === WS_USUARIO_EN_GESPER) {
-						codplaza = result.return[1].value;
-						const telefono = result.return[7].value;
+			if (!Array.isArray(persona.actualizaciones)){
+				persona.actualizaciones = [];
+			}
+
+			infoByLogin(persona.login, cfg).then(function(result){
+				if (result !== null && result.length > 0 && typeof result[0].return !== 'undefined') {
+					const resultobj = wsresponseToObj(result[0].return);
+					const msg = resultobj.ERR_MSG;
+					
+					let actualizacion = false;
+					let codplaza = '';
+					if (msg.indexOf(WS_USUARIO_EN_GESPER) === 0) {
+
+						codplaza = resultobj.P_PLAZA;
+						const telefono = resultobj.P_TELEF;
 						let mensaje = false;
 						if (codplaza !== persona.codplaza){
 							mensaje = 'Se modifica el código de plaza del usuario: ' + persona.login + ' pasa de [' + persona.codplaza + '] a [' + codplaza + ']';
@@ -316,52 +319,55 @@
 						}
 
 						if (mensaje){
-							actualizacion = {'fecha': new Date(), comentario: mensaje};
+							actualizacion = {'fecha': new Date(), 'comentario': mensaje};
 						}
-						persona.telefono = telefono;
+					} else if (msg.indexOf(WS_USUARIO_NO_EN_GESPER) === 0) {
 
-					} else if (valores[1] === WS_USUARIO_NO_EN_GESPER) {
 						codplaza = persona.codplaza;
 						if (EXPRESSION_REGULAR_CODIGO_PLAZA.test(persona.codplaza)) {
-							actualizacion = {'fecha': new Date(), comentario: 'Usuario ' + persona.login + ' ya no está en gesper y eliminamos su código plaza ' + persona.codplaza};
+							actualizacion = {'fecha': new Date(), 'comentario': 'Usuario ' + persona.login + ' ya no está en gesper y eliminamos su código plaza ' + persona.codplaza};
 							persona.codplaza = '';
+						} else if (persona.codplaza === ''){
+							actualizacion = {'fecha': new Date(), 'comentario': 'Usuario sin código de plaza. No actualizado.'};
 						} else {
-							actualizacion = {'fecha': new Date(), comentario: 'Usuario con código de plaza especial. No actualizado.'};
+							actualizacion = {'fecha': new Date(), 'comentario': 'Usuario con código de plaza especial. No actualizado.', 'details': persona.codplaza};
 						}
 					}
 					if (actualizacion){
 						persona.actualizaciones.push(actualizacion);
 					}
-				}
-				
-				persona.ultimoupdate = new Date();
-				persona.save(function(err){
-					if (err) {
-						promesaUpdate.reject('NO se ha podido actualizar el usuario ' + persona.login + '. Error: ' + err);
-					} else if (persona.codplaza === codplaza) {
+	
+					persona.ultimoupdate = new Date();
+					persona.save(function(err){
+						if (err) {
+							promesaUpdate.reject('NO se ha podido actualizar el usuario ' + persona.login + '. Error: ' + err);
+						} else if (persona.codplaza === codplaza) {
 							promesaUpdate.resolve();
-					} else if (codplaza && codplaza !== ''){
-						personamodel.count({'codplaza': codplaza}, function (erro, count) {
-							if (erro) {
-								promesaUpdate.reject(erro);
-							} else if (count > 0) {
+						} else if (codplaza && codplaza !== ''){
+							personamodel.count({'codplaza': codplaza}, function (erro, count) {
+								if (erro) {
+									promesaUpdate.reject(erro);
+								} else if (count > 0) {
 									promesaUpdate.resolve();
-							} else {
-								registroPersonaWS(codplaza, models, cfg).then(function(/*resultado*/) {
-									//fila.nuevoUsuario = resultado.login;
-									promesaUpdate.resolve();
-								}, promesaUpdate.reject);
-							}
-						});
-					} else {
-						promesaUpdate.resolve();
-					}
-				});
-			}, promesaUpdate.reject);
+								} else {
+									registroPersonaWS(codplaza, models, cfg).then(function(/*resultado*/) {
+										//fila.nuevoUsuario = resultado.login;
+										promesaUpdate.resolve();
+									}, promesaUpdate.reject);
+								}
+							});
+						} else {
+							promesaUpdate.resolve();
+						}
+					});
+				} else {
+					promesaUpdate.reject();
+				}
+			}).fail(promesaUpdate.reject);
 			
 			Q.all(promesasActualizacion).then(function(){
 				res.json(filas);
-			}, req.eh.errorHelper(res));
+			}).fail(req.eh.errorHelper(res));
 		}, req.eh.errorHelper(res));
 	};
 

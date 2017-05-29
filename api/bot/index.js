@@ -16,8 +16,8 @@
 		});
 
 		/* funcionalidad bots */
-		app.get('/personas/actualizarGesper', metaenvironment.persona.updateCodPlazaByLogin );
-		app.get('/personas/actualizarGesper/:login', metaenvironment.persona.updateCodPlazaByLogin );
+		app.get('/personas/actualizarGesper', metaenvironment.persona.updateCodPlazaByLogin);
+		app.get('/personas/actualizarGesper/:login', metaenvironment.persona.updateCodPlazaByLogin);
 
 		this.app = app;
 	}
