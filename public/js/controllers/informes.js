@@ -24,6 +24,7 @@
 			$scope.clasefuncionalidades = 'col-sm-' + (12 / $scope.funcionalidades.length).toFixed(0);
 			$scope.oculto = false;
 			$scope.columnasocultas = true;
+			$scope.indicadoresById = [];
 			$scope.campos = [
 				'en_plazo', 'fuera_plazo',
 				'resueltos_desistimiento_renuncia_caducidad', 'resueltos_prescripcion',
@@ -95,6 +96,27 @@
 				return cumplimentados / $scope.indicadoresByIdJerarquiaRecursivo[String(idjerarquia)].length;
 			};
 
+			function indicadorIsEmpty(indicador, anualidad){
+				const valores = $scope.indicadoresById[String(indicador)] ? $scope.indicadoresById[String(indicador)].valores[anualidad] : false;
+				if (!valores){
+					console.error('No existe el indicador', indicador);
+					return true;
+				}
+				for (let i = 0; i < 12; i++){
+					if (valores[i] !== null){
+						return false;
+					}
+				}
+
+				return true;
+			}
+
+			function sonVacios(indicadores, anualidad){
+				return indicadores.reduce(function(prev, indicador){
+					return prev && indicadorIsEmpty(indicador, anualidad);
+				}, true);
+			}
+
 			function calculateState(formula){
 				if (typeof formula.valores !== 'object'){
 
@@ -103,14 +125,22 @@
 
 				for (const anualidad in formula.valores){
 					if (!Array.isArray(formula.valores[anualidad]) || !formula.valores[anualidad].length === 13){
-						
 						formula.valores[anualidad] = [];
 						formula.valores[anualidad][12] = {'color': '_'};
 					} else {
 						const resultado = formula.valores[anualidad][12].resultado;
 						if (!resultado || isNaN(resultado)){
+
+							if (sonVacios(formula.indicadores, anualidad)){
+								const color = COLORES_OBJETIVOS[0].value;
+								formula.valores[anualidad][12].color = color;
+								console.log('Son vacios', formula.indicadores, anualidad);
+							} else {
+								formula.valores[anualidad] = [];
+								formula.valores[anualidad][12] = {'color': '_'};
+							}
+
 							formula.valores[anualidad][12].color = '_';
-							console.log(113)
 						} else {
 							const intervalos = formula.intervalos;
 							let color = COLORES_OBJETIVOS[0].value;
@@ -163,7 +193,15 @@
 
 			function loadStatsCartas(){
 
+				$scope.coloresFormulasPorCarta = {};
 				Indicador.query({'fields': 'idjerarquia valores'}, function(indicadores){
+
+					$scope.indicadoresById = indicadores.reduce(function(prev, indicador){
+
+						prev[String(indicador._id)] = indicador;
+
+						return prev;
+					}, {});
 
 					$scope.indicadoresByIdJerarquia = indicadores.reduce(function(prev, indicador){
 						if (typeof prev[String(indicador.idjerarquia)] === 'undefined'){
@@ -186,98 +224,99 @@
 						}
 					});
 
-				});
-				$scope.coloresFormulasPorCarta = {};
-				Objetivo.query({'fields': 'carta formulas.intervalos formulas.valores'}, function(objetivos){
-					$scope.objetivosByJerarquia = {};
-					$scope.formulasByCarta = {};
-					$scope.formulasByJerarquia = {};
-					$scope.coloresFormulasPorJerarquia = {};
-					
-					$scope.objetivosByCarta = objetivos.reduce(function(prev, objetivo){
-						if (typeof prev[objetivo.carta] === 'undefined'){
-							prev[objetivo.carta] = [];
-						}
-						prev[objetivo.carta].push(objetivo);
-						if (typeof $scope.coloresFormulasPorCarta[objetivo.carta] === 'undefined'){
-							$scope.coloresFormulasPorCarta[objetivo.carta] = {};
-						}
+				
+					Objetivo.query({'fields': 'carta formulas.indicadores formulas.intervalos formulas.valores'}, function(objetivos){
+						$scope.objetivosByJerarquia = {};
+						$scope.formulasByCarta = {};
+						$scope.formulasByJerarquia = {};
+						$scope.coloresFormulasPorJerarquia = {};
+						
+						$scope.objetivosByCarta = objetivos.reduce(function(prev, objetivo){
+							if (typeof prev[objetivo.carta] === 'undefined'){
+								prev[objetivo.carta] = [];
+							}
+							prev[objetivo.carta].push(objetivo);
+							if (typeof $scope.coloresFormulasPorCarta[objetivo.carta] === 'undefined'){
+								$scope.coloresFormulasPorCarta[objetivo.carta] = {};
+							}
 
-						if (typeof $scope.formulasByCarta[objetivo.carta] === 'undefined'){
-							$scope.formulasByCarta[objetivo.carta] = [];
-						}
-						objetivo.formulas.forEach(function(formula){
-							calculateState(formula);
-							$scope.formulasByCarta[objetivo.carta].push(formula);
+							if (typeof $scope.formulasByCarta[objetivo.carta] === 'undefined'){
+								$scope.formulasByCarta[objetivo.carta] = [];
+							}
+							objetivo.formulas.forEach(function(formula){
+								calculateState(formula);
+								$scope.formulasByCarta[objetivo.carta].push(formula);
 
-							for (const anualidad in formula.valores){
-								if (typeof $scope.coloresFormulasPorCarta[objetivo.carta][anualidad] === 'undefined'){
-									$scope.coloresFormulasPorCarta[objetivo.carta][anualidad] = {};
-								}
-								const color = formula.valores[anualidad][12].color;
-								if (color && color !== ''){
-									if (typeof $scope.coloresFormulasPorCarta[objetivo.carta][anualidad][color] === 'undefined'){
-										$scope.coloresFormulasPorCarta[objetivo.carta][anualidad][color] = 0;
+								for (const anualidad in formula.valores){
+									if (typeof $scope.coloresFormulasPorCarta[objetivo.carta][anualidad] === 'undefined'){
+										$scope.coloresFormulasPorCarta[objetivo.carta][anualidad] = {};
 									}
-									$scope.coloresFormulasPorCarta[objetivo.carta][anualidad][color] += 1;
-								}
-							}
-						});
-
-						return prev;
-					}, {});
-
-					$scope.jerarquiasByAncestro['1'].forEach(function(nodo){
-						if (typeof $scope.objetivosByJerarquia[String(nodo.id)] === 'undefined'){
-							$scope.objetivosByJerarquia[String(nodo.id)] = [];
-						}
-						if (typeof $scope.formulasByJerarquia[String(nodo.id)] === 'undefined'){
-							$scope.formulasByJerarquia[String(nodo.id)] = [];
-						}
-
-						if (typeof $scope.coloresFormulasPorJerarquia[String(nodo.id)] === 'undefined'){
-							$scope.coloresFormulasPorJerarquia[String(nodo.id)] = [];
-						}
-
-						for (const cartaid in $scope.objetivosByCarta){
-							const carta = $scope.cartasById[String(cartaid)];
-							if (carta){
-								const idjerarquia = carta.idjerarquia;
-								if (String(idjerarquia) === String(nodo.id) || nodo.descendientes.indexOf(idjerarquia) >= 0){
-									$scope.objetivosByJerarquia[String(nodo.id)] = $scope.objetivosByJerarquia[String(nodo.id)].concat($scope.objetivosByCarta[cartaid]);
-								}
-
-							}
-						}
-
-						for (const cartaid in $scope.formulasByCarta){
-							const carta = $scope.cartasById[String(cartaid)];
-							if (carta){
-								const idjerarquia = carta.idjerarquia;
-								if (String(idjerarquia) === String(nodo.id) || nodo.descendientes.indexOf(idjerarquia) >= 0){
-									$scope.formulasByJerarquia[String(nodo.id)] = $scope.formulasByJerarquia[String(nodo.id)].concat($scope.formulasByCarta[cartaid]);
-								}
-							}
-						}
-
-
-						$scope.formulasByJerarquia[String(nodo.id)].forEach(function(formula){
-							for (const anualidad in formula.valores){
-								if (typeof $scope.coloresFormulasPorJerarquia[String(nodo.id)][anualidad] === 'undefined'){
-									$scope.coloresFormulasPorJerarquia[String(nodo.id)][anualidad] = {};
-								}
-								const color = formula.valores[anualidad][12].color;
-								if (color && color !== ''){
-									if (typeof $scope.coloresFormulasPorJerarquia[String(nodo.id)][anualidad][color] === 'undefined'){
-										$scope.coloresFormulasPorJerarquia[String(nodo.id)][anualidad][color] = 0;
+									const color = formula.valores[anualidad][12].color;
+									if (color && color !== ''){
+										if (typeof $scope.coloresFormulasPorCarta[objetivo.carta][anualidad][color] === 'undefined'){
+											$scope.coloresFormulasPorCarta[objetivo.carta][anualidad][color] = 0;
+										}
+										$scope.coloresFormulasPorCarta[objetivo.carta][anualidad][color] += 1;
 									}
-									$scope.coloresFormulasPorJerarquia[String(nodo.id)][anualidad][color] += 1;
+								}
+							});
+
+							return prev;
+						}, {});
+
+						$scope.jerarquiasByAncestro['1'].forEach(function(nodo){
+							if (typeof $scope.objetivosByJerarquia[String(nodo.id)] === 'undefined'){
+								$scope.objetivosByJerarquia[String(nodo.id)] = [];
+							}
+							if (typeof $scope.formulasByJerarquia[String(nodo.id)] === 'undefined'){
+								$scope.formulasByJerarquia[String(nodo.id)] = [];
+							}
+
+							if (typeof $scope.coloresFormulasPorJerarquia[String(nodo.id)] === 'undefined'){
+								$scope.coloresFormulasPorJerarquia[String(nodo.id)] = [];
+							}
+
+							for (const cartaid in $scope.objetivosByCarta){
+								const carta = $scope.cartasById[String(cartaid)];
+								if (carta){
+									const idjerarquia = carta.idjerarquia;
+									if (String(idjerarquia) === String(nodo.id) || nodo.descendientes.indexOf(idjerarquia) >= 0){
+										$scope.objetivosByJerarquia[String(nodo.id)] = $scope.objetivosByJerarquia[String(nodo.id)].concat($scope.objetivosByCarta[cartaid]);
+									}
+
 								}
 							}
-						});
 
+							for (const cartaid in $scope.formulasByCarta){
+								const carta = $scope.cartasById[String(cartaid)];
+								if (carta){
+									const idjerarquia = carta.idjerarquia;
+									if (String(idjerarquia) === String(nodo.id) || nodo.descendientes.indexOf(idjerarquia) >= 0){
+										$scope.formulasByJerarquia[String(nodo.id)] = $scope.formulasByJerarquia[String(nodo.id)].concat($scope.formulasByCarta[cartaid]);
+									}
+								}
+							}
+
+
+							$scope.formulasByJerarquia[String(nodo.id)].forEach(function(formula){
+								for (const anualidad in formula.valores){
+									if (typeof $scope.coloresFormulasPorJerarquia[String(nodo.id)][anualidad] === 'undefined'){
+										$scope.coloresFormulasPorJerarquia[String(nodo.id)][anualidad] = {};
+									}
+									const color = formula.valores[anualidad][12].color;
+									if (color && color !== ''){
+										if (typeof $scope.coloresFormulasPorJerarquia[String(nodo.id)][anualidad][color] === 'undefined'){
+											$scope.coloresFormulasPorJerarquia[String(nodo.id)][anualidad][color] = 0;
+										}
+										$scope.coloresFormulasPorJerarquia[String(nodo.id)][anualidad][color] += 1;
+									}
+								}
+							});
+
+						});
 					});
 				});
+
 				PlanMejoraList.query({'idjerarquia': 1, 'recursivo': true, 'fields': 'idjerarquia carta numeroacciones anualidad'}, function(planesmejora){
 					$scope.planesmejoraByCarta = planesmejora.reduce(function(prev, plan){
 						if (typeof prev[plan.carta] === 'undefined'){
