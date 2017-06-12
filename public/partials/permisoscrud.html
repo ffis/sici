@@ -55,8 +55,8 @@
 						<td>{{permiso.codplaza}}</td>
 						<td ng-init="persona=getPersona(permiso)">
 							<span>{{persona[0].nombre}} {{ persona[0].apellidos}}</span><!--ng-show="persona[0] && !persona[0].habilitado" -->
-								<button class="btn btn-xs" ng-click="setHabilitado(persona[0])">
-									<span class="glyphicon glyphicon-user">{{persona[0]}}</span>
+								<button class="btn btn-xs" ng-show="$root.permisoscalculados.superuser && persona[0]" ng-class="{'btn-danger': !persona[0].habilitado}" ng-click="setHabilitado(persona[0])" title="Pulse para habilitar esta persona. {{persona[0].habilitado ? 'Ahora mismo se encuentra habilitada' : 'Ahora mismo está deshabilitada'}}.">
+									<span class="glyphicon glyphicon-user"></span>
 								</button>
 							</td>
 						<td>
@@ -67,7 +67,7 @@
 								<i ng-if="objetopermiso && objetopermiso.length==0 && !permiso.superuser">permiso sobre procedimiento</i>
 							</span>
 							<ul ng-if="objetopermiso && objetopermiso.length && objetopermiso.length>1">
-								<li ng-repeat="obj in objetopermiso">{{obj.nombre}} </li>
+								<li ng-repeat="obj in objetopermiso">{{obj.nombre}}</li>
 							</ul>
 						</td>
 						<td><span class="burdeos glyphicon glyphicon-remove"></span></td>
