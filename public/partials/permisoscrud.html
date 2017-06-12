@@ -53,7 +53,12 @@
 					<tr ng-repeat="permiso in permisos" ng-if="permisos.length" ng-init="objetopermiso=getObjetoPermisoUsuario(permiso)" >
 						<td>{{permiso.login}}</td>
 						<td>{{permiso.codplaza}}</td>
-						<td ><span ng-class="{'text-danger': !persona[0].habilitado}" style="cursor:pointer" ng-click="setHabilitado(persona[0])" class="hidden-sm hidden-xs" ng-init="persona=getPersona(permiso)">{{persona[0].nombre}} {{ persona[0].apellidos}}</span></td>
+						<td ng-init="persona=getPersona(permiso)">
+							<span>{{persona[0].nombre}} {{ persona[0].apellidos}}</span><!--ng-show="persona[0] && !persona[0].habilitado" -->
+								<button class="btn btn-xs" ng-click="setHabilitado(persona[0])">
+									<span class="glyphicon glyphicon-user">{{persona[0]}}</span>
+								</button>
+							</td>
 						<td>
 							<span ng-if="objetopermiso && objetopermiso.length === 1">{{objetopermiso[0].nombre}}</span>
 							<span ng-if="objetopermiso && !objetopermiso.length">{{objetopermiso.nombre}}</span>
@@ -90,7 +95,7 @@
 							<span style="font-size:smaller" class="badge" ng-repeat="r in procedimiento.responsables" ng-if="procedimiento.responsables && procedimiento.cod_plaza" title="{{r.nombre}} {{r.apellidos}}">
 								{{r.login}} &nbsp;&nbsp;
 							</span>
-							<span style="font-size:smaller" class="badge alert-warning" ng-if="!procedimiento.responsables  && procedimiento.cod_plaza"><i>No disponible</i></span>
+							<span style="font-size:smaller" class="badge alert-warning" ng-if="!procedimiento.responsables && procedimiento.cod_plaza"><i>No disponible</i></span>
 						</td>
 						<td>{{procedimiento.cod_plaza}}</td>
 						<td>{{usuariodetalle.nombre}} {{usuariodetalle.apellidos}}</td>
@@ -291,7 +296,13 @@
 					<tr ng-repeat="permiso in permisos" ng-if="permisos.length" ng-init="objetopermiso=getObjetoPermiso(permiso)">
 						<td>{{permiso.login}}</td>
 						<td>{{permiso.codplaza}}</td>
-						<td ><span class="hidden-sm hidden-xs " ng-init="persona=getPersona(permiso)">{{persona[0].nombre}} {{ persona[0].apellidos}}</span></td>
+						<td><span class="hidden-sm hidden-xs" ng-init="persona=getPersona(permiso)">
+								<button class="btn btn-xs" ng-show="$root.permisoscalculados.superuser && persona[0]" ng-class="{'btn-danger': !persona[0].habilitado}" ng-click="setHabilitado(persona[0])" title="Pulse para habilitar esta persona. {{persona[0].habilitado ? 'Ahora mismo se encuentra habilitada' : 'Ahora mismo está deshabilitada'}}.">
+									<span class="glyphicon glyphicon-user"></span>
+								</button>
+								{{persona[0].nombre}} {{ persona[0].apellidos}}
+							</span>
+						</td>
 						<td ng-if="is_show_recursive_users || is_show_inherited_users || procedimientos.length">
 
 							<span ng-if="objetopermiso && objetopermiso.length==1">{{objetopermiso[0].nombre}}</span>
@@ -304,7 +315,7 @@
 						<td><span class="burdeos glyphicon glyphicon-remove"></span></td>
 						<td style="color:gray"><span class="glyphicon" ng-class="{'glyphicon-ok':isR(permiso),'glyphicon-remove':!isR(permiso)}"></span></td>
 						<td><a ng-click="changeW(permiso)" href=""><span class="glyphicon" ng-class="{'glyphicon-ok green':isW(permiso),'glyphicon-remove burdeos':!isW(permiso)}"></span></a></td>
-						<td><a ng-click="changeP(permiso)" href="" ><span class="glyphicon" ng-class="{'glyphicon-ok green':isP(permiso),'glyphicon-remove burdeos':!isP(permiso)}"></span></a></td>
+						<td><a ng-click="changeP(permiso)" href=""><span class="glyphicon" ng-class="{'glyphicon-ok green':isP(permiso),'glyphicon-remove burdeos':!isP(permiso)}"></span></a></td>
 						<td>
 							<div class="btn-group pull-right" ng-if="$root.permisoscalculados.superuser">
 							  <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
@@ -333,7 +344,13 @@
 							<span style="font-size:smaller" class="badge alert-warning" ng-if="!procedimiento.responsables  && procedimiento.cod_plaza"><i>No disponible</i></span>
 						</td>
 						<td>{{procedimiento.cod_plaza}}</td>
-						<td ><span class="hidden-sm hidden-xs hidden-md" ng-init="persona=getResponsable(procedimiento)">{{persona[0].nombre}} {{ persona[0].apellidos}}</span></td>
+						<td>
+							<span class="hidden-sm hidden-xs hidden-md" ng-init="persona=getResponsable(procedimiento)">
+								<button class="btn btn-xs" ng-show="$root.permisoscalculados.superuser && persona[0]" ng-class="{'btn-danger': !persona[0].habilitado}" ng-click="setHabilitado(persona[0])" title="Pulse para habilitar esta persona. {{persona[0].habilitado ? 'Ahora mismo se encuentra habilitada' : 'Ahora mismo está deshabilitada'}}.">
+									<span class="glyphicon glyphicon-user"></span>
+								</button>
+							{{persona[0].nombre}} {{ persona[0].apellidos}}</span>
+						</td>
 						<td><a href="/procedimiento/{{procedimiento.codigo}}" title="{{procedimiento.codigo}}">[{{procedimiento.codigo}}] <span class="visible-lg visible-md">{{procedimiento.denominacion}}</span></a></td>
 						<td><span class="glyphicon glyphicon-ok gray"></span></td>
 						<td><span class="glyphicon glyphicon-ok gray"></span></td>

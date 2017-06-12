@@ -325,7 +325,7 @@
 				};
 
 				$scope.getJerarquia = function(idjerarquia){
-					return Jerarquia.query({'id': idjerarquia});
+					return Jerarquia.get({'id': idjerarquia});
 				};
 
 				$scope.habilitaPersonas = function(codplaza){
@@ -610,7 +610,7 @@
 						$log.log(permiso, ' resultado: ', resultado);
 						var oresultado = [];
 						for (var i = 0; i < resultado.length; i++){
-							oresultado.push(Jerarquia.query({'id': resultado[i]}));
+							oresultado.push(Jerarquia.get({'id': resultado[i]}));
 						}
 
 						return oresultado;
@@ -651,7 +651,7 @@
 
 									return [$scope.cachejerarquias['idx' + $scope.seleccionado.id]];
 								} else {
-									var rj = Jerarquia.query({id: $scope.seleccionado.id});
+									var rj = Jerarquia.get({'id': $scope.seleccionado.id});
 									$scope.cachejerarquias['idx' + $scope.seleccionado.id] = rj;
 
 									return [rj];
@@ -685,7 +685,7 @@
 								if (typeof $scope.cachejerarquias['idx' + objs[i]] !== 'undefined'){
 									resultado[i] = $scope.cachejerarquias['idx' + objs[i]];
 								} else {
-									var rja = Jerarquia.query({'id': objs[i]});
+									var rja = Jerarquia.get({'id': objs[i]});
 									$scope.cachejerarquias['idx' + objs[i]] = rja;
 									resultado[i] = rj;
 								}
@@ -714,7 +714,7 @@
 							$scope.procedimientos = $scope.permisostotales.procedimientos;
 						});
 						var filtroRequest = {'id': $scope.seleccionado.id};
-						$scope.nodo_jerarquia = Jerarquia.query(filtroRequest);
+						$scope.nodo_jerarquia = Jerarquia.get(filtroRequest);
 						// si no están cargados los procedimientos del nodo actual, los cargamos
 						$log.log('¿Tiene procedimientos o están cargados?');
 						$log.log($scope.seleccionado);
@@ -1014,11 +1014,11 @@
 
 						return;
 					}
-					var nuevoestado = !persona.habilitado;
+					const nuevoestado = !persona.habilitado;
 
 					$http.post('/api/v1/restricted/habilitar/persona/' + persona._id, {'habilitado': nuevoestado}).then(function(){
 						persona.habilitado = nuevoestado;
-						$rootScope.toaster('Usuario ' + nuevoestado ? 'deshabilitado' : 'habilitado');
+						$rootScope.toaster('Usuario ' + (nuevoestado ? 'habilitado' : 'deshabilitado'));
 					}, errorHandler);
 					
 				};
