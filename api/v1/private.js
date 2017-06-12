@@ -30,6 +30,8 @@
 		app.get('/permisosdelegar/:login/:cod_plaza', metaenvironment.permiso.delegarpermisos);
 		app.get('/permisosdelegar/:login/:cod_plaza/:procedimiento', metaenvironment.permiso.delegarpermisosProcedimiento);
 
+		app.get('/persona/:id', metaenvironment.persona.get);
+
 		this.app = app;
 	}
 

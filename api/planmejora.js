@@ -7,10 +7,12 @@
 			content = req.body;
 		if (typeof content.idjerarquia === 'number' && content.idjerarquia > 0){
 			
-			if (!req.user.permisoscalculados.superuser || req.user.permisoscalculados.jerarquiaescritura.indexOf(content.idjerarquia) < 0){
-				req.eh.unauthorizedHelper(res);
-			} else {
+			if (req.user.permisoscalculados.superuser || req.user.permisoscalculados.jerarquiaescritura.indexOf(content.idjerarquia) >= 0){
 				planmejoramodel.create(content, req.eh.cbWithDefaultValue(res, content));
+				console.log( req.user.permisoscalculados.jerarquiaescritura, content.idjerarquia)
+				
+			} else {
+				req.eh.unauthorizedHelper(res);
 			}
 		} else {
 			req.eh.missingParameterHelper(res, 'idjerarquia');
@@ -100,10 +102,10 @@
 			return;
 		}
 
-		const jerarquiaspermitidas = req.user.permisoscalculados.jerarquialectura.concat(req.user.permisoscalculados.jerarquiaescritura);
+		const jerarquiaspermitidas = req.user.permisoscalculados.jerarquialectura;
 		const idjerarquia = parseInt(req.params.idjerarquia, 10);
 
-		if (req.user.permisoscalculados.superuser || jerarquiaspermitidas.indexOf(idjerarquia) > 0){
+		if (req.user.permisoscalculados.superuser || jerarquiaspermitidas.indexOf(idjerarquia) >= 0){
 				
 			if (typeof req.params.recursivo === 'undefined' || !JSON.parse(req.params.recursivo)){
 				restricciones.idjerarquia = parseInt(req.params.idjerarquia, 10);
@@ -176,6 +178,7 @@
 				}).fail(req.eh.errorHelper(res));
 			}
 		} else {
+			console.dir({jerarquiaspermitidas: jerarquiaspermitidas, idjerarquia: idjerarquia});
 			req.eh.unauthorizedHelper(res);
 		}
 	};

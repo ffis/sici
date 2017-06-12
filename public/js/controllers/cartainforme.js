@@ -2,7 +2,7 @@
 	'use strict';
 	angular.module('sici')
 		.controller('CartaInformeCtrl',
-			['EntidadObjeto', 'Objetivo', 'Indicador', '$scope', '$routeParams', '$rootScope', 'Jerarquia', 'InformeCarta', 'Arbol', '$http', '$window', '$log', 'PlanMejoraList', 'PlanMejora', 'AccionMejora', 'PersonasByRegexp', 'Persona',
+			['EntidadObjeto', 'Objetivo', 'Indicador', '$scope', '$routeParams', '$rootScope', 'Jerarquia', 'InformeCarta', 'Arbol', '$http', '$window', '$log', 'PlanMejoraList', 'PlanMejora', 'AccionMejora', 'PersonasByRegexp', 'PersonaPrivate',
 			function(EntidadObjeto, Objetivo, Indicador, $scope, $routeParams, $rootScope, Jerarquia, InformeCarta, Arbol, $http, $window, $log, PlanMejoraList, PlanMejora, AccionMejora, PersonasByRegexp, Persona){
 				$scope.indicadores = {};
 				$scope.jerarquias = {};
