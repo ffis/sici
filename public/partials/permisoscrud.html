@@ -1,7 +1,7 @@
 
 <div class="row">
 	<div id="superuser" ng-show="$root.permisoscalculados.grantoption || $root.permisoscalculados.superuser">
-		<div ng-class="{'col-lg-5': !oculto, 'hidden': oculto}" class="left animated">
+		<div ng-class="{'col-lg-4': !oculto, 'hidden': oculto}" class="left animated">
 			<div class="input-group">
 			  <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
 				<input class="form-control" ng-model="usuariosbuscado" typeahead-on-select="on_usuariobuscado_selected($item,$model,$label)" placeholder="Buscar por plaza, login carm o nombre"  type="text" typeahead-min-length="3" uib-typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)" typeahead-wait-ms="200" />
@@ -10,7 +10,7 @@
 			<organismos otitle="'Organismos'" arbol="arbol" tipoelementos="'subelementos (procedimientos y cartas de servicio)'" attr="'sumatorio'" setseleccionado="setSeleccionado" seleccionado="seleccionado" filtro="filtro" showprocedimientos="true" showcartas="true" setprocseleccionado="setProcSeleccionado" procseleccionado="procedimiento_seleccionado" setcartaseleccionada="setCartaSeleccionada" cartaseleccionada="carta_seleccionada"></organismos>
 		</div>
     <!-- PERMISOS DE UN USUARIO -->
-		<div ng-show="show_details_permiso && $root.permisoscalculados.superuser" ng-class="{'col-lg-7': !oculto, 'col-lg-12': oculto}">
+		<div ng-show="show_details_permiso && $root.permisoscalculados.superuser" ng-class="{'col-lg-8': !oculto, 'col-lg-12': oculto}">
 			<h2 class="center">Permisos de
 				<span class="hidden-sm hidden-xs">{{usuariodetalle.nombre}} {{usuariodetalle.apellidos}}</span>
 				<span class="hidden-lg hidden-md">{{usuariodetalle.login}}/{{usuariodetalle.codplaza}}</span>
