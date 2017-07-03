@@ -47,7 +47,7 @@
 			const restriccion = {'_id': models.objectId(id), 'mostrable': true};
 
 			if (!req.user.permisoscalculados.superuser) {
-				restriccion.output = {'proceso': {'$in': req.user.permisoscalculados.procedimientosescritura}};
+				restriccion['output.proceso'] = {'$in': req.user.permisoscalculados.procedimientosescritura};
 			}
 
 			var fn = function(defer, val){
