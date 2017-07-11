@@ -54,7 +54,7 @@
 		//set the templateVariables
 		//params.imagen  = './data/gauge.png';
 			//.attachModule(imagedocx)
-		doc.load(content).setOptions({'parser': angularParser}).setData(params);
+		doc.load(content).setOptions({'parser': angularParser, 'nullGetter': function(){ return ''; }}).setData(params);
 		try {
 			doc.render();
 			if (outputtype === FILE){
@@ -79,13 +79,9 @@
 		}
 	}
 
-	function toFixedIfNeeds2(n){
-		if (n === Number(n) && n !== (n | 0) ){
 		
-			return n.toFixed(2);
-		}
-
-		return n;
+	function toFixedIfNeeds2(n){
+		return (n === Number(n) && n !== (n | 0)) ? n.toFixed(2) : n;
 	}
 
 	function addMonthInfo(obj, arr, prefix){
