@@ -48,7 +48,8 @@
 		BUFFER = 'BUFFER';
 
 	function generateDocx(cfg, params, outputtype, outputparams, cb){
-		const content = fs.readFileSync(path.join(__dirname, '..', 'data', 'carta-template.docx'), 'binary'),
+		const template = params.resumida ? 'carta-template-resumen.docx' : 'carta-template.docx',
+			content = fs.readFileSync(path.join(__dirname, '..', 'data', template), 'binary'),
 			doc = new Docxtemplater(),
 			pathdir = cfg.prefixtmp;
 		//set the templateVariables
@@ -197,7 +198,7 @@
 
 	function getIndicador(id, indicadorescargados){
 		for (let i = 0, j = indicadorescargados.length; i < j; i += 1){
-			if (String(indicadorescargados[i]._id) === String(id)){
+			if (indicadorescargados[i] && String(indicadorescargados[i]._id) === String(id)){
 
 				return indicadorescargados[i];
 			}
@@ -310,9 +311,9 @@
 	function loadPlan(models, planmodel, accionmodel, personamodel, organicamodel, carta, anualidad){
 		const q = Q.defer();
 
-		planmodel.findOne({'carta': String(carta._id), anualidad: anualidad}).lean().exec().then(function(plan){
+		planmodel.findOne({'carta': String(carta._id), 'anualidad': anualidad}).lean().exec().then(function(plan){
 			if (!plan){
-				q.reject({error: 'plan not found'});
+				q.reject({'error': 'plan not found'});
 
 				return;
 			}
@@ -329,9 +330,9 @@
 					acciones.sort(sortAcciones);
 					plan.acciones = acciones;
 					q.resolve(plan);
-				}, q.reject);
-			}, q.reject);
-		}, q.reject);
+				}).fail(q.reject);
+			}).fail(q.reject);
+		}).fail(q.reject);
 
 		return q.promise;
 	}
@@ -358,6 +359,7 @@
 
 		const anualidad = req.params.anualidad ? parseInt(req.params.anualidad, 10) : 2015;
 		const restriccion = {'eliminado': false, 'tipoentidad': 'CS', '_id': models.objectId(req.params.id)};
+		const resumida = req.query.resumida === '1';
 
 		entidadobjetomodel.findOne(restriccion).exec().then(function(carta){
 			if (!carta){
@@ -375,9 +377,13 @@
 							objetivostransformados = transformarObjetivos(objetivos, anualidad, indicadores);
 
 						const promises = [
-							loadIndicadores(indicadormodel, models, indicadores),
-							loadPlan(models, planmodel, accionmodel, personamodel, jerarquiasmodel, carta, anualidad)
+							loadIndicadores(indicadormodel, models, indicadores)
 						];
+
+						if (!resumida){
+							promises.push(loadPlan(models, planmodel, accionmodel, personamodel, jerarquiasmodel, carta, anualidad));
+						}
+
 						Q.all(promises).then(function(data){
 
 							const indicadorescargados = data[0],
@@ -388,9 +394,10 @@
 								'anualidad': anualidad,
 								'jerarquias': jerarquias,
 								'objetivos': incluirIndicadores(objetivostransformados, indicadorescargados, anualidad),
-								'planmejora': incluirPlan(plancargado),
-								'acciones': plancargado.acciones,
-								'imagen': './data/gauge.png'
+								'planmejora': resumida ? {} : incluirPlan(plancargado),
+								'acciones': resumida ? [] : plancargado.acciones,
+								'imagen': './data/gauge.png',
+								'resumida': resumida
 							};
 
 							const time = new Date().getTime();

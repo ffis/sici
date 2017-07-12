@@ -14,6 +14,7 @@
 					</a>
 					<a class="btn btn-default" target="_blank" href="{{cartaservicioseleccionada.url}}" title="Ver informaci&oacute;n publicada"><span class="glyphicon glyphicon-info-sign"></span></a>
 					<a class="btn btn-default" target="_blank" href="{{cartaservicioseleccionada.urlprintable}}" title="Ver versi&oacute;n imprimible"><span class="glyphicon glyphicon-print"></span></a>
+					<a class="btn btn-default" href="#" ng-click="downloadDocx()" title="Descargar versi&oacute;n DOCX (sin plan de mejora)"><i class="fa fa-file-text" aria-hidden="true"></i></a>
 					<a class="btn btn-default" href="#" ng-click="downloadxls()" title="Descargar versi&oacute;n XLSX"><span class="glyphicon glyphicon-th"></span></a>
 					<a class="btn btn-default" target="_blank" href="/carta-informe/{{seleccionado.id}}/{{cartaservicioseleccionada._id}}" title="Ver planes de mejora"><span class="glyphicon glyphicon-check"></span></a>
 					<a class="btn btn-default" ng-click="mutexFormulas()" title="Ver f&oacute;rmulas"><span class="fa" ng-class="{'fa-toggle-on': showformulas, 'fa-toggle-off': !showformulas}"></span></a>
@@ -37,7 +38,7 @@
 			<table class="table table-bordered table-condensed table-hover" id="cartastable" style="width:100%;page-break-inside:auto ">
 				<thead>
 					<tr>
-						<th ng-class="{danger:orderby=='codigo' }" ng-click="reverse=!reverse;orderby='codigo'">{{'codigo'|translate}}</th>
+						<th class="hidden-xs" ng-class="{danger:orderby=='codigo' }" ng-click="reverse=!reverse;orderby='codigo'">{{'codigo'|translate}}</th>
 						<th ng-class="{danger:orderby=='denominacion' }" ng-click="reverse=!reverse;orderby='denominacion'">{{'denominacion'|translate}}</th>
 					</tr>
 				</thead>
@@ -51,26 +52,18 @@
 					</tr>
 				</tfoot>
 				<tbody>
-					<tr style=" page-break-inside:avoid; page-break-after:always" ng-repeat="objetivo in objetivos" ng-style="{'background-color': getPastel(objetivo.index) }" ng-init="indexobjetivo=$index">
-						<th class="text-center">
+					<tr style=" page-break-inside:avoid; page-break-after:always" ng-repeat="objetivo in objetivos" ng-style="{'background-color': getPastel(objetivo.index) }" ng-init="indexobjetivo=$index" class="animated fadeIn">
+						<th class="text-center hidden-xs hidden-sm">
 							<p>{{objetivo.index}}</p>
 							<div class="btn-group-vertical" role="group">
 								<a ng-If="!!$root.permisoscalculados.superuser" class="btn btn-default hidden-print" title="Editar" href="/objetivo/{{ objetivo._id}}">
 									<span class="glyphicon glyphicon-pencil"></span>
 								</a>
-								<!--
-								<button type="button" class="btn btn-default" title="Comentar">
-									<span class="glyphicon glyphicon-comment" ng-class="claseComentarios(objetivo)" ng-click=""></span>
-								</button>
-								<button type="button" class="btn btn-default">
-									<span class="glyphicon glyphicon-link"></span>
-								</button>
-
--->							</div>
+							</div>
 						</th>
 						<td class="text-left">
 							<div class="formuladetails">
-								<p class="borderedparagraph">{{objetivo.denominacion}}</p>
+								<p class="borderedparagraph"><strong class="visible-xs-inline visible-sm-inline">{{objetivo.index}}.</strong> {{objetivo.denominacion}}</p>
 								<p ng-if="!objetivo.formulas[0].valores[$root.anualidad]">La anualidad seleccionada no contiene datos.</p>
 								<table class="table table-striped table-bordered table-hover" ng-show="objetivo.formulas[0].valores[$root.anualidad].length">
 									<tbody>
@@ -154,6 +147,11 @@
 																		<tr ng-repeat="(v,a) in [0,1,2,3,4,5,6,7,8,9,10,11]">
 																			<th style="width:20%;" class="text-right">{{$root.meses[a]}}</th>
 																			<td><input ng-blur="updateIndicador(indicadorid)" ng-model="indicadores[indicadorid].observaciones[$root.anualidad][v]" type="text" class="form-control" style="width:90%" /></td>
+																			<td class="text-center">
+																				<label title="Marque aquí para indicar que este mes no hubo actividad"><input type="checkbox"
+																				ng-model="indicadores[indicadorid].actividad[$root.anualidad][v]" ng-true-value="0" ng-false-value="1"
+																				 /> Sin actividad</label>
+																			</td>
 																		</tr>
 																	</tbody>
 																</table>
@@ -173,7 +171,7 @@
 												</table>
 											</td>
 											<td style="text-align:center" class="gaugecell">
-												<div width="300" style="height:225px" major-graduations="{{formula.uppervalue < 5 ? formula.uppervalue + 1 : 5}}" ng-radial-gauge ranges="formula.intervalos" value="formula.gaugevalue[$root.anualidad]" value-unit="unit" precision="precision" lower-limit="0" upper-limit="formula.uppervalue" id="img{{indexobjetivo}}_{{indexformula}}"></div>
+												<div width="300" style="height:225px" major-graduations="{{formula.uppervalue < 5 ? formula.uppervalue + 1 : 5}}" ng-radial-gauge ranges="formula.intervalos" value="formula.gaugevalue[$root.anualidad]" value-unit="unit" precision="precision" lower-limit="0" upper-limit="formula.uppervalue" id="img{{indexobjetivo}}_{{indexformula}}" class="animated fadeIn"></div>
 												<br />
 												<br />
 												<h4>{{ formula.valores[$root.anualidad][ formula.valores[$root.anualidad].length - 1 ].resultado | number:($root.isInt(formula.valores[$root.anualidad][ formula.valores[$root.anualidad].length - 1 ].resultado) ? 0 : 2) }}</h4>

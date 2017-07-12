@@ -346,6 +346,22 @@
 						$scope.descargando = false;
 					});
 				};
+
+				$scope.downloadDocx = function(){
+					$scope.descargando = true;
+					$http.get('/api/v2/public/informeCarta/' + $scope.cartaservicioseleccionada._id + '/' + $rootScope.getIntAnualidad() + '?resumida=1' ).then(function(res){
+						$scope.descargando = false;
+						if (typeof res.data === 'object'){
+							$rootScope.cbDownload(res.data);
+						} else {
+							$rootScope.toaster('Error al descargar el informe', 'Error', 'error');
+						}
+					}, function(){
+						$scope.descargando = false;
+						$rootScope.toaster('Error al descargar el informe', 'Error', 'error');
+					});
+				};
+
 				$scope.mini = function(){
 					let minval = arguments[0];
 					for (let i = 1; i < arguments.length; i += 1) {
