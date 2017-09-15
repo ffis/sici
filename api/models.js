@@ -262,7 +262,8 @@
 			'valores': 'Mixed',
 			'observaciones': 'Mixed',
 			'medidas': 'Mixed',
-			'valoresacumulados': 'Mixed'
+			'valoresacumulados': 'Mixed',
+			'actividad': 'Mixed'
 		},
 		'operador': {
 			'texto': String,
@@ -321,6 +322,7 @@
 		schemasfields.indicador.observaciones = Schema.Types.Mixed;
 		schemasfields.indicador.medidas = Schema.Types.Mixed;
 		schemasfields.indicador.valoresacumulados = Schema.Types.Mixed;
+		schemasfields.indicador.actividad = Schema.Types.Mixed;
 
 		for (const name in schemasfields){
 			if (schemasfields.hasOwnProperty(name)) {

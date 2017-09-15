@@ -232,6 +232,19 @@
 			}
 		}
 
+		for (const anualidad in indicador.actividad){
+			if (Array.isArray(indicador.actividad[anualidad])){
+				indicador.actividad[anualidad] = indicador.actividad[anualidad].map(function(actividad){ return typeof actividad === 'number' ? parseInt(actividad, 10) : 0; });
+			} else {
+				indicador.actividad[anualidad] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+			}
+
+			if (Array.isArray(actualizacion.actividad[anualidad])){
+				indicador.actividad[anualidad] = actualizacion.actividad[anualidad].map(function(actividad){ return typeof actividad === 'number' ? parseInt(actividad, 10) : 0; });
+			}
+		}
+
+
 		for (const anualidad in indicador.valores){
 			if (typeof indicador.valoresacumulados[anualidad] === 'undefined'){
 				indicador.valoresacumulados[anualidad] = [null, null, null, null, null, null, null, null, null, null, null, null, null];
@@ -342,6 +355,14 @@
 									'a2015': [null, null, null, null, null, null, null, null, null, null, null, null, null], /* 13 elementos */
 									'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null], /* 13 elementos */
 									'a2017': [null, null, null, null, null, null, null, null, null, null, null, null, null] /* 13 elementos */
+								};
+							}
+
+							if (typeof indicador.actividad === 'undefined'){
+								indicador.actividad = {
+									'a2015': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], /* 13 elementos */
+									'a2016': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], /* 13 elementos */
+									'a2017': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] /* 13 elementos */
 								};
 							}
 
@@ -510,6 +531,11 @@
 				'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null], /* 13 elementos */
 				'a2017': [null, null, null, null, null, null, null, null, null, null, null, null, null] /* 13 elementos */
 			},
+			'actividad': {
+				'a2015': [null, null, null, null, null, null, null, null, null, null, null, null, null], /* 13 elementos */
+				'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null], /* 13 elementos */
+				'a2017': [null, null, null, null, null, null, null, null, null, null, null, null, null] /* 13 elementos */
+			},
 			'fechaversion': new Date(),
 			'medidas': {},
 			'vinculacion': null,
@@ -629,9 +655,11 @@
 
 				return;
 			}
-			let compromisos = extractCompromisos(jQuery('.contenido em,.contenido h3,.contenido h4'), jQuery, cartaid);
+			const fn = (typeof result === 'function' && typeof jQuery === 'undefined') ? result : jQuery;
+
+			let compromisos = extractCompromisos(fn('.contenido em,.contenido h3,.contenido h4'), fn, cartaid);
 			if (compromisos.length === 0){
-				compromisos = extractCompromisos(jQuery('.contenido p,.contenido h3,.contenido h4'), jQuery, cartaid);
+				compromisos = extractCompromisos(fn('.contenido p,.contenido h3,.contenido h4'), fn, cartaid);
 			}
 			if (compromisos.length === 0){
 				df.reject('No se han extraido compromisos');

@@ -148,8 +148,8 @@
 																			<th style="width:20%;" class="text-right">{{$root.meses[a]}}</th>
 																			<td><input ng-blur="updateIndicador(indicadorid)" ng-model="indicadores[indicadorid].observaciones[$root.anualidad][v]" type="text" class="form-control" style="width:90%" /></td>
 																			<td class="text-center">
-																				<label title="Marque aquí para indicar que este mes no hubo actividad"><input type="checkbox"
-																				ng-model="indicadores[indicadorid].actividad[$root.anualidad][v]" ng-true-value="0" ng-false-value="1"
+																				<label title="Marque aquí para indicar que este mes no hubo actividad"><input type="checkbox" ng-click="updateIndicador(indicadorid)"
+																				ng-model="indicadores[indicadorid].actividad[$root.anualidad][v]" ng-false-value="0" ng-true-value="1"
 																				 /> Sin actividad</label>
 																			</td>
 																		</tr>
