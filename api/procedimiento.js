@@ -64,6 +64,7 @@
 			procedimiento.idjerarquia = idjerarquia;
 			procedimiento.denominacion = req.body.denominacion;
 			procedimiento.codigo = req.body.codigo;
+			procedimiento.fecha_creacion = new Date();
 			if (req.body.cod_plaza){
 				procedimiento.cod_plaza = req.body.cod_plaza;
 			}
