@@ -6,43 +6,49 @@ Comunidad Autónoma de la Región de Murcia.
 
 ### Enlaces de interés
 
+
 * [BORM]
 * [Carta de Servicios]
 
+### Requisitos tecnológicos
 
-### Instalación
+* MongoDB server community v 3.4.3 o superior
+* NodeJS v7.8.0 o superior
+* Opcional: Git, para descargar el código y mantenerlo actualizado
 
 
-1. Clonar repositorio
+
+### Instalación y despliegue
+
+
+1.a Clonar repositorio (opción GIT)
 
 ```sh
-$ sudo apt-get update
-$ sudo apt-get upgrade
-$ sudo apt-get install build-essential
-$ npm cache clean
-$ npm update
-$ npm install node-gyp eslint nodemon bower -g
+$ git config --global url."https://".insteadOf git:// #restricción de la red CARM
 $ git clone https://github.com/ffis/sici
+```
+
+1.b Alternativa al GIT:
+```sh
+$ wget https://github.com/ffis/sici/archive/master.zip sici.zip
+$ unzip sici.zip
+```
+
+2. Instalación de dependencias
+```sh 
 $ cd sici
 $ npm install
-$ git config --global url."https://".insteadOf git:// #restricción de la red CARM
 $ bower install
-$ cd node_modules/mongodb
-$ npm install # workaround bug mongodb bson module not found
-$ npm install -g braces #workaround bug 2
 ```
 
-2. Establecer configuración en el fichero config.json, en especial cadena de conexión al servidor mongodb.
-3. Ejecutar tests en el directorio tests.
+3. Establecer configuración en el fichero config.json, en especial cadena de conexión al servidor mongodb.
+4. Ejecutar tests.
 ```sh
-$ cd tests
-$ mocha testCache.js
-$ mocha testRecalculate.js
+$ npm test
 ```
 
-4. Ejecutar servidor.
+5. Ejecutar servidor.
 ```sh
-$ cd ..
 $ forever app.js
 ```
 
