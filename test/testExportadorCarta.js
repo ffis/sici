@@ -12,7 +12,8 @@ usage: mocha testExportadorCarta.js
 	var expect = require('chai').expect,
 		should = require('chai').should;
 
-	var fs = require('fs'), path = require('path'),
+	var fs = require('fs'),
+		path = require('path'),
 		mongoose = require('mongoose'),
 		models = require('../api/models'),
 		Ec = require('../api/exportador_carta'),

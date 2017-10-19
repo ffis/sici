@@ -10,16 +10,14 @@ usage: mocha testCache.js
 	'use strict';
 	var expect = require('chai').expect;
 
-	var Q = require('q'),
-		mongoose = require('mongoose'),
+	var mongoose = require('mongoose'),
 		models = require('../api/models'),
 		Cache = require('../api/cache'),
 		config = require('../config.json');
 
 	mongoose.Promise = require('q').Promise;
 
-	if (typeof describe === 'function')
-	{
+	if (typeof describe === 'function'){
 		describe('Cache', function(){
 
 			before(function(){

@@ -9,8 +9,9 @@ usage: mocha testIndicador.js
 (function(logger){
 	'use strict';
 
-	const expect = require('chai').expect,
-		should = require('chai').should,
+	const chai = require('chai'),
+		expect = chai.expect,
+		should = chai.should,
 
 		mongoose = require('mongoose'),
 		models = require('../api/models'),
@@ -29,15 +30,13 @@ usage: mocha testIndicador.js
 				models.init(mongoose);
 			});
 
-			it('should load Entidad Objeto', function(done){
+			it('should load indicador', function(done){
 				models.indicador().findOne({'_id': models.objectId(indicadorid)}).lean().exec().then(function(ind){
 					indicador = ind;
 					cartalib.recalculateIndicador(indicador, indicador);
-					logger.dir(indicador);
-					/*
-					expect(obj).to.have.a.property('denominacion');
-					expect(obj.denominacion).equal('Carta de Servicios de la Dirección General de Producciones y Mercados Agroalimentarios');
-					*/
+					expect(ind).to.have.a.property('nombre');
+					expect(ind.nombre).to.be.equal('Tiempo mensual de respuesta de incidencias');
+					
 					done();
 				}, function(err){
 					should.not.exist(err);
