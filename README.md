@@ -35,7 +35,7 @@ Una instalación tolerante a fallos requeriría:
 
 Para esta instalación tolerante a fallos no sería necesario modificar el código, tan sólo ajustar la cadena de conexión hacia el _replicaset_ en el fichero _config.json_.
 
-En cualquier caso sería obligatorio realizar copias de seguridad de la base de datos. Cada copia completa comprimida en 7z, descartando los logs de actividad, ocupa unos ridículos 10MB y son efectuadas cada noche con un servicio en el cron. MongoDB proporciona su propio mecanismo de bitácora al que también podría recurrirse en caso de necesitar restaurar la base de datos a un estado previo.
+En cualquier caso sería obligatorio realizar copias de seguridad de la base de datos. Cada copia completa comprimida en 7z, descartando los logs de actividad, ocupa unos 750MB y son efectuadas cada noche con un servicio en el cron. MongoDB proporciona su propio mecanismo de bitácora al que también podría recurrirse en caso de necesitar restaurar la base de datos a un estado previo.
 
 
 ### Instalación y despliegue
