@@ -144,7 +144,9 @@
 				// existe permisos explícito, y de no ser así se incluye. Esto significa establecer como permiso calculado de lectura y escritura.
 				// siendo solo en el calculado, de cambiar el propietario del procedimiento, desaparecerá su permiso explícito en cuanto se alcancen las
 				// labores de mantenimiento
-				procedimientos.forEach(function (procedimiento) {
+				procedimientos.filter(function(procedimiento){
+					return typeof procedimiento.eliminado === 'undefined' || !procedimiento.eliminado;
+				}).forEach(function (procedimiento) {
 					permiso.jerarquialectura.push(procedimiento.idjerarquia);
 					permiso.procedimientoslectura.push(String(procedimiento.codigo));
 					
