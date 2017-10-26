@@ -230,7 +230,7 @@
 				require('uniq')(idsjerarquia);
 
 				/* TODO: cachear esto */
-				procedimientomodel.find({'idjerarquia': {'$in': idsjerarquia}}, {'codigo': true}, updatePermisoAttr(dP, attrProcedimiento, 'codigo', permiso));
+				procedimientomodel.find({'idjerarquia': {'$in': idsjerarquia}, '$or': [{'eliminado': {$exists: false}}, {'$and': [{'eliminado': {$exists: true}}, {'eliminado': false}]}]}, {'codigo': true}, updatePermisoAttr(dP, attrProcedimiento, 'codigo', permiso));
 				entidadObjetomodel.find({'idjerarquia': {'$in': idsjerarquia}}, {'_id': true}, updatePermisoAttr(dE, attrEo, '_id', permiso));
 
 				defs2.push(dP.promise);
