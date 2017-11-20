@@ -142,6 +142,7 @@
 				} else {
 					const o = JSON.parse(JSON.stringify(persona));
 					o.idspermisos = permisos.map(function(permiso){ return permiso._id; });
+					Reflect.deleteProperty(o, 'actualizaciones');
 					const token = jsonwebtoken.sign(o, secret, {'expiresIn': cfg.session_time});
 					/* TODO: check and explain why to delete all these attrs */
 					o.permisos = permisos.map(function(permiso){
