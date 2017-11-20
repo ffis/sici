@@ -291,6 +291,10 @@
 				persona.actualizaciones = [];
 			}
 
+			if (persona.actualizaciones.length > 10){
+				persona.actualizaciones = persona.actualizaciones.slice(0, 10);
+			}
+
 			infoByLogin(persona.login, cfg).then(function(result){
 				if (result !== null && result.length > 0 && typeof result[0].return !== 'undefined') {
 					const resultobj = wsresponseToObj(result[0].return);
