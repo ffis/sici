@@ -292,7 +292,7 @@
 			}
 
 			if (persona.actualizaciones.length > 10){
-				persona.actualizaciones = persona.actualizaciones.slice(0, 10);
+				persona.actualizaciones = persona.actualizaciones.slice(persona.actualizaciones.length - 10, persona.actualizaciones.length);
 			}
 
 			infoByLogin(persona.login, cfg).then(function(result){
