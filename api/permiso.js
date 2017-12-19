@@ -406,7 +406,7 @@
 
 
 					const fields = {'cod_plaza': 1, 'codigo': 1, 'responsables': 1, 'idjerarquia': 1, 'denominacion': 1};
-					procedimientomodel.find({'idjerarquia': {'$in': jerarquiasBuscadas}}, fields).exec().then(function(procedimientos){
+					procedimientomodel.find({'idjerarquia': {'$in': jerarquiasBuscadas}, '$or': [{'eliminado': {$exists: false}}, {'$and': [{'eliminado': {$exists: true}}, {'eliminado': false}]}]}, fields).exec().then(function(procedimientos){
 						const idsprocedimientos = procedimientos.map(function(p){ return p.codigo; });
 						
 						const restriccion = {
@@ -577,11 +577,27 @@
 		}, req.eh.errorHelper(res));
 	}
 
+	/* this function prevents a user to grant where he/she has permission */
+	function grantOnlyWhereIDoHavePermission(granting, granted){
+
+		const attrs = ['jerarquiadirectalectura', 'jerarquiadirectaescritura', 'procedimientosdirectalectura', 'procedimientosdirectaescritura', 'entidadobjetodirectalectura', 'entidadobjetodirectaescritura'];
+		const attrsG = ['jerarquialectura', 'jerarquiaescritura', 'procedimientoslectura', 'procedimientosescritura', 'entidadobjetolectura', 'entidadobjetoescritura'];
+
+		if (granting.superuser){
+			return;
+		}
+
+		attrs.forEach(function(attr, i){
+			granted[attr] = granting[attrsG[i]].filter(function(e){ return granted[attr].indexOf(e) >= 0; });
+		});
+	}
+
 	module.exports.create = function(req, res){
  
 		const models = req.metaenvironment.models,
 			personamodel = models.persona();
 		const argPermiso = req.body;
+
 		const permiso = {
 			login: argPermiso.login,
 			codplaza: argPermiso.codplaza,
@@ -600,9 +616,11 @@
 			caducidad: req.user.permisoscalculados.caducidad,
 			descripcion: 'Permisos concedidos por ' + req.user.login,
 			grantoption: Boolean(argPermiso.grantoption),
-			superuser: argPermiso.superuser ? 1 : 0,
+			superuser: argPermiso.superuser && req.user.permisoscalculados.superuser ? 1 : 0,
 			cod_plaza_grantt: req.user.login
 		};
+
+		grantOnlyWhereIDoHavePermission(req.user.permisoscalculados, permiso);
 
 		var restriccion = {};
 		if (permiso.codplaza) {
@@ -620,10 +638,7 @@
 			
 			if (persona.habilitado){
 				createPermission(req, res, permiso);
-				
-				
 			} else {
-				persona.habilitado = true;
 				personamodel.update({'_id': models.objectId(persona._id)}, {$set: {habilitado: true}}, {'upsert': false, 'multi': false}).exec().then(function(){
 					createPermission(req, res, permiso);
 				}, req.eh.errorHelper(res));

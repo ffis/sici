@@ -57,7 +57,7 @@
 		const api = new Api(models, cfg, config);
 
 		app.use('/api', api.app);
-		app.post('/logout', function(req, res){ res.json({ok: 'ok'});});
+		app.post('/logout', function(req, res){ res.json({ok: 'ok'}); });
 
 		if (process.env.DEBUG_MEMORY && os.platform() === 'linux'){
 			setProgressMessage('Estableciendo rutas: memory');
