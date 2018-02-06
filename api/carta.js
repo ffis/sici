@@ -333,6 +333,7 @@
 		const models = req.metaenvironment.models,
 			indicadormodel = models.indicador();
 
+
 		if (typeof req.params.id === 'string' && req.params.id !== ''){
 			const id = req.params.id,
 				actualizacion = req.body;
@@ -350,21 +351,29 @@
 							indicador.frecuencia = actualizacion.frecuencia;
 							indicador.pendiente = actualizacion.pendiente;
 
-							if (typeof indicador.valoresacumulados === 'undefined'){
-								indicador.valoresacumulados = {
-									'a2015': [null, null, null, null, null, null, null, null, null, null, null, null, null], /* 13 elementos */
-									'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null], /* 13 elementos */
-									'a2017': [null, null, null, null, null, null, null, null, null, null, null, null, null] /* 13 elementos */
-								};
+							const anualidades = [];
+							const anualidadActual = (new Date()).getFullYear();
+							for (let anualidad = 2015; anualidad <= anualidadActual; anualidad += 1){
+								anualidades.push('a' + String(anualidad));
 							}
 
-							if (typeof indicador.actividad === 'undefined'){
-								indicador.actividad = {
-									'a2015': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], /* 13 elementos */
-									'a2016': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], /* 13 elementos */
-									'a2017': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] /* 13 elementos */
-								};
+							if (typeof indicador.valoresacumulados === 'undefined'){
+								indicador.valoresacumulados = {};
 							}
+							anualidades.forEach(function(anualidad){
+								if (typeof indicador.valoresacumulados[anualidad] === 'undefined'){
+									indicador.valoresacumulados[anualidad] = [null, null, null, null, null, null, null, null, null, null, null, null, null];  //13 elementos
+								}
+							});
+
+							if (typeof indicador.actividad === 'undefined'){
+								indicador.actividad = {};
+							}
+							anualidades.forEach(function(anualidad){
+								if (typeof indicador.actividad[anualidad] === 'undefined'){
+									indicador.actividad[anualidad] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];  //13 elementos
+								}
+							});
 
 							recalculateIndicador(indicador, actualizacion);
 							indicador.fechaversion = new Date();
@@ -516,26 +525,10 @@
 			'id': counterIndicador,
 			'nombre': txt,
 			'resturl': '/indicador/' + counterIndicador,
-			'valores': {
-				'a2015': [null, null, null, null, null, null, null, null, null, null, null, null, null], /* 13 elementos */
-				'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null], /* 13 elementos */
-				'a2017': [null, null, null, null, null, null, null, null, null, null, null, null, null] /* 13 elementos */
-			},
-			'observaciones': {
-				'a2015': ['', '', '', '', '', '', '', '', '', '', '', '', ''],
-				'a2016': ['', '', '', '', '', '', '', '', '', '', '', '', ''],
-				'a2017': ['', '', '', '', '', '', '', '', '', '', '', '', '']
-			},
-			'valoresacumulados': {
-				'a2015': [null, null, null, null, null, null, null, null, null, null, null, null, null], /* 13 elementos */
-				'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null], /* 13 elementos */
-				'a2017': [null, null, null, null, null, null, null, null, null, null, null, null, null] /* 13 elementos */
-			},
-			'actividad': {
-				'a2015': [null, null, null, null, null, null, null, null, null, null, null, null, null], /* 13 elementos */
-				'a2016': [null, null, null, null, null, null, null, null, null, null, null, null, null], /* 13 elementos */
-				'a2017': [null, null, null, null, null, null, null, null, null, null, null, null, null] /* 13 elementos */
-			},
+			'valores': {},
+			'observaciones': {},
+			'valoresacumulados': {},
+			'actividad': {},
 			'fechaversion': new Date(),
 			'medidas': {},
 			'vinculacion': null,
@@ -545,6 +538,18 @@
 			'pendiente': false,
 			'acumulador': 'sum'
 		};
+
+		const anualidades = [];
+		const anualidadActual = (new Date()).getFullYear();
+		for (let anualidad = 2015; anualidad <= anualidadActual; anualidad += 1){
+			anualidades.push('a' + String(anualidad));
+		}
+		anualidades.forEach(function(anualidad){
+			indicador.valores[anualidad] = [null, null, null, null, null, null, null, null, null, null, null, null, null]; /* 13 elementos */
+			indicador.observaciones[anualidad] = ['', '', '', '', '', '', '', '', '', '', '', '', '']; /* 13 elementos */
+			indicador.valoresacumulados[anualidad] = [null, null, null, null, null, null, null, null, null, null, null, null, null]; /* 13 elementos */
+			indicador.actividad[anualidad] = [null, null, null, null, null, null, null, null, null, null, null, null, null]; /* 13 elementos */
+		});
 
 		return indicadormodel.create(indicador);
 	}
@@ -628,18 +633,19 @@
 						'meta': meta,
 						'direccion': '',
 						'intervalos': intervalos,
-						'valores': {
-							'a2015': [
-								{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
-								{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}],
-							'a2016': [
-								{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
-								{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}],
-							'a2017': [
-								{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
-								{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}]
-						}
+						'valores': {}
 					};
+
+					const anualidades = [];
+					const anualidadActual = (new Date()).getFullYear();
+					for (let anualidad = 2015; anualidad <= anualidadActual; anualidad += 1){
+						anualidades.push('a' + String(anualidad));
+					}
+					anualidades.forEach(function(anualidad){
+						formula.valores[anualidad] = [
+							{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
+							{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}];
+					});
 					formulas.push(formula);
 				}
 			}
@@ -898,18 +904,19 @@
 							'meta': meta,
 							'direccion': '',
 							'intervalos': intervalos,
-							'valores': {
-								'a2015': [
-									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
-									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}],
-								'a2016': [
-									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
-									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}],
-								'a2017': [
-									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
-									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}]
-							}
+							'valores': {}
 						};
+
+						const anualidades = [];
+						const anualidadActual = (new Date()).getFullYear();
+						for (let anualidad = 2015; anualidad <= anualidadActual; anualidad += 1){
+							anualidades.push('a' + String(anualidad));
+						}
+						anualidades.forEach(function(anualidad){
+							formula.valores[anualidad] = [
+								{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
+								{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}];
+						});
 
 						objetivo.formulas.push(formula);
 						objetivo.markModified('formulas');
@@ -956,18 +963,19 @@
 							'meta': meta,
 							'direccion': '',
 							'intervalos': intervalos,
-							'valores': {
-								'a2015': [
-									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
-									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}],
-								'a2016': [
-									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
-									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}],
-								'a2017': [
-									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
-									{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}]
-							}
+							'valores': {}
 						};
+
+						const anualidades = [];
+						const anualidadActual = (new Date()).getFullYear();
+						for (let anualidad = 2015; anualidad <= anualidadActual; anualidad += 1){
+							anualidades.push('a' + String(anualidad));
+						}
+						anualidades.forEach(function(anualidad){
+							formula.valores[anualidad] = [
+								{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
+								{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}];
+						});
 
 						compromiso.formulas.push(formula);
 
