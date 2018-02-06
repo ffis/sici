@@ -116,107 +116,6 @@
 		return historicoindicadormodel.create(v);
 	}
 
-	module.exports.objetivosStats = function(req, res){
-		const objetivomodel = req.metaenvironment.models.objetivo();
-		const ag = [{$group: {'_id': '$carta', 'count': {'$sum': 1}, 'formulas': {'$addToSet': '$formulas.computer'}}}];
-		objetivomodel.aggregate(ag).exec().then(req.eh.okHelper(res), req.eh.errorHelper(res));
-	};
-
-	module.exports.usosIndicadores = function(req, res){
-		if (req.user.permisoscalculados.superuser) {
-			const objetivomodel = req.metaenvironment.models.objetivo();
-			objetivomodel.aggregate([
-				{'$unwind': '$formulas'},
-				{'$unwind': '$formulas.indicadores'},
-				{'$group': {'_id': '$formulas.indicadores', 'count': {'$sum': 1}}}
-			]).exec().then(req.eh.okHelper(res), req.eh.errorHelper(res));
-		} else {
-			req.eh.unauthorizedHelper(res, 'Only superuser is allowed');
-		}
-	};
-
-	module.exports.indicador = function(req, res){
-		const indicadormodel = req.metaenvironment.models.indicador();
-		if (typeof req.params.id === 'string' && req.params.id !== ''){
-			const id = req.params.id;
-			const restriccion = {'_id': req.metaenvironment.models.objectId(id)};
-			if (!req.user.permisoscalculados.superuser) {
-				restriccion.$or = [
-					{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura}},
-					{'responsable': req.user.login}
-				];
-			}
-
-			const query = indicadormodel.findOne(restriccion);
-			if (typeof req.query.fields === 'string' && req.query.fields !== ''){
-				query.select(req.query.fields);
-			}
-			query.exec().then(req.eh.okHelper(res), req.eh.errorHelper);
-			
-		} else {
-			let restriccion = {};
-			if (!req.user.permisoscalculados.superuser) {
-				restriccion.$or = [
-					{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura}},
-					{'responsable': req.user.login}
-				];
-			}
-			if (typeof req.query.idjerarquia === 'string' && req.query.idjerarquia !== ''){
-				if (typeof restriccion.$or === 'object'){
-					var restriccionesaux = {};
-					restriccionesaux.$and = [
-						restriccion,
-						{'idjerarquia': parseInt(req.query.idjerarquia, 10)}
-					];
-					restriccion = restriccionesaux;
-				} else {
-					restriccion.idjerarquia = parseInt(req.query.idjerarquia, 10);
-				}
-			}
-
-			const query = indicadormodel.find(restriccion);
-			if (typeof req.query.fields === 'string' && req.query.fields !== ''){
-				query.select(req.query.fields);
-			}
-			query.exec().then(req.eh.okHelper(res), req.eh.errorHelper);
-		}
-	};
-
-	module.exports.removeindicador = function(req, res){
-		const models = req.metaenvironment.models;
-		const id = req.params.id;
-		const content = req.body;
-
-		if (!req.user.permisoscalculados.superuser){
-			req.eh.unauthorizedHelper(res);
-
-			return;
-		}
-
-		if (typeof req.params.id === 'string' && req.params.id !== ''){
-			const indicadormodel = models.indicador();
-			const objetivomodel = models.objetivo();
-
-			indicadormodel.findOne({'_id': models.objectId(id)}).exec().then(function(indicador){
-				if (!indicador){
-					req.eh.notFoundHelper(res);
-
-					return;
-				}
-				objetivomodel.find({'formulas.indicadores': models.objectId(id)}).exec().then(function(objetivos){
-					if (objetivos && objetivos.length > 0){
-						const vinculos = objetivos.map(function(o){ return o.denominacion; }).join(' | ');
-						res.status(403).json({'error': 'No se permite eliminar un indicador vinculado a un objetivo', 'details': vinculos});
-					} else {
-						indicadormodel.remove({'_id': models.objectId(id)}, req.eh.cbWithDefaultValue(res, content));
-					}
-				}, req.eh.errorHelper(res));
-			}, req.eh.errorHelper(res));
-		} else {
-			req.eh.missingParameterHelper(res, 'id');
-		}
-	};
-
 	function ensureIndicador(indicador){
 		const anualidades = [];
 		const anualidadActual = (new Date()).getFullYear();
@@ -267,6 +166,112 @@
 			});
 		}
 	}
+
+	module.exports.objetivosStats = function(req, res){
+		const objetivomodel = req.metaenvironment.models.objetivo();
+		const ag = [{$group: {'_id': '$carta', 'count': {'$sum': 1}, 'formulas': {'$addToSet': '$formulas.computer'}}}];
+		objetivomodel.aggregate(ag).exec().then(req.eh.okHelper(res), req.eh.errorHelper(res));
+	};
+
+	module.exports.usosIndicadores = function(req, res){
+		if (req.user.permisoscalculados.superuser) {
+			const objetivomodel = req.metaenvironment.models.objetivo();
+			objetivomodel.aggregate([
+				{'$unwind': '$formulas'},
+				{'$unwind': '$formulas.indicadores'},
+				{'$group': {'_id': '$formulas.indicadores', 'count': {'$sum': 1}}}
+			]).exec().then(req.eh.okHelper(res), req.eh.errorHelper(res));
+		} else {
+			req.eh.unauthorizedHelper(res, 'Only superuser is allowed');
+		}
+	};
+
+	module.exports.indicador = function(req, res){
+		const indicadormodel = req.metaenvironment.models.indicador();
+		if (typeof req.params.id === 'string' && req.params.id !== ''){
+			const id = req.params.id;
+			const restriccion = {'_id': req.metaenvironment.models.objectId(id)};
+			if (!req.user.permisoscalculados.superuser) {
+				restriccion.$or = [
+					{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura}},
+					{'responsable': req.user.login}
+				];
+			}
+
+			const query = indicadormodel.findOne(restriccion);
+			if (typeof req.query.fields === 'string' && req.query.fields !== ''){
+				query.select(req.query.fields);
+			}
+			query.lean().exec().then(function(indicador){
+				ensureIndicador(indicador);
+				res.json(indicador);
+			}, req.eh.errorHelper);
+			
+		} else {
+			let restriccion = {};
+			if (!req.user.permisoscalculados.superuser) {
+				restriccion.$or = [
+					{'idjerarquia': {'$in': req.user.permisoscalculados.jerarquialectura}},
+					{'responsable': req.user.login}
+				];
+			}
+			if (typeof req.query.idjerarquia === 'string' && req.query.idjerarquia !== ''){
+				if (typeof restriccion.$or === 'object'){
+					var restriccionesaux = {};
+					restriccionesaux.$and = [
+						restriccion,
+						{'idjerarquia': parseInt(req.query.idjerarquia, 10)}
+					];
+					restriccion = restriccionesaux;
+				} else {
+					restriccion.idjerarquia = parseInt(req.query.idjerarquia, 10);
+				}
+			}
+
+			const query = indicadormodel.find(restriccion);
+			if (typeof req.query.fields === 'string' && req.query.fields !== ''){
+				query.select(req.query.fields);
+			}
+			query.lean().exec().then(req.eh.okHelper(res), req.eh.errorHelper);
+		}
+	};
+
+	module.exports.removeindicador = function(req, res){
+		const models = req.metaenvironment.models;
+		const id = req.params.id;
+		const content = req.body;
+
+		if (!req.user.permisoscalculados.superuser){
+			req.eh.unauthorizedHelper(res);
+
+			return;
+		}
+
+		if (typeof req.params.id === 'string' && req.params.id !== ''){
+			const indicadormodel = models.indicador();
+			const objetivomodel = models.objetivo();
+
+			indicadormodel.findOne({'_id': models.objectId(id)}).exec().then(function(indicador){
+				if (!indicador){
+					req.eh.notFoundHelper(res);
+
+					return;
+				}
+				objetivomodel.find({'formulas.indicadores': models.objectId(id)}).exec().then(function(objetivos){
+					if (objetivos && objetivos.length > 0){
+						const vinculos = objetivos.map(function(o){ return o.denominacion; }).join(' | ');
+						res.status(403).json({'error': 'No se permite eliminar un indicador vinculado a un objetivo', 'details': vinculos});
+					} else {
+						indicadormodel.remove({'_id': models.objectId(id)}, req.eh.cbWithDefaultValue(res, content));
+					}
+				}, req.eh.errorHelper(res));
+			}, req.eh.errorHelper(res));
+		} else {
+			req.eh.missingParameterHelper(res, 'id');
+		}
+	};
+
+	
 
 	function recalculateIndicador(indicador, actualizacion){
 		const acumuladorestratables = ['sum', 'mean', 'max', 'min'];
