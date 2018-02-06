@@ -273,7 +273,7 @@
 			personamodel = models.persona();
 		const filas = [];
 		const promesasActualizacion = [];
-		const restriccion = {'habilitado': true};
+		const restriccion = {}; // {'habilitado': true}; cambiado para que modifique a aquellos responsables de procedimientos que ya están deshabilitados
 		if (typeof req.params.login === 'string'){
 			restriccion.login = req.params.login;
 		}
