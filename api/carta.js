@@ -217,38 +217,75 @@
 		}
 	};
 
+	function ensureIndicador(indicador){
+		const anualidades = [];
+		const anualidadActual = (new Date()).getFullYear();
+		for (let anualidad = 2015; anualidad <= anualidadActual; anualidad += 1){
+			anualidades.push('a' + String(anualidad));
+		}
+
+		const mandatoryAttrs = {
+			'valores': {defaultValue: null, type: 'number', ensure: 'float'},
+			'observaciones': {defaultValue: '', type: 'string', ensure: 'trim'},
+			'valoresacumulados': {defaultValue: null, type: 'number', ensure: 'int'},
+			'actividad': {defaultValue: null, type: 'number', ensure: 'int'}
+		};
+
+		Object.keys(mandatoryAttrs).forEach(function(attr){
+			if (typeof indicador[attr] === 'undefined'){
+				indicador[attr] = {};
+			}
+			anualidades.forEach(function(anualidad){
+				if (typeof indicador[attr][anualidad] === 'undefined'){
+					indicador[attr][anualidad] = [...Array(13).keys()].map(function(){ return mandatoryAttrs[attr].defaultValue; });
+				} else if (mandatoryAttrs[attr].type === 'string' && mandatoryAttrs[attr].ensure === 'trim'){
+						indicador[attr][anualidad] = indicador[attr][anualidad].map(function(value){ return typeof value === mandatoryAttrs[attr].type ? value.trim() : mandatoryAttrs[attr].defaultValue; });
+				} else if (mandatoryAttrs[attr].type === 'number' && mandatoryAttrs[attr].ensure === 'int'){
+					indicador[attr][anualidad] = indicador[attr][anualidad].map(function(value){ return typeof value === mandatoryAttrs[attr].type ? parseInt(value, 10) : mandatoryAttrs[attr].defaultValue; });
+				} else if (mandatoryAttrs[attr].type === 'number' && mandatoryAttrs[attr].ensure === 'float'){
+					indicador[attr][anualidad] = indicador[attr][anualidad].map(function(value){ return typeof value === mandatoryAttrs[attr].type ? parseFloat(value, 10) : mandatoryAttrs[attr].defaultValue; });
+				}
+			});
+		});
+	}
+
+	function ensureObjetivo(objetivo){
+		const anualidades = [];
+		const anualidadActual = (new Date()).getFullYear();
+		for (let anualidad = 2015; anualidad <= anualidadActual; anualidad += 1){
+			anualidades.push('a' + String(anualidad));
+		}
+		for (let i = 0, j = objetivo.formulas.length; i < j; i += 1){
+			if (typeof objetivo.formulas[i].valores === 'undefined'){
+				objetivo.formulas[i].valores = {};
+			}
+
+			anualidades.forEach(function(anualidad){
+				if (typeof objetivo.formulas[i].valores[anualidad] === 'undefined'){
+					objetivo.formulas[i].valores[anualidad] = [...Array(13).keys()].map(function(){ return {'formula': '', 'resultado': null}; });
+				}
+			});
+		}
+	}
+
 	function recalculateIndicador(indicador, actualizacion){
 		const acumuladorestratables = ['sum', 'mean', 'max', 'min'];
 
-		for (const anualidad in indicador.observaciones){
-			if (Array.isArray(indicador.observaciones[anualidad])){
-				indicador.observaciones[anualidad] = indicador.observaciones[anualidad].map(function(observacion){ return typeof observacion === 'string' ? observacion.trim() : ''; });
-			} else {
-				indicador.observaciones[anualidad] = ['', '', '', '', '', '', '', '', '', '', '', ''];
-			}
+		ensureIndicador(indicador);
 
+		for (const anualidad in indicador.observaciones){
 			if (Array.isArray(actualizacion.observaciones[anualidad])){
 				indicador.observaciones[anualidad] = actualizacion.observaciones[anualidad].map(function(observacion){ return typeof observacion === 'string' ? observacion.trim() : ''; });
 			}
 		}
 
 		for (const anualidad in indicador.actividad){
-			if (Array.isArray(indicador.actividad[anualidad])){
-				indicador.actividad[anualidad] = indicador.actividad[anualidad].map(function(actividad){ return typeof actividad === 'number' ? parseInt(actividad, 10) : 0; });
-			} else {
-				indicador.actividad[anualidad] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-			}
-
 			if (Array.isArray(actualizacion.actividad[anualidad])){
 				indicador.actividad[anualidad] = actualizacion.actividad[anualidad].map(function(actividad){ return typeof actividad === 'number' ? parseInt(actividad, 10) : 0; });
 			}
 		}
 
-
 		for (const anualidad in indicador.valores){
-			if (typeof indicador.valoresacumulados[anualidad] === 'undefined'){
-				indicador.valoresacumulados[anualidad] = [null, null, null, null, null, null, null, null, null, null, null, null, null];
-			}
 
 			for (let i = 0, j = indicador.valores[anualidad].length; i < j - 1; i += 1){
 				if (actualizacion.valores[anualidad][i] === null || actualizacion.valores[anualidad][i] === ''){
@@ -333,7 +370,6 @@
 		const models = req.metaenvironment.models,
 			indicadormodel = models.indicador();
 
-
 		if (typeof req.params.id === 'string' && req.params.id !== ''){
 			const id = req.params.id,
 				actualizacion = req.body;
@@ -350,30 +386,6 @@
 							indicador.tipo = actualizacion.tipo;
 							indicador.frecuencia = actualizacion.frecuencia;
 							indicador.pendiente = actualizacion.pendiente;
-
-							const anualidades = [];
-							const anualidadActual = (new Date()).getFullYear();
-							for (let anualidad = 2015; anualidad <= anualidadActual; anualidad += 1){
-								anualidades.push('a' + String(anualidad));
-							}
-
-							if (typeof indicador.valoresacumulados === 'undefined'){
-								indicador.valoresacumulados = {};
-							}
-							anualidades.forEach(function(anualidad){
-								if (typeof indicador.valoresacumulados[anualidad] === 'undefined'){
-									indicador.valoresacumulados[anualidad] = [null, null, null, null, null, null, null, null, null, null, null, null, null];  //13 elementos
-								}
-							});
-
-							if (typeof indicador.actividad === 'undefined'){
-								indicador.actividad = {};
-							}
-							anualidades.forEach(function(anualidad){
-								if (typeof indicador.actividad[anualidad] === 'undefined'){
-									indicador.actividad[anualidad] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];  //13 elementos
-								}
-							});
 
 							recalculateIndicador(indicador, actualizacion);
 							indicador.fechaversion = new Date();
@@ -468,12 +480,21 @@
 
 					if (req.user.permisoscalculados.superuser || req.user.permisoscalculados.entidadobjetolectura.indexOf(String(objetivo.carta)) > -1){
 
+						const anualidades = [];
+						const anualidadActual = (new Date()).getFullYear();
+						for (let anualidad = 2015; anualidad <= anualidadActual; anualidad += 1){
+							anualidades.push('a' + String(anualidad));
+						}
+
 						const expresion = new Expression(models);
 						const promises = [];
 						
 						if (!Array.isArray(objetivo.formulas)){
 							objetivo.formulas = [];
 						}
+
+						ensureObjetivo(objetivo);
+						
 						for (let i = 0, j = objetivo.formulas.length; i < j; i += 1){
 							if (objetivo.formulas[i].computer.trim() !== ''){
 								const defer = Q.defer();
@@ -512,7 +533,13 @@
 			query.lean().exec().then(req.eh.okHelper(res, true), req.eh.errorHelper(res));
 
 		} else if (req.user.permisoscalculados.superuser || req.user.permisoscalculados.entidadobjetolectura.indexOf(carta) > -1){
-			objetivomodel.find({'carta': models.objectId(carta)}).sort({'index': 1}).exec().then(req.eh.okHelper(res, true), req.eh.errorHelper(res));
+			objetivomodel.find({'carta': models.objectId(carta)}).sort({'index': 1}).exec().then(function(objetivos){
+				objetivos.forEach(function(objetivo){
+					ensureObjetivo(objetivo);
+				});
+
+				res.json(objetivos);
+			}, req.eh.errorHelper(res));
 		} else {
 			req.eh.unauthorizedHelper(res);
 		}
@@ -539,17 +566,7 @@
 			'acumulador': 'sum'
 		};
 
-		const anualidades = [];
-		const anualidadActual = (new Date()).getFullYear();
-		for (let anualidad = 2015; anualidad <= anualidadActual; anualidad += 1){
-			anualidades.push('a' + String(anualidad));
-		}
-		anualidades.forEach(function(anualidad){
-			indicador.valores[anualidad] = [null, null, null, null, null, null, null, null, null, null, null, null, null]; /* 13 elementos */
-			indicador.observaciones[anualidad] = ['', '', '', '', '', '', '', '', '', '', '', '', '']; /* 13 elementos */
-			indicador.valoresacumulados[anualidad] = [null, null, null, null, null, null, null, null, null, null, null, null, null]; /* 13 elementos */
-			indicador.actividad[anualidad] = [null, null, null, null, null, null, null, null, null, null, null, null, null]; /* 13 elementos */
-		});
+		ensureIndicador(indicador);
 
 		return indicadormodel.create(indicador);
 	}
@@ -642,9 +659,7 @@
 						anualidades.push('a' + String(anualidad));
 					}
 					anualidades.forEach(function(anualidad){
-						formula.valores[anualidad] = [
-							{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
-							{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}];
+						formula.valores[anualidad] = [...Array(13).keys()].map(function(){ return {'formula': '', 'resultado': null}; });
 					});
 					formulas.push(formula);
 				}
@@ -907,18 +922,9 @@
 							'valores': {}
 						};
 
-						const anualidades = [];
-						const anualidadActual = (new Date()).getFullYear();
-						for (let anualidad = 2015; anualidad <= anualidadActual; anualidad += 1){
-							anualidades.push('a' + String(anualidad));
-						}
-						anualidades.forEach(function(anualidad){
-							formula.valores[anualidad] = [
-								{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
-								{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}];
-						});
-
 						objetivo.formulas.push(formula);
+						ensureObjetivo(objetivo);
+
 						objetivo.markModified('formulas');
 						objetivo.save(req.eh.cbWithDefaultValue(res, objetivo));
 					} else {
@@ -966,18 +972,8 @@
 							'valores': {}
 						};
 
-						const anualidades = [];
-						const anualidadActual = (new Date()).getFullYear();
-						for (let anualidad = 2015; anualidad <= anualidadActual; anualidad += 1){
-							anualidades.push('a' + String(anualidad));
-						}
-						anualidades.forEach(function(anualidad){
-							formula.valores[anualidad] = [
-								{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null},
-								{'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}, {'formula': '', 'resultado': null}];
-						});
-
 						compromiso.formulas.push(formula);
+						ensureObjetivo(compromiso);
 
 						objetivomodel.create(compromiso, req.eh.cbWithDefaultValue(res, compromiso));
 					} else {
