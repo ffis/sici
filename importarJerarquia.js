@@ -6,14 +6,16 @@
 		path = require('path'),
 		assert = require('assert'),
 		csvparse = require('csv-parse'),
-		parser = csvparse({delimiter: '	', columns: true, rtrim: true}),
+		parser = csvparse({delimiter: ';', columns: true, rtrim: true}),
 		mongoose = require('mongoose'),
+		Q = require('q'),
 		config = require('./config.json'),
 		models = require('./api/models');
 
 	const registros = [];
 
-	mongoose.set('debug', true);
+	mongoose.set('debug', false);
+	mongoose.Promise = require('q').Promise;
 	mongoose.connect(config.mongodb.connectionString);
 	models.init(mongoose);
 
@@ -79,14 +81,11 @@
 
 	function volcarJSON(){
 		fs.writeFile(path.join(__dirname, 'data', 'output.json'), JSON.stringify(registros), function(){
-			logger.log(registros.length + ' registros');
 			logger.log('Fichero volcado con éxito en: ' + path.join(__dirname, 'data', 'output.json'));
 			logger.log('Pasos:');
 			logger.log("\tmongodump -h mongosvr --db sici -c jerarquia");
 			logger.log("\tmongoimport --host mongosvr --db sici --collection jerarquia --file data/output.json --jsonArray --drop");
-			logger.log("\tmongo mongosvr/sici");
-			logger.log("\t\tdb.jerarquia.update({id:1}, {$set: {ancestrodirecto : null}});");
-			logger.log("\t");
+			logger.log("\tmongo mongosvr/sici --eval 'db.jerarquia.update({id:1}, {$set: {ancestrodirecto : null}});'");
 			logger.log('En caso de crisis:');
 			logger.log("\tmongorestore --db sici -c jerarquia -h mongosvr --drop dump/sici/jerarquia.bson");
 		});
@@ -102,10 +101,15 @@
 		logger.error(err);
 	});
 	parser.on('finish', function(){
-		logger.log(registros.length + ' registros');
-		var procedimientomodel = models.procedimiento();
-		procedimientomodel.distinct('idjerarquia').then(function(idsjerarquias){
-			logger.log(idsjerarquias.length + ' jerarquias usadas en procedimientos');
+		logger.log(registros.length + ' elementos leídos en el fichero origen de datos');
+		const procedimientomodel = models.procedimiento();
+		const entidadobjetomodel = models.entidadobjeto();
+
+		Q.all([procedimientomodel.distinct('idjerarquia'), entidadobjetomodel.distinct('idjerarquia')]).then(function(arrIdsjerarquias){
+			const idsjerarquias = require('uniq')(arrIdsjerarquias.reduce(function(p, c){ return p.concat(c); }, []));
+
+			logger.log(idsjerarquias.length + ' jerarquias usadas en procedimientos y cartas');
+
 			mongoose.disconnect();
 			logger.log('Running tests');
 			try {
