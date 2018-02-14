@@ -52,7 +52,7 @@
   "resolutions": {
     "d3": "^3.4.4",
     "ng-file-upload": "~11.0.0",
-    "angular": "latest",
+    "angular": "1.6.9",
     "angular-translate": "~2.8.1",
     "nvd3": "^1.8.5",
     "angular-bootstrap": "~0.14.3"
