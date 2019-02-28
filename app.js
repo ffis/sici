@@ -12,7 +12,7 @@
 		models = require('./api/models'),
 		routes = require('./routes'),
 		config = require('./config.json');
-		
+
 	const app = module.exports = express();
 
 	function setProgressMessage(msg){
@@ -23,7 +23,7 @@
 	app.set('mongosrv', process.env.MONGOSVR || config.mongodb.connectionString );
 
 	logger.log('Estableciendo conexión a ' + app.get('mongosrv'));
-	
+
 	//Inicialización mongoose
 	mongoose.Promise = require('q').Promise;
 	mongoose.connect(app.get('mongosrv'));
@@ -57,22 +57,7 @@
 		const api = new Api(models, cfg, config);
 
 		app.use('/api', api.app);
-		app.post('/logout', function(req, res){ res.json({ok: 'ok'}); });
-
-		if (process.env.DEBUG_MEMORY && os.platform() === 'linux'){
-			setProgressMessage('Estableciendo rutas: memory');
-			const memwatch = require('memwatch-next');
-			process.nextTick(function(){
-				let previousinvoke = new memwatch.HeapDiff();
-				app.get('/memory', function(req, res){
-					if (global && global.gc){ global.gc(); }
-					const diff = previousinvoke.end();
-					previousinvoke = new memwatch.HeapDiff();
-					diff.change.details.sort(function(a, b){ return (b.size_bytes - a.size_bytes); });
-					res.json(diff);
-				});
-			});
-		}
+		app.post('/logout', function(req, res, next){ res.json({ok: 'ok'}); });
 
 		const filetipologin = path.join(__dirname, 'public', 'js', 'login.cas.js');
 		app.get('/tipologin.js', function (req, res) {
