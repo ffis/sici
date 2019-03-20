@@ -33,7 +33,7 @@
 
 		const partes = tokenizer(formula.human).map(function(a){ return a.trim(); }).filter(function(a){ return a !== ''; });
 		const frasesAReemplazar = [];
-		
+
 		for (let i = 0, j = partes.length; i < j; i += 1){
 			for (let k = 0, l = indicadores.length; k < l; k += 1){
 				if (partes[i] === indicadores[k].nombre){
@@ -126,6 +126,7 @@
 		const mandatoryAttrs = {
 			'valores': {defaultValue: null, type: 'number', ensure: 'float'},
 			'observaciones': {defaultValue: '', type: 'string', ensure: 'trim'},
+			'observacionessupervisor': {defaultValue: '', type: 'string', ensure: 'trim'},
 			'valoresacumulados': {defaultValue: null, type: 'number', ensure: 'int'},
 			'actividad': {defaultValue: null, type: 'number', ensure: 'int'}
 		};
@@ -206,7 +207,7 @@
 				ensureIndicador(indicador);
 				res.json(indicador);
 			}, req.eh.errorHelper);
-			
+
 		} else {
 			let restriccion = {};
 			if (!req.user.permisoscalculados.superuser) {
@@ -271,7 +272,7 @@
 		}
 	};
 
-	
+
 
 	function recalculateIndicador(indicador, actualizacion){
 		const acumuladorestratables = ['sum', 'mean', 'max', 'min'];
@@ -493,13 +494,13 @@
 
 						const expresion = new Expression(models);
 						const promises = [];
-						
+
 						if (!Array.isArray(objetivo.formulas)){
 							objetivo.formulas = [];
 						}
 
 						ensureObjetivo(objetivo);
-						
+
 						for (let i = 0, j = objetivo.formulas.length; i < j; i += 1){
 							if (objetivo.formulas[i].computer.trim() !== ''){
 								const defer = Q.defer();
@@ -701,14 +702,14 @@
 
 			return deferred.promise;
 		}
-		
+
 		const settCraw = {'maxConnections': 10, 'callback': cbDownloadCarta(deferred, carta._id), 'userAgent': settings.userAgent};
 		const c = new Crawler(settCraw);
 		c.queue(carta.url);
 
 		return deferred.promise;
 	}
-	
+
 	function registerAndSetIndicador(idjerarquia, txt, indicadormodel, cb){
 		const defer = Q.defer();
 		registerIndicador(idjerarquia, txt, indicadormodel, 1).then(function(indicador){
@@ -814,7 +815,7 @@
 
 		const indiceformula = parseInt(req.body.indiceformula, 10);
 		const formula = req.body.formula;
-	
+
 		objetivomodel.findOne({'_id': models.objectId(idobjetivo)}, {}).exec().then(function(objetivo){
 			if (objetivo){
 				if (req.user.permisoscalculados.superuser || req.user.permisoscalculados.entidadobjetoescritura.indexOf(String(objetivo.carta))){

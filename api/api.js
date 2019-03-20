@@ -5,6 +5,7 @@
 		path = require('path'),
 		V1 = require('./v1'),
 		V2 = require('./v2'),
+		V3 = require('./v3'),
 		Bot = require('./bot');
 
 	const Ec = require('./exportador_carta'),
@@ -40,6 +41,7 @@
 			recalculate: require('./recalculate'),
 			registro: require('./registro'),
 			reglainconsistencia: require('./reglainconsistencia'),
+			teletrabajador: require('./teletrabajador'),
 			upload: require('./upload'),
 			settings: settings,
 			cfg: cfg,
@@ -48,8 +50,9 @@
 
 		const v1 = new V1(metaenvironment),
 			v2 = new V2(metaenvironment),
+			v3 = new V3(metaenvironment),
 			bot = new Bot(metaenvironment);
-		
+
 		this.app = new express.Router();
 		this.app.use('/', function(req, res, next){
 			req.metaenvironment = metaenvironment;
@@ -82,7 +85,7 @@
 
 		this.app.use('/v1', v1.app);
 		this.app.use('/v2', v2.app);
-
+this.app.use('/v3', v3.app);
 		this.metaenvironment = metaenvironment;
 	}
 

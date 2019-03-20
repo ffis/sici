@@ -1,0 +1,26 @@
+<div class="row" style="clear:both;">
+	<div class="col-md-12">
+		<div class="panel panel-danger">
+			<div class="panel-heading">
+				<h3 class="panel-title">Crear Compromiso</h3>
+			</div>
+			<div class="panel-body">
+				<label for="id" style="width:100%">
+					<span>Denominación: </span><input class="form-control" type="text" ng-model="objetivo.denominacion" name="id" />
+				</label>
+
+				<label for="carta" style="width:100%">
+					<span>Carta de servicios: </span>
+					<input class="form-control" type="text" name="carta" ng-model="carta"
+					uib-typeahead="carta as carta.denominacion for carta in cartas | filter:{denominacion:$viewValue} | limitTo: 20"
+					typeahead-editable="false" typeahead-select-on-blur="true" />
+				</label>
+
+				<br/>
+			 <button type="button" class="btn btn-default" ng-click="guardar()">
+					<span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+			 </button>
+			</div>
+		</div>
+	</div>
+</div>

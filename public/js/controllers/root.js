@@ -28,9 +28,12 @@
 				{'id': 'recalculate', 'caption': 'Recalcular datos', 'icon': 'fa-refresh'},
 				{'id': 'permisos', 'caption': 'Gestionar permisos', 'icon': 'fa-users'},
 				{'id': 'etiqueta', 'caption': 'Gestionar etiquetas', 'icon': 'fa-tags'},
-				{'id': 'periodos', 'caption': 'Gestionar períodos', 'icon': 'fa-calendar'},
+			  {'id': 'periodos', 'caption': 'Gestionar períodos', 'icon': 'fa-calendar'},
 				{'id': 'crearprocedimiento', 'caption': 'Crear procedimiento', 'icon': 'fa-table'},
-				{'id': 'loginas', 'caption': 'Cambiar de usuario', 'icon': 'fa-user-secret'},
+				{'id': 'grupoteletrabajo', 'caption': 'Crear grupos teletrabajo', 'icon': 'fa-home'},
+				{'id': 'entidadobjeto', 'caption': 'Cartas', 'icon': 'fa-envelope'},
+			//	{'id': 'newCompromiso', 'caption': 'Crear Compromiso', 'icon': 'fa-bullseye'},
+		  	{'id': 'loginas', 'caption': 'Cambiar de usuario', 'icon': 'fa-user-secret'},
 				{'id': 'feedback', 'caption': 'Incidencias', 'icon': 'fa-bug'},
 				{'id': 'registroactividad', 'caption': 'Registro de actividad', 'icon': 'fa-hourglass-half'},
 				{'id': 'compromiso', 'caption': 'Listado de compromisos', 'icon': 'fa-gavel'}
@@ -200,7 +203,7 @@
 			};
 
 			$rootScope.grantoption = function () {
-				
+
 				if ($rootScope.permisoscalculados){
 					const def = $q.defer();
 

@@ -1020,7 +1020,21 @@
 						persona.habilitado = nuevoestado;
 						$rootScope.toaster('Usuario ' + (nuevoestado ? 'habilitado' : 'deshabilitado'));
 					}, errorHandler);
-					
+
+				};
+
+				$scope.setTeletrabajador = function(persona){
+					if (typeof persona !== 'object'){
+
+						return;
+					}
+					const nuevoestado = !persona.teletrabajador;
+
+					$http.put('/api/v3/private/teletrabajador/' + persona._id, {'teletrabajador': nuevoestado}).then(function(){
+						persona.teletrabajador = nuevoestado;
+						$rootScope.toaster('Usuario establecido como ' + (nuevoestado ? 'teletrabajador' : 'NO teletrabajador'));
+					}, errorHandler);
+
 				};
 			}
 		]

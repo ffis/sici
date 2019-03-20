@@ -133,6 +133,8 @@
 		return $resource('/api/v1/private/permisosDirectosEntidadObjetoList/:codigoentidadobjeto', {}, standardQuery);
 	}]).factory('PermisosEntidadObjetoList', ['$resource', function($resource) {
 		return $resource('/api/v1/private/permisosEntidadObjetoList/:codigoentidadobjeto', {}, standardQuery);
+	}]).factory('RecalculateJerarquia', ['$resource', function($resource) {
+		return $resource('/api/v1/restricted/fjerarquia', {}, standardQuery);
 	}]).factory('PastelColor', function(){
 		const colorsfn = d3.scale.category20();
 		const colors = [];

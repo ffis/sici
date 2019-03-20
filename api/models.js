@@ -54,6 +54,7 @@
 			'ultimologin': Date,
 			'ultimoupdate': Date,
 			'contrasenya': String,
+			'teletrabajador': Boolean,
 			'actualizaciones': [{
 				'fecha': Date,
 				'comentario': String
@@ -261,6 +262,7 @@
 			'unidad': String,
 			'valores': 'Mixed',
 			'observaciones': 'Mixed',
+			'observacionessupervisor': 'Mixed',
 			'medidas': 'Mixed',
 			'valoresacumulados': 'Mixed',
 			'actividad': 'Mixed'

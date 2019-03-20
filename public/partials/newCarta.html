@@ -1,0 +1,59 @@
+
+<div class="row">
+	<div ng-class="{'col-lg-12': !seleccionado, 'col-lg-5': !!seleccionado}" class="left animated">
+		<organismos otitle="'Organismos con procedimientos'" arbol="arbol" tipoelementos="'procedimiento/s'" attr="'numprocedimientos'" setseleccionado="setSeleccionado" seleccionado="seleccionado"></organismos>
+	</div>
+
+	<div ng-class="{'col-lg-7': !!seleccionado, 'hidden': !seleccionado}" class="right animated" id="detallesjerarquiaproc">
+		<div ng-click="oculto=!oculto">
+			<span class="glyphicon glyphicon-fullscreen pull-right"></span>
+			<h4> Crear Carta en {{seleccionado.title}}</h4>
+		</div>
+		<div class="panel panel-danger">
+			<div class="panel-heading">
+				<h3 class="panel-title">Crear Carta</h3>
+			</div>
+			<div class="panel-body">
+				<label for="id" style="width:100%">
+					<span>Expediente: </span><input class="form-control" type="text" ng-model="carta.expediente" name="id" />
+				</label>
+				<label for="nombre" style="width:100%">
+					<span>Denominación: </span><input class="form-control" type="text" ng-model="carta.denominacion" name="nombre" />
+				</label>
+				<br/>
+			 <button type="button" class="btn btn-default" ng-click="guardar()">
+					<span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+				</button>
+
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+
+
+
+<!--<div class="row">
+	<div id="superuser" ng-show="$root.permisoscalculados.grantoption || $root.permisoscalculados.superuser">
+		<div ng-class="{'col-lg-4': !oculto, 'hidden': oculto}" class="left animated">
+			<div class="input-group">
+			  <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
+				<input class="form-control" ng-model="usuariosbuscado" typeahead-on-select="on_usuariobuscado_selected($item,$model,$label)" placeholder="Buscar por plaza, login carm o nombre"  type="text" typeahead-min-length="3" uib-typeahead="showPersona(eresp) for eresp in getPersonas($viewValue)" typeahead-wait-ms="200" />
+			</div>
+			<br />
+			<organismos otitle="'Organismos'" arbol="arbol" tipoelementos="'subelementos (procedimientos y cartas de servicio)'" attr="'sumatorio'" setseleccionado="setSeleccionado" seleccionado="seleccionado" filtro="filtro" showprocedimientos="true" showcartas="true" setprocseleccionado="setProcSeleccionado" procseleccionado="procedimiento_seleccionado" setcartaseleccionada="setCartaSeleccionada" cartaseleccionada="carta_seleccionada"></organismos>
+		</div>
+
+		<div ng-class="{'col-lg-8': !oculto, 'col-lg-12': oculto}" ng-if="!show_details_permiso">
+			<h2 class="center">Añadir Grupo a {{seleccionado.title}}</h2>
+
+			 <label for="padre" style="width:100%">
+				 <span>Nombre del grupo: </span>
+				 <input  class="form-control" type="text" ng-model="padre" name="padre"  />
+			 </label>
+		 <button type="button" class="btn btn-default" ng-click="guardarGrupo()">Guardar</button>
+		</div>
+		</div>
+</div>-->

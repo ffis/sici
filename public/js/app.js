@@ -55,7 +55,9 @@
 			$routeProvider.when('/indicador/:idjerarquia', {'templateUrl': '/partials/indicador.html', 'controller': 'IndicadorCtrl'});
 			$routeProvider.when('/formula/:idobjetivo/:index', {'templateUrl': '/partials/formula.html', 'controller': 'FormulaCtrl'});
 			$routeProvider.when('/registroactividad', {'templateUrl': '/partials/registroactividad.html', 'controller': 'RegistroActividadCtrl'});
-
+	    	$routeProvider.when('/grupoteletrabajo', {'templateUrl': '/partials/grupoteletrabajo.html', 'controller': 'GrupoTeletrabajoCtrl'});
+	    	$routeProvider.when('/newCompromiso', {'templateUrl': '/partials/newCompromiso.html', 'controller': 'NewCompromisoCtrl'});
+	    	$routeProvider.when('/newCarta', {'templateUrl': '/partials/newCarta.html', 'controller': 'NewCartaCtrl'});
 			$routeProvider.otherwise({redirectTo: '/login'});
 			$locationProvider.html5Mode(true);
 		}

@@ -17,7 +17,7 @@
 	</head>
 	<body>
 		<div role="navigation" ng-controller="AppCtrl" class="navbar navbar-default navbar-fixed-top ng-cloak">
-		
+
 			<div class="navbar-header col-xs-12 col-md-1 col-lg-1 text-center">
 				<button type="button" data-toggle="collapse" data-target=".navbar-ex1-collapse" class="navbar-toggle">
 					<span class="sr-only">Desplegar menú</span>
@@ -32,7 +32,7 @@
 				</a>
 			</div>
 			<div class="collapse navbar-collapse navbar-ex1-collapse col-xs-12 col-md-11 col-lg-11" ng-if="logeado">
-			
+
 				<ul class="nav navbar-nav col-xs-12 col-md-8 col-lg-7">
 					<li ng-class="{active:$root.nav==navg.id, dropdown: navg.sub.length > 0}" ng-repeat="navg in $root.navegabilidad">
 						<!-- /* TODO: remove this crap */ -->
@@ -90,7 +90,7 @@
 						<button class="btn btn-default" ng-click="$root.condensed=!$root.condensed" title="Modificar el tamaño de la fuente">
 							<span class="glyphicon glyphicon-text-size" ng-class="{'fa-flip-horizontal': $root.condensed}" aria-hidden="true"></span>
 						</button>
-					</div>	
+					</div>
 				</div>
 			</div>
 		</div>
@@ -175,6 +175,8 @@
 		<script src="/js/controllers/etiqueta.js"></script>
 		<script src="/js/controllers/periodos.js"></script>
 		<script src="/js/controllers/newprocedimiento.js"></script>
+		<script src="/js/controllers/newCompromiso.js"></script>
+		<script src="/js/controllers/newCarta.js"></script>
 		<script src="/js/controllers/informes.js"></script>
 		<script src="/js/controllers/permisos.js"></script>
 		<script src="/js/controllers/recalculate.js"></script>
@@ -193,7 +195,7 @@
 		<script src="/js/controllers/indicador.js"></script>
 		<script src="/js/controllers/formula.js"></script>
 		<script src="/js/controllers/registroactividad.js"></script>
-
+		<script src="/js/controllers/grupoteletrabajo.js"></script>
 		<script src="/bower_components/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.js"></script>
 		<script src="/bower_components/angular-xeditable/dist/js/xeditable.js"></script>
 		<!--<script src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>-->

@@ -73,6 +73,9 @@
 		app.put('/operador/:id', metaenvironment.operador.updateOperador);
 		app.put('/procedimiento/:codigo', metaenvironment.procedimiento.updateProcedimiento);
 
+
+
+	app.post('/jerarquia/', metaenvironment.jerarquia.newJerarquia);
 		this.app = app;
 	}
 
