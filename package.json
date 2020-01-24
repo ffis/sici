@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "angular-expressions": "^0.3.0",
+    "angular-expressions": "^1.0.1",
     "body-parser": "^1.10.2",
     "cas": "0.0.3",
     "compression": "^1.4.1",
