@@ -35,7 +35,7 @@
     "socket.io": "latest",
     "stack-trace": "0.0.9",
     "strip-bom": "^1.0.0",
-    "underscore": "^1.7.0",
+    "underscore": "^1.12.1",
     "uniq": "^1.0.1",
     "v8-profiler": "^5.2.2",
     "xlsx": "^0.7.12",
