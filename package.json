@@ -38,7 +38,7 @@
     "underscore": "^1.7.0",
     "uniq": "^1.0.1",
     "v8-profiler": "^5.2.2",
-    "xlsx": "^0.7.12",
+    "xlsx": "^0.17.0",
     "zombie": "^5.0.5"
   },
   "devDependencies": {
