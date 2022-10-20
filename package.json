@@ -25,7 +25,7 @@
     "md5": "^2.2.1",
     "memwatch-next": "^0.2.10",
     "mongodb": "^2.2.25",
-    "mongoose": "^4.9.2",
+    "mongoose": "^4.13.21",
     "multer": "^0.1.7",
     "nodemailer": "^3.1.8",
     "q": "^1.0.1",
